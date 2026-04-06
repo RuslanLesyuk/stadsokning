@@ -150,7 +150,7 @@ export default async function SiteHeader() {
           </div>
 
           <div className="hidden items-center gap-3 md:flex">
-            <LanguageSwitcher />
+            <LanguageSwitcher locale={locale} />
 
             {user ? (
               <>
@@ -191,7 +191,7 @@ export default async function SiteHeader() {
           </div>
 
           <div className="flex items-center gap-2 md:hidden">
-            <LanguageSwitcher />
+            <LanguageSwitcher locale={locale} />
 
             <details className="relative">
               <summary
