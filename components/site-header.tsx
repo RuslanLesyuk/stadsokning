@@ -12,6 +12,9 @@ type HeaderCopy = {
   login: string
   signup: string
   logout: string
+  profile: string
+  openMenu: string
+  closeMenu: string
 }
 
 const copy: Record<Locale, HeaderCopy> = {
@@ -22,6 +25,9 @@ const copy: Record<Locale, HeaderCopy> = {
     login: "Увійти",
     signup: "Реєстрація",
     logout: "Вийти",
+    profile: "Профіль",
+    openMenu: "Відкрити меню",
+    closeMenu: "Закрити меню",
   },
   ru: {
     jobs: "Работы",
@@ -30,6 +36,9 @@ const copy: Record<Locale, HeaderCopy> = {
     login: "Войти",
     signup: "Регистрация",
     logout: "Выйти",
+    profile: "Профиль",
+    openMenu: "Открыть меню",
+    closeMenu: "Закрыть меню",
   },
   en: {
     jobs: "Jobs",
@@ -38,6 +47,9 @@ const copy: Record<Locale, HeaderCopy> = {
     login: "Login",
     signup: "Sign up",
     logout: "Logout",
+    profile: "Profile",
+    openMenu: "Open menu",
+    closeMenu: "Close menu",
   },
   sv: {
     jobs: "Jobb",
@@ -46,6 +58,9 @@ const copy: Record<Locale, HeaderCopy> = {
     login: "Logga in",
     signup: "Registrera dig",
     logout: "Logga ut",
+    profile: "Profil",
+    openMenu: "Öppna meny",
+    closeMenu: "Stäng meny",
   },
   pl: {
     jobs: "Prace",
@@ -54,6 +69,9 @@ const copy: Record<Locale, HeaderCopy> = {
     login: "Zaloguj się",
     signup: "Rejestracja",
     logout: "Wyloguj",
+    profile: "Profil",
+    openMenu: "Otwórz menu",
+    closeMenu: "Zamknij menu",
   },
 }
 
@@ -204,6 +222,9 @@ export default async function SiteHeader() {
               loginLabel={t.login}
               signupLabel={t.signup}
               logoutLabel={t.logout}
+              profileLabel={t.profile}
+              openMenuLabel={t.openMenu}
+              closeMenuLabel={t.closeMenu}
               profileName={profileLabel}
               profileInitials={profileInitials}
               unreadCount={unreadCount}

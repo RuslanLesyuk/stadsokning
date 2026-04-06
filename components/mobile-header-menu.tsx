@@ -10,6 +10,9 @@ type MobileHeaderMenuProps = {
   loginLabel: string
   signupLabel: string
   logoutLabel: string
+  profileLabel: string
+  openMenuLabel: string
+  closeMenuLabel: string
   profileName: string | null
   profileInitials: string
   unreadCount: number
@@ -23,6 +26,9 @@ export default function MobileHeaderMenu({
   loginLabel,
   signupLabel,
   logoutLabel,
+  profileLabel,
+  openMenuLabel,
+  closeMenuLabel,
   profileName,
   profileInitials,
   unreadCount,
@@ -68,8 +74,9 @@ export default function MobileHeaderMenu({
     <div ref={containerRef} className="relative">
       <button
         type="button"
-        aria-label="Open menu"
+        aria-label={openMenuLabel}
         aria-expanded={isOpen}
+        aria-haspopup="menu"
         onClick={() => setIsOpen((prev) => !prev)}
         className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-800 transition hover:bg-slate-50"
       >
@@ -80,12 +87,15 @@ export default function MobileHeaderMenu({
         <>
           <button
             type="button"
-            aria-label="Close menu overlay"
+            aria-label={closeMenuLabel}
             onClick={closeMenu}
             className="fixed inset-0 z-40 bg-transparent"
           />
 
-          <div className="absolute right-0 z-50 mt-2 w-[280px] rounded-3xl border border-slate-200 bg-white p-3 shadow-xl">
+          <div
+            role="menu"
+            className="absolute right-0 z-50 mt-2 w-[280px] rounded-3xl border border-slate-200 bg-white p-3 shadow-xl"
+          >
             <div className="flex flex-col gap-2">
               <Link
                 href="/jobs"
@@ -129,10 +139,15 @@ export default function MobileHeaderMenu({
                     onClick={closeMenu}
                     className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
                   >
-                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
                       {profileInitials}
                     </span>
-                    <span className="truncate">{profileName}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs text-slate-500">{profileLabel}</p>
+                      <p className="truncate text-sm text-slate-800">
+                        {profileName || profileLabel}
+                      </p>
+                    </div>
                   </Link>
 
                   <Link
