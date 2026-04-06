@@ -1,48 +1,71 @@
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { createClient } from "@/lib/supabase-server"
+import { normalizeLocale, type Locale } from "@/lib/i18n"
 import LanguageSwitcher from "@/components/language-switcher"
-import {
-  DEFAULT_LOCALE,
-  LOCALE_COOKIE_NAME,
-  type Locale,
-  getDictionary,
-  getReviewWord,
-  normalizeLocale,
-} from "@/lib/i18n"
 
-type ProfileRow = {
-  id: string
-  full_name: string | null
+type HeaderCopy = {
+  jobs: string
+  dashboard: string
+  createJob: string
+  login: string
+  signup: string
+  logout: string
 }
 
-type JobRow = {
-  id: string
+const copy: Record<Locale, HeaderCopy> = {
+  uk: {
+    jobs: "Роботи",
+    dashboard: "Кабінет",
+    createJob: "Створити роботу",
+    login: "Увійти",
+    signup: "Реєстрація",
+    logout: "Вийти",
+  },
+  ru: {
+    jobs: "Работы",
+    dashboard: "Кабинет",
+    createJob: "Создать работу",
+    login: "Войти",
+    signup: "Регистрация",
+    logout: "Выйти",
+  },
+  en: {
+    jobs: "Jobs",
+    dashboard: "Dashboard",
+    createJob: "Post job",
+    login: "Login",
+    signup: "Sign up",
+    logout: "Logout",
+  },
+  sv: {
+    jobs: "Jobb",
+    dashboard: "Dashboard",
+    createJob: "Skapa jobb",
+    login: "Logga in",
+    signup: "Registrera dig",
+    logout: "Logga ut",
+  },
+  pl: {
+    jobs: "Prace",
+    dashboard: "Panel",
+    createJob: "Dodaj zlecenie",
+    login: "Zaloguj się",
+    signup: "Rejestracja",
+    logout: "Wyloguj",
+  },
 }
 
-type MessageRow = {
-  id: string
-  job_id: string
-  sender_id: string
-  read_at: string | null
-}
-
-type ReviewRow = {
-  rating: number | null
-}
-
-function formatRating(value: number) {
-  return Number.isInteger(value) ? String(value) : value.toFixed(1)
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).slice(0, 2)
+  const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("")
+  return initials || "U"
 }
 
 export default async function SiteHeader() {
   const cookieStore = await cookies()
-
-  const locale = normalizeLocale(
-    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
-  ) as Locale
-
-  const dictionary = getDictionary(locale)
+  const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
+  const t = copy[locale] || copy.en
 
   const supabase = await createClient()
 
@@ -52,139 +75,206 @@ export default async function SiteHeader() {
 
   let fullName: string | null = null
   let unreadCount = 0
-  let reviewsCount = 0
-  let averageRating: number | null = null
 
   if (user) {
-    const { data: profileData } = await supabase
+    const { data: profile } = await supabase
       .from("profiles")
-      .select("id, full_name")
+      .select("full_name")
       .eq("id", user.id)
-      .maybeSingle()
+      .single()
 
-    const profile = (profileData as ProfileRow | null) || null
-    fullName = profile?.full_name || null
+    fullName = profile?.full_name?.trim() || user.email || null
 
-    const { data: jobsData } = await supabase
+    const { data: jobs } = await supabase
       .from("jobs")
       .select("id")
       .or(`created_by.eq.${user.id},assigned_to.eq.${user.id}`)
 
-    const jobs = (jobsData || []) as JobRow[]
-    const jobIds = jobs.map((job) => job.id)
+    const jobIds = (jobs ?? []).map((job) => job.id)
 
     if (jobIds.length > 0) {
-      const { data: unreadMessagesData } = await supabase
+      const { count } = await supabase
         .from("messages")
-        .select("id, job_id, sender_id, read_at")
+        .select("*", { count: "exact", head: true })
         .in("job_id", jobIds)
-        .is("read_at", null)
         .neq("sender_id", user.id)
+        .is("read_at", null)
 
-      const unreadMessages = (unreadMessagesData || []) as MessageRow[]
-      unreadCount = unreadMessages.length
-    }
-
-    const { data: reviewsData, error: reviewsError } = await supabase
-      .from("reviews")
-      .select("rating")
-      .eq("review_target_user_id", user.id)
-
-    if (!reviewsError) {
-      const reviews = (reviewsData || []) as ReviewRow[]
-      reviewsCount = reviews.length
-
-      if (reviews.length > 0) {
-        const ratings = reviews
-          .map((item) => item.rating)
-          .filter((value): value is number => typeof value === "number")
-
-        if (ratings.length > 0) {
-          averageRating =
-            ratings.reduce((sum, value) => sum + value, 0) / ratings.length
-        }
-      }
+      unreadCount = count ?? 0
     }
   }
 
   return (
-    <header className="border-b border-black/10 bg-white">
-      <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-5">
-        <div className="flex items-center gap-8">
-          <Link href="/" className="text-2xl font-semibold text-black">
-            Clean Jobs
-          </Link>
-
-          <nav className="flex items-center gap-6 text-sm text-black/70">
-            <Link href="/jobs" className="transition hover:text-black">
-              {dictionary.header.jobs}
+    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="flex min-h-20 items-center justify-between gap-3 py-3">
+          <div className="flex min-w-0 items-center gap-6">
+            <Link
+              href="/"
+              className="shrink-0 text-2xl font-bold leading-none tracking-tight text-slate-950"
+            >
+              Clean Jobs
             </Link>
 
-            <Link href="/dashboard" className="transition hover:text-black">
-              <span className="inline-flex items-center gap-2">
-                <span>{dictionary.header.dashboard}</span>
-
-                {unreadCount > 0 ? (
-                  <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-red-600 px-1.5 py-0.5 text-[11px] font-semibold text-white">
-                    {unreadCount}
-                  </span>
-                ) : null}
-              </span>
-            </Link>
-
-            <Link href="/jobs/create" className="transition hover:text-black">
-              {dictionary.header.createJob}
-            </Link>
-          </nav>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <LanguageSwitcher locale={locale} />
-
-          {user ? (
-            <>
+            <nav className="hidden items-center gap-6 md:flex">
               <Link
-                href="/profile"
-                className="rounded-2xl border border-black/10 px-4 py-3 transition hover:bg-black/[0.03]"
+                href="/jobs"
+                className="text-sm font-medium text-slate-700 transition hover:text-black"
               >
-                <div className="text-sm font-semibold text-black">
-                  {fullName || user.email || "Profile"}
-                </div>
-
-                {averageRating !== null ? (
-                  <div className="mt-1 text-sm text-black/50">
-                    {formatRating(averageRating)} ★ · {reviewsCount}{" "}
-                    {getReviewWord(locale, reviewsCount)}
-                  </div>
-                ) : null}
+                {t.jobs}
               </Link>
 
-              <form action="/auth/signout" method="post">
-                <button
-                  type="submit"
-                  className="rounded-2xl border border-black/10 px-6 py-4 text-sm font-medium text-black transition hover:bg-black/[0.03]"
+              {user ? (
+                <Link
+                  href="/dashboard"
+                  className="relative inline-flex items-center text-sm font-medium text-slate-700 transition hover:text-black"
                 >
-                  {dictionary.header.signOut}
-                </button>
-              </form>
-            </>
-          ) : (
-            <>
-              <Link
-                href="/login"
-                className="rounded-2xl border border-black/10 px-5 py-3 text-sm font-medium text-black transition hover:bg-black/[0.03]"
-              >
-                {dictionary.header.logIn}
-              </Link>
+                  <span>{t.dashboard}</span>
+                  {unreadCount > 0 ? (
+                    <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-black px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      {unreadCount}
+                    </span>
+                  ) : null}
+                </Link>
+              ) : null}
 
-              <Link
-                href="/signup"
-                className="rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90"
+              {user ? (
+                <Link
+                  href="/jobs/create"
+                  className="text-sm font-medium text-slate-700 transition hover:text-black"
+                >
+                  {t.createJob}
+                </Link>
+              ) : null}
+            </nav>
+          </div>
+
+          <div className="hidden items-center gap-3 md:flex">
+            <LanguageSwitcher />
+
+            {user ? (
+              <>
+                <Link
+                  href="/profile"
+                  className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
+                    {getInitials(fullName || "User")}
+                  </span>
+                  <span className="max-w-36 truncate">{fullName}</span>
+                </Link>
+
+                <Link
+                  href="/auth/signout"
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+                >
+                  {t.logout}
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+                >
+                  {t.login}
+                </Link>
+
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center rounded-2xl bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
+                >
+                  {t.signup}
+                </Link>
+              </>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2 md:hidden">
+            <LanguageSwitcher />
+
+            <details className="relative">
+              <summary
+                className="flex h-11 w-11 cursor-pointer list-none items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-800 transition hover:bg-slate-50"
+                suppressHydrationWarning
               >
-                {dictionary.header.signUp}
-              </Link>
-            </>
-          )}
+                <span className="text-xl leading-none">☰</span>
+              </summary>
+
+              <div className="absolute right-0 mt-2 w-[280px] rounded-3xl border border-slate-200 bg-white p-3 shadow-xl">
+                <div className="flex flex-col gap-2">
+                  <Link
+                    href="/jobs"
+                    className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                  >
+                    {t.jobs}
+                  </Link>
+
+                  {user ? (
+                    <Link
+                      href="/dashboard"
+                      className="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                    >
+                      <span>{t.dashboard}</span>
+                      {unreadCount > 0 ? (
+                        <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-black px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                          {unreadCount}
+                        </span>
+                      ) : null}
+                    </Link>
+                  ) : null}
+
+                  {user ? (
+                    <Link
+                      href="/jobs/create"
+                      className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                    >
+                      {t.createJob}
+                    </Link>
+                  ) : null}
+
+                  <div className="my-1 h-px bg-slate-200" />
+
+                  {user ? (
+                    <>
+                      <Link
+                        href="/profile"
+                        className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                      >
+                        <span className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
+                          {getInitials(fullName || "User")}
+                        </span>
+                        <span className="truncate">{fullName}</span>
+                      </Link>
+
+                      <Link
+                        href="/auth/signout"
+                        className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                      >
+                        {t.logout}
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                      >
+                        {t.login}
+                      </Link>
+
+                      <Link
+                        href="/signup"
+                        className="rounded-2xl bg-black px-4 py-3 text-sm font-medium text-white"
+                      >
+                        {t.signup}
+                      </Link>
+                    </>
+                  )}
+                </div>
+              </div>
+            </details>
+          </div>
         </div>
       </div>
     </header>
