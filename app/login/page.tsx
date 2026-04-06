@@ -156,8 +156,8 @@ export default async function LoginPage() {
 
   return (
     <div className="mx-auto flex min-h-[calc(100vh-96px)] w-full max-w-6xl items-center px-4 py-6 sm:px-6 sm:py-10">
-      <div className="grid w-full gap-4 md:gap-6 lg:grid-cols-2 lg:gap-8">
-        <section className="order-2 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 md:p-8 lg:order-1">
+      <div className="grid w-full gap-4 lg:grid-cols-2 lg:gap-8">
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 md:p-8">
           <div className="mx-auto w-full max-w-md">
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
               {t.title}
@@ -221,32 +221,30 @@ export default async function LoginPage() {
           </div>
         </section>
 
-        <section className="order-1 rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm sm:p-6 md:p-8 lg:order-2">
-          <div className="flex h-full flex-col justify-between">
-            <div>
-              <div className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-                {t.brand_badge}
-              </div>
-
-              <h2 className="mt-4 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl md:text-3xl">
-                {t.promo_title}
-              </h2>
-
-              <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
-                {t.promo_subtitle}
-              </p>
+        <section className="hidden rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-6 shadow-sm lg:flex lg:flex-col lg:justify-between xl:p-8">
+          <div>
+            <div className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
+              {t.brand_badge}
             </div>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:mt-8">
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-sm font-medium text-slate-900">{t.feature_jobs_title}</p>
-                <p className="mt-1 text-sm text-slate-600">{t.feature_jobs_text}</p>
-              </div>
+            <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-900 xl:text-3xl">
+              {t.promo_title}
+            </h2>
 
-              <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-sm font-medium text-slate-900">{t.feature_chat_title}</p>
-                <p className="mt-1 text-sm text-slate-600">{t.feature_chat_text}</p>
-              </div>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 xl:text-base">
+              {t.promo_subtitle}
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <p className="text-sm font-medium text-slate-900">{t.feature_jobs_title}</p>
+              <p className="mt-1 text-sm text-slate-600">{t.feature_jobs_text}</p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-4">
+              <p className="text-sm font-medium text-slate-900">{t.feature_chat_title}</p>
+              <p className="mt-1 text-sm text-slate-600">{t.feature_chat_text}</p>
             </div>
           </div>
         </section>
