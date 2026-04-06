@@ -89,7 +89,6 @@ type Copy = {
   activity_job_assigned: string
   activity_status_changed: string
   activity_review_left: string
-  details: string
 }
 
 const copy: Record<Locale, Copy> = {
@@ -133,7 +132,6 @@ const copy: Record<Locale, Copy> = {
     activity_job_assigned: "Виконавця призначено",
     activity_status_changed: "Статус змінено",
     activity_review_left: "Залишено відгук",
-    details: "Деталі",
   },
   ru: {
     back: "Назад",
@@ -175,7 +173,6 @@ const copy: Record<Locale, Copy> = {
     activity_job_assigned: "Исполнитель назначен",
     activity_status_changed: "Статус изменён",
     activity_review_left: "Оставлен отзыв",
-    details: "Детали",
   },
   en: {
     back: "Back",
@@ -217,7 +214,6 @@ const copy: Record<Locale, Copy> = {
     activity_job_assigned: "Worker assigned",
     activity_status_changed: "Status changed",
     activity_review_left: "Review left",
-    details: "Details",
   },
   sv: {
     back: "Tillbaka",
@@ -259,7 +255,6 @@ const copy: Record<Locale, Copy> = {
     activity_job_assigned: "Arbetare tilldelad",
     activity_status_changed: "Status ändrad",
     activity_review_left: "Recension lämnad",
-    details: "Detaljer",
   },
   pl: {
     back: "Wróć",
@@ -301,7 +296,6 @@ const copy: Record<Locale, Copy> = {
     activity_job_assigned: "Przypisano wykonawcę",
     activity_status_changed: "Zmieniono status",
     activity_review_left: "Dodano opinię",
-    details: "Szczegóły",
   },
 }
 
@@ -423,17 +417,19 @@ function PersonCard({
   city?: string | null
 }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="flex items-center gap-4">
-        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-900 text-base font-semibold text-white">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white md:h-14 md:w-14 md:text-base">
           {getInitials(name)}
         </div>
 
         <div className="min-w-0">
-          <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+          <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 md:text-xs">
             {label}
           </div>
-          <div className="truncate text-lg font-semibold text-slate-900">{name}</div>
+          <div className="truncate text-base font-semibold text-slate-900 md:text-lg">
+            {name}
+          </div>
           {city ? <div className="text-sm text-slate-500">{city}</div> : null}
         </div>
       </div>
@@ -450,10 +446,12 @@ function InfoCard({
 }) {
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-      <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+      <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 md:text-xs">
         {label}
       </div>
-      <div className="mt-2 text-sm font-medium text-slate-900">{value}</div>
+      <div className="mt-2 break-words text-sm font-medium text-slate-900">
+        {value}
+      </div>
     </div>
   )
 }
@@ -631,18 +629,18 @@ export default async function JobDetailsPage({
   const isOwner = job.created_by === user.id
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
-      <div className="mb-6">
+    <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
+      <div className="mb-5 md:mb-6">
         <Link
           href="/jobs"
-          className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
         >
           {t.back}
         </Link>
       </div>
 
-      <section className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-6 shadow-sm md:p-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <section className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm md:p-8">
+        <div className="flex flex-col gap-6">
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span
@@ -664,11 +662,11 @@ export default async function JobDetailsPage({
               ) : null}
             </div>
 
-            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
+            <h1 className="mt-4 break-words text-2xl font-semibold tracking-tight text-slate-900 md:text-4xl">
               {job.title}
             </h1>
 
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-500">
+            <div className="mt-3 flex flex-col gap-1 text-sm text-slate-500 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-2">
               <span>
                 {t.city}: {job.city || t.city_missing}
               </span>
@@ -681,7 +679,7 @@ export default async function JobDetailsPage({
             </div>
           </div>
 
-          <div className="flex w-full flex-col gap-2 sm:flex-row lg:w-auto lg:flex-col">
+          <div className="grid gap-3 sm:grid-cols-2 lg:flex lg:w-auto lg:flex-wrap">
             {canOpenChat ? (
               <Link
                 href={`/jobs/${job.id}/chat`}
@@ -705,12 +703,12 @@ export default async function JobDetailsPage({
         </div>
       </section>
 
-      <section className="mt-8 grid gap-4 lg:grid-cols-2">
+      <section className="mt-6 grid gap-4 lg:grid-cols-2 md:mt-8">
         <PersonCard label={t.author} name={authorName} city={author?.city} />
         {worker ? <PersonCard label={t.worker} name={workerName} city={worker.city} /> : null}
       </section>
 
-      <section className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+      <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 md:mt-8">
         <InfoCard label={t.status} value={getStatusLabel(job.status, t)} />
         <InfoCard label={t.city} value={job.city || t.city_missing} />
         <InfoCard label={t.address} value={job.address || t.address_missing} />
@@ -723,25 +721,25 @@ export default async function JobDetailsPage({
         />
       </section>
 
-      <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+      <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:mt-8 md:p-6">
+        <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
           {t.description}
         </h2>
 
-        <div className="mt-4 text-sm leading-7 text-slate-700">
+        <div className="mt-4 break-words text-sm leading-7 text-slate-700">
           {job.description?.trim() ? job.description : t.no_description}
         </div>
       </section>
 
-      <section className="mt-8 grid gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+      <section className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr] md:mt-8 md:gap-8">
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+          <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
             {t.reviews}
           </h2>
 
           <div className="mt-5 space-y-4">
             {reviews.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500">
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500 md:p-6">
                 {t.no_reviews}
               </div>
             ) : (
@@ -755,11 +753,11 @@ export default async function JobDetailsPage({
                 return (
                   <article
                     key={review.id}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-5"
+                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4 md:p-5"
                   >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="flex flex-col gap-3">
                       <div>
-                        <div className="text-sm font-semibold text-slate-900">
+                        <div className="break-words text-sm font-semibold text-slate-900">
                           {reviewerName} → {targetName}
                         </div>
                         <div className="mt-1 text-xs text-slate-500">
@@ -767,13 +765,13 @@ export default async function JobDetailsPage({
                         </div>
                       </div>
 
-                      <div className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
+                      <div className="inline-flex w-fit items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
                         {t.rating}: {review.rating}/5
                       </div>
                     </div>
 
                     {review.comment?.trim() ? (
-                      <p className="mt-4 text-sm leading-6 text-slate-700">
+                      <p className="mt-4 break-words text-sm leading-6 text-slate-700">
                         {review.comment}
                       </p>
                     ) : null}
@@ -784,14 +782,14 @@ export default async function JobDetailsPage({
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+        <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+          <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
             {t.activity}
           </h2>
 
           <div className="mt-5 space-y-4">
             {activity.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500">
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500 md:p-6">
                 {t.no_activity}
               </div>
             ) : (
@@ -811,11 +809,11 @@ export default async function JobDetailsPage({
                     </span>
 
                     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <div className="text-sm font-semibold text-slate-900">
+                      <div className="break-words text-sm font-semibold text-slate-900">
                         {getActivityLabel(item.type, t)}
                       </div>
 
-                      <div className="mt-1 text-xs text-slate-500">
+                      <div className="mt-1 break-words text-xs text-slate-500">
                         {actorName ? `${actorName} • ` : ""}
                         {formatDateTime(item.created_at, locale)}
                       </div>

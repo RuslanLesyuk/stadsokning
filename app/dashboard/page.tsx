@@ -338,9 +338,9 @@ function StatCard({
   value: number
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <div className="text-sm text-slate-500">{label}</div>
-      <div className="mt-2 text-3xl font-semibold tracking-tight text-slate-900">
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+      <div className="text-xs text-slate-500 md:text-sm">{label}</div>
+      <div className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl">
         {value}
       </div>
     </div>
@@ -356,12 +356,12 @@ function PersonBadge({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-2xl bg-slate-50 px-3 py-2">
-      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
         {getInitials(name)}
       </div>
 
       <div className="min-w-0">
-        <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
           {label}
         </div>
         <div className="truncate text-sm font-medium text-slate-800">{name}</div>
@@ -380,8 +380,8 @@ function EmptyState({
   ctaHref: string
 }) {
   return (
-    <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-      <p className="mx-auto max-w-xl text-slate-500">{text}</p>
+    <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm md:p-10">
+      <p className="mx-auto max-w-xl text-sm text-slate-500 md:text-base">{text}</p>
 
       <div className="mt-6">
         <Link
@@ -415,10 +415,10 @@ function JobCard({
   workerName: string | null
 }) {
   return (
-    <article className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+    <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md md:p-6">
       <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0 flex-1">
+        <div className="flex flex-col gap-4">
+          <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
@@ -445,11 +445,11 @@ function JobCard({
               ) : null}
             </div>
 
-            <h2 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">
+            <h2 className="mt-4 text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
               {job.title}
             </h2>
 
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-500">
+            <div className="mt-2 flex flex-col gap-1 text-sm text-slate-500 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1">
               <span>{job.city || t.no_city}</span>
               <span>{formatBudget(job.budget, t)}</span>
               <span>
@@ -464,10 +464,10 @@ function JobCard({
             ) : null}
           </div>
 
-          <div className="flex shrink-0 flex-col gap-2 lg:w-40">
+          <div className="grid gap-2 sm:grid-cols-3 lg:w-auto">
             <Link
               href={`/jobs/${job.id}`}
-              className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+              className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-medium text-white hover:opacity-90"
             >
               {t.open_job}
             </Link>
@@ -475,7 +475,7 @@ function JobCard({
             {isOwner ? (
               <Link
                 href={`/jobs/${job.id}/edit`}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 {t.edit_job}
               </Link>
@@ -484,7 +484,7 @@ function JobCard({
             {job.assigned_to ? (
               <Link
                 href={`/jobs/${job.id}/chat`}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
               >
                 {t.open_chat}
               </Link>
@@ -618,9 +618,9 @@ export default async function DashboardPage() {
   const doneTotal = jobs.filter((job) => job.status === "done").length
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
-      <section className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-6 shadow-sm md:p-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
+    <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
+      <section className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm md:p-8">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 md:text-4xl">
           {t.title}
         </h1>
 
@@ -628,7 +628,7 @@ export default async function DashboardPage() {
           {t.subtitle}
         </p>
 
-        <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4 md:mt-8 md:gap-4">
           <StatCard label={t.stats_posted} value={postedJobs.length} />
           <StatCard label={t.stats_taken} value={takenJobs.length} />
           <StatCard label={t.stats_unread} value={unreadTotal} />
@@ -636,15 +636,15 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="mt-10">
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+      <section className="mt-8 md:mt-10">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
             {t.posted_jobs}
           </h2>
 
           <Link
             href="/jobs/create"
-            className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-2.5 text-sm font-medium text-white hover:opacity-90"
+            className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-medium text-white hover:opacity-90"
           >
             {t.empty_posted_cta}
           </Link>
@@ -679,15 +679,15 @@ export default async function DashboardPage() {
         </div>
       </section>
 
-      <section className="mt-12">
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-semibold tracking-tight text-slate-900">
+      <section className="mt-10 md:mt-12">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
             {t.taken_jobs}
           </h2>
 
           <Link
             href="/jobs"
-            className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
           >
             {t.empty_taken_cta}
           </Link>
