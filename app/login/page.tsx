@@ -74,26 +74,6 @@ const copy: Record<Locale, Copy> = {
   },
 }
 
-async function loginAction(formData: FormData) {
-  "use server"
-
-  const supabase = await createClient()
-
-  const email = String(formData.get("email") ?? "").trim()
-  const password = String(formData.get("password") ?? "").trim()
-
-  const { error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
-
-  if (error) {
-    redirect("/login")
-  }
-
-  redirect("/dashboard")
-}
-
 export default async function LoginPage() {
   const cookieStore = await cookies()
   const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
@@ -105,6 +85,30 @@ export default async function LoginPage() {
   } = await supabase.auth.getUser()
 
   if (user) {
+    redirect("/dashboard")
+  }
+
+  async function loginAction(formData: FormData) {
+    "use server"
+
+    const supabase = await createClient()
+
+    const email = String(formData.get("email") ?? "").trim()
+    const password = String(formData.get("password") ?? "").trim()
+
+    if (!email || !password) {
+      redirect("/login")
+    }
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+
+    if (error) {
+      redirect("/login")
+    }
+
     redirect("/dashboard")
   }
 
