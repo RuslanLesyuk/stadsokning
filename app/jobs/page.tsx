@@ -48,6 +48,8 @@ type JobsCopy = {
   results: string
   open_job: string
   no_jobs: string
+  no_jobs_description: string
+  no_jobs_secondary_cta: string
   no_city: string
   no_budget: string
   created: string
@@ -55,6 +57,7 @@ type JobsCopy = {
   status: string
   job_type: string
   property_type: string
+  city: string
   post_job: string
   browse_hint: string
 }
@@ -88,7 +91,10 @@ const copy: Record<Locale, JobsCopy> = {
     clear: "Очистити",
     results: "Результати",
     open_job: "Відкрити",
-    no_jobs: "Наразі немає замовлень за цими фільтрами.",
+    no_jobs: "Нічого не знайдено",
+    no_jobs_description:
+      "Зараз немає замовлень за цими фільтрами. Спробуйте змінити пошук або створіть нове оголошення.",
+    no_jobs_secondary_cta: "Скинути фільтри",
     no_city: "Місто не вказано",
     no_budget: "Бюджет не вказано",
     created: "Створено",
@@ -96,6 +102,7 @@ const copy: Record<Locale, JobsCopy> = {
     status: "Статус",
     job_type: "Тип роботи",
     property_type: "Тип об'єкта",
+    city: "Місто",
     post_job: "Створити роботу",
     browse_hint: "Переглядайте замовлення, фільтруйте та відкривайте деталі.",
   },
@@ -127,7 +134,10 @@ const copy: Record<Locale, JobsCopy> = {
     clear: "Очистить",
     results: "Результаты",
     open_job: "Открыть",
-    no_jobs: "Сейчас нет заказов по этим фильтрам.",
+    no_jobs: "Ничего не найдено",
+    no_jobs_description:
+      "Сейчас нет заказов по этим фильтрам. Попробуйте изменить поиск или создайте новое объявление.",
+    no_jobs_secondary_cta: "Сбросить фильтры",
     no_city: "Город не указан",
     no_budget: "Бюджет не указан",
     created: "Создано",
@@ -135,6 +145,7 @@ const copy: Record<Locale, JobsCopy> = {
     status: "Статус",
     job_type: "Тип работы",
     property_type: "Тип объекта",
+    city: "Город",
     post_job: "Создать работу",
     browse_hint: "Просматривайте заказы, фильтруйте и открывайте детали.",
   },
@@ -166,7 +177,10 @@ const copy: Record<Locale, JobsCopy> = {
     clear: "Clear",
     results: "Results",
     open_job: "Open",
-    no_jobs: "There are no jobs for these filters right now.",
+    no_jobs: "No jobs found",
+    no_jobs_description:
+      "There are no jobs matching these filters right now. Try adjusting your search or create a new job.",
+    no_jobs_secondary_cta: "Reset filters",
     no_city: "City not specified",
     no_budget: "Budget not specified",
     created: "Created",
@@ -174,6 +188,7 @@ const copy: Record<Locale, JobsCopy> = {
     status: "Status",
     job_type: "Job type",
     property_type: "Property type",
+    city: "City",
     post_job: "Post job",
     browse_hint: "Browse jobs, filter them, and open details.",
   },
@@ -205,7 +220,10 @@ const copy: Record<Locale, JobsCopy> = {
     clear: "Rensa",
     results: "Resultat",
     open_job: "Öppna",
-    no_jobs: "Det finns inga jobb för de här filtren just nu.",
+    no_jobs: "Inga jobb hittades",
+    no_jobs_description:
+      "Det finns inga jobb som matchar dessa filter just nu. Prova att ändra din sökning eller skapa ett nytt jobb.",
+    no_jobs_secondary_cta: "Återställ filter",
     no_city: "Ingen stad angiven",
     no_budget: "Ingen budget angiven",
     created: "Skapad",
@@ -213,6 +231,7 @@ const copy: Record<Locale, JobsCopy> = {
     status: "Status",
     job_type: "Jobbtyp",
     property_type: "Typ av objekt",
+    city: "Stad",
     post_job: "Skapa jobb",
     browse_hint: "Bläddra bland jobb, filtrera och öppna detaljer.",
   },
@@ -244,7 +263,10 @@ const copy: Record<Locale, JobsCopy> = {
     clear: "Wyczyść",
     results: "Wyniki",
     open_job: "Otwórz",
-    no_jobs: "Brak zleceń dla tych filtrów.",
+    no_jobs: "Nie znaleziono zleceń",
+    no_jobs_description:
+      "Obecnie nie ma zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub dodaj nowe zlecenie.",
+    no_jobs_secondary_cta: "Resetuj filtry",
     no_city: "Nie podano miasta",
     no_budget: "Nie podano budżetu",
     created: "Utworzono",
@@ -252,6 +274,7 @@ const copy: Record<Locale, JobsCopy> = {
     status: "Status",
     job_type: "Typ pracy",
     property_type: "Typ obiektu",
+    city: "Miasto",
     post_job: "Dodaj zlecenie",
     browse_hint: "Przeglądaj zlecenia, filtruj i otwieraj szczegóły.",
   },
@@ -352,6 +375,58 @@ function buildClearHref() {
   return "/jobs"
 }
 
+function JobsEmptyState({
+  title,
+  description,
+  primaryLabel,
+  primaryHref,
+  secondaryLabel,
+  secondaryHref,
+}: {
+  title: string
+  description: string
+  primaryLabel: string
+  primaryHref: string
+  secondaryLabel: string
+  secondaryHref: string
+}) {
+  return (
+    <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm md:p-10">
+      <div className="mx-auto flex max-w-2xl flex-col items-center">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl">
+          🔎
+        </div>
+
+        <h3 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
+          {title}
+        </h3>
+
+        <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500 md:text-base">
+          {description}
+        </p>
+
+        <div className="mt-6 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <Link
+            href={primaryHref}
+            prefetch={false}
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+          >
+            {primaryLabel}
+          </Link>
+
+          <Link
+            href={secondaryHref}
+            prefetch={false}
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+          >
+            {secondaryLabel}
+          </Link>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default async function JobsPage({
   searchParams,
 }: {
@@ -434,7 +509,8 @@ export default async function JobsPage({
 
           <Link
             href="/jobs/create"
-            className="inline-flex items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white hover:opacity-90"
+            prefetch={false}
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
           >
             {t.post_job}
           </Link>
@@ -449,7 +525,7 @@ export default async function JobsPage({
               name="q"
               defaultValue={q}
               placeholder={t.search_placeholder}
-              className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+              className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
             />
 
             <input
@@ -457,13 +533,13 @@ export default async function JobsPage({
               name="city"
               defaultValue={city}
               placeholder={t.city_placeholder}
-              className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+              className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
             />
 
             <select
               name="status"
               defaultValue={status}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
             >
               <option value="">{t.all_statuses}</option>
               <option value="new">{t.status_new}</option>
@@ -476,7 +552,7 @@ export default async function JobsPage({
             <select
               name="jobType"
               defaultValue={jobType}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
             >
               <option value="">{t.all_job_types}</option>
               <option value="home_cleaning">{t.job_type_home_cleaning}</option>
@@ -486,7 +562,7 @@ export default async function JobsPage({
             <select
               name="propertyType"
               defaultValue={propertyType}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
             >
               <option value="">{t.all_property_types}</option>
               <option value="apartment">{t.property_type_apartment}</option>
@@ -498,7 +574,7 @@ export default async function JobsPage({
             <select
               name="sort"
               defaultValue={sort}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900"
+              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
             >
               <option value="newest">{t.newest}</option>
               <option value="oldest">{t.oldest}</option>
@@ -510,14 +586,15 @@ export default async function JobsPage({
           <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <button
               type="submit"
-              className="inline-flex items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white hover:opacity-90"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
             >
               {t.apply}
             </button>
 
             <Link
               href={buildClearHref()}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
+              prefetch={false}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
             >
               {t.clear}
             </Link>
@@ -536,9 +613,14 @@ export default async function JobsPage({
         </div>
 
         {jobs.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center shadow-sm">
-            <p className="mx-auto max-w-xl text-slate-500">{t.no_jobs}</p>
-          </div>
+          <JobsEmptyState
+            title={t.no_jobs}
+            description={t.no_jobs_description}
+            primaryLabel={t.post_job}
+            primaryHref="/jobs/create"
+            secondaryLabel={t.no_jobs_secondary_cta}
+            secondaryHref={buildClearHref()}
+          />
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {jobs.map((job) => (
@@ -588,7 +670,7 @@ export default async function JobsPage({
                   </div>
 
                   <div className="flex items-start justify-between gap-4">
-                    <span className="text-slate-500">City</span>
+                    <span className="text-slate-500">{t.city}</span>
                     <span className="text-right font-medium text-slate-900">
                       {job.city || t.no_city}
                     </span>
@@ -611,7 +693,8 @@ export default async function JobsPage({
                 <div className="mt-5 pt-2">
                   <Link
                     href={`/jobs/${job.id}`}
-                    className="inline-flex w-full items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white hover:opacity-90"
+                    prefetch={false}
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
                   >
                     {t.open_job}
                   </Link>

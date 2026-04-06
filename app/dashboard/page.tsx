@@ -43,8 +43,12 @@ type DashboardCopy = {
   taken_jobs: string
   empty_posted: string
   empty_taken: string
+  empty_posted_description: string
+  empty_taken_description: string
   empty_posted_cta: string
   empty_taken_cta: string
+  empty_posted_secondary_cta: string
+  empty_taken_secondary_cta: string
   open_job: string
   edit_job: string
   open_chat: string
@@ -76,10 +80,16 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_done: "Завершено",
     posted_jobs: "Мої створені замовлення",
     taken_jobs: "Замовлення, які я виконую",
-    empty_posted: "У вас ще немає створених замовлень.",
-    empty_taken: "У вас ще немає взятих у роботу замовлень.",
+    empty_posted: "У вас ще немає створених замовлень",
+    empty_taken: "У вас ще немає взятих у роботу замовлень",
+    empty_posted_description:
+      "Створіть перше оголошення, щоб швидко знайти виконавця та почати отримувати відгуки.",
+    empty_taken_description:
+      "Перейдіть до списку доступних замовлень і виберіть роботу, яка вам підходить.",
     empty_posted_cta: "Створити замовлення",
     empty_taken_cta: "Перейти до замовлень",
+    empty_posted_secondary_cta: "Переглянути всі замовлення",
+    empty_taken_secondary_cta: "Створити своє замовлення",
     open_job: "Відкрити",
     edit_job: "Редагувати",
     open_chat: "Чат",
@@ -109,10 +119,16 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_done: "Завершено",
     posted_jobs: "Мои созданные заказы",
     taken_jobs: "Заказы, которые я выполняю",
-    empty_posted: "У вас пока нет созданных заказов.",
-    empty_taken: "У вас пока нет взятых в работу заказов.",
+    empty_posted: "У вас пока нет созданных заказов",
+    empty_taken: "У вас пока нет взятых в работу заказов",
+    empty_posted_description:
+      "Создайте первое задание, чтобы быстрее найти исполнителя и начать получать отзывы.",
+    empty_taken_description:
+      "Перейдите к списку доступных заказов и выберите работу, которая вам подходит.",
     empty_posted_cta: "Создать заказ",
     empty_taken_cta: "Перейти к заказам",
+    empty_posted_secondary_cta: "Посмотреть все заказы",
+    empty_taken_secondary_cta: "Создать свой заказ",
     open_job: "Открыть",
     edit_job: "Редактировать",
     open_chat: "Чат",
@@ -142,10 +158,16 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_done: "Completed",
     posted_jobs: "Jobs I posted",
     taken_jobs: "Jobs I am working on",
-    empty_posted: "You have not posted any jobs yet.",
-    empty_taken: "You have not taken any jobs yet.",
+    empty_posted: "You haven’t posted any jobs yet",
+    empty_taken: "You haven’t taken any jobs yet",
+    empty_posted_description:
+      "Create your first job to find a worker faster and start collecting reviews.",
+    empty_taken_description:
+      "Browse available jobs and pick a task that matches your schedule.",
     empty_posted_cta: "Post a job",
     empty_taken_cta: "Browse jobs",
+    empty_posted_secondary_cta: "See all jobs",
+    empty_taken_secondary_cta: "Post your own job",
     open_job: "Open",
     edit_job: "Edit",
     open_chat: "Chat",
@@ -175,10 +197,16 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_done: "Slutförda",
     posted_jobs: "Jobb jag har lagt upp",
     taken_jobs: "Jobb jag arbetar med",
-    empty_posted: "Du har inte lagt upp några jobb ännu.",
-    empty_taken: "Du har inte tagit några jobb ännu.",
+    empty_posted: "Du har inte lagt upp några jobb ännu",
+    empty_taken: "Du har inte tagit några jobb ännu",
+    empty_posted_description:
+      "Skapa ditt första jobb för att snabbare hitta en arbetare och börja få recensioner.",
+    empty_taken_description:
+      "Bläddra bland tillgängliga jobb och välj ett uppdrag som passar dig.",
     empty_posted_cta: "Lägg upp jobb",
     empty_taken_cta: "Visa jobb",
+    empty_posted_secondary_cta: "Se alla jobb",
+    empty_taken_secondary_cta: "Skapa eget jobb",
     open_job: "Öppna",
     edit_job: "Redigera",
     open_chat: "Chatt",
@@ -208,10 +236,16 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_done: "Zakończone",
     posted_jobs: "Zlecenia, które dodałem",
     taken_jobs: "Zlecenia, które wykonuję",
-    empty_posted: "Nie masz jeszcze dodanych zleceń.",
-    empty_taken: "Nie masz jeszcze przyjętych zleceń.",
+    empty_posted: "Nie masz jeszcze dodanych zleceń",
+    empty_taken: "Nie masz jeszcze przyjętych zleceń",
+    empty_posted_description:
+      "Dodaj pierwsze zlecenie, aby szybciej znaleźć wykonawcę i zacząć zbierać opinie.",
+    empty_taken_description:
+      "Przejrzyj dostępne zlecenia i wybierz pracę, która Ci odpowiada.",
     empty_posted_cta: "Dodaj zlecenie",
     empty_taken_cta: "Przeglądaj zlecenia",
+    empty_posted_secondary_cta: "Zobacz wszystkie zlecenia",
+    empty_taken_secondary_cta: "Dodaj własne zlecenie",
     open_job: "Otwórz",
     edit_job: "Edytuj",
     open_chat: "Czat",
@@ -370,26 +404,55 @@ function PersonBadge({
   )
 }
 
-function EmptyState({
-  text,
-  ctaLabel,
-  ctaHref,
+function DashboardEmptyState({
+  title,
+  description,
+  primaryLabel,
+  primaryHref,
+  secondaryLabel,
+  secondaryHref,
 }: {
-  text: string
-  ctaLabel: string
-  ctaHref: string
+  title: string
+  description: string
+  primaryLabel: string
+  primaryHref: string
+  secondaryLabel?: string
+  secondaryHref?: string
 }) {
   return (
     <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm md:p-10">
-      <p className="mx-auto max-w-xl text-sm text-slate-500 md:text-base">{text}</p>
+      <div className="mx-auto flex max-w-2xl flex-col items-center">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl">
+          ✨
+        </div>
 
-      <div className="mt-6">
-        <Link
-          href={ctaHref}
-          className="inline-flex items-center justify-center rounded-xl bg-black px-5 py-3 text-sm font-medium text-white hover:opacity-90"
-        >
-          {ctaLabel}
-        </Link>
+        <h3 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
+          {title}
+        </h3>
+
+        <p className="mt-3 max-w-xl text-sm leading-6 text-slate-500 md:text-base">
+          {description}
+        </p>
+
+        <div className="mt-6 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <Link
+            href={primaryHref}
+            prefetch={false}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+          >
+            {primaryLabel}
+          </Link>
+
+          {secondaryLabel && secondaryHref ? (
+            <Link
+              href={secondaryHref}
+              prefetch={false}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+            >
+              {secondaryLabel}
+            </Link>
+          ) : null}
+        </div>
       </div>
     </div>
   )
@@ -467,7 +530,8 @@ function JobCard({
           <div className="grid gap-2 sm:grid-cols-3 lg:w-auto">
             <Link
               href={`/jobs/${job.id}`}
-              className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-medium text-white hover:opacity-90"
+              prefetch={false}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
             >
               {t.open_job}
             </Link>
@@ -475,7 +539,8 @@ function JobCard({
             {isOwner ? (
               <Link
                 href={`/jobs/${job.id}/edit`}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                prefetch={false}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
               >
                 {t.edit_job}
               </Link>
@@ -484,7 +549,8 @@ function JobCard({
             {job.assigned_to ? (
               <Link
                 href={`/jobs/${job.id}/chat`}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                prefetch={false}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
               >
                 {t.open_chat}
               </Link>
@@ -644,7 +710,8 @@ export default async function DashboardPage() {
 
           <Link
             href="/jobs/create"
-            className="inline-flex items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-medium text-white hover:opacity-90"
+            prefetch={false}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
           >
             {t.empty_posted_cta}
           </Link>
@@ -652,10 +719,13 @@ export default async function DashboardPage() {
 
         <div className="space-y-4">
           {postedJobs.length === 0 ? (
-            <EmptyState
-              text={t.empty_posted}
-              ctaLabel={t.empty_posted_cta}
-              ctaHref="/jobs/create"
+            <DashboardEmptyState
+              title={t.empty_posted}
+              description={t.empty_posted_description}
+              primaryLabel={t.empty_posted_cta}
+              primaryHref="/jobs/create"
+              secondaryLabel={t.empty_posted_secondary_cta}
+              secondaryHref="/jobs"
             />
           ) : (
             postedJobs.map((job) => (
@@ -687,7 +757,8 @@ export default async function DashboardPage() {
 
           <Link
             href="/jobs"
-            className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            prefetch={false}
+            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
           >
             {t.empty_taken_cta}
           </Link>
@@ -695,10 +766,13 @@ export default async function DashboardPage() {
 
         <div className="space-y-4">
           {takenJobs.length === 0 ? (
-            <EmptyState
-              text={t.empty_taken}
-              ctaLabel={t.empty_taken_cta}
-              ctaHref="/jobs"
+            <DashboardEmptyState
+              title={t.empty_taken}
+              description={t.empty_taken_description}
+              primaryLabel={t.empty_taken_cta}
+              primaryHref="/jobs"
+              secondaryLabel={t.empty_taken_secondary_cta}
+              secondaryHref="/jobs/create"
             />
           ) : (
             takenJobs.map((job) => (

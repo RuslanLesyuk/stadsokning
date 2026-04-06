@@ -50,6 +50,32 @@ function formatDateTime(value: string) {
   }).format(new Date(value))
 }
 
+function ChatEmptyState({
+  title,
+  description,
+}: {
+  title: string
+  description: string
+}) {
+  return (
+    <div className="rounded-2xl border border-dashed border-black/10 bg-black/[0.02] px-6 py-12 text-center">
+      <div className="mx-auto flex max-w-xl flex-col items-center">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-white text-2xl shadow-sm">
+          💬
+        </div>
+
+        <h3 className="text-lg font-semibold tracking-tight text-black md:text-xl">
+          {title}
+        </h3>
+
+        <p className="mt-2 text-sm leading-6 text-black/55 md:text-base">
+          {description}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 export default async function JobChatPage({ params }: PageProps) {
   const { id } = await params
 
@@ -131,19 +157,20 @@ export default async function JobChatPage({ params }: PageProps) {
     : null
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-6">
+    <div className="mx-auto max-w-4xl px-4 py-6 md:py-8">
       <ChatLiveRefresh interval={30000} />
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <Link
             href={`/jobs/${id}`}
-            className="text-sm text-black/60 transition hover:text-black"
+            prefetch={false}
+            className="text-sm text-black/60 transition hover:text-black focus:outline-none focus:ring-2 focus:ring-black/20 focus:ring-offset-2 rounded-md"
           >
             {dictionary.chat.backToJob}
           </Link>
 
-          <h1 className="mt-2 text-2xl font-semibold text-black">
+          <h1 className="mt-2 text-2xl font-semibold tracking-tight text-black md:text-3xl">
             {dictionary.chat.title}
           </h1>
 
@@ -183,7 +210,7 @@ export default async function JobChatPage({ params }: PageProps) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+      <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm md:p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold text-black">
             {dictionary.chat.messages}
@@ -195,9 +222,20 @@ export default async function JobChatPage({ params }: PageProps) {
         </div>
 
         {messages.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-black/10 bg-black/[0.02] px-4 py-10 text-center text-sm text-black/50">
-            {dictionary.chat.noMessages}
-          </div>
+          <ChatEmptyState
+            title={dictionary.chat.noMessages}
+            description={
+              locale === "uk"
+                ? "Почніть розмову, щоб узгодити деталі роботи."
+                : locale === "ru"
+                  ? "Начните разговор, чтобы обсудить детали работы."
+                  : locale === "sv"
+                    ? "Starta konversationen för att diskutera detaljerna kring jobbet."
+                    : locale === "pl"
+                      ? "Rozpocznij rozmowę, aby ustalić szczegóły zlecenia."
+                      : "Start the conversation to discuss the job details."
+            }
+          />
         ) : (
           <div className="space-y-3">
             {messages.map((message) => {
@@ -212,7 +250,7 @@ export default async function JobChatPage({ params }: PageProps) {
                   className={`flex ${isMine ? "justify-end" : "justify-start"}`}
                 >
                   <div
-                    className={`max-w-[80%] rounded-2xl px-4 py-3 shadow-sm ${
+                    className={`max-w-[85%] rounded-2xl px-4 py-3 shadow-sm sm:max-w-[80%] ${
                       isMine
                         ? "bg-black text-white"
                         : "border border-black/10 bg-white text-black"
@@ -226,7 +264,7 @@ export default async function JobChatPage({ params }: PageProps) {
                       {senderName}
                     </div>
 
-                    <div className="whitespace-pre-wrap break-words text-sm">
+                    <div className="whitespace-pre-wrap break-words text-sm leading-6">
                       {message.body || ""}
                     </div>
 
