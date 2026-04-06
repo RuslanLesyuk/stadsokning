@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
+import { createServerClient } from "@supabase/ssr"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
@@ -6,7 +7,7 @@ import {
   normalizeLocale,
 } from "@/lib/i18n"
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
   const currentPath = `${request.nextUrl.pathname}${request.nextUrl.search}`
 
@@ -17,11 +18,40 @@ export function middleware(request: NextRequest) {
     ? normalizeLocale(existingLocaleCookie)
     : getPreferredLocale(request.headers.get("accept-language")) || DEFAULT_LOCALE
 
-  const response = NextResponse.next({
+  let response = NextResponse.next({
     request: {
       headers: requestHeaders,
     },
   })
+
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          for (const cookie of cookiesToSet) {
+            request.cookies.set(cookie.name, cookie.value)
+          }
+
+          response = NextResponse.next({
+            request: {
+              headers: requestHeaders,
+            },
+          })
+
+          for (const cookie of cookiesToSet) {
+            response.cookies.set(cookie.name, cookie.value, cookie.options)
+          }
+        },
+      },
+    }
+  )
+
+  await supabase.auth.getUser()
 
   if (!existingLocaleCookie) {
     response.cookies.set(LOCALE_COOKIE_NAME, locale, {
@@ -36,6 +66,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|manifest.webmanifest|site.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)",
   ],
 }
