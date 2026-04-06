@@ -100,6 +100,7 @@ export default function MobileHeaderMenu({
               <Link
                 href="/jobs"
                 onClick={closeMenu}
+                prefetch={false}
                 className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
               >
                 {jobsLabel}
@@ -109,6 +110,7 @@ export default function MobileHeaderMenu({
                 <Link
                   href="/dashboard"
                   onClick={closeMenu}
+                  prefetch={false}
                   className="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
                 >
                   <span>{dashboardLabel}</span>
@@ -124,6 +126,7 @@ export default function MobileHeaderMenu({
                 <Link
                   href="/jobs/create"
                   onClick={closeMenu}
+                  prefetch={false}
                   className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
                 >
                   {createJobLabel}
@@ -137,6 +140,7 @@ export default function MobileHeaderMenu({
                   <Link
                     href="/profile"
                     onClick={closeMenu}
+                    prefetch={false}
                     className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
@@ -153,6 +157,7 @@ export default function MobileHeaderMenu({
                   <Link
                     href="/auth/signout"
                     onClick={closeMenu}
+                    prefetch={false}
                     className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
                   >
                     {logoutLabel}
