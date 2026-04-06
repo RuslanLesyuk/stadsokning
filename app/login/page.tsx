@@ -14,6 +14,13 @@ type Copy = {
   signup_link: string
   email_placeholder: string
   password_placeholder: string
+  brand_badge: string
+  promo_title: string
+  promo_subtitle: string
+  feature_jobs_title: string
+  feature_jobs_text: string
+  feature_chat_title: string
+  feature_chat_text: string
 }
 
 const copy: Record<Locale, Copy> = {
@@ -27,6 +34,13 @@ const copy: Record<Locale, Copy> = {
     signup_link: "Зареєструватися",
     email_placeholder: "Введіть email",
     password_placeholder: "Введіть пароль",
+    brand_badge: "Clean Jobs",
+    promo_title: "Увійти",
+    promo_subtitle: "Увійдіть, щоб керувати роботами, чатами та профілем.",
+    feature_jobs_title: "Роботи",
+    feature_jobs_text: "Створюйте оголошення та керуйте відгуками.",
+    feature_chat_title: "Чат",
+    feature_chat_text: "Безпечно спілкуйтеся після призначення виконавця.",
   },
   ru: {
     title: "Войти",
@@ -38,6 +52,13 @@ const copy: Record<Locale, Copy> = {
     signup_link: "Зарегистрироваться",
     email_placeholder: "Введите email",
     password_placeholder: "Введите пароль",
+    brand_badge: "Clean Jobs",
+    promo_title: "Войти",
+    promo_subtitle: "Войдите, чтобы управлять работами, чатами и профилем.",
+    feature_jobs_title: "Работы",
+    feature_jobs_text: "Создавайте объявления и управляйте откликами.",
+    feature_chat_title: "Чат",
+    feature_chat_text: "Безопасно общайтесь после назначения исполнителя.",
   },
   en: {
     title: "Login",
@@ -49,6 +70,13 @@ const copy: Record<Locale, Copy> = {
     signup_link: "Sign up",
     email_placeholder: "Enter your email",
     password_placeholder: "Enter your password",
+    brand_badge: "Clean Jobs",
+    promo_title: "Login",
+    promo_subtitle: "Log in to manage jobs, chats, and your profile.",
+    feature_jobs_title: "Jobs",
+    feature_jobs_text: "Create listings and manage responses.",
+    feature_chat_title: "Chat",
+    feature_chat_text: "Message safely after assignment.",
   },
   sv: {
     title: "Logga in",
@@ -60,6 +88,13 @@ const copy: Record<Locale, Copy> = {
     signup_link: "Registrera dig",
     email_placeholder: "Ange din e-post",
     password_placeholder: "Ange ditt lösenord",
+    brand_badge: "Clean Jobs",
+    promo_title: "Logga in",
+    promo_subtitle: "Logga in för att hantera jobb, chattar och din profil.",
+    feature_jobs_title: "Jobb",
+    feature_jobs_text: "Skapa annonser och hantera svar.",
+    feature_chat_title: "Chatt",
+    feature_chat_text: "Meddela säkert efter att jobbet har tilldelats.",
   },
   pl: {
     title: "Zaloguj się",
@@ -71,6 +106,13 @@ const copy: Record<Locale, Copy> = {
     signup_link: "Zarejestruj się",
     email_placeholder: "Wpisz email",
     password_placeholder: "Wpisz hasło",
+    brand_badge: "Clean Jobs",
+    promo_title: "Zaloguj się",
+    promo_subtitle: "Zaloguj się, aby zarządzać zleceniami, czatami i profilem.",
+    feature_jobs_title: "Zlecenia",
+    feature_jobs_text: "Twórz ogłoszenia i zarządzaj odpowiedziami.",
+    feature_chat_title: "Czat",
+    feature_chat_text: "Pisz bezpiecznie po przydzieleniu zlecenia.",
   },
 }
 
@@ -183,31 +225,27 @@ export default async function LoginPage() {
           <div className="flex h-full flex-col justify-between">
             <div>
               <div className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-                Clean Jobs
+                {t.brand_badge}
               </div>
 
               <h2 className="mt-4 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl md:text-3xl">
-                {t.title}
+                {t.promo_title}
               </h2>
 
               <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
-                {t.subtitle}
+                {t.promo_subtitle}
               </p>
             </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:mt-8">
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-sm font-medium text-slate-900">Jobs</p>
-                <p className="mt-1 text-sm text-slate-600">
-                  Create listings and manage responses.
-                </p>
+                <p className="text-sm font-medium text-slate-900">{t.feature_jobs_title}</p>
+                <p className="mt-1 text-sm text-slate-600">{t.feature_jobs_text}</p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-sm font-medium text-slate-900">Chat</p>
-                <p className="mt-1 text-sm text-slate-600">
-                  Message safely after assignment.
-                </p>
+                <p className="text-sm font-medium text-slate-900">{t.feature_chat_title}</p>
+                <p className="mt-1 text-sm text-slate-600">{t.feature_chat_text}</p>
               </div>
             </div>
           </div>

@@ -14,6 +14,13 @@ type Copy = {
   login_link: string
   email_placeholder: string
   password_placeholder: string
+  brand_badge: string
+  promo_title: string
+  promo_subtitle: string
+  feature_profile_title: string
+  feature_profile_text: string
+  feature_work_title: string
+  feature_work_text: string
 }
 
 const copy: Record<Locale, Copy> = {
@@ -27,6 +34,13 @@ const copy: Record<Locale, Copy> = {
     login_link: "Увійти",
     email_placeholder: "Введіть email",
     password_placeholder: "Створіть пароль",
+    brand_badge: "Clean Jobs",
+    promo_title: "Реєстрація",
+    promo_subtitle: "Створіть акаунт, щоб публікувати роботи, брати замовлення та спілкуватися в чаті.",
+    feature_profile_title: "Профіль",
+    feature_profile_text: "Керуйте профілем, рейтингом та активністю.",
+    feature_work_title: "Робота",
+    feature_work_text: "Публікуйте оголошення або беріть доступні замовлення.",
   },
   ru: {
     title: "Регистрация",
@@ -38,6 +52,13 @@ const copy: Record<Locale, Copy> = {
     login_link: "Войти",
     email_placeholder: "Введите email",
     password_placeholder: "Создайте пароль",
+    brand_badge: "Clean Jobs",
+    promo_title: "Регистрация",
+    promo_subtitle: "Создайте аккаунт, чтобы публиковать работы, брать заказы и общаться в чате.",
+    feature_profile_title: "Профиль",
+    feature_profile_text: "Управляйте профилем, рейтингом и активностью.",
+    feature_work_title: "Работа",
+    feature_work_text: "Публикуйте объявления или берите доступные заказы.",
   },
   en: {
     title: "Sign up",
@@ -49,6 +70,13 @@ const copy: Record<Locale, Copy> = {
     login_link: "Login",
     email_placeholder: "Enter your email",
     password_placeholder: "Create a password",
+    brand_badge: "Clean Jobs",
+    promo_title: "Sign up",
+    promo_subtitle: "Create an account to post jobs, take jobs, and chat with other users.",
+    feature_profile_title: "Profile",
+    feature_profile_text: "Manage your profile, rating, and activity.",
+    feature_work_title: "Work",
+    feature_work_text: "Post jobs or take available orders.",
   },
   sv: {
     title: "Registrera dig",
@@ -60,6 +88,13 @@ const copy: Record<Locale, Copy> = {
     login_link: "Logga in",
     email_placeholder: "Ange din e-post",
     password_placeholder: "Skapa ett lösenord",
+    brand_badge: "Clean Jobs",
+    promo_title: "Registrera dig",
+    promo_subtitle: "Skapa ett konto för att lägga upp jobb, ta jobb och chatta med andra användare.",
+    feature_profile_title: "Profil",
+    feature_profile_text: "Hantera din profil, ditt betyg och din aktivitet.",
+    feature_work_title: "Arbete",
+    feature_work_text: "Publicera jobb eller ta tillgängliga uppdrag.",
   },
   pl: {
     title: "Rejestracja",
@@ -71,6 +106,13 @@ const copy: Record<Locale, Copy> = {
     login_link: "Zaloguj się",
     email_placeholder: "Wpisz email",
     password_placeholder: "Utwórz hasło",
+    brand_badge: "Clean Jobs",
+    promo_title: "Rejestracja",
+    promo_subtitle: "Utwórz konto, aby dodawać zlecenia, przyjmować pracę i rozmawiać na czacie.",
+    feature_profile_title: "Profil",
+    feature_profile_text: "Zarządzaj profilem, oceną i aktywnością.",
+    feature_work_title: "Praca",
+    feature_work_text: "Dodawaj zlecenia lub przyjmuj dostępne oferty.",
   },
 }
 
@@ -183,31 +225,27 @@ export default async function SignupPage() {
           <div className="flex h-full flex-col justify-between">
             <div>
               <div className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-                Clean Jobs
+                {t.brand_badge}
               </div>
 
               <h2 className="mt-4 text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl md:text-3xl">
-                {t.title}
+                {t.promo_title}
               </h2>
 
               <p className="mt-3 max-w-xl text-sm leading-6 text-slate-600 sm:text-base">
-                {t.subtitle}
+                {t.promo_subtitle}
               </p>
             </div>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:mt-8">
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-sm font-medium text-slate-900">Profile</p>
-                <p className="mt-1 text-sm text-slate-600">
-                  Manage your profile, rating, and activity.
-                </p>
+                <p className="text-sm font-medium text-slate-900">{t.feature_profile_title}</p>
+                <p className="mt-1 text-sm text-slate-600">{t.feature_profile_text}</p>
               </div>
 
               <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                <p className="text-sm font-medium text-slate-900">Work</p>
-                <p className="mt-1 text-sm text-slate-600">
-                  Post jobs or take available orders.
-                </p>
+                <p className="text-sm font-medium text-slate-900">{t.feature_work_title}</p>
+                <p className="mt-1 text-sm text-slate-600">{t.feature_work_text}</p>
               </div>
             </div>
           </div>
