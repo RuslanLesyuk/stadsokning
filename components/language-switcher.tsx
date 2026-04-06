@@ -1,83 +1,145 @@
 "use client"
 
-import { useMemo } from "react"
-import { usePathname, useSearchParams } from "next/navigation"
-import { setLocaleAction } from "@/app/actions/set-locale"
-import {
-  type Locale,
-  SUPPORTED_LOCALES,
-  getDictionary,
-} from "@/lib/i18n"
+import { useEffect, useRef, useState, useTransition } from "react"
+import { useRouter } from "next/navigation"
+import type { Locale } from "@/lib/i18n"
 
 type LanguageSwitcherProps = {
   locale: Locale
 }
 
-const localeFlags: Record<Locale, string> = {
-  uk: "🇺🇦",
-  ru: "🇷🇺",
-  en: "🇬🇧",
-  sv: "🇸🇪",
-  pl: "🇵🇱",
+type LanguageOption = {
+  value: Locale
+  label: string
+  flag: string
+}
+
+const languages: LanguageOption[] = [
+  { value: "uk", label: "Українська", flag: "🇺🇦" },
+  { value: "ru", label: "Русский", flag: "🇷🇺" },
+  { value: "en", label: "English", flag: "🇬🇧" },
+  { value: "sv", label: "Svenska", flag: "🇸🇪" },
+  { value: "pl", label: "Polski", flag: "🇵🇱" },
+]
+
+function getCurrentLanguage(locale: Locale) {
+  return languages.find((item) => item.value === locale) ?? languages[2]
 }
 
 export default function LanguageSwitcher({
   locale,
 }: LanguageSwitcherProps) {
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
-  const dictionary = getDictionary(locale)
+  const router = useRouter()
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const [isOpen, setIsOpen] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
-  const currentPath = useMemo(() => {
-    const query = searchParams?.toString()
-    if (!pathname) return "/"
-    return query ? `${pathname}?${query}` : pathname
-  }, [pathname, searchParams])
+  const current = getCurrentLanguage(locale)
+
+  useEffect(() => {
+    function handlePointerDown(event: MouseEvent | TouchEvent) {
+      if (!containerRef.current) return
+
+      const target = event.target
+      if (!(target instanceof Node)) return
+
+      if (!containerRef.current.contains(target)) {
+        setIsOpen(false)
+      }
+    }
+
+    function handleEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handlePointerDown)
+    document.addEventListener("touchstart", handlePointerDown, { passive: true })
+    document.addEventListener("keydown", handleEscape)
+
+    return () => {
+      document.removeEventListener("mousedown", handlePointerDown)
+      document.removeEventListener("touchstart", handlePointerDown)
+      document.removeEventListener("keydown", handleEscape)
+    }
+  }, [])
+
+  function closeMenu() {
+    setIsOpen(false)
+  }
+
+  function changeLocale(nextLocale: Locale) {
+    if (nextLocale === locale) {
+      closeMenu()
+      return
+    }
+
+    document.cookie = `clean_jobs_locale=${nextLocale}; path=/; max-age=31536000; samesite=lax`
+    closeMenu()
+
+    startTransition(() => {
+      router.refresh()
+    })
+  }
 
   return (
-    <details className="relative">
-      <summary className="flex cursor-pointer list-none items-center gap-2 rounded-2xl border border-black/10 px-4 py-3 text-sm text-black transition hover:bg-black/[0.03]">
-        <span className="text-base leading-none">{localeFlags[locale]}</span>
-        <span>{dictionary.language.label}</span>
-        <span className="font-medium uppercase">{locale}</span>
-      </summary>
+    <div ref={containerRef} className="relative">
+      <button
+        type="button"
+        aria-label="Change language"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((prev) => !prev)}
+        disabled={isPending}
+        className="inline-flex h-11 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-3 text-sm font-medium text-slate-800 transition hover:bg-slate-50 disabled:opacity-60"
+      >
+        <span className="text-base leading-none">{current.flag}</span>
+        <span className="hidden sm:inline">{current.label}</span>
+      </button>
 
-      <div className="absolute right-0 z-50 mt-2 min-w-[240px] rounded-2xl border border-black/10 bg-white p-2 shadow-xl">
-        <div className="mb-1 px-2 py-1 text-xs font-medium uppercase tracking-wide text-black/40">
-          {dictionary.language.label}
-        </div>
+      {isOpen ? (
+        <>
+          <button
+            type="button"
+            aria-label="Close language menu overlay"
+            onClick={closeMenu}
+            className="fixed inset-0 z-40 bg-transparent"
+          />
 
-        <div className="space-y-1">
-          {SUPPORTED_LOCALES.map((item) => {
-            const isActive = item === locale
+          <div className="absolute right-0 z-50 mt-2 w-[220px] rounded-3xl border border-slate-200 bg-white p-2 shadow-xl">
+            <div className="flex flex-col gap-1">
+              {languages.map((item) => {
+                const isActive = item.value === locale
 
-            return (
-              <form key={item} action={setLocaleAction}>
-                <input type="hidden" name="locale" value={item} />
-                <input type="hidden" name="nextPath" value={currentPath} />
-
-                <button
-                  type="submit"
-                  className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition ${
-                    isActive
-                      ? "bg-black text-white"
-                      : "text-black hover:bg-black/[0.03]"
-                  }`}
-                >
-                  <span className="flex items-center gap-3">
-                    <span className="text-base leading-none">
-                      {localeFlags[item]}
+                return (
+                  <button
+                    key={item.value}
+                    type="button"
+                    onClick={() => changeLocale(item.value)}
+                    disabled={isPending}
+                    className={`flex items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-medium transition ${
+                      isActive
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-800 hover:bg-slate-50"
+                    } disabled:opacity-60`}
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="text-base leading-none">{item.flag}</span>
+                      <span>{item.label}</span>
                     </span>
-                    <span>{dictionary.locales[item]}</span>
-                  </span>
 
-                  <span className="text-xs uppercase">{item}</span>
-                </button>
-              </form>
-            )
-          })}
-        </div>
-      </div>
-    </details>
+                    {isActive ? (
+                      <span className="text-xs font-semibold text-slate-500">
+                        ✓
+                      </span>
+                    ) : null}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </>
+      ) : null}
+    </div>
   )
 }
