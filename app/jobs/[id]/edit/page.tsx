@@ -9,7 +9,7 @@ import {
   normalizeLocale,
 } from "@/lib/i18n"
 import FormSubmitButton from "@/components/form-submit-button"
-
+import { Input, Select, Textarea } from "@/components/ui/field"
 
 export const dynamic = "force-dynamic"
 
@@ -122,147 +122,117 @@ export default async function EditJobPage({ params }: PageProps) {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8">
+    <main className="mx-auto max-w-4xl px-4 py-8 md:py-10">
       <div className="mb-6">
         <Link
           href={`/jobs/${id}`}
-          className="text-sm text-black/60 transition hover:text-black"
+          prefetch={false}
+          className="rounded-md text-sm text-black/60 transition hover:text-black focus:outline-none focus:ring-2 focus:ring-black/20 focus:ring-offset-2"
         >
           {dictionary.jobForm.backToJob}
         </Link>
       </div>
 
       <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm md:p-8">
-        <h1 className="text-3xl font-semibold text-black">
+        <h1 className="text-3xl font-semibold tracking-tight text-black">
           {dictionary.jobForm.editTitle}
         </h1>
-        <p className="mt-2 text-sm text-black/60">
+
+        <p className="mt-2 text-sm leading-6 text-black/60">
           {dictionary.jobForm.editSubtitle}
         </p>
 
         <form action={updateJobAction} className="mt-8 grid gap-5 md:grid-cols-2">
           <div className="md:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-black">
-              {dictionary.jobForm.titleLabel}
-            </label>
-            <input
+            <Input
+              id="title"
               name="title"
               required
               defaultValue={job.title || ""}
-              className="h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none transition focus:border-black/30"
+              label={dictionary.jobForm.titleLabel}
               placeholder={dictionary.jobForm.titlePlaceholder}
             />
           </div>
 
           <div className="md:col-span-2">
-            <label className="mb-2 block text-sm font-medium text-black">
-              {dictionary.jobForm.descriptionLabel}
-            </label>
-            <textarea
+            <Textarea
+              id="description"
               name="description"
               rows={5}
               defaultValue={job.description || ""}
-              className="w-full rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none transition focus:border-black/30"
+              label={dictionary.jobForm.descriptionLabel}
               placeholder={dictionary.jobForm.descriptionPlaceholder}
             />
           </div>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              {dictionary.jobForm.cityLabel}
-            </label>
-            <input
-              name="city"
-              defaultValue={job.city || ""}
-              className="h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none transition focus:border-black/30"
-              placeholder={dictionary.jobForm.cityPlaceholder}
-            />
-          </div>
+          <Input
+            id="city"
+            name="city"
+            defaultValue={job.city || ""}
+            label={dictionary.jobForm.cityLabel}
+            placeholder={dictionary.jobForm.cityPlaceholder}
+          />
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              {dictionary.jobForm.addressLabel}
-            </label>
-            <input
-              name="address"
-              defaultValue={job.address || ""}
-              className="h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none transition focus:border-black/30"
-              placeholder={dictionary.jobForm.addressPlaceholder}
-            />
-          </div>
+          <Input
+            id="address"
+            name="address"
+            defaultValue={job.address || ""}
+            label={dictionary.jobForm.addressLabel}
+            placeholder={dictionary.jobForm.addressPlaceholder}
+          />
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              {dictionary.jobForm.budgetLabel}
-            </label>
-            <input
-              name="budget"
-              type="number"
-              min="0"
-              step="1"
-              defaultValue={job.budget ?? ""}
-              className="h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none transition focus:border-black/30"
-              placeholder={dictionary.jobForm.budgetPlaceholder}
-            />
-          </div>
+          <Input
+            id="budget"
+            name="budget"
+            type="number"
+            min="0"
+            step="1"
+            defaultValue={job.budget ?? ""}
+            label={dictionary.jobForm.budgetLabel}
+            placeholder={dictionary.jobForm.budgetPlaceholder}
+          />
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              {dictionary.jobForm.jobTypeLabel}
-            </label>
-            <select
-              name="job_type"
-              defaultValue={job.job_type || ""}
-              className="h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none transition focus:border-black/30"
-            >
-              <option value="">{dictionary.jobForm.selectOption}</option>
-              <option value="home_cleaning">{dictionary.jobForm.homeCleaning}</option>
-              <option value="office_cleaning">{dictionary.jobForm.officeCleaning}</option>
-            </select>
-          </div>
+          <Select
+            id="job_type"
+            name="job_type"
+            defaultValue={job.job_type || ""}
+            label={dictionary.jobForm.jobTypeLabel}
+          >
+            <option value="">{dictionary.jobForm.selectOption}</option>
+            <option value="home_cleaning">{dictionary.jobForm.homeCleaning}</option>
+            <option value="office_cleaning">{dictionary.jobForm.officeCleaning}</option>
+          </Select>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              {dictionary.jobForm.propertyTypeLabel}
-            </label>
-            <select
-              name="property_type"
-              defaultValue={job.property_type || ""}
-              className="h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none transition focus:border-black/30"
-            >
-              <option value="">{dictionary.jobForm.selectOption}</option>
-              <option value="apartment">{dictionary.jobForm.apartment}</option>
-              <option value="house">{dictionary.jobForm.house}</option>
-              <option value="office">{dictionary.jobForm.office}</option>
-              <option value="other">{dictionary.jobForm.other}</option>
-            </select>
-          </div>
+          <Select
+            id="property_type"
+            name="property_type"
+            defaultValue={job.property_type || ""}
+            label={dictionary.jobForm.propertyTypeLabel}
+          >
+            <option value="">{dictionary.jobForm.selectOption}</option>
+            <option value="apartment">{dictionary.jobForm.apartment}</option>
+            <option value="house">{dictionary.jobForm.house}</option>
+            <option value="office">{dictionary.jobForm.office}</option>
+            <option value="other">{dictionary.jobForm.other}</option>
+          </Select>
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              {dictionary.jobForm.scheduledDateLabel}
-            </label>
-            <input
-              name="scheduled_date"
-              type="date"
-              defaultValue={job.scheduled_date || ""}
-              className="h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none transition focus:border-black/30"
-            />
-          </div>
+          <Input
+            id="scheduled_date"
+            name="scheduled_date"
+            type="date"
+            defaultValue={job.scheduled_date || ""}
+            label={dictionary.jobForm.scheduledDateLabel}
+          />
 
-          <div>
-            <label className="mb-2 block text-sm font-medium text-black">
-              {dictionary.jobForm.scheduledTimeLabel}
-            </label>
-            <input
-              name="scheduled_time"
-              type="time"
-              defaultValue={job.scheduled_time || ""}
-              className="h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none transition focus:border-black/30"
-            />
-          </div>
+          <Input
+            id="scheduled_time"
+            name="scheduled_time"
+            type="time"
+            defaultValue={job.scheduled_time || ""}
+            label={dictionary.jobForm.scheduledTimeLabel}
+          />
 
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 pt-1">
             <FormSubmitButton
               locale={locale}
               idleLabel={dictionary.jobForm.updateButton}
