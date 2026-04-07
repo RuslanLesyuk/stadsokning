@@ -19,3 +19,7 @@ export function getStatusLabel(status: string | null) {
       return status || "Невідомо"
   }
 }
+
+export function cn(...classes: (string | undefined | false)[]) {
+  return classes.filter(Boolean).join(" ")
+}
