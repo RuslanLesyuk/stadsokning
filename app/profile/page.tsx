@@ -12,11 +12,6 @@ type Profile = {
   city: string | null
 }
 
-type ReviewStats = {
-  averageRating: number
-  reviewsCount: number
-}
-
 type Copy = {
   title: string
   subtitle: string
@@ -125,16 +120,18 @@ function StatCard({
   value: string
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
-      <div className="text-xs text-slate-500 md:text-sm">{label}</div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl">
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
+      <div className="text-xs font-medium uppercase tracking-wide text-slate-500 md:text-sm">
+        {label}
+      </div>
+      <div className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl">
         {value}
       </div>
     </div>
   )
 }
 
-function InfoRow({
+function InfoCard({
   label,
   value,
 }: {
@@ -142,7 +139,7 @@ function InfoRow({
   value: string
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 md:text-xs">
         {label}
       </div>
@@ -200,19 +197,28 @@ export default async function ProfilePage() {
             </div>
 
             <div className="min-w-0">
+              <div className="text-sm font-medium text-slate-500">{t.title}</div>
+
               <h1 className="truncate text-2xl font-semibold tracking-tight text-slate-900 md:text-4xl">
                 {displayName}
               </h1>
-              <p className="mt-2 text-sm leading-6 text-slate-600 md:text-base">
+
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
                 {t.subtitle}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 md:mt-8 md:gap-4">
-          <StatCard label={t.rating} value={averageRating} />
-          <StatCard label={t.reviews} value={String(reviewsCount)} />
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
+            {t.stats_title}
+          </h2>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <StatCard label={t.rating} value={averageRating} />
+            <StatCard label={t.reviews} value={String(reviewsCount)} />
+          </div>
         </div>
       </section>
 
@@ -222,10 +228,10 @@ export default async function ProfilePage() {
         </h2>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <InfoRow label={t.full_name} value={profile?.full_name?.trim() || t.no_name} />
-          <InfoRow label={t.email} value={user.email || "—"} />
-          <InfoRow label={t.phone} value={profile?.phone?.trim() || t.no_phone} />
-          <InfoRow label={t.city} value={profile?.city?.trim() || t.no_city} />
+          <InfoCard label={t.full_name} value={profile?.full_name?.trim() || t.no_name} />
+          <InfoCard label={t.email} value={user.email || "—"} />
+          <InfoCard label={t.phone} value={profile?.phone?.trim() || t.no_phone} />
+          <InfoCard label={t.city} value={profile?.city?.trim() || t.no_city} />
         </div>
       </section>
     </div>

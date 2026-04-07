@@ -417,7 +417,7 @@ function PersonCard({
   city?: string | null
 }) {
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
+    <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:p-6">
       <div className="flex items-center gap-4">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white md:h-14 md:w-14 md:text-base">
           {getInitials(name)}
@@ -427,10 +427,10 @@ function PersonCard({
           <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 md:text-xs">
             {label}
           </div>
-          <div className="truncate text-base font-semibold text-slate-900 md:text-lg">
+          <div className="truncate text-base font-semibold tracking-tight text-slate-900 md:text-lg">
             {name}
           </div>
-          {city ? <div className="text-sm text-slate-500">{city}</div> : null}
+          {city ? <div className="mt-0.5 text-sm text-slate-500">{city}</div> : null}
         </div>
       </div>
     </div>
@@ -445,13 +445,21 @@ function InfoCard({
   value: string
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
       <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 md:text-xs">
         {label}
       </div>
-      <div className="mt-2 break-words text-sm font-medium text-slate-900">
+      <div className="mt-2 break-words text-sm font-medium text-slate-900 md:text-[15px]">
         {value}
       </div>
+    </div>
+  )
+}
+
+function EmptyPanel({ text }: { text: string }) {
+  return (
+    <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500 md:p-8">
+      {text}
     </div>
   )
 }
@@ -633,7 +641,8 @@ export default async function JobDetailsPage({
       <div className="mb-5 md:mb-6">
         <Link
           href="/jobs"
-          className="inline-flex items-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          prefetch={false}
+          className="inline-flex min-h-11 items-center rounded-2xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.98]"
         >
           {t.back}
         </Link>
@@ -683,7 +692,8 @@ export default async function JobDetailsPage({
             {canOpenChat ? (
               <Link
                 href={`/jobs/${job.id}/chat`}
-                className="inline-flex items-center justify-center rounded-xl bg-black px-5 py-3 text-sm font-medium text-white hover:opacity-90"
+                prefetch={false}
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
               >
                 {t.chat}
               </Link>
@@ -692,7 +702,8 @@ export default async function JobDetailsPage({
             {isOwner ? (
               <Link
                 href={`/jobs/${job.id}/edit`}
-                className="inline-flex items-center justify-center rounded-xl border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                prefetch={false}
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
               >
                 {t.edit}
               </Link>
@@ -739,9 +750,7 @@ export default async function JobDetailsPage({
 
           <div className="mt-5 space-y-4">
             {reviews.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500 md:p-6">
-                {t.no_reviews}
-              </div>
+              <EmptyPanel text={t.no_reviews} />
             ) : (
               reviews.map((review) => {
                 const reviewerName =
@@ -753,7 +762,7 @@ export default async function JobDetailsPage({
                 return (
                   <article
                     key={review.id}
-                    className="rounded-2xl border border-slate-200 bg-slate-50 p-4 md:p-5"
+                    className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:p-5"
                   >
                     <div className="flex flex-col gap-3">
                       <div>
@@ -789,9 +798,7 @@ export default async function JobDetailsPage({
 
           <div className="mt-5 space-y-4">
             {activity.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500 md:p-6">
-                {t.no_activity}
-              </div>
+              <EmptyPanel text={t.no_activity} />
             ) : (
               activity.map((item, index) => {
                 const actorName = item.actor_id
@@ -808,7 +815,7 @@ export default async function JobDetailsPage({
                       •
                     </span>
 
-                    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
                       <div className="break-words text-sm font-semibold text-slate-900">
                         {getActivityLabel(item.type, t)}
                       </div>

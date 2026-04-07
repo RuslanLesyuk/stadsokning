@@ -81,6 +81,22 @@ function getInitials(name: string) {
   return initials || "U"
 }
 
+function navLinkClass() {
+  return "inline-flex min-h-11 items-center rounded-xl px-2 py-2 text-sm font-medium text-slate-700 transition hover:text-black focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.98]"
+}
+
+function actionLinkClass(variant: "primary" | "secondary" = "secondary") {
+  const base =
+    "inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97]"
+  const variants = {
+    primary: "bg-black text-white hover:opacity-90 active:bg-black/80",
+    secondary:
+      "border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 active:bg-slate-100",
+  }
+
+  return `${base} ${variants[variant]}`
+}
+
 export default async function SiteHeader() {
   const cookieStore = await cookies()
   const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
@@ -133,16 +149,14 @@ export default async function SiteHeader() {
           <div className="flex min-w-0 items-center gap-6">
             <Link
               href="/"
-              className="shrink-0 text-2xl font-bold leading-none tracking-tight text-slate-950"
+              prefetch={false}
+              className="shrink-0 rounded-xl text-2xl font-bold leading-none tracking-tight text-slate-950 transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.98]"
             >
               Clean Jobs
             </Link>
 
-            <nav className="hidden items-center gap-6 md:flex">
-              <Link
-                href="/jobs"
-                className="text-sm font-medium text-slate-700 transition hover:text-black"
-              >
+            <nav className="hidden items-center gap-2 md:flex">
+              <Link href="/jobs" prefetch={false} className={navLinkClass()}>
                 {t.jobs}
               </Link>
 
@@ -150,11 +164,11 @@ export default async function SiteHeader() {
                 <Link
                   href="/dashboard"
                   prefetch={false}
-                  className="relative inline-flex items-center text-sm font-medium text-slate-700 transition hover:text-black"
+                  className={`${navLinkClass()} relative gap-2`}
                 >
                   <span>{t.dashboard}</span>
                   {unreadCount > 0 ? (
-                    <span className="ml-2 inline-flex min-w-5 items-center justify-center rounded-full bg-black px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-black px-1.5 py-0.5 text-[10px] font-semibold text-white">
                       {unreadCount}
                     </span>
                   ) : null}
@@ -165,7 +179,7 @@ export default async function SiteHeader() {
                 <Link
                   href="/jobs/create"
                   prefetch={false}
-                  className="text-sm font-medium text-slate-700 transition hover:text-black"
+                  className={navLinkClass()}
                 >
                   {t.createJob}
                 </Link>
@@ -181,7 +195,7 @@ export default async function SiteHeader() {
                 <Link
                   href="/profile"
                   prefetch={false}
-                  className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+                  className={`${actionLinkClass("secondary")} gap-3`}
                 >
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
                     {profileInitials}
@@ -192,7 +206,7 @@ export default async function SiteHeader() {
                 <Link
                   href="/auth/signout"
                   prefetch={false}
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+                  className={actionLinkClass("secondary")}
                 >
                   {t.logout}
                 </Link>
@@ -201,14 +215,16 @@ export default async function SiteHeader() {
               <>
                 <Link
                   href="/login"
-                  className="inline-flex items-center justify-center rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-800 transition hover:bg-slate-50"
+                  prefetch={false}
+                  className={actionLinkClass("secondary")}
                 >
                   {t.login}
                 </Link>
 
                 <Link
                   href="/signup"
-                  className="inline-flex items-center justify-center rounded-2xl bg-black px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
+                  prefetch={false}
+                  className={actionLinkClass("primary")}
                 >
                   {t.signup}
                 </Link>

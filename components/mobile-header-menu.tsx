@@ -19,6 +19,14 @@ type MobileHeaderMenuProps = {
   isAuthenticated: boolean
 }
 
+function itemClass(primary = false) {
+  if (primary) {
+    return "inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-4 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+  }
+
+  return "inline-flex min-h-11 items-center rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.98] active:bg-slate-100"
+}
+
 export default function MobileHeaderMenu({
   jobsLabel,
   dashboardLabel,
@@ -74,11 +82,15 @@ export default function MobileHeaderMenu({
     <div ref={containerRef} className="relative">
       <button
         type="button"
-        aria-label={openMenuLabel}
+        aria-label={isOpen ? closeMenuLabel : openMenuLabel}
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-white text-slate-800 transition hover:bg-slate-50"
+        className={`flex h-11 w-11 items-center justify-center rounded-2xl border text-slate-800 transition focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] ${
+          isOpen
+            ? "border-slate-300 bg-slate-100"
+            : "border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100"
+        }`}
       >
         <span className="text-xl leading-none">☰</span>
       </button>
@@ -89,7 +101,7 @@ export default function MobileHeaderMenu({
             type="button"
             aria-label={closeMenuLabel}
             onClick={closeMenu}
-            className="fixed inset-0 z-40 bg-transparent"
+            className="fixed inset-0 z-40 bg-black/5"
           />
 
           <div
@@ -101,7 +113,7 @@ export default function MobileHeaderMenu({
                 href="/jobs"
                 onClick={closeMenu}
                 prefetch={false}
-                className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                className={itemClass()}
               >
                 {jobsLabel}
               </Link>
@@ -111,7 +123,7 @@ export default function MobileHeaderMenu({
                   href="/dashboard"
                   onClick={closeMenu}
                   prefetch={false}
-                  className="flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                  className={`${itemClass()} justify-between`}
                 >
                   <span>{dashboardLabel}</span>
                   {unreadCount > 0 ? (
@@ -127,7 +139,7 @@ export default function MobileHeaderMenu({
                   href="/jobs/create"
                   onClick={closeMenu}
                   prefetch={false}
-                  className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                  className={itemClass()}
                 >
                   {createJobLabel}
                 </Link>
@@ -141,12 +153,12 @@ export default function MobileHeaderMenu({
                     href="/profile"
                     onClick={closeMenu}
                     prefetch={false}
-                    className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                    className={`${itemClass()} gap-3`}
                   >
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
                       {profileInitials}
                     </span>
-                    <div className="min-w-0">
+                    <div className="min-w-0 text-left">
                       <p className="text-xs text-slate-500">{profileLabel}</p>
                       <p className="truncate text-sm text-slate-800">
                         {profileName || profileLabel}
@@ -158,7 +170,7 @@ export default function MobileHeaderMenu({
                     href="/auth/signout"
                     onClick={closeMenu}
                     prefetch={false}
-                    className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                    className={itemClass()}
                   >
                     {logoutLabel}
                   </Link>
@@ -168,7 +180,8 @@ export default function MobileHeaderMenu({
                   <Link
                     href="/login"
                     onClick={closeMenu}
-                    className="rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                    prefetch={false}
+                    className={itemClass()}
                   >
                     {loginLabel}
                   </Link>
@@ -176,7 +189,8 @@ export default function MobileHeaderMenu({
                   <Link
                     href="/signup"
                     onClick={closeMenu}
-                    className="rounded-2xl bg-black px-4 py-3 text-sm font-medium text-white"
+                    prefetch={false}
+                    className={itemClass(true)}
                   >
                     {signupLabel}
                   </Link>
