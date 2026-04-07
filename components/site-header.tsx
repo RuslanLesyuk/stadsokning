@@ -82,16 +82,16 @@ function getInitials(name: string) {
 }
 
 function navLinkClass() {
-  return "inline-flex min-h-11 items-center rounded-xl px-2 py-2 text-sm font-medium text-slate-700 transition hover:text-black focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.98]"
+  return "inline-flex min-h-11 items-center rounded-xl px-2 py-2 text-sm font-medium text-slate-700 transition hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
 }
 
 function actionLinkClass(variant: "primary" | "secondary" = "secondary") {
   const base =
-    "inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97]"
+    "inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97]"
   const variants = {
-    primary: "bg-black text-white hover:opacity-90 active:bg-black/80",
+    primary: "bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800",
     secondary:
-      "border border-slate-200 bg-white text-slate-800 hover:bg-slate-50 active:bg-slate-100",
+      "border border-slate-200 bg-white text-slate-800 hover:bg-rose-50 active:bg-rose-100",
   }
 
   return `${base} ${variants[variant]}`
@@ -143,14 +143,14 @@ export default async function SiteHeader() {
   const profileInitials = getInitials(profileLabel)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-20 items-center justify-between gap-3 py-3">
           <div className="flex min-w-0 items-center gap-6">
             <Link
               href="/"
               prefetch={false}
-              className="shrink-0 rounded-xl text-2xl font-bold leading-none tracking-tight text-slate-950 transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.98]"
+              className="shrink-0 rounded-xl text-2xl font-bold leading-none tracking-tight text-slate-950 transition hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
             >
               Clean Jobs
             </Link>
@@ -168,7 +168,7 @@ export default async function SiteHeader() {
                 >
                   <span>{t.dashboard}</span>
                   {unreadCount > 0 ? (
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-black px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
                       {unreadCount}
                     </span>
                   ) : null}
@@ -197,7 +197,7 @@ export default async function SiteHeader() {
                   prefetch={false}
                   className={`${actionLinkClass("secondary")} gap-3`}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-600 text-xs font-semibold text-white">
                     {profileInitials}
                   </span>
                   <span className="max-w-36 truncate">{profileLabel}</span>

@@ -222,7 +222,7 @@ const copy: Record<Locale, JobsCopy> = {
     open_job: "Öppna",
     no_jobs: "Inga jobb hittades",
     no_jobs_description:
-      "Det finns inga jobb som matchar dessa filter just nu. Prova att ändра din sökning eller skapa ett nytt jobb.",
+      "Det finns inga jobb som matchar dessa filter just nu. Prova att ändra din sökning eller skapa ett nytt jobb.",
     no_jobs_secondary_cta: "Återställ filter",
     no_city: "Ingen stad angiven",
     no_budget: "Ingen budget angiven",
@@ -267,7 +267,7 @@ const copy: Record<Locale, JobsCopy> = {
     no_jobs_description:
       "Obecnie nie ma zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub dodaj nowe zlecenie.",
     no_jobs_secondary_cta: "Resetuj filtry",
-    no_city: "Nie podано miasta",
+    no_city: "Nie podano miasta",
     no_budget: "Nie podano budżetu",
     created: "Utworzono",
     budget: "Budżet",
@@ -327,7 +327,7 @@ function getStatusClasses(status: JobStatus) {
     case "new":
       return "border-slate-200 bg-slate-100 text-slate-700"
     case "assigned":
-      return "border-blue-200 bg-blue-50 text-blue-700"
+      return "border-sky-200 bg-sky-50 text-sky-700"
     case "in_progress":
       return "border-amber-200 bg-amber-50 text-amber-700"
     case "done":
@@ -393,7 +393,7 @@ function JobsEmptyState({
   return (
     <div className="rounded-[28px] border border-dashed border-slate-300/90 bg-white p-8 text-center shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-10">
       <div className="mx-auto flex max-w-2xl flex-col items-center">
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-2xl">
           🔎
         </div>
 
@@ -409,7 +409,7 @@ function JobsEmptyState({
           <Link
             href={primaryHref}
             prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
           >
             {primaryLabel}
           </Link>
@@ -417,7 +417,7 @@ function JobsEmptyState({
           <Link
             href={secondaryHref}
             prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
           >
             {secondaryLabel}
           </Link>
@@ -504,7 +504,7 @@ export default async function JobsPage({
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
-        <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/70 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
+        <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-rose-50/40 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
           <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
             <div className="min-w-0">
               <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
@@ -521,7 +521,7 @@ export default async function JobsPage({
             <Link
               href="/jobs/create"
               prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
             >
               {t.post_job}
             </Link>
@@ -543,7 +543,7 @@ export default async function JobsPage({
                   name="q"
                   defaultValue={q}
                   placeholder={t.search_placeholder}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
                 />
               </div>
 
@@ -554,7 +554,7 @@ export default async function JobsPage({
                   name="city"
                   defaultValue={city}
                   placeholder={t.city_placeholder}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
                 />
               </div>
 
@@ -563,7 +563,7 @@ export default async function JobsPage({
                 <select
                   name="status"
                   defaultValue={status}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
                 >
                   <option value="">{t.all_statuses}</option>
                   <option value="new">{t.status_new}</option>
@@ -579,7 +579,7 @@ export default async function JobsPage({
                 <select
                   name="jobType"
                   defaultValue={jobType}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
                 >
                   <option value="">{t.all_job_types}</option>
                   <option value="home_cleaning">{t.job_type_home_cleaning}</option>
@@ -592,7 +592,7 @@ export default async function JobsPage({
                 <select
                   name="propertyType"
                   defaultValue={propertyType}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
                 >
                   <option value="">{t.all_property_types}</option>
                   <option value="apartment">{t.property_type_apartment}</option>
@@ -607,7 +607,7 @@ export default async function JobsPage({
                 <select
                   name="sort"
                   defaultValue={sort}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
                 >
                   <option value="newest">{t.newest}</option>
                   <option value="oldest">{t.oldest}</option>
@@ -620,7 +620,7 @@ export default async function JobsPage({
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <button
                 type="submit"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
               >
                 {t.apply}
               </button>
@@ -628,7 +628,7 @@ export default async function JobsPage({
               <Link
                 href={buildClearHref()}
                 prefetch={false}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
               >
                 {t.clear}
               </Link>
@@ -672,7 +672,7 @@ export default async function JobsPage({
                       </span>
                     </div>
 
-                    <div className="rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                    <div className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">
                       {formatDate(job.created_at, locale)}
                     </div>
                   </div>
@@ -686,7 +686,7 @@ export default async function JobsPage({
                       {job.city || t.no_city}
                     </span>
 
-                    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                    <span className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">
                       {formatBudget(job.budget, t)}
                     </span>
                   </div>
@@ -726,7 +726,7 @@ export default async function JobsPage({
                     <Link
                       href={`/jobs/${job.id}`}
                       prefetch={false}
-                      className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
                     >
                       {t.open_job}
                     </Link>

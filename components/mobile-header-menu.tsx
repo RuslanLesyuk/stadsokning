@@ -21,10 +21,10 @@ type MobileHeaderMenuProps = {
 
 function itemClass(primary = false) {
   if (primary) {
-    return "inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-4 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+    return "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
   }
 
-  return "inline-flex min-h-11 items-center rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.98] active:bg-slate-100"
+  return "inline-flex min-h-11 items-center rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98] active:bg-rose-100"
 }
 
 export default function MobileHeaderMenu({
@@ -86,10 +86,10 @@ export default function MobileHeaderMenu({
         aria-expanded={isOpen}
         aria-haspopup="menu"
         onClick={() => setIsOpen((prev) => !prev)}
-        className={`flex h-11 w-11 items-center justify-center rounded-2xl border text-slate-800 transition focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] ${
+        className={`flex h-11 w-11 items-center justify-center rounded-2xl border text-slate-800 transition focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] ${
           isOpen
-            ? "border-slate-300 bg-slate-100"
-            : "border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100"
+            ? "border-rose-200 bg-rose-50"
+            : "border-slate-200 bg-white hover:bg-rose-50 active:bg-rose-100"
         }`}
       >
         <span className="text-xl leading-none">☰</span>
@@ -127,7 +127,7 @@ export default function MobileHeaderMenu({
                 >
                   <span>{dashboardLabel}</span>
                   {unreadCount > 0 ? (
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-black px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
                       {unreadCount}
                     </span>
                   ) : null}
@@ -155,7 +155,7 @@ export default function MobileHeaderMenu({
                     prefetch={false}
                     className={`${itemClass()} gap-3`}
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-semibold text-white">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-rose-600 text-xs font-semibold text-white">
                       {profileInitials}
                     </span>
                     <div className="min-w-0 text-left">
