@@ -222,7 +222,7 @@ const copy: Record<Locale, JobsCopy> = {
     open_job: "Öppna",
     no_jobs: "Inga jobb hittades",
     no_jobs_description:
-      "Det finns inga jobb som matchar dessa filter just nu. Prova att ändra din sökning eller skapa ett nytt jobb.",
+      "Det finns inga jobb som matchar dessa filter just nu. Prova att ändра din sökning eller skapa ett nytt jobb.",
     no_jobs_secondary_cta: "Återställ filter",
     no_city: "Ingen stad angiven",
     no_budget: "Ingen budget angiven",
@@ -267,7 +267,7 @@ const copy: Record<Locale, JobsCopy> = {
     no_jobs_description:
       "Obecnie nie ma zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub dodaj nowe zlecenie.",
     no_jobs_secondary_cta: "Resetuj filtry",
-    no_city: "Nie podano miasta",
+    no_city: "Nie podано miasta",
     no_budget: "Nie podano budżetu",
     created: "Utworzono",
     budget: "Budżet",
@@ -365,7 +365,7 @@ function getPropertyTypeLabel(propertyType: string | null, t: JobsCopy) {
   }
 }
 
-function truncate(text: string | null | undefined, max = 160) {
+function truncate(text: string | null | undefined, max = 170) {
   if (!text) return ""
   if (text.length <= max) return text
   return `${text.slice(0, max).trim()}…`
@@ -391,7 +391,7 @@ function JobsEmptyState({
   secondaryHref: string
 }) {
   return (
-    <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm md:p-10">
+    <div className="rounded-[28px] border border-dashed border-slate-300/90 bg-white p-8 text-center shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-10">
       <div className="mx-auto flex max-w-2xl flex-col items-center">
         <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl">
           🔎
@@ -409,7 +409,7 @@ function JobsEmptyState({
           <Link
             href={primaryHref}
             prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
           >
             {primaryLabel}
           </Link>
@@ -417,12 +417,20 @@ function JobsEmptyState({
           <Link
             href={secondaryHref}
             prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
           >
             {secondaryLabel}
           </Link>
         </div>
       </div>
+    </div>
+  )
+}
+
+function FilterLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+      {children}
     </div>
   )
 }
@@ -494,216 +502,241 @@ export default async function JobsPage({
   const jobs = (data ?? []) as Job[]
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
-      <section className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm md:p-8">
-        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div className="min-w-0">
-            <h1 className="text-3xl font-semibold tracking-tight text-slate-900 md:text-4xl">
-              {t.title}
-            </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
-              {t.subtitle}
-            </p>
-            <p className="mt-2 text-sm text-slate-500">{t.browse_hint}</p>
-          </div>
+    <div className="min-h-screen bg-[#fafafa]">
+      <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
+        <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/70 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
+                {t.title}
+              </h1>
 
-          <Link
-            href="/jobs/create"
-            prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
-          >
-            {t.post_job}
-          </Link>
-        </div>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
+                {t.subtitle}
+              </p>
 
-        <form method="get" className="mt-6 rounded-3xl border border-slate-200 bg-white p-4 md:p-5">
-          <div className="mb-4 text-sm font-semibold text-slate-900">{t.filters}</div>
-
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
-            <input
-              type="text"
-              name="q"
-              defaultValue={q}
-              placeholder={t.search_placeholder}
-              className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
-            />
-
-            <input
-              type="text"
-              name="city"
-              defaultValue={city}
-              placeholder={t.city_placeholder}
-              className="w-full rounded-2xl border border-slate-300 px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
-            />
-
-            <select
-              name="status"
-              defaultValue={status}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
-            >
-              <option value="">{t.all_statuses}</option>
-              <option value="new">{t.status_new}</option>
-              <option value="assigned">{t.status_assigned}</option>
-              <option value="in_progress">{t.status_in_progress}</option>
-              <option value="done">{t.status_done}</option>
-              <option value="cancelled">{t.status_cancelled}</option>
-            </select>
-
-            <select
-              name="jobType"
-              defaultValue={jobType}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
-            >
-              <option value="">{t.all_job_types}</option>
-              <option value="home_cleaning">{t.job_type_home_cleaning}</option>
-              <option value="office_cleaning">{t.job_type_office_cleaning}</option>
-            </select>
-
-            <select
-              name="propertyType"
-              defaultValue={propertyType}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
-            >
-              <option value="">{t.all_property_types}</option>
-              <option value="apartment">{t.property_type_apartment}</option>
-              <option value="house">{t.property_type_house}</option>
-              <option value="office">{t.property_type_office}</option>
-              <option value="other">{t.property_type_other}</option>
-            </select>
-
-            <select
-              name="sort"
-              defaultValue={sort}
-              className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10"
-            >
-              <option value="newest">{t.newest}</option>
-              <option value="oldest">{t.oldest}</option>
-              <option value="highest_budget">{t.highest_budget}</option>
-              <option value="lowest_budget">{t.lowest_budget}</option>
-            </select>
-          </div>
-
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-            <button
-              type="submit"
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
-            >
-              {t.apply}
-            </button>
+              <p className="mt-2 text-sm text-slate-500">{t.browse_hint}</p>
+            </div>
 
             <Link
-              href={buildClearHref()}
+              href="/jobs/create"
               prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
             >
-              {t.clear}
+              {t.post_job}
             </Link>
           </div>
-        </form>
-      </section>
 
-      <section className="mt-8">
-        <div className="mb-4 flex items-center justify-between gap-3">
-          <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
-            {t.results}
-          </h2>
-          <div className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-sm text-slate-600">
-            {jobs.length}
-          </div>
-        </div>
+          <form
+            method="get"
+            className="mt-8 rounded-[28px] border border-slate-200/80 bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)] md:p-5"
+          >
+            <div className="mb-5 text-sm font-semibold tracking-tight text-slate-900">
+              {t.filters}
+            </div>
 
-        {jobs.length === 0 ? (
-          <JobsEmptyState
-            title={t.no_jobs}
-            description={t.no_jobs_description}
-            primaryLabel={t.post_job}
-            primaryHref="/jobs/create"
-            secondaryLabel={t.no_jobs_secondary_cta}
-            secondaryHref={buildClearHref()}
-          />
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {jobs.map((job) => (
-              <article
-                key={job.id}
-                className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+              <div>
+                <FilterLabel>{t.search_placeholder}</FilterLabel>
+                <input
+                  type="text"
+                  name="q"
+                  defaultValue={q}
+                  placeholder={t.search_placeholder}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                />
+              </div>
+
+              <div>
+                <FilterLabel>{t.city}</FilterLabel>
+                <input
+                  type="text"
+                  name="city"
+                  defaultValue={city}
+                  placeholder={t.city_placeholder}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                />
+              </div>
+
+              <div>
+                <FilterLabel>{t.status}</FilterLabel>
+                <select
+                  name="status"
+                  defaultValue={status}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                >
+                  <option value="">{t.all_statuses}</option>
+                  <option value="new">{t.status_new}</option>
+                  <option value="assigned">{t.status_assigned}</option>
+                  <option value="in_progress">{t.status_in_progress}</option>
+                  <option value="done">{t.status_done}</option>
+                  <option value="cancelled">{t.status_cancelled}</option>
+                </select>
+              </div>
+
+              <div>
+                <FilterLabel>{t.job_type}</FilterLabel>
+                <select
+                  name="jobType"
+                  defaultValue={jobType}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                >
+                  <option value="">{t.all_job_types}</option>
+                  <option value="home_cleaning">{t.job_type_home_cleaning}</option>
+                  <option value="office_cleaning">{t.job_type_office_cleaning}</option>
+                </select>
+              </div>
+
+              <div>
+                <FilterLabel>{t.property_type}</FilterLabel>
+                <select
+                  name="propertyType"
+                  defaultValue={propertyType}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                >
+                  <option value="">{t.all_property_types}</option>
+                  <option value="apartment">{t.property_type_apartment}</option>
+                  <option value="house">{t.property_type_house}</option>
+                  <option value="office">{t.property_type_office}</option>
+                  <option value="other">{t.property_type_other}</option>
+                </select>
+              </div>
+
+              <div>
+                <FilterLabel>{t.results}</FilterLabel>
+                <select
+                  name="sort"
+                  defaultValue={sort}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 active:scale-[0.995]"
+                >
+                  <option value="newest">{t.newest}</option>
+                  <option value="oldest">{t.oldest}</option>
+                  <option value="highest_budget">{t.highest_budget}</option>
+                  <option value="lowest_budget">{t.lowest_budget}</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
               >
-                <div className="flex flex-wrap items-center gap-2">
-                  <span
-                    className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
-                  >
-                    {getStatusLabel(job.status, t)}
-                  </span>
-                </div>
+                {t.apply}
+              </button>
 
-                <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-900">
-                  {job.title}
-                </h3>
+              <Link
+                href={buildClearHref()}
+                prefetch={false}
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+              >
+                {t.clear}
+              </Link>
+            </div>
+          </form>
+        </section>
 
-                <div className="mt-3 space-y-2 text-sm text-slate-600">
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="text-slate-500">{t.budget}</span>
-                    <span className="text-right font-medium text-slate-900">
+        <section className="mt-10">
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+              {t.results}
+            </h2>
+
+            <div className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
+              {jobs.length}
+            </div>
+          </div>
+
+          {jobs.length === 0 ? (
+            <JobsEmptyState
+              title={t.no_jobs}
+              description={t.no_jobs_description}
+              primaryLabel={t.post_job}
+              primaryHref="/jobs/create"
+              secondaryLabel={t.no_jobs_secondary_cta}
+              secondaryHref={buildClearHref()}
+            />
+          ) : (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {jobs.map((job) => (
+                <article
+                  key={job.id}
+                  className="group flex h-full flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
+                      >
+                        {getStatusLabel(job.status, t)}
+                      </span>
+                    </div>
+
+                    <div className="rounded-full bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
+                      {formatDate(job.created_at, locale)}
+                    </div>
+                  </div>
+
+                  <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-950">
+                    {job.title}
+                  </h3>
+
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                      {job.city || t.no_city}
+                    </span>
+
+                    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
                       {formatBudget(job.budget, t)}
                     </span>
                   </div>
 
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="text-slate-500">{t.status}</span>
-                    <span className="text-right font-medium text-slate-900">
-                      {getStatusLabel(job.status, t)}
-                    </span>
+                  {job.description ? (
+                    <p className="mt-4 text-sm leading-6 text-slate-600">
+                      {truncate(job.description)}
+                    </p>
+                  ) : (
+                    <div className="mt-4 text-sm leading-6 text-slate-400">—</div>
+                  )}
+
+                  <div className="mt-5 space-y-3 rounded-2xl bg-slate-50/80 p-4">
+                    <div className="flex items-start justify-between gap-4 text-sm">
+                      <span className="text-slate-500">{t.job_type}</span>
+                      <span className="text-right font-medium text-slate-900">
+                        {getJobTypeLabel(job.job_type, t)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-start justify-between gap-4 text-sm">
+                      <span className="text-slate-500">{t.property_type}</span>
+                      <span className="text-right font-medium text-slate-900">
+                        {getPropertyTypeLabel(job.property_type, t)}
+                      </span>
+                    </div>
+
+                    <div className="flex items-start justify-between gap-4 text-sm">
+                      <span className="text-slate-500">{t.status}</span>
+                      <span className="text-right font-medium text-slate-900">
+                        {getStatusLabel(job.status, t)}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="text-slate-500">{t.job_type}</span>
-                    <span className="text-right font-medium text-slate-900">
-                      {getJobTypeLabel(job.job_type, t)}
-                    </span>
+                  <div className="mt-5 pt-1">
+                    <Link
+                      href={`/jobs/${job.id}`}
+                      prefetch={false}
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+                    >
+                      {t.open_job}
+                    </Link>
                   </div>
-
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="text-slate-500">{t.property_type}</span>
-                    <span className="text-right font-medium text-slate-900">
-                      {getPropertyTypeLabel(job.property_type, t)}
-                    </span>
-                  </div>
-
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="text-slate-500">{t.city}</span>
-                    <span className="text-right font-medium text-slate-900">
-                      {job.city || t.no_city}
-                    </span>
-                  </div>
-
-                  <div className="flex items-start justify-between gap-4">
-                    <span className="text-slate-500">{t.created}</span>
-                    <span className="text-right font-medium text-slate-900">
-                      {formatDate(job.created_at, locale)}
-                    </span>
-                  </div>
-                </div>
-
-                {job.description ? (
-                  <p className="mt-4 text-sm leading-6 text-slate-600">
-                    {truncate(job.description)}
-                  </p>
-                ) : null}
-
-                <div className="mt-5 pt-2">
-                  <Link
-                    href={`/jobs/${job.id}`}
-                    prefetch={false}
-                    className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
-                  >
-                    {t.open_job}
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
-      </section>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   )
 }
