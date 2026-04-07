@@ -23,3 +23,4 @@ export function getStatusLabel(status: string | null) {
 export function cn(...classes: (string | undefined | false)[]) {
   return classes.filter(Boolean).join(" ")
 }
+
