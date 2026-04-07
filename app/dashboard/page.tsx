@@ -235,6 +235,7 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_unread: "Nieprzeczytane wiadomości",
     stats_done: "Zakończone",
     posted_jobs: "Zlecenia, które dodałem",
+    takenJobs: "Zlecenia, które wykonuję",
     taken_jobs: "Zlecenia, które wykonuję",
     empty_posted: "Nie masz jeszcze dodanych zleceń",
     empty_taken: "Nie masz jeszcze przyjętych zleceń",
@@ -265,7 +266,7 @@ const copy: Record<Locale, DashboardCopy> = {
     status_in_progress: "W trakcie",
     status_done: "Zakończone",
     status_cancelled: "Anulowane",
-  },
+  } as DashboardCopy,
 }
 
 function formatDate(value: string, locale: Locale) {
@@ -372,9 +373,11 @@ function StatCard({
   value: number
 }) {
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm md:p-5">
-      <div className="text-xs text-slate-500 md:text-sm">{label}</div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl">
+    <div className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] md:p-6">
+      <div className="text-xs font-medium uppercase tracking-wide text-slate-500 md:text-sm">
+        {label}
+      </div>
+      <div className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
         {value}
       </div>
     </div>
@@ -389,7 +392,7 @@ function PersonBadge({
   name: string
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-slate-50 px-3 py-2">
+    <div className="flex items-center gap-3 rounded-2xl bg-slate-50/90 px-3 py-3">
       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
         {getInitials(name)}
       </div>
@@ -420,13 +423,13 @@ function DashboardEmptyState({
   secondaryHref?: string
 }) {
   return (
-    <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm md:p-10">
+    <div className="rounded-[28px] border border-dashed border-slate-300/90 bg-white p-8 text-center shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-10">
       <div className="mx-auto flex max-w-2xl flex-col items-center">
         <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl">
           ✨
         </div>
 
-        <h3 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
+        <h3 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
           {title}
         </h3>
 
@@ -438,7 +441,7 @@ function DashboardEmptyState({
           <Link
             href={primaryHref}
             prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
           >
             {primaryLabel}
           </Link>
@@ -447,7 +450,7 @@ function DashboardEmptyState({
             <Link
               href={secondaryHref}
               prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
             >
               {secondaryLabel}
             </Link>
@@ -478,84 +481,58 @@ function JobCard({
   workerName: string | null
 }) {
   return (
-    <article className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md md:p-6">
+    <article className="group flex flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:p-6">
       <div className="flex flex-col gap-5">
-        <div className="flex flex-col gap-4">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <span
-                className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
-              >
-                {getStatusLabel(job.status, t)}
-              </span>
-
-              {isOwner ? (
-                <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
-                  {t.your_job}
-                </span>
-              ) : null}
-
-              {job.assigned_to ? (
-                <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
-                  {t.assigned_worker}
-                </span>
-              ) : null}
-
-              {unreadCount > 0 ? (
-                <span className="inline-flex rounded-full bg-black px-3 py-1 text-xs font-medium text-white">
-                  {unreadCount} {t.unread}
-                </span>
-              ) : null}
-            </div>
-
-            <h2 className="mt-4 text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
-              {job.title}
-            </h2>
-
-            <div className="mt-2 flex flex-col gap-1 text-sm text-slate-500 sm:flex-row sm:flex-wrap sm:gap-x-4 sm:gap-y-1">
-              <span>{job.city || t.no_city}</span>
-              <span>{formatBudget(job.budget, t)}</span>
-              <span>
-                {t.created}: {formatDate(job.created_at, locale)}
-              </span>
-            </div>
-
-            {job.description ? (
-              <p className="mt-4 text-sm leading-6 text-slate-600">
-                {truncate(job.description, 180)}
-              </p>
-            ) : null}
-          </div>
-
-          <div className="grid gap-2 sm:grid-cols-3 lg:w-auto">
-            <Link
-              href={`/jobs/${job.id}`}
-              prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span
+              className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
             >
-              {t.open_job}
-            </Link>
+              {getStatusLabel(job.status, t)}
+            </span>
 
             {isOwner ? (
-              <Link
-                href={`/jobs/${job.id}/edit`}
-                prefetch={false}
-                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
-              >
-                {t.edit_job}
-              </Link>
+              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                {t.your_job}
+              </span>
             ) : null}
 
             {job.assigned_to ? (
-              <Link
-                href={`/jobs/${job.id}/chat`}
-                prefetch={false}
-                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
-              >
-                {t.open_chat}
-              </Link>
+              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                {t.assigned_worker}
+              </span>
+            ) : null}
+
+            {unreadCount > 0 ? (
+              <span className="inline-flex rounded-full bg-black px-3 py-1 text-xs font-medium text-white">
+                {unreadCount} {t.unread}
+              </span>
             ) : null}
           </div>
+
+          <h2 className="mt-4 text-xl font-semibold tracking-tight text-slate-950">
+            {job.title}
+          </h2>
+
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+              {job.city || t.no_city}
+            </span>
+            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+              {formatBudget(job.budget, t)}
+            </span>
+            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+              {t.created}: {formatDate(job.created_at, locale)}
+            </span>
+          </div>
+
+          {job.description ? (
+            <p className="mt-4 text-sm leading-6 text-slate-600">
+              {truncate(job.description, 180)}
+            </p>
+          ) : (
+            <div className="mt-4 text-sm leading-6 text-slate-400">—</div>
+          )}
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
@@ -563,9 +540,9 @@ function JobCard({
           {workerName ? <PersonBadge label={t.worker} name={workerName} /> : null}
         </div>
 
-        <div className="rounded-2xl bg-slate-50 p-4">
+        <div className="rounded-2xl bg-slate-50/80 p-4">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
+            <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
               {t.last_message}
             </div>
 
@@ -576,11 +553,45 @@ function JobCard({
             ) : null}
           </div>
 
-          <div className="mt-2 text-sm text-slate-700">
+          <div className="mt-2 text-sm leading-6 text-slate-700">
             {lastMessage?.content?.trim()
               ? truncate(lastMessage.content, 140)
               : t.no_messages}
           </div>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Link
+            href={`/jobs/${job.id}`}
+            prefetch={false}
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-4 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+          >
+            {t.open_job}
+          </Link>
+
+          {isOwner ? (
+            <Link
+              href={`/jobs/${job.id}/edit`}
+              prefetch={false}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+            >
+              {t.edit_job}
+            </Link>
+          ) : (
+            <div className="hidden sm:block" />
+          )}
+
+          {job.assigned_to ? (
+            <Link
+              href={`/jobs/${job.id}/chat`}
+              prefetch={false}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+            >
+              {t.open_chat}
+            </Link>
+          ) : (
+            <div className="hidden sm:block" />
+          )}
         </div>
       </div>
     </article>
@@ -684,117 +695,119 @@ export default async function DashboardPage() {
   const doneTotal = jobs.filter((job) => job.status === "done").length
 
   return (
-    <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
-      <section className="rounded-3xl border border-slate-200 bg-gradient-to-b from-white to-slate-50 p-5 shadow-sm md:p-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 md:text-4xl">
-          {t.title}
-        </h1>
+    <div className="min-h-screen bg-[#fafafa]">
+      <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
+        <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/70 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
+          <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
+            {t.title}
+          </h1>
 
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
-          {t.subtitle}
-        </p>
+          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
+            {t.subtitle}
+          </p>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4 md:mt-8 md:gap-4">
-          <StatCard label={t.stats_posted} value={postedJobs.length} />
-          <StatCard label={t.stats_taken} value={takenJobs.length} />
-          <StatCard label={t.stats_unread} value={unreadTotal} />
-          <StatCard label={t.stats_done} value={doneTotal} />
-        </div>
-      </section>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <StatCard label={t.stats_posted} value={postedJobs.length} />
+            <StatCard label={t.stats_taken} value={takenJobs.length} />
+            <StatCard label={t.stats_unread} value={unreadTotal} />
+            <StatCard label={t.stats_done} value={doneTotal} />
+          </div>
+        </section>
 
-      <section className="mt-8 md:mt-10">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
-            {t.posted_jobs}
-          </h2>
+        <section className="mt-10">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+              {t.posted_jobs}
+            </h2>
 
-          <Link
-            href="/jobs/create"
-            prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-black px-4 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
-          >
-            {t.empty_posted_cta}
-          </Link>
-        </div>
+            <Link
+              href="/jobs/create"
+              prefetch={false}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+            >
+              {t.empty_posted_cta}
+            </Link>
+          </div>
 
-        <div className="space-y-4">
-          {postedJobs.length === 0 ? (
-            <DashboardEmptyState
-              title={t.empty_posted}
-              description={t.empty_posted_description}
-              primaryLabel={t.empty_posted_cta}
-              primaryHref="/jobs/create"
-              secondaryLabel={t.empty_posted_secondary_cta}
-              secondaryHref="/jobs"
-            />
-          ) : (
-            postedJobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                locale={locale}
-                t={t}
-                isOwner
-                unreadCount={unreadByJob.get(job.id) ?? 0}
-                lastMessage={lastMessageByJob.get(job.id)}
-                authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
-                workerName={
-                  job.assigned_to
-                    ? profileNameById.get(job.assigned_to) ?? t.unknown_user
-                    : null
-                }
+          <div className="space-y-5">
+            {postedJobs.length === 0 ? (
+              <DashboardEmptyState
+                title={t.empty_posted}
+                description={t.empty_posted_description}
+                primaryLabel={t.empty_posted_cta}
+                primaryHref="/jobs/create"
+                secondaryLabel={t.empty_posted_secondary_cta}
+                secondaryHref="/jobs"
               />
-            ))
-          )}
-        </div>
-      </section>
+            ) : (
+              postedJobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  locale={locale}
+                  t={t}
+                  isOwner
+                  unreadCount={unreadByJob.get(job.id) ?? 0}
+                  lastMessage={lastMessageByJob.get(job.id)}
+                  authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
+                  workerName={
+                    job.assigned_to
+                      ? profileNameById.get(job.assigned_to) ?? t.unknown_user
+                      : null
+                  }
+                />
+              ))
+            )}
+          </div>
+        </section>
 
-      <section className="mt-10 md:mt-12">
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
-            {t.taken_jobs}
-          </h2>
+        <section className="mt-12">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+              {t.taken_jobs}
+            </h2>
 
-          <Link
-            href="/jobs"
-            prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
-          >
-            {t.empty_taken_cta}
-          </Link>
-        </div>
+            <Link
+              href="/jobs"
+              prefetch={false}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+            >
+              {t.empty_taken_cta}
+            </Link>
+          </div>
 
-        <div className="space-y-4">
-          {takenJobs.length === 0 ? (
-            <DashboardEmptyState
-              title={t.empty_taken}
-              description={t.empty_taken_description}
-              primaryLabel={t.empty_taken_cta}
-              primaryHref="/jobs"
-              secondaryLabel={t.empty_taken_secondary_cta}
-              secondaryHref="/jobs/create"
-            />
-          ) : (
-            takenJobs.map((job) => (
-              <JobCard
-                key={job.id}
-                job={job}
-                locale={locale}
-                t={t}
-                isOwner={false}
-                unreadCount={unreadByJob.get(job.id) ?? 0}
-                lastMessage={lastMessageByJob.get(job.id)}
-                authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
-                workerName={
-                  job.assigned_to
-                    ? profileNameById.get(job.assigned_to) ?? t.unknown_user
-                    : null
-                }
+          <div className="space-y-5">
+            {takenJobs.length === 0 ? (
+              <DashboardEmptyState
+                title={t.empty_taken}
+                description={t.empty_taken_description}
+                primaryLabel={t.empty_taken_cta}
+                primaryHref="/jobs"
+                secondaryLabel={t.empty_taken_secondary_cta}
+                secondaryHref="/jobs/create"
               />
-            ))
-          )}
-        </div>
-      </section>
+            ) : (
+              takenJobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  locale={locale}
+                  t={t}
+                  isOwner={false}
+                  unreadCount={unreadByJob.get(job.id) ?? 0}
+                  lastMessage={lastMessageByJob.get(job.id)}
+                  authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
+                  workerName={
+                    job.assigned_to
+                      ? profileNameById.get(job.assigned_to) ?? t.unknown_user
+                      : null
+                  }
+                />
+              ))
+            )}
+          </div>
+        </section>
+      </div>
     </div>
   )
 }
