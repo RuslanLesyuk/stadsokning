@@ -9,38 +9,10 @@ import {
   normalizeLocale,
 } from "@/lib/i18n"
 import FormSubmitButton from "@/components/form-submit-button"
+import JobCityField from "@/components/job-city-field"
 import { Input, Select, Textarea } from "@/components/ui/field"
 
 export const dynamic = "force-dynamic"
-
-const STOCKHOLM_LOCATION_OPTIONS = [
-  "Stockholm",
-  "Solna",
-  "Sundbyberg",
-  "Nacka",
-  "Täby",
-  "Danderyd",
-  "Sollentuna",
-  "Järfälla",
-  "Kista",
-  "Barkarby",
-  "Upplands Väsby",
-  "Vallentuna",
-  "Åkersberga",
-  "Lidingö",
-  "Huddinge",
-  "Tumba",
-  "Botkyrka",
-  "Salem",
-  "Haninge",
-  "Tyresö",
-  "Södertälje",
-  "Nynäshamn",
-  "Norrtälje",
-  "Värmdö",
-  "Ekerö",
-  "Märsta",
-]
 
 function normalizeText(value: FormDataEntryValue | null) {
   return String(value || "").trim()
@@ -162,28 +134,11 @@ export default async function CreateJobPage() {
             />
           </div>
 
-          <div>
-            <Select
-              id="city_select"
-              name="city_select"
-              label={dictionary.jobForm.cityLabel}
-              defaultValue=""
-            >
-              <option value="">{dictionary.jobForm.selectOption}</option>
-              {STOCKHOLM_LOCATION_OPTIONS.map((location) => (
-                <option key={location} value={location}>
-                  {location}
-                </option>
-              ))}
-              <option value="other">{dictionary.jobForm.other}</option>
-            </Select>
-          </div>
-
-          <Input
-            id="city_other"
-            name="city_other"
-            label={`${dictionary.jobForm.other} (${dictionary.jobForm.cityLabel})`}
+          <JobCityField
+            label={dictionary.jobForm.cityLabel}
             placeholder={dictionary.jobForm.cityPlaceholder}
+            otherLabel={dictionary.jobForm.other}
+            selectOptionLabel={dictionary.jobForm.selectOption}
           />
 
           <Input
