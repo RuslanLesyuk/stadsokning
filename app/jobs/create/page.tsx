@@ -13,6 +13,35 @@ import { Input, Select, Textarea } from "@/components/ui/field"
 
 export const dynamic = "force-dynamic"
 
+const STOCKHOLM_LOCATION_OPTIONS = [
+  "Stockholm",
+  "Solna",
+  "Sundbyberg",
+  "Nacka",
+  "Täby",
+  "Danderyd",
+  "Sollentuna",
+  "Järfälla",
+  "Kista",
+  "Barkarby",
+  "Upplands Väsby",
+  "Vallentuna",
+  "Åkersberga",
+  "Lidingö",
+  "Huddinge",
+  "Tumba",
+  "Botkyrka",
+  "Salem",
+  "Haninge",
+  "Tyresö",
+  "Södertälje",
+  "Nynäshamn",
+  "Norrtälje",
+  "Värmdö",
+  "Ekerö",
+  "Märsta",
+]
+
 function normalizeText(value: FormDataEntryValue | null) {
   return String(value || "").trim()
 }
@@ -21,6 +50,17 @@ function parseBudget(value: string) {
   if (!value) return null
   const number = Number(value)
   return Number.isFinite(number) ? number : null
+}
+
+function resolveCity(formData: FormData) {
+  const selectedCity = normalizeText(formData.get("city_select"))
+  const customCity = normalizeText(formData.get("city_other"))
+
+  if (selectedCity === "other") {
+    return customCity || null
+  }
+
+  return selectedCity || customCity || null
 }
 
 export default async function CreateJobPage() {
@@ -56,7 +96,7 @@ export default async function CreateJobPage() {
     const payload = {
       title: normalizeText(formData.get("title")),
       description: normalizeText(formData.get("description")) || null,
-      city: normalizeText(formData.get("city")) || null,
+      city: resolveCity(formData),
       address: normalizeText(formData.get("address")) || null,
       budget: parseBudget(normalizeText(formData.get("budget"))),
       job_type: normalizeText(formData.get("job_type")) || null,
@@ -122,10 +162,27 @@ export default async function CreateJobPage() {
             />
           </div>
 
+          <div>
+            <Select
+              id="city_select"
+              name="city_select"
+              label={dictionary.jobForm.cityLabel}
+              defaultValue=""
+            >
+              <option value="">{dictionary.jobForm.selectOption}</option>
+              {STOCKHOLM_LOCATION_OPTIONS.map((location) => (
+                <option key={location} value={location}>
+                  {location}
+                </option>
+              ))}
+              <option value="other">{dictionary.jobForm.other}</option>
+            </Select>
+          </div>
+
           <Input
-            id="city"
-            name="city"
-            label={dictionary.jobForm.cityLabel}
+            id="city_other"
+            name="city_other"
+            label={`${dictionary.jobForm.other} (${dictionary.jobForm.cityLabel})`}
             placeholder={dictionary.jobForm.cityPlaceholder}
           />
 

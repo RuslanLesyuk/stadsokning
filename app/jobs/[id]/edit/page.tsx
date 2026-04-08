@@ -13,6 +13,35 @@ import { Input, Select, Textarea } from "@/components/ui/field"
 
 export const dynamic = "force-dynamic"
 
+const STOCKHOLM_LOCATION_OPTIONS = [
+  "Stockholm",
+  "Solna",
+  "Sundbyberg",
+  "Nacka",
+  "Täby",
+  "Danderyd",
+  "Sollentuna",
+  "Järfälla",
+  "Kista",
+  "Barkarby",
+  "Upplands Väsby",
+  "Vallentuna",
+  "Åkersberga",
+  "Lidingö",
+  "Huddinge",
+  "Tumba",
+  "Botkyrka",
+  "Salem",
+  "Haninge",
+  "Tyresö",
+  "Södertälje",
+  "Nynäshamn",
+  "Norrtälje",
+  "Värmdö",
+  "Ekerö",
+  "Märsta",
+]
+
 type PageProps = {
   params: Promise<{
     id: string
@@ -41,6 +70,40 @@ function parseBudget(value: string) {
   if (!value) return null
   const number = Number(value)
   return Number.isFinite(number) ? number : null
+}
+
+function getCityFieldValues(city: string | null) {
+  const normalizedCity = (city || "").trim()
+
+  if (!normalizedCity) {
+    return {
+      citySelectValue: "",
+      cityOtherValue: "",
+    }
+  }
+
+  if (STOCKHOLM_LOCATION_OPTIONS.includes(normalizedCity)) {
+    return {
+      citySelectValue: normalizedCity,
+      cityOtherValue: "",
+    }
+  }
+
+  return {
+    citySelectValue: "other",
+    cityOtherValue: normalizedCity,
+  }
+}
+
+function resolveCity(formData: FormData) {
+  const selectedCity = normalizeText(formData.get("city_select"))
+  const customCity = normalizeText(formData.get("city_other"))
+
+  if (selectedCity === "other") {
+    return customCity || null
+  }
+
+  return selectedCity || customCity || null
 }
 
 export default async function EditJobPage({ params }: PageProps) {
@@ -80,6 +143,8 @@ export default async function EditJobPage({ params }: PageProps) {
     redirect(`/jobs/${id}`)
   }
 
+  const { citySelectValue, cityOtherValue } = getCityFieldValues(job.city)
+
   async function updateJobAction(formData: FormData) {
     "use server"
 
@@ -108,7 +173,7 @@ export default async function EditJobPage({ params }: PageProps) {
       .update({
         title: normalizeText(formData.get("title")),
         description: normalizeText(formData.get("description")) || null,
-        city: normalizeText(formData.get("city")) || null,
+        city: resolveCity(formData),
         address: normalizeText(formData.get("address")) || null,
         budget: parseBudget(normalizeText(formData.get("budget"))),
         job_type: normalizeText(formData.get("job_type")) || null,
@@ -165,11 +230,28 @@ export default async function EditJobPage({ params }: PageProps) {
             />
           </div>
 
+          <div>
+            <Select
+              id="city_select"
+              name="city_select"
+              defaultValue={citySelectValue}
+              label={dictionary.jobForm.cityLabel}
+            >
+              <option value="">{dictionary.jobForm.selectOption}</option>
+              {STOCKHOLM_LOCATION_OPTIONS.map((location) => (
+                <option key={location} value={location}>
+                  {location}
+                </option>
+              ))}
+              <option value="other">{dictionary.jobForm.other}</option>
+            </Select>
+          </div>
+
           <Input
-            id="city"
-            name="city"
-            defaultValue={job.city || ""}
-            label={dictionary.jobForm.cityLabel}
+            id="city_other"
+            name="city_other"
+            defaultValue={cityOtherValue}
+            label={`${dictionary.jobForm.other} (${dictionary.jobForm.cityLabel})`}
             placeholder={dictionary.jobForm.cityPlaceholder}
           />
 
