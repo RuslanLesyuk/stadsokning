@@ -6,6 +6,7 @@ import { normalizeLocale, type Locale } from "@/lib/i18n"
 export const dynamic = "force-dynamic"
 
 type JobStatus = "new" | "assigned" | "in_progress" | "done" | "cancelled" | null
+type JobsView = "active" | "completed"
 
 type Job = {
   id: string
@@ -28,6 +29,13 @@ type JobsCopy = {
   all_statuses: string
   all_job_types: string
   all_property_types: string
+  active_tab: string
+  completed_tab: string
+  active_results: string
+  completed_results: string
+  active_description: string
+  completed_description: string
+  in_history: string
   status_new: string
   status_assigned: string
   status_in_progress: string
@@ -48,7 +56,8 @@ type JobsCopy = {
   results: string
   open_job: string
   no_jobs: string
-  no_jobs_description: string
+  no_jobs_description_active: string
+  no_jobs_description_completed: string
   no_jobs_secondary_cta: string
   no_city: string
   no_budget: string
@@ -72,6 +81,13 @@ const copy: Record<Locale, JobsCopy> = {
     all_statuses: "Усі статуси",
     all_job_types: "Усі типи робіт",
     all_property_types: "Усі типи об'єктів",
+    active_tab: "Активні",
+    completed_tab: "Завершені",
+    active_results: "Активні роботи",
+    completed_results: "Завершені та скасовані",
+    active_description: "Поточні замовлення для пошуку та роботи.",
+    completed_description: "Історія завершених і скасованих замовлень без шуму в основному потоці.",
+    in_history: "в історії",
     status_new: "Нове",
     status_assigned: "Призначено",
     status_in_progress: "В процесі",
@@ -92,8 +108,10 @@ const copy: Record<Locale, JobsCopy> = {
     results: "Результати",
     open_job: "Відкрити",
     no_jobs: "Нічого не знайдено",
-    no_jobs_description:
-      "Зараз немає замовлень за цими фільтрами. Спробуйте змінити пошук або створіть нове оголошення.",
+    no_jobs_description_active:
+      "Зараз немає активних замовлень за цими фільтрами. Спробуйте змінити пошук або створіть нове оголошення.",
+    no_jobs_description_completed:
+      "У завершеній історії зараз немає замовлень за цими фільтрами. Спробуйте змінити пошук або скинути фільтри.",
     no_jobs_secondary_cta: "Скинути фільтри",
     no_city: "Місто не вказано",
     no_budget: "Бюджет не вказано",
@@ -115,6 +133,13 @@ const copy: Record<Locale, JobsCopy> = {
     all_statuses: "Все статусы",
     all_job_types: "Все типы работ",
     all_property_types: "Все типы объектов",
+    active_tab: "Активные",
+    completed_tab: "Завершённые",
+    active_results: "Активные работы",
+    completed_results: "Завершённые и отменённые",
+    active_description: "Текущие заказы для поиска и работы.",
+    completed_description: "История завершённых и отменённых заказов без шума в основном потоке.",
+    in_history: "в истории",
     status_new: "Новый",
     status_assigned: "Назначено",
     status_in_progress: "В процессе",
@@ -135,8 +160,10 @@ const copy: Record<Locale, JobsCopy> = {
     results: "Результаты",
     open_job: "Открыть",
     no_jobs: "Ничего не найдено",
-    no_jobs_description:
-      "Сейчас нет заказов по этим фильтрам. Попробуйте изменить поиск или создайте новое объявление.",
+    no_jobs_description_active:
+      "Сейчас нет активных заказов по этим фильтрам. Попробуйте изменить поиск или создайте новое объявление.",
+    no_jobs_description_completed:
+      "В завершённой истории сейчас нет заказов по этим фильтрам. Попробуйте изменить поиск или сбросить фильтры.",
     no_jobs_secondary_cta: "Сбросить фильтры",
     no_city: "Город не указан",
     no_budget: "Бюджет не указан",
@@ -158,6 +185,13 @@ const copy: Record<Locale, JobsCopy> = {
     all_statuses: "All statuses",
     all_job_types: "All job types",
     all_property_types: "All property types",
+    active_tab: "Active",
+    completed_tab: "Completed",
+    active_results: "Active jobs",
+    completed_results: "Completed and cancelled",
+    active_description: "Current jobs available for browsing and work.",
+    completed_description: "History of completed and cancelled jobs without cluttering the main flow.",
+    in_history: "in history",
     status_new: "New",
     status_assigned: "Assigned",
     status_in_progress: "In progress",
@@ -178,8 +212,10 @@ const copy: Record<Locale, JobsCopy> = {
     results: "Results",
     open_job: "Open",
     no_jobs: "No jobs found",
-    no_jobs_description:
-      "There are no jobs matching these filters right now. Try adjusting your search or create a new job.",
+    no_jobs_description_active:
+      "There are no active jobs matching these filters right now. Try adjusting your search or create a new job.",
+    no_jobs_description_completed:
+      "There are no completed jobs matching these filters right now. Try adjusting your search or reset the filters.",
     no_jobs_secondary_cta: "Reset filters",
     no_city: "City not specified",
     no_budget: "Budget not specified",
@@ -201,6 +237,13 @@ const copy: Record<Locale, JobsCopy> = {
     all_statuses: "Alla statusar",
     all_job_types: "Alla jobbtyper",
     all_property_types: "Alla objekttyper",
+    active_tab: "Aktiva",
+    completed_tab: "Slutförda",
+    active_results: "Aktiva jobb",
+    completed_results: "Slutförda och avbrutna",
+    active_description: "Aktuella jobb för sökning och arbete.",
+    completed_description: "Historik över slutförda och avbrutna jobb utan att störa huvudflödet.",
+    in_history: "i historiken",
     status_new: "Ny",
     status_assigned: "Tilldelad",
     status_in_progress: "Pågår",
@@ -221,8 +264,10 @@ const copy: Record<Locale, JobsCopy> = {
     results: "Resultat",
     open_job: "Öppna",
     no_jobs: "Inga jobb hittades",
-    no_jobs_description:
-      "Det finns inga jobb som matchar dessa filter just nu. Prova att ändra din sökning eller skapa ett nytt jobb.",
+    no_jobs_description_active:
+      "Det finns inga aktiva jobb som matchar dessa filter just nu. Prova att ändra din sökning eller skapa ett nytt jobb.",
+    no_jobs_description_completed:
+      "Det finns inga slutförda jobb som matchar dessa filter just nu. Prova att ändra din sökning eller återställ filtren.",
     no_jobs_secondary_cta: "Återställ filter",
     no_city: "Ingen stad angiven",
     no_budget: "Ingen budget angiven",
@@ -244,6 +289,13 @@ const copy: Record<Locale, JobsCopy> = {
     all_statuses: "Wszystkie statusy",
     all_job_types: "Wszystkie typy prac",
     all_property_types: "Wszystkie typy obiektów",
+    active_tab: "Aktywne",
+    completed_tab: "Zakończone",
+    active_results: "Aktywne zlecenia",
+    completed_results: "Zakończone i anulowane",
+    active_description: "Bieżące zlecenia do przeglądania i wykonywania.",
+    completed_description: "Historia zakończonych i anulowanych zleceń bez zaśmiecania głównego widoku.",
+    in_history: "w historii",
     status_new: "Nowe",
     status_assigned: "Przypisane",
     status_in_progress: "W trakcie",
@@ -264,8 +316,10 @@ const copy: Record<Locale, JobsCopy> = {
     results: "Wyniki",
     open_job: "Otwórz",
     no_jobs: "Nie znaleziono zleceń",
-    no_jobs_description:
-      "Obecnie nie ma zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub dodaj nowe zlecenie.",
+    no_jobs_description_active:
+      "Obecnie nie ma aktywnych zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub dodaj nowe zlecenie.",
+    no_jobs_description_completed:
+      "Obecnie nie ma zakończonych zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub zresetuj filtry.",
     no_jobs_secondary_cta: "Resetuj filtry",
     no_city: "Nie podano miasta",
     no_budget: "Nie podano budżetu",
@@ -371,8 +425,34 @@ function truncate(text: string | null | undefined, max = 170) {
   return `${text.slice(0, max).trim()}…`
 }
 
-function buildClearHref() {
-  return "/jobs"
+function isCompletedStatus(status: JobStatus) {
+  return status === "done" || status === "cancelled"
+}
+
+function buildHref(params: {
+  view?: JobsView
+  q?: string
+  city?: string
+  status?: string
+  jobType?: string
+  propertyType?: string
+  sort?: string
+}) {
+  const search = new URLSearchParams()
+
+  if (params.view && params.view !== "active") {
+    search.set("view", params.view)
+  }
+
+  if (params.q) search.set("q", params.q)
+  if (params.city) search.set("city", params.city)
+  if (params.status) search.set("status", params.status)
+  if (params.jobType) search.set("jobType", params.jobType)
+  if (params.propertyType) search.set("propertyType", params.propertyType)
+  if (params.sort && params.sort !== "newest") search.set("sort", params.sort)
+
+  const queryString = search.toString()
+  return queryString ? `/jobs?${queryString}` : "/jobs"
 }
 
 function JobsEmptyState({
@@ -453,13 +533,15 @@ export default async function JobsPage({
   const propertyType =
     typeof params.propertyType === "string" ? params.propertyType.trim() : ""
   const sort = typeof params.sort === "string" ? params.sort.trim() : "newest"
+  const rawView = typeof params.view === "string" ? params.view.trim() : "active"
+  const view: JobsView = rawView === "completed" ? "completed" : "active"
 
   const supabase = await createClient()
 
   let query = supabase
     .from("jobs")
     .select(
-      "id, title, description, city, budget, job_type, property_type, status, created_at"
+      "id, title, description, city, budget, job_type, property_type, status, created_at",
     )
 
   if (q) {
@@ -473,6 +555,10 @@ export default async function JobsPage({
 
   if (status) {
     query = query.eq("status", status)
+  } else if (view === "completed") {
+    query = query.in("status", ["done", "cancelled"])
+  } else {
+    query = query.in("status", ["new", "assigned", "in_progress"])
   }
 
   if (jobType) {
@@ -500,6 +586,27 @@ export default async function JobsPage({
   }
 
   const jobs = (data ?? []) as Job[]
+  const completedCount = jobs.filter((job) => isCompletedStatus(job.status)).length
+
+  const clearHref = buildHref({ view })
+  const activeTabHref = buildHref({
+    view: "active",
+    q,
+    city,
+    status: status && !isCompletedStatus(status as JobStatus) ? status : "",
+    jobType,
+    propertyType,
+    sort,
+  })
+  const completedTabHref = buildHref({
+    view: "completed",
+    q,
+    city,
+    status: status && isCompletedStatus(status as JobStatus) ? status : "",
+    jobType,
+    propertyType,
+    sort,
+  })
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -527,10 +634,50 @@ export default async function JobsPage({
             </Link>
           </div>
 
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href={activeTabHref}
+              prefetch={false}
+              className={
+                view === "active"
+                  ? "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
+                  : "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
+              }
+            >
+              {t.active_tab}
+            </Link>
+
+            <Link
+              href={completedTabHref}
+              prefetch={false}
+              className={
+                view === "completed"
+                  ? "inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-950"
+                  : "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+              }
+            >
+              {t.completed_tab}
+            </Link>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="rounded-full bg-white px-4 py-2 text-sm text-slate-700 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
+              {view === "active" ? t.active_description : t.completed_description}
+            </div>
+
+            {view === "completed" ? (
+              <div className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-600">
+                {jobs.length} {t.in_history}
+              </div>
+            ) : null}
+          </div>
+
           <form
             method="get"
             className="mt-8 rounded-[28px] border border-slate-200/80 bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)] md:p-5"
           >
+            <input type="hidden" name="view" value={view} />
+
             <div className="mb-5 text-sm font-semibold tracking-tight text-slate-900">
               {t.filters}
             </div>
@@ -566,11 +713,18 @@ export default async function JobsPage({
                   className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
                 >
                   <option value="">{t.all_statuses}</option>
-                  <option value="new">{t.status_new}</option>
-                  <option value="assigned">{t.status_assigned}</option>
-                  <option value="in_progress">{t.status_in_progress}</option>
-                  <option value="done">{t.status_done}</option>
-                  <option value="cancelled">{t.status_cancelled}</option>
+                  {view === "active" ? (
+                    <>
+                      <option value="new">{t.status_new}</option>
+                      <option value="assigned">{t.status_assigned}</option>
+                      <option value="in_progress">{t.status_in_progress}</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="done">{t.status_done}</option>
+                      <option value="cancelled">{t.status_cancelled}</option>
+                    </>
+                  )}
                 </select>
               </div>
 
@@ -626,7 +780,7 @@ export default async function JobsPage({
               </button>
 
               <Link
-                href={buildClearHref()}
+                href={clearHref}
                 prefetch={false}
                 className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
               >
@@ -637,10 +791,15 @@ export default async function JobsPage({
         </section>
 
         <section className="mt-10">
-          <div className="mb-5 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
-              {t.results}
-            </h2>
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+                {view === "active" ? t.active_results : t.completed_results}
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                {view === "active" ? t.active_description : t.completed_description}
+              </p>
+            </div>
 
             <div className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
               {jobs.length}
@@ -650,89 +809,117 @@ export default async function JobsPage({
           {jobs.length === 0 ? (
             <JobsEmptyState
               title={t.no_jobs}
-              description={t.no_jobs_description}
+              description={
+                view === "active"
+                  ? t.no_jobs_description_active
+                  : t.no_jobs_description_completed
+              }
               primaryLabel={t.post_job}
               primaryHref="/jobs/create"
               secondaryLabel={t.no_jobs_secondary_cta}
-              secondaryHref={buildClearHref()}
+              secondaryHref={clearHref}
             />
           ) : (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {jobs.map((job) => (
-                <article
-                  key={job.id}
-                  className="group flex h-full flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span
-                        className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
+              {jobs.map((job) => {
+                const subdued = view === "completed" || isCompletedStatus(job.status)
+
+                return (
+                  <article
+                    key={job.id}
+                    className={
+                      subdued
+                        ? "group flex h-full flex-col rounded-[28px] border border-slate-200/80 bg-white/90 p-5 opacity-80 shadow-[0_2px_10px_rgba(15,23,42,0.03)] transition duration-200"
+                        : "group flex h-full flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
+                        >
+                          {getStatusLabel(job.status, t)}
+                        </span>
+                      </div>
+
+                      <div
+                        className={
+                          subdued
+                            ? "rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600"
+                            : "rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700"
+                        }
                       >
-                        {getStatusLabel(job.status, t)}
+                        {formatDate(job.created_at, locale)}
+                      </div>
+                    </div>
+
+                    <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-950">
+                      {job.title}
+                    </h3>
+
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                        {job.city || t.no_city}
+                      </span>
+
+                      <span
+                        className={
+                          subdued
+                            ? "inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
+                            : "inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700"
+                        }
+                      >
+                        {formatBudget(job.budget, t)}
                       </span>
                     </div>
 
-                    <div className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">
-                      {formatDate(job.created_at, locale)}
-                    </div>
-                  </div>
+                    {job.description ? (
+                      <p className="mt-4 text-sm leading-6 text-slate-600">
+                        {truncate(job.description)}
+                      </p>
+                    ) : (
+                      <div className="mt-4 text-sm leading-6 text-slate-400">—</div>
+                    )}
 
-                  <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-950">
-                    {job.title}
-                  </h3>
+                    <div className="mt-5 space-y-3 rounded-2xl bg-slate-50/80 p-4">
+                      <div className="flex items-start justify-between gap-4 text-sm">
+                        <span className="text-slate-500">{t.job_type}</span>
+                        <span className="text-right font-medium text-slate-900">
+                          {getJobTypeLabel(job.job_type, t)}
+                        </span>
+                      </div>
 
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                      {job.city || t.no_city}
-                    </span>
+                      <div className="flex items-start justify-between gap-4 text-sm">
+                        <span className="text-slate-500">{t.property_type}</span>
+                        <span className="text-right font-medium text-slate-900">
+                          {getPropertyTypeLabel(job.property_type, t)}
+                        </span>
+                      </div>
 
-                    <span className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">
-                      {formatBudget(job.budget, t)}
-                    </span>
-                  </div>
-
-                  {job.description ? (
-                    <p className="mt-4 text-sm leading-6 text-slate-600">
-                      {truncate(job.description)}
-                    </p>
-                  ) : (
-                    <div className="mt-4 text-sm leading-6 text-slate-400">—</div>
-                  )}
-
-                  <div className="mt-5 space-y-3 rounded-2xl bg-slate-50/80 p-4">
-                    <div className="flex items-start justify-between gap-4 text-sm">
-                      <span className="text-slate-500">{t.job_type}</span>
-                      <span className="text-right font-medium text-slate-900">
-                        {getJobTypeLabel(job.job_type, t)}
-                      </span>
+                      <div className="flex items-start justify-between gap-4 text-sm">
+                        <span className="text-slate-500">{t.status}</span>
+                        <span className="text-right font-medium text-slate-900">
+                          {getStatusLabel(job.status, t)}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex items-start justify-between gap-4 text-sm">
-                      <span className="text-slate-500">{t.property_type}</span>
-                      <span className="text-right font-medium text-slate-900">
-                        {getPropertyTypeLabel(job.property_type, t)}
-                      </span>
+                    <div className="mt-5 pt-1">
+                      <Link
+                        href={`/jobs/${job.id}`}
+                        prefetch={false}
+                        className={
+                          subdued
+                            ? "inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+                            : "inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
+                        }
+                      >
+                        {t.open_job}
+                      </Link>
                     </div>
-
-                    <div className="flex items-start justify-between gap-4 text-sm">
-                      <span className="text-slate-500">{t.status}</span>
-                      <span className="text-right font-medium text-slate-900">
-                        {getStatusLabel(job.status, t)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="mt-5 pt-1">
-                    <Link
-                      href={`/jobs/${job.id}`}
-                      prefetch={false}
-                      className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
-                    >
-                      {t.open_job}
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                )
+              })}
             </div>
           )}
         </section>
