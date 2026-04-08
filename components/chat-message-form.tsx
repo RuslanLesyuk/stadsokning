@@ -16,6 +16,9 @@ import LocalizedActionToast from "@/components/localized-action-toast"
 type ChatMessageFormProps = {
   jobId: string
   locale?: string
+  readOnly?: boolean
+  readOnlyTitle?: string
+  readOnlyDescription?: string
 }
 
 const MAX_MESSAGE_LENGTH = 1000
@@ -30,6 +33,9 @@ const initialState: ChatActionState = {
 export default function ChatMessageForm({
   jobId,
   locale = DEFAULT_LOCALE,
+  readOnly = false,
+  readOnlyTitle,
+  readOnlyDescription,
 }: ChatMessageFormProps) {
   const resolvedLocale = normalizeLocale(locale)
   const dictionary = getDictionary(resolvedLocale)
@@ -49,7 +55,33 @@ export default function ChatMessageForm({
   }, [state.ok, state.resetToken])
 
   const trimmed = useMemo(() => text.trim(), [text])
-  const isDisabled = !trimmed || text.length > MAX_MESSAGE_LENGTH
+  const isTooLong = text.length > MAX_MESSAGE_LENGTH
+  const isDisabled = !trimmed || isTooLong || readOnly
+
+  if (readOnly) {
+    return (
+      <div className="rounded-[28px] border border-slate-200 bg-white/90 p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)] md:p-5">
+        <div className="rounded-[24px] border border-dashed border-slate-300 bg-slate-50 px-5 py-5">
+          <h3 className="text-sm font-semibold tracking-tight text-slate-900 md:text-base">
+            {readOnlyTitle || dictionary.chat.newMessage}
+          </h3>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            {readOnlyDescription ||
+              (resolvedLocale === "uk"
+                ? "Для цього замовлення нові повідомлення вимкнені. Історія чату збережена тільки для перегляду."
+                : resolvedLocale === "ru"
+                  ? "Для этого заказа новые сообщения отключены. История чата сохранена только для просмотра."
+                  : resolvedLocale === "sv"
+                    ? "Nya meddelanden är avstängda för det här jobbet. Chatthistoriken finns kvar endast för visning."
+                    : resolvedLocale === "pl"
+                      ? "Dla tego zlecenia nowe wiadomości są wyłączone. Historia czatu jest dostępna tylko do podglądu."
+                      : "New messages are disabled for this job. The chat history remains available in read-only mode.")}
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>
@@ -63,7 +95,12 @@ export default function ChatMessageForm({
       <form
         ref={formRef}
         action={formAction}
-        className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm"
+        className="rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm md:p-5"
+        onSubmit={(event) => {
+          if (isDisabled) {
+            event.preventDefault()
+          }
+        }}
       >
         <input type="hidden" name="jobId" value={jobId} />
 
@@ -71,7 +108,7 @@ export default function ChatMessageForm({
           <div>
             <label
               htmlFor="chat-message"
-              className="mb-2 block text-sm font-medium text-black"
+              className="mb-2 block text-sm font-medium text-slate-900"
             >
               {dictionary.chat.newMessage}
             </label>
@@ -85,21 +122,30 @@ export default function ChatMessageForm({
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder={dictionary.chat.placeholder}
-              className="w-full resize-y rounded-xl border border-black/10 px-4 py-3 text-sm outline-none transition focus:border-black/30"
+              className="w-full resize-y rounded-2xl border border-slate-300 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
             />
           </div>
 
           <div className="flex items-center justify-between gap-3">
-            <p className="text-xs text-black/50">
+            <p className="text-xs text-slate-500">
               {text.length}/{MAX_MESSAGE_LENGTH} {dictionary.chat.maxLength}
             </p>
 
-            <FormSubmitButton
-              locale={resolvedLocale}
-              idleLabel={dictionary.chat.send}
-              loadingLabel={dictionary.chat.sending}
-              className="h-11 px-5"
-            />
+            <div
+              className={
+                isDisabled
+                  ? "pointer-events-none opacity-50"
+                  : ""
+              }
+              aria-disabled={isDisabled}
+            >
+              <FormSubmitButton
+                locale={resolvedLocale}
+                idleLabel={dictionary.chat.send}
+                loadingLabel={dictionary.chat.sending}
+                className="h-11 px-5"
+              />
+            </div>
           </div>
         </div>
       </form>
