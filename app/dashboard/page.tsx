@@ -41,6 +41,11 @@ type DashboardCopy = {
   stats_done: string
   posted_jobs: string
   taken_jobs: string
+  completed_posted_jobs: string
+  completed_taken_jobs: string
+  completed_description: string
+  show_completed: string
+  completed_count: string
   empty_posted: string
   empty_taken: string
   empty_posted_description: string
@@ -49,6 +54,8 @@ type DashboardCopy = {
   empty_taken_cta: string
   empty_posted_secondary_cta: string
   empty_taken_secondary_cta: string
+  empty_completed_posted: string
+  empty_completed_taken: string
   open_job: string
   edit_job: string
   open_chat: string
@@ -78,8 +85,13 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Взято в роботу",
     stats_unread: "Непрочитані повідомлення",
     stats_done: "Завершено",
-    posted_jobs: "Мої створені замовлення",
-    taken_jobs: "Замовлення, які я виконую",
+    posted_jobs: "Мої активні замовлення",
+    taken_jobs: "Активні замовлення, які я виконую",
+    completed_posted_jobs: "Завершені та скасовані мої замовлення",
+    completed_taken_jobs: "Завершені та скасовані замовлення, які я виконував",
+    completed_description: "Ці замовлення залишаються в історії, але не відволікають від активної роботи.",
+    show_completed: "Показати завершені",
+    completed_count: "в історії",
     empty_posted: "У вас ще немає створених замовлень",
     empty_taken: "У вас ще немає взятих у роботу замовлень",
     empty_posted_description:
@@ -90,6 +102,8 @@ const copy: Record<Locale, DashboardCopy> = {
     empty_taken_cta: "Перейти до замовлень",
     empty_posted_secondary_cta: "Переглянути всі замовлення",
     empty_taken_secondary_cta: "Створити своє замовлення",
+    empty_completed_posted: "У вас ще немає завершених або скасованих створених замовлень",
+    empty_completed_taken: "У вас ще немає завершених або скасованих взятих у роботу замовлень",
     open_job: "Відкрити",
     edit_job: "Редагувати",
     open_chat: "Чат",
@@ -117,8 +131,13 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Взято в работу",
     stats_unread: "Непрочитанные сообщения",
     stats_done: "Завершено",
-    posted_jobs: "Мои созданные заказы",
-    taken_jobs: "Заказы, которые я выполняю",
+    posted_jobs: "Мои активные заказы",
+    taken_jobs: "Активные заказы, которые я выполняю",
+    completed_posted_jobs: "Завершённые и отменённые мои заказы",
+    completed_taken_jobs: "Завершённые и отменённые заказы, которые я выполнял",
+    completed_description: "Эти заказы остаются в истории, но не засоряют активную рабочую зону.",
+    show_completed: "Показать завершённые",
+    completed_count: "в истории",
     empty_posted: "У вас пока нет созданных заказов",
     empty_taken: "У вас пока нет взятых в работу заказов",
     empty_posted_description:
@@ -129,6 +148,8 @@ const copy: Record<Locale, DashboardCopy> = {
     empty_taken_cta: "Перейти к заказам",
     empty_posted_secondary_cta: "Посмотреть все заказы",
     empty_taken_secondary_cta: "Создать свой заказ",
+    empty_completed_posted: "У вас пока нет завершённых или отменённых созданных заказов",
+    empty_completed_taken: "У вас пока нет завершённых или отменённых взятых в работу заказов",
     open_job: "Открыть",
     edit_job: "Редактировать",
     open_chat: "Чат",
@@ -156,8 +177,13 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Taken jobs",
     stats_unread: "Unread messages",
     stats_done: "Completed",
-    posted_jobs: "Jobs I posted",
-    taken_jobs: "Jobs I am working on",
+    posted_jobs: "My active posted jobs",
+    taken_jobs: "Active jobs I am working on",
+    completed_posted_jobs: "My completed and cancelled posted jobs",
+    completed_taken_jobs: "Completed and cancelled jobs I worked on",
+    completed_description: "These jobs stay in your history without cluttering your active workspace.",
+    show_completed: "Show completed",
+    completed_count: "in history",
     empty_posted: "You haven’t posted any jobs yet",
     empty_taken: "You haven’t taken any jobs yet",
     empty_posted_description:
@@ -168,6 +194,8 @@ const copy: Record<Locale, DashboardCopy> = {
     empty_taken_cta: "Browse jobs",
     empty_posted_secondary_cta: "See all jobs",
     empty_taken_secondary_cta: "Post your own job",
+    empty_completed_posted: "You do not have any completed or cancelled posted jobs yet",
+    empty_completed_taken: "You do not have any completed or cancelled taken jobs yet",
     open_job: "Open",
     edit_job: "Edit",
     open_chat: "Chat",
@@ -195,8 +223,13 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Tagna jobb",
     stats_unread: "Olästa meddelanden",
     stats_done: "Slutförda",
-    posted_jobs: "Jobb jag har lagt upp",
-    taken_jobs: "Jobb jag arbetar med",
+    posted_jobs: "Mina aktiva upplagda jobb",
+    taken_jobs: "Aktiva jobb jag arbetar med",
+    completed_posted_jobs: "Mina slutförda och avbrutna upplagda jobb",
+    completed_taken_jobs: "Slutförda och avbrutna jobb jag har arbetat med",
+    completed_description: "De här jobben finns kvar i historiken utan att störa den aktiva översikten.",
+    show_completed: "Visa slutförda",
+    completed_count: "i historiken",
     empty_posted: "Du har inte lagt upp några jobb ännu",
     empty_taken: "Du har inte tagit några jobb ännu",
     empty_posted_description:
@@ -207,6 +240,8 @@ const copy: Record<Locale, DashboardCopy> = {
     empty_taken_cta: "Visa jobb",
     empty_posted_secondary_cta: "Se alla jobb",
     empty_taken_secondary_cta: "Skapa eget jobb",
+    empty_completed_posted: "Du har ännu inga slutförda eller avbrutna upplagda jobb",
+    empty_completed_taken: "Du har ännu inga slutförda eller avbrutna tagna jobb",
     open_job: "Öppna",
     edit_job: "Redigera",
     open_chat: "Chatt",
@@ -234,9 +269,13 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Przyjęte zlecenia",
     stats_unread: "Nieprzeczytane wiadomości",
     stats_done: "Zakończone",
-    posted_jobs: "Zlecenia, które dodałem",
-    takenJobs: "Zlecenia, które wykonuję",
-    taken_jobs: "Zlecenia, które wykonuję",
+    posted_jobs: "Moje aktywne zlecenia",
+    taken_jobs: "Aktywne zlecenia, które wykonuję",
+    completed_posted_jobs: "Moje zakończone i anulowane zlecenia",
+    completed_taken_jobs: "Zakończone i anulowane zlecenia, które wykonywałem",
+    completed_description: "Te zlecenia zostają w historii, ale nie zaśmiecają aktywnego widoku.",
+    show_completed: "Pokaż zakończone",
+    completed_count: "w historii",
     empty_posted: "Nie masz jeszcze dodanych zleceń",
     empty_taken: "Nie masz jeszcze przyjętych zleceń",
     empty_posted_description:
@@ -247,6 +286,8 @@ const copy: Record<Locale, DashboardCopy> = {
     empty_taken_cta: "Przeglądaj zlecenia",
     empty_posted_secondary_cta: "Zobacz wszystkie zlecenia",
     empty_taken_secondary_cta: "Dodaj własne zlecenie",
+    empty_completed_posted: "Nie masz jeszcze zakończonych lub anulowanych dodanych zleceń",
+    empty_completed_taken: "Nie masz jeszcze zakończonych lub anulowanych przyjętych zleceń",
     open_job: "Otwórz",
     edit_job: "Edytuj",
     open_chat: "Czat",
@@ -338,7 +379,7 @@ function getStatusClasses(status: Job["status"]) {
     case "new":
       return "border-slate-200 bg-slate-100 text-slate-700"
     case "assigned":
-      return "border-blue-200 bg-blue-50 text-blue-700"
+      return "border-sky-200 bg-sky-50 text-sky-700"
     case "in_progress":
       return "border-amber-200 bg-amber-50 text-amber-700"
     case "done":
@@ -365,6 +406,10 @@ function getInitials(name: string) {
   return initials || "U"
 }
 
+function isCompletedStatus(status: Job["status"]) {
+  return status === "done" || status === "cancelled"
+}
+
 function StatCard({
   label,
   value,
@@ -387,13 +432,27 @@ function StatCard({
 function PersonBadge({
   label,
   name,
+  muted = false,
 }: {
   label: string
   name: string
+  muted?: boolean
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-slate-50/90 px-3 py-3">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white">
+    <div
+      className={
+        muted
+          ? "flex items-center gap-3 rounded-2xl bg-slate-50 px-3 py-3"
+          : "flex items-center gap-3 rounded-2xl bg-slate-50/90 px-3 py-3"
+      }
+    >
+      <div
+        className={
+          muted
+            ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-300 text-sm font-semibold text-white"
+            : "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white"
+        }
+      >
         {getInitials(name)}
       </div>
 
@@ -425,7 +484,7 @@ function DashboardEmptyState({
   return (
     <div className="rounded-[28px] border border-dashed border-slate-300/90 bg-white p-8 text-center shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-10">
       <div className="mx-auto flex max-w-2xl flex-col items-center">
-        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-2xl">
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-2xl">
           ✨
         </div>
 
@@ -441,7 +500,7 @@ function DashboardEmptyState({
           <Link
             href={primaryHref}
             prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-700"
           >
             {primaryLabel}
           </Link>
@@ -450,7 +509,7 @@ function DashboardEmptyState({
             <Link
               href={secondaryHref}
               prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
             >
               {secondaryLabel}
             </Link>
@@ -470,6 +529,7 @@ function JobCard({
   lastMessage,
   authorName,
   workerName,
+  subdued = false,
 }: {
   job: Job
   locale: Locale
@@ -479,9 +539,19 @@ function JobCard({
   lastMessage?: Message
   authorName: string
   workerName: string | null
+  subdued?: boolean
 }) {
+  const completed = isCompletedStatus(job.status)
+  const isSubdued = subdued || completed
+
   return (
-    <article className="group flex flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:p-6">
+    <article
+      className={
+        isSubdued
+          ? "group flex flex-col rounded-[28px] border border-slate-200/80 bg-white/90 p-5 opacity-80 shadow-[0_2px_10px_rgba(15,23,42,0.03)] transition duration-200 md:p-6"
+          : "group flex flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:p-6"
+      }
+    >
       <div className="flex flex-col gap-5">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
@@ -503,8 +573,8 @@ function JobCard({
               </span>
             ) : null}
 
-            {unreadCount > 0 ? (
-              <span className="inline-flex rounded-full bg-black px-3 py-1 text-xs font-medium text-white">
+            {!isSubdued && unreadCount > 0 ? (
+              <span className="inline-flex rounded-full bg-rose-600 px-3 py-1 text-xs font-medium text-white">
                 {unreadCount} {t.unread}
               </span>
             ) : null}
@@ -536,8 +606,10 @@ function JobCard({
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <PersonBadge label={t.author} name={authorName} />
-          {workerName ? <PersonBadge label={t.worker} name={workerName} /> : null}
+          <PersonBadge label={t.author} name={authorName} muted={isSubdued} />
+          {workerName ? (
+            <PersonBadge label={t.worker} name={workerName} muted={isSubdued} />
+          ) : null}
         </div>
 
         <div className="rounded-2xl bg-slate-50/80 p-4">
@@ -560,41 +632,213 @@ function JobCard({
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className={`grid gap-3 ${isOwner ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
           <Link
             href={`/jobs/${job.id}`}
             prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-4 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
+            className={
+              isSubdued
+                ? "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+                : "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-700"
+            }
           >
             {t.open_job}
           </Link>
 
           {isOwner ? (
-            <Link
-              href={`/jobs/${job.id}/edit`}
-              prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-            >
-              {t.edit_job}
-            </Link>
-          ) : (
-            <div className="hidden sm:block" />
-          )}
+            completed ? (
+              <div className="hidden sm:block" />
+            ) : (
+              <Link
+                href={`/jobs/${job.id}/edit`}
+                prefetch={false}
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+              >
+                {t.edit_job}
+              </Link>
+            )
+          ) : null}
 
           {job.assigned_to ? (
             <Link
               href={`/jobs/${job.id}/chat`}
               prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
             >
               {t.open_chat}
             </Link>
-          ) : (
+          ) : isOwner ? (
             <div className="hidden sm:block" />
-          )}
+          ) : null}
         </div>
       </div>
     </article>
+  )
+}
+
+function JobsSection({
+  title,
+  ctaLabel,
+  ctaHref,
+  jobs,
+  locale,
+  t,
+  unreadByJob,
+  lastMessageByJob,
+  profileNameById,
+  isOwnerSection,
+  emptyTitle,
+  emptyDescription,
+  emptyPrimaryLabel,
+  emptyPrimaryHref,
+  emptySecondaryLabel,
+  emptySecondaryHref,
+}: {
+  title: string
+  ctaLabel: string
+  ctaHref: string
+  jobs: Job[]
+  locale: Locale
+  t: DashboardCopy
+  unreadByJob: Map<string, number>
+  lastMessageByJob: Map<string, Message>
+  profileNameById: Map<string, string>
+  isOwnerSection: boolean
+  emptyTitle: string
+  emptyDescription: string
+  emptyPrimaryLabel: string
+  emptyPrimaryHref: string
+  emptySecondaryLabel?: string
+  emptySecondaryHref?: string
+}) {
+  return (
+    <section className="mt-10">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+          {title}
+        </h2>
+
+        <Link
+          href={ctaHref}
+          prefetch={false}
+          className={
+            isOwnerSection
+              ? "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-700"
+              : "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+          }
+        >
+          {ctaLabel}
+        </Link>
+      </div>
+
+      <div className="space-y-5">
+        {jobs.length === 0 ? (
+          <DashboardEmptyState
+            title={emptyTitle}
+            description={emptyDescription}
+            primaryLabel={emptyPrimaryLabel}
+            primaryHref={emptyPrimaryHref}
+            secondaryLabel={emptySecondaryLabel}
+            secondaryHref={emptySecondaryHref}
+          />
+        ) : (
+          jobs.map((job) => (
+            <JobCard
+              key={job.id}
+              job={job}
+              locale={locale}
+              t={t}
+              isOwner={isOwnerSection}
+              unreadCount={unreadByJob.get(job.id) ?? 0}
+              lastMessage={lastMessageByJob.get(job.id)}
+              authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
+              workerName={
+                job.assigned_to
+                  ? profileNameById.get(job.assigned_to) ?? t.unknown_user
+                  : null
+              }
+            />
+          ))
+        )}
+      </div>
+    </section>
+  )
+}
+
+function CompletedSection({
+  title,
+  description,
+  jobs,
+  locale,
+  t,
+  unreadByJob,
+  lastMessageByJob,
+  profileNameById,
+  isOwnerSection,
+  emptyTitle,
+}: {
+  title: string
+  description: string
+  jobs: Job[]
+  locale: Locale
+  t: DashboardCopy
+  unreadByJob: Map<string, number>
+  lastMessageByJob: Map<string, Message>
+  profileNameById: Map<string, string>
+  isOwnerSection: boolean
+  emptyTitle: string
+}) {
+  return (
+    <section className="mt-6">
+      <details className="group rounded-[28px] border border-slate-200/80 bg-white/80 shadow-[0_2px_10px_rgba(15,23,42,0.03)]">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-[28px] px-5 py-5 outline-none transition hover:bg-slate-50/80 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-inset active:scale-[0.998] md:px-6">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
+                {title}
+              </h3>
+              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                {jobs.length} {t.completed_count}
+              </span>
+            </div>
+            <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+          </div>
+
+          <div className="shrink-0 rounded-full bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600 transition group-open:bg-rose-50 group-open:text-rose-700">
+            {t.show_completed}
+          </div>
+        </summary>
+
+        <div className="border-t border-slate-200/80 px-5 py-5 md:px-6">
+          {jobs.length === 0 ? (
+            <div className="rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70 p-6 text-sm text-slate-500">
+              {emptyTitle}
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {jobs.map((job) => (
+                <JobCard
+                  key={job.id}
+                  job={job}
+                  locale={locale}
+                  t={t}
+                  isOwner={isOwnerSection}
+                  unreadCount={unreadByJob.get(job.id) ?? 0}
+                  lastMessage={lastMessageByJob.get(job.id)}
+                  authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
+                  workerName={
+                    job.assigned_to
+                      ? profileNameById.get(job.assigned_to) ?? t.unknown_user
+                      : null
+                  }
+                  subdued
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </details>
+    </section>
   )
 }
 
@@ -615,9 +859,7 @@ export default async function DashboardPage() {
 
   const { data: jobsRaw, error: jobsError } = await supabase
     .from("jobs")
-    .select(
-      "id, title, description, city, budget, status, created_at, created_by, assigned_to"
-    )
+    .select("id, title, description, city, budget, status, created_at, created_by, assigned_to")
     .or(`created_by.eq.${user.id},assigned_to.eq.${user.id}`)
     .order("created_at", { ascending: false })
 
@@ -691,13 +933,18 @@ export default async function DashboardPage() {
   const postedJobs = jobs.filter((job) => job.created_by === user.id)
   const takenJobs = jobs.filter((job) => job.assigned_to === user.id)
 
+  const postedActiveJobs = postedJobs.filter((job) => !isCompletedStatus(job.status))
+  const postedCompletedJobs = postedJobs.filter((job) => isCompletedStatus(job.status))
+  const takenActiveJobs = takenJobs.filter((job) => !isCompletedStatus(job.status))
+  const takenCompletedJobs = takenJobs.filter((job) => isCompletedStatus(job.status))
+
   const unreadTotal = [...unreadByJob.values()].reduce((sum, n) => sum + n, 0)
   const doneTotal = jobs.filter((job) => job.status === "done").length
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
-        <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-slate-50/70 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
+        <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-rose-50/40 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
           <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
             {t.title}
           </h1>
@@ -714,99 +961,69 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        <section className="mt-10">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
-              {t.posted_jobs}
-            </h2>
+        <JobsSection
+          title={t.posted_jobs}
+          ctaLabel={t.empty_posted_cta}
+          ctaHref="/jobs/create"
+          jobs={postedActiveJobs}
+          locale={locale}
+          t={t}
+          unreadByJob={unreadByJob}
+          lastMessageByJob={lastMessageByJob}
+          profileNameById={profileNameById}
+          isOwnerSection
+          emptyTitle={t.empty_posted}
+          emptyDescription={t.empty_posted_description}
+          emptyPrimaryLabel={t.empty_posted_cta}
+          emptyPrimaryHref="/jobs/create"
+          emptySecondaryLabel={t.empty_posted_secondary_cta}
+          emptySecondaryHref="/jobs"
+        />
 
-            <Link
-              href="/jobs/create"
-              prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-black px-5 py-3 text-sm font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-black/80"
-            >
-              {t.empty_posted_cta}
-            </Link>
-          </div>
+        <CompletedSection
+          title={t.completed_posted_jobs}
+          description={t.completed_description}
+          jobs={postedCompletedJobs}
+          locale={locale}
+          t={t}
+          unreadByJob={unreadByJob}
+          lastMessageByJob={lastMessageByJob}
+          profileNameById={profileNameById}
+          isOwnerSection
+          emptyTitle={t.empty_completed_posted}
+        />
 
-          <div className="space-y-5">
-            {postedJobs.length === 0 ? (
-              <DashboardEmptyState
-                title={t.empty_posted}
-                description={t.empty_posted_description}
-                primaryLabel={t.empty_posted_cta}
-                primaryHref="/jobs/create"
-                secondaryLabel={t.empty_posted_secondary_cta}
-                secondaryHref="/jobs"
-              />
-            ) : (
-              postedJobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  locale={locale}
-                  t={t}
-                  isOwner
-                  unreadCount={unreadByJob.get(job.id) ?? 0}
-                  lastMessage={lastMessageByJob.get(job.id)}
-                  authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
-                  workerName={
-                    job.assigned_to
-                      ? profileNameById.get(job.assigned_to) ?? t.unknown_user
-                      : null
-                  }
-                />
-              ))
-            )}
-          </div>
-        </section>
+        <JobsSection
+          title={t.taken_jobs}
+          ctaLabel={t.empty_taken_cta}
+          ctaHref="/jobs"
+          jobs={takenActiveJobs}
+          locale={locale}
+          t={t}
+          unreadByJob={unreadByJob}
+          lastMessageByJob={lastMessageByJob}
+          profileNameById={profileNameById}
+          isOwnerSection={false}
+          emptyTitle={t.empty_taken}
+          emptyDescription={t.empty_taken_description}
+          emptyPrimaryLabel={t.empty_taken_cta}
+          emptyPrimaryHref="/jobs"
+          emptySecondaryLabel={t.empty_taken_secondary_cta}
+          emptySecondaryHref="/jobs/create"
+        />
 
-        <section className="mt-12">
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
-              {t.taken_jobs}
-            </h2>
-
-            <Link
-              href="/jobs"
-              prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-            >
-              {t.empty_taken_cta}
-            </Link>
-          </div>
-
-          <div className="space-y-5">
-            {takenJobs.length === 0 ? (
-              <DashboardEmptyState
-                title={t.empty_taken}
-                description={t.empty_taken_description}
-                primaryLabel={t.empty_taken_cta}
-                primaryHref="/jobs"
-                secondaryLabel={t.empty_taken_secondary_cta}
-                secondaryHref="/jobs/create"
-              />
-            ) : (
-              takenJobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  locale={locale}
-                  t={t}
-                  isOwner={false}
-                  unreadCount={unreadByJob.get(job.id) ?? 0}
-                  lastMessage={lastMessageByJob.get(job.id)}
-                  authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
-                  workerName={
-                    job.assigned_to
-                      ? profileNameById.get(job.assigned_to) ?? t.unknown_user
-                      : null
-                  }
-                />
-              ))
-            )}
-          </div>
-        </section>
+        <CompletedSection
+          title={t.completed_taken_jobs}
+          description={t.completed_description}
+          jobs={takenCompletedJobs}
+          locale={locale}
+          t={t}
+          unreadByJob={unreadByJob}
+          lastMessageByJob={lastMessageByJob}
+          profileNameById={profileNameById}
+          isOwnerSection={false}
+          emptyTitle={t.empty_completed_taken}
+        />
       </div>
     </div>
   )
