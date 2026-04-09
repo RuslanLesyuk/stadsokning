@@ -318,7 +318,6 @@ const copy: Record<Locale, JobsCopy> = {
     city_placeholder: "Miasto",
     all_statuses: "Wszystkie statusy",
     all_job_types: "Wszystkie typy prac",
-    all_propertyTypes: "Wszystkie typy obiektów",
     all_property_types: "Wszystkie typy obiektów",
     active_tab: "Aktywne",
     completed_tab: "Zakończone",

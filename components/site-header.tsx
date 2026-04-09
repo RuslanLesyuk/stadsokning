@@ -15,6 +15,7 @@ type HeaderCopy = {
   profile: string
   openMenu: string
   closeMenu: string
+  noCompany: string
 }
 
 const copy: Record<Locale, HeaderCopy> = {
@@ -28,6 +29,7 @@ const copy: Record<Locale, HeaderCopy> = {
     profile: "Профіль",
     openMenu: "Відкрити меню",
     closeMenu: "Закрити меню",
+    noCompany: "Без компанії",
   },
   ru: {
     jobs: "Работы",
@@ -39,6 +41,7 @@ const copy: Record<Locale, HeaderCopy> = {
     profile: "Профиль",
     openMenu: "Открыть меню",
     closeMenu: "Закрыть меню",
+    noCompany: "Без компании",
   },
   en: {
     jobs: "Jobs",
@@ -50,6 +53,7 @@ const copy: Record<Locale, HeaderCopy> = {
     profile: "Profile",
     openMenu: "Open menu",
     closeMenu: "Close menu",
+    noCompany: "No company",
   },
   sv: {
     jobs: "Jobb",
@@ -61,6 +65,7 @@ const copy: Record<Locale, HeaderCopy> = {
     profile: "Profil",
     openMenu: "Öppna meny",
     closeMenu: "Stäng meny",
+    noCompany: "Inget företag",
   },
   pl: {
     jobs: "Prace",
@@ -72,7 +77,15 @@ const copy: Record<Locale, HeaderCopy> = {
     profile: "Profil",
     openMenu: "Otwórz menu",
     closeMenu: "Zamknij menu",
+    noCompany: "Bez firmy",
   },
+}
+
+type ProfileRow = {
+  full_name: string | null
+  avatar_url: string | null
+  company_logo_url: string | null
+  company_name: string | null
 }
 
 function getInitials(name: string) {
@@ -109,16 +122,24 @@ export default async function SiteHeader() {
   } = await supabase.auth.getUser()
 
   let fullName: string | null = null
+  let companyName: string | null = null
+  let avatarUrl: string | null = null
+  let companyLogoUrl: string | null = null
   let unreadCount = 0
 
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("full_name")
+      .select("full_name, avatar_url, company_logo_url, company_name")
       .eq("id", user.id)
       .single()
 
-    fullName = profile?.full_name?.trim() || user.email || null
+    const profileRow = profile as ProfileRow | null
+
+    fullName = profileRow?.full_name?.trim() || user.email || null
+    companyName = profileRow?.company_name?.trim() || null
+    avatarUrl = profileRow?.avatar_url || null
+    companyLogoUrl = profileRow?.company_logo_url || null
 
     const { data: jobs } = await supabase
       .from("jobs")
@@ -141,6 +162,7 @@ export default async function SiteHeader() {
 
   const profileLabel = fullName || "User"
   const profileInitials = getInitials(profileLabel)
+  const companyLabel = companyName || t.noCompany
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur">
@@ -195,12 +217,40 @@ export default async function SiteHeader() {
                 <Link
                   href="/profile"
                   prefetch={false}
-                  className={`${actionLinkClass("secondary")} gap-3`}
+                  className={`${actionLinkClass("secondary")} gap-3 pr-5`}
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-rose-600 text-xs font-semibold text-white">
-                    {profileInitials}
+                  <div className="relative shrink-0">
+                    <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-rose-600 text-xs font-semibold text-white">
+                      {avatarUrl ? (
+                        <img
+                          src={avatarUrl}
+                          alt={profileLabel}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        profileInitials
+                      )}
+                    </span>
+
+                    {companyLogoUrl ? (
+                      <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
+                        <img
+                          src={companyLogoUrl}
+                          alt={companyLabel}
+                          className="h-full w-full object-cover"
+                        />
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <span className="min-w-0 text-left">
+                    <span className="block max-w-40 truncate text-sm font-medium text-slate-900">
+                      {profileLabel}
+                    </span>
+                    <span className="block max-w-40 truncate text-xs text-slate-500">
+                      {companyLabel}
+                    </span>
                   </span>
-                  <span className="max-w-36 truncate">{profileLabel}</span>
                 </Link>
 
                 <Link
