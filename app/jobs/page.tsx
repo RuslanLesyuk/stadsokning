@@ -18,6 +18,16 @@ type Job = {
   property_type: string | null
   status: JobStatus
   created_at: string
+  created_by: string | null
+  assigned_to: string | null
+}
+
+type Profile = {
+  id: string
+  full_name: string | null
+  avatar_url: string | null
+  company_logo_url: string | null
+  company_name: string | null
 }
 
 type JobsCopy = {
@@ -69,6 +79,10 @@ type JobsCopy = {
   city: string
   post_job: string
   browse_hint: string
+  author: string
+  worker: string
+  no_company: string
+  unknown_user: string
 }
 
 const copy: Record<Locale, JobsCopy> = {
@@ -123,6 +137,10 @@ const copy: Record<Locale, JobsCopy> = {
     city: "Місто",
     post_job: "Створити роботу",
     browse_hint: "Переглядайте замовлення, фільтруйте та відкривайте деталі.",
+    author: "Автор",
+    worker: "Виконавець",
+    no_company: "Без компанії",
+    unknown_user: "Користувач",
   },
   ru: {
     title: "Работы",
@@ -175,6 +193,10 @@ const copy: Record<Locale, JobsCopy> = {
     city: "Город",
     post_job: "Создать работу",
     browse_hint: "Просматривайте заказы, фильтруйте и открывайте детали.",
+    author: "Автор",
+    worker: "Исполнитель",
+    no_company: "Без компании",
+    unknown_user: "Пользователь",
   },
   en: {
     title: "Jobs",
@@ -227,6 +249,10 @@ const copy: Record<Locale, JobsCopy> = {
     city: "City",
     post_job: "Post job",
     browse_hint: "Browse jobs, filter them, and open details.",
+    author: "Author",
+    worker: "Worker",
+    no_company: "No company",
+    unknown_user: "User",
   },
   sv: {
     title: "Jobb",
@@ -279,6 +305,10 @@ const copy: Record<Locale, JobsCopy> = {
     city: "Stad",
     post_job: "Skapa jobb",
     browse_hint: "Bläddra bland jobb, filtrera och öppna detaljer.",
+    author: "Skapad av",
+    worker: "Arbetare",
+    no_company: "Inget företag",
+    unknown_user: "Användare",
   },
   pl: {
     title: "Prace",
@@ -288,6 +318,7 @@ const copy: Record<Locale, JobsCopy> = {
     city_placeholder: "Miasto",
     all_statuses: "Wszystkie statusy",
     all_job_types: "Wszystkie typy prac",
+    all_propertyTypes: "Wszystkie typy obiektów",
     all_property_types: "Wszystkie typy obiektów",
     active_tab: "Aktywne",
     completed_tab: "Zakończone",
@@ -331,6 +362,10 @@ const copy: Record<Locale, JobsCopy> = {
     city: "Miasto",
     post_job: "Dodaj zlecenie",
     browse_hint: "Przeglądaj zlecenia, filtruj i otwieraj szczegóły.",
+    author: "Autor",
+    worker: "Wykonawca",
+    no_company: "Bez firmy",
+    unknown_user: "Użytkownik",
   },
 }
 
@@ -429,6 +464,14 @@ function isCompletedStatus(status: JobStatus) {
   return status === "done" || status === "cancelled"
 }
 
+function getInitials(name: string) {
+  const clean = name.trim()
+  if (!clean) return "U"
+  const parts = clean.split(/\s+/).slice(0, 2)
+  const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("")
+  return initials || "U"
+}
+
 function buildHref(params: {
   view?: JobsView
   q?: string
@@ -515,6 +558,53 @@ function FilterLabel({ children }: { children: React.ReactNode }) {
   )
 }
 
+function PersonMiniCard({
+  label,
+  profile,
+  fallbackName,
+  fallbackCompany,
+}: {
+  label: string
+  profile?: Profile | null
+  fallbackName: string
+  fallbackCompany: string
+}) {
+  const name = profile?.full_name?.trim() || fallbackName
+  const companyName = profile?.company_name?.trim() || fallbackCompany
+
+  return (
+    <div className="flex items-center gap-3 rounded-2xl bg-slate-50/80 px-3 py-3">
+      <div className="relative shrink-0">
+        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-sm font-semibold text-white">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt={name} className="h-full w-full object-cover" />
+          ) : (
+            getInitials(name)
+          )}
+        </div>
+
+        {profile?.company_logo_url ? (
+          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
+            <img
+              src={profile.company_logo_url}
+              alt={companyName}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        ) : null}
+      </div>
+
+      <div className="min-w-0">
+        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+          {label}
+        </div>
+        <div className="truncate text-sm font-medium text-slate-900">{name}</div>
+        <div className="truncate text-xs text-slate-500">{companyName}</div>
+      </div>
+    </div>
+  )
+}
+
 export default async function JobsPage({
   searchParams,
 }: {
@@ -541,7 +631,7 @@ export default async function JobsPage({
   let query = supabase
     .from("jobs")
     .select(
-      "id, title, description, city, budget, job_type, property_type, status, created_at",
+      "id, title, description, city, budget, job_type, property_type, status, created_at, created_by, assigned_to",
     )
 
   if (q) {
@@ -586,7 +676,32 @@ export default async function JobsPage({
   }
 
   const jobs = (data ?? []) as Job[]
-  const completedCount = jobs.filter((job) => isCompletedStatus(job.status)).length
+
+  const profileIds = Array.from(
+    new Set(
+      jobs.flatMap((job) => [job.created_by, job.assigned_to].filter(Boolean) as string[]),
+    ),
+  )
+
+  let profiles: Profile[] = []
+
+  if (profileIds.length > 0) {
+    const { data: profilesRaw, error: profilesError } = await supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url, company_logo_url, company_name")
+      .in("id", profileIds)
+
+    if (profilesError) {
+      throw new Error(profilesError.message)
+    }
+
+    profiles = (profilesRaw ?? []) as Profile[]
+  }
+
+  const profileById = new Map<string, Profile>()
+  for (const profile of profiles) {
+    profileById.set(profile.id, profile)
+  }
 
   const clearHref = buildHref({ view })
   const activeTabHref = buildHref({
@@ -823,6 +938,10 @@ export default async function JobsPage({
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {jobs.map((job) => {
                 const subdued = view === "completed" || isCompletedStatus(job.status)
+                const authorProfile = job.created_by ? profileById.get(job.created_by) : null
+                const workerProfile = job.assigned_to ? profileById.get(job.assigned_to) : null
+                const authorName = authorProfile?.full_name?.trim() || t.unknown_user
+                const workerName = workerProfile?.full_name?.trim() || t.unknown_user
 
                 return (
                   <article
@@ -880,6 +999,23 @@ export default async function JobsPage({
                     ) : (
                       <div className="mt-4 text-sm leading-6 text-slate-400">—</div>
                     )}
+
+                    <div className="mt-5 grid gap-3">
+                      <PersonMiniCard
+                        label={t.author}
+                        profile={authorProfile}
+                        fallbackName={authorName}
+                        fallbackCompany={t.no_company}
+                      />
+                      {workerProfile ? (
+                        <PersonMiniCard
+                          label={t.worker}
+                          profile={workerProfile}
+                          fallbackName={workerName}
+                          fallbackCompany={t.no_company}
+                        />
+                      ) : null}
+                    </div>
 
                     <div className="mt-5 space-y-3 rounded-2xl bg-slate-50/80 p-4">
                       <div className="flex items-start justify-between gap-4 text-sm">
