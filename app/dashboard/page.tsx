@@ -30,6 +30,9 @@ type Message = {
 type Profile = {
   id: string
   full_name: string | null
+  avatar_url: string | null
+  company_logo_url: string | null
+  company_name: string | null
 }
 
 type DashboardCopy = {
@@ -70,6 +73,7 @@ type DashboardCopy = {
   author: string
   worker: string
   unknown_user: string
+  no_company: string
   status_new: string
   status_assigned: string
   status_in_progress: string
@@ -118,6 +122,7 @@ const copy: Record<Locale, DashboardCopy> = {
     author: "Автор",
     worker: "Виконавець",
     unknown_user: "Користувач",
+    no_company: "Без компанії",
     status_new: "Нове",
     status_assigned: "Призначено",
     status_in_progress: "В процесі",
@@ -164,6 +169,7 @@ const copy: Record<Locale, DashboardCopy> = {
     author: "Автор",
     worker: "Исполнитель",
     unknown_user: "Пользователь",
+    no_company: "Без компании",
     status_new: "Новый",
     status_assigned: "Назначено",
     status_in_progress: "В процессе",
@@ -210,6 +216,7 @@ const copy: Record<Locale, DashboardCopy> = {
     author: "Author",
     worker: "Worker",
     unknown_user: "User",
+    no_company: "No company",
     status_new: "New",
     status_assigned: "Assigned",
     status_in_progress: "In progress",
@@ -256,6 +263,7 @@ const copy: Record<Locale, DashboardCopy> = {
     author: "Skapad av",
     worker: "Arbetare",
     unknown_user: "Användare",
+    no_company: "Inget företag",
     status_new: "Ny",
     status_assigned: "Tilldelad",
     status_in_progress: "Pågår",
@@ -302,6 +310,7 @@ const copy: Record<Locale, DashboardCopy> = {
     author: "Autor",
     worker: "Wykonawca",
     unknown_user: "Użytkownik",
+    no_company: "Bez firmy",
     status_new: "Nowe",
     status_assigned: "Przypisane",
     status_in_progress: "W trakcie",
@@ -432,11 +441,19 @@ function StatCard({
 function PersonBadge({
   label,
   name,
+  avatarUrl,
+  companyLogoUrl,
+  companyName,
   muted = false,
+  fallbackCompany,
 }: {
   label: string
   name: string
+  avatarUrl?: string | null
+  companyLogoUrl?: string | null
+  companyName?: string | null
   muted?: boolean
+  fallbackCompany: string
 }) {
   return (
     <div
@@ -446,14 +463,30 @@ function PersonBadge({
           : "flex items-center gap-3 rounded-2xl bg-slate-50/90 px-3 py-3"
       }
     >
-      <div
-        className={
-          muted
-            ? "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-300 text-sm font-semibold text-white"
-            : "flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white"
-        }
-      >
-        {getInitials(name)}
+      <div className="relative shrink-0">
+        <div
+          className={
+            muted
+              ? "flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-300 text-sm font-semibold text-white"
+              : "flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-sm font-semibold text-white"
+          }
+        >
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+          ) : (
+            getInitials(name)
+          )}
+        </div>
+
+        {companyLogoUrl ? (
+          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
+            <img
+              src={companyLogoUrl}
+              alt={companyName || fallbackCompany}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        ) : null}
       </div>
 
       <div className="min-w-0">
@@ -461,6 +494,9 @@ function PersonBadge({
           {label}
         </div>
         <div className="truncate text-sm font-medium text-slate-800">{name}</div>
+        <div className="truncate text-xs text-slate-500">
+          {companyName?.trim() || fallbackCompany}
+        </div>
       </div>
     </div>
   )
@@ -527,8 +563,8 @@ function JobCard({
   isOwner,
   unreadCount,
   lastMessage,
-  authorName,
-  workerName,
+  authorProfile,
+  workerProfile,
   subdued = false,
 }: {
   job: Job
@@ -537,12 +573,14 @@ function JobCard({
   isOwner: boolean
   unreadCount: number
   lastMessage?: Message
-  authorName: string
-  workerName: string | null
+  authorProfile?: Profile
+  workerProfile?: Profile | null
   subdued?: boolean
 }) {
   const completed = isCompletedStatus(job.status)
   const isSubdued = subdued || completed
+  const authorName = authorProfile?.full_name?.trim() || t.unknown_user
+  const workerName = workerProfile?.full_name?.trim() || t.unknown_user
 
   return (
     <article
@@ -606,9 +644,25 @@ function JobCard({
         </div>
 
         <div className="grid gap-3 md:grid-cols-2">
-          <PersonBadge label={t.author} name={authorName} muted={isSubdued} />
-          {workerName ? (
-            <PersonBadge label={t.worker} name={workerName} muted={isSubdued} />
+          <PersonBadge
+            label={t.author}
+            name={authorName}
+            avatarUrl={authorProfile?.avatar_url}
+            companyLogoUrl={authorProfile?.company_logo_url}
+            companyName={authorProfile?.company_name}
+            muted={isSubdued}
+            fallbackCompany={t.no_company}
+          />
+          {workerProfile ? (
+            <PersonBadge
+              label={t.worker}
+              name={workerName}
+              avatarUrl={workerProfile.avatar_url}
+              companyLogoUrl={workerProfile.company_logo_url}
+              companyName={workerProfile.company_name}
+              muted={isSubdued}
+              fallbackCompany={t.no_company}
+            />
           ) : null}
         </div>
 
@@ -685,7 +739,7 @@ function JobsSection({
   t,
   unreadByJob,
   lastMessageByJob,
-  profileNameById,
+  profileById,
   isOwnerSection,
   emptyTitle,
   emptyDescription,
@@ -702,7 +756,7 @@ function JobsSection({
   t: DashboardCopy
   unreadByJob: Map<string, number>
   lastMessageByJob: Map<string, Message>
-  profileNameById: Map<string, string>
+  profileById: Map<string, Profile>
   isOwnerSection: boolean
   emptyTitle: string
   emptyDescription: string
@@ -751,12 +805,8 @@ function JobsSection({
               isOwner={isOwnerSection}
               unreadCount={unreadByJob.get(job.id) ?? 0}
               lastMessage={lastMessageByJob.get(job.id)}
-              authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
-              workerName={
-                job.assigned_to
-                  ? profileNameById.get(job.assigned_to) ?? t.unknown_user
-                  : null
-              }
+              authorProfile={profileById.get(job.created_by)}
+              workerProfile={job.assigned_to ? profileById.get(job.assigned_to) || null : null}
             />
           ))
         )}
@@ -773,7 +823,7 @@ function CompletedSection({
   t,
   unreadByJob,
   lastMessageByJob,
-  profileNameById,
+  profileById,
   isOwnerSection,
   emptyTitle,
 }: {
@@ -784,7 +834,7 @@ function CompletedSection({
   t: DashboardCopy
   unreadByJob: Map<string, number>
   lastMessageByJob: Map<string, Message>
-  profileNameById: Map<string, string>
+  profileById: Map<string, Profile>
   isOwnerSection: boolean
   emptyTitle: string
 }) {
@@ -825,12 +875,8 @@ function CompletedSection({
                   isOwner={isOwnerSection}
                   unreadCount={unreadByJob.get(job.id) ?? 0}
                   lastMessage={lastMessageByJob.get(job.id)}
-                  authorName={profileNameById.get(job.created_by) ?? t.unknown_user}
-                  workerName={
-                    job.assigned_to
-                      ? profileNameById.get(job.assigned_to) ?? t.unknown_user
-                      : null
-                  }
+                  authorProfile={profileById.get(job.created_by)}
+                  workerProfile={job.assigned_to ? profileById.get(job.assigned_to) || null : null}
                   subdued
                 />
               ))}
@@ -889,8 +935,8 @@ export default async function DashboardPage() {
 
   const userIds = Array.from(
     new Set(
-      jobs.flatMap((job) => [job.created_by, job.assigned_to].filter(Boolean) as string[])
-    )
+      jobs.flatMap((job) => [job.created_by, job.assigned_to].filter(Boolean) as string[]),
+    ),
   )
 
   let profiles: Profile[] = []
@@ -898,7 +944,7 @@ export default async function DashboardPage() {
   if (userIds.length > 0) {
     const { data: profilesRaw, error: profilesError } = await supabase
       .from("profiles")
-      .select("id, full_name")
+      .select("id, full_name, avatar_url, company_logo_url, company_name")
       .in("id", userIds)
 
     if (profilesError) {
@@ -908,10 +954,10 @@ export default async function DashboardPage() {
     profiles = (profilesRaw ?? []) as Profile[]
   }
 
-  const profileNameById = new Map<string, string>()
+  const profileById = new Map<string, Profile>()
 
   for (const profile of profiles) {
-    profileNameById.set(profile.id, profile.full_name?.trim() || t.unknown_user)
+    profileById.set(profile.id, profile)
   }
 
   const unreadByJob = new Map<string, number>()
@@ -970,7 +1016,7 @@ export default async function DashboardPage() {
           t={t}
           unreadByJob={unreadByJob}
           lastMessageByJob={lastMessageByJob}
-          profileNameById={profileNameById}
+          profileById={profileById}
           isOwnerSection
           emptyTitle={t.empty_posted}
           emptyDescription={t.empty_posted_description}
@@ -988,7 +1034,7 @@ export default async function DashboardPage() {
           t={t}
           unreadByJob={unreadByJob}
           lastMessageByJob={lastMessageByJob}
-          profileNameById={profileNameById}
+          profileById={profileById}
           isOwnerSection
           emptyTitle={t.empty_completed_posted}
         />
@@ -1002,7 +1048,7 @@ export default async function DashboardPage() {
           t={t}
           unreadByJob={unreadByJob}
           lastMessageByJob={lastMessageByJob}
-          profileNameById={profileNameById}
+          profileById={profileById}
           isOwnerSection={false}
           emptyTitle={t.empty_taken}
           emptyDescription={t.empty_taken_description}
@@ -1020,7 +1066,7 @@ export default async function DashboardPage() {
           t={t}
           unreadByJob={unreadByJob}
           lastMessageByJob={lastMessageByJob}
-          profileNameById={profileNameById}
+          profileById={profileById}
           isOwnerSection={false}
           emptyTitle={t.empty_completed_taken}
         />

@@ -31,6 +31,9 @@ type Profile = {
   id: string
   full_name: string | null
   city: string | null
+  avatar_url: string | null
+  company_logo_url: string | null
+  company_name: string | null
 }
 
 type Review = {
@@ -83,6 +86,7 @@ type Copy = {
   history_state: string
   completed_hint: string
   cancelled_hint: string
+  no_company: string
   status_new: string
   status_assigned: string
   status_in_progress: string
@@ -129,6 +133,7 @@ const copy: Record<Locale, Copy> = {
     history_state: "Історія",
     completed_hint: "Це замовлення завершене і збережене в історії.",
     cancelled_hint: "Це замовлення скасоване і збережене в історії.",
+    no_company: "Без компанії",
     status_new: "Нове",
     status_assigned: "Призначено",
     status_in_progress: "В процесі",
@@ -173,6 +178,7 @@ const copy: Record<Locale, Copy> = {
     history_state: "История",
     completed_hint: "Этот заказ завершён и сохранён в истории.",
     cancelled_hint: "Этот заказ отменён и сохранён в истории.",
+    no_company: "Без компании",
     status_new: "Новый",
     status_assigned: "Назначено",
     status_in_progress: "В процессе",
@@ -217,6 +223,7 @@ const copy: Record<Locale, Copy> = {
     history_state: "History",
     completed_hint: "This job is completed and kept in history.",
     cancelled_hint: "This job is cancelled and kept in history.",
+    no_company: "No company",
     status_new: "New",
     status_assigned: "Assigned",
     status_in_progress: "In progress",
@@ -261,6 +268,7 @@ const copy: Record<Locale, Copy> = {
     history_state: "Historik",
     completed_hint: "Det här jobbet är slutfört och sparat i historiken.",
     cancelled_hint: "Det här jobbet är avbrutet och sparat i historiken.",
+    no_company: "Inget företag",
     status_new: "Ny",
     status_assigned: "Tilldelad",
     status_in_progress: "Pågår",
@@ -305,6 +313,7 @@ const copy: Record<Locale, Copy> = {
     history_state: "Historia",
     completed_hint: "To zlecenie jest zakończone i zapisane w historii.",
     cancelled_hint: "To zlecenie jest anulowane i zapisane w historii.",
+    no_company: "Bez firmy",
     status_new: "Nowe",
     status_assigned: "Przypisane",
     status_in_progress: "W trakcie",
@@ -431,15 +440,20 @@ function isHistoryStatus(status: JobStatus) {
 
 function PersonCard({
   label,
-  name,
-  city,
+  profile,
+  fallbackName,
   subdued = false,
+  noCompanyLabel,
 }: {
   label: string
-  name: string
-  city?: string | null
+  profile?: Profile | null
+  fallbackName: string
   subdued?: boolean
+  noCompanyLabel: string
 }) {
+  const name = profile?.full_name?.trim() || fallbackName
+  const companyName = profile?.company_name?.trim() || noCompanyLabel
+
   return (
     <div
       className={
@@ -449,14 +463,30 @@ function PersonCard({
       }
     >
       <div className="flex items-center gap-4">
-        <div
-          className={
-            subdued
-              ? "flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-300 text-sm font-semibold text-white md:h-14 md:w-14 md:text-base"
-              : "flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-slate-900 text-sm font-semibold text-white md:h-14 md:w-14 md:text-base"
-          }
-        >
-          {getInitials(name)}
+        <div className="relative shrink-0">
+          <div
+            className={
+              subdued
+                ? "flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-slate-300 text-sm font-semibold text-white md:h-14 md:w-14 md:text-base"
+                : "flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-sm font-semibold text-white md:h-14 md:w-14 md:text-base"
+            }
+          >
+            {profile?.avatar_url ? (
+              <img src={profile.avatar_url} alt={name} className="h-full w-full object-cover" />
+            ) : (
+              getInitials(name)
+            )}
+          </div>
+
+          {profile?.company_logo_url ? (
+            <div className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
+              <img
+                src={profile.company_logo_url}
+                alt={companyName}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : null}
         </div>
 
         <div className="min-w-0">
@@ -466,7 +496,8 @@ function PersonCard({
           <div className="truncate text-base font-semibold tracking-tight text-slate-900 md:text-lg">
             {name}
           </div>
-          {city ? <div className="mt-0.5 text-sm text-slate-500">{city}</div> : null}
+          <div className="mt-0.5 truncate text-sm text-slate-500">{companyName}</div>
+          {profile?.city ? <div className="mt-0.5 text-sm text-slate-500">{profile.city}</div> : null}
         </div>
       </div>
     </div>
@@ -617,7 +648,7 @@ export default async function JobDetailsPage({
   if (profileIds.length > 0) {
     const { data } = await supabase
       .from("profiles")
-      .select("id, full_name, city")
+      .select("id, full_name, city, avatar_url, company_logo_url, company_name")
       .in("id", profileIds)
 
     profiles = (data ?? []) as Profile[]
@@ -652,7 +683,7 @@ export default async function JobDetailsPage({
     if (missingIds.length > 0) {
       const { data } = await supabase
         .from("profiles")
-        .select("id, full_name, city")
+        .select("id, full_name, city, avatar_url, company_logo_url, company_name")
         .in("id", missingIds)
 
       for (const profile of (data ?? []) as Profile[]) {
@@ -707,7 +738,7 @@ export default async function JobDetailsPage({
               : "rounded-[32px] border border-slate-200 bg-gradient-to-b from-white to-rose-50/40 p-5 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8"
           }
         >
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span
@@ -758,40 +789,80 @@ export default async function JobDetailsPage({
               ) : null}
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-2 lg:flex lg:w-auto lg:flex-wrap">
-              {canOpenChat ? (
-                <Link
-                  href={`/jobs/${job.id}/chat`}
-                  prefetch={false}
-                  className={
-                    isHistory
-                      ? "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-                      : "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-700"
-                  }
-                >
-                  {t.chat}
-                </Link>
-              ) : null}
+            <div className="flex flex-col gap-3 sm:flex-row lg:flex-col">
+              <div className="flex flex-wrap gap-3">
+                {author?.avatar_url ? (
+                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border border-white bg-white shadow-sm">
+                    <img
+                      src={author.avatar_url}
+                      alt={authorName}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-900 text-lg font-semibold text-white shadow-sm">
+                    {getInitials(authorName)}
+                  </div>
+                )}
 
-              {canEdit ? (
-                <Link
-                  href={`/jobs/${job.id}/edit`}
-                  prefetch={false}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-                >
-                  {t.edit}
-                </Link>
-              ) : null}
+                {author?.company_logo_url ? (
+                  <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
+                    <img
+                      src={author.company_logo_url}
+                      alt={author.company_name?.trim() || t.no_company}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                ) : null}
+              </div>
 
-              {canTakeJob ? <TakeJobForm jobId={job.id} /> : null}
+              <div className="grid gap-3 sm:grid-cols-2 lg:flex lg:w-auto lg:flex-wrap">
+                {canOpenChat ? (
+                  <Link
+                    href={`/jobs/${job.id}/chat`}
+                    prefetch={false}
+                    className={
+                      isHistory
+                        ? "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+                        : "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-700"
+                    }
+                  >
+                    {t.chat}
+                  </Link>
+                ) : null}
+
+                {canEdit ? (
+                  <Link
+                    href={`/jobs/${job.id}/edit`}
+                    prefetch={false}
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+                  >
+                    {t.edit}
+                  </Link>
+                ) : null}
+
+                {canTakeJob ? <TakeJobForm jobId={job.id} /> : null}
+              </div>
             </div>
           </div>
         </section>
 
         <section className="mt-6 grid gap-4 lg:grid-cols-2 md:mt-8">
-          <PersonCard label={t.author} name={authorName} city={author?.city} subdued={isHistory} />
+          <PersonCard
+            label={t.author}
+            profile={author}
+            fallbackName={authorName}
+            subdued={isHistory}
+            noCompanyLabel={t.no_company}
+          />
           {worker ? (
-            <PersonCard label={t.worker} name={workerName} city={worker.city} subdued={isHistory} />
+            <PersonCard
+              label={t.worker}
+              profile={worker}
+              fallbackName={workerName}
+              subdued={isHistory}
+              noCompanyLabel={t.no_company}
+            />
           ) : null}
         </section>
 
@@ -846,11 +917,11 @@ export default async function JobDetailsPage({
                 <EmptyPanel text={t.no_reviews} />
               ) : (
                 reviews.map((review) => {
-                  const reviewerName =
-                    profileById.get(review.reviewer_id)?.full_name?.trim() || t.unknown_user
-                  const targetName =
-                    profileById.get(review.review_target_id)?.full_name?.trim() ||
-                    t.unknown_user
+                  const reviewer = profileById.get(review.reviewer_id)
+                  const target = profileById.get(review.review_target_id)
+
+                  const reviewerName = reviewer?.full_name?.trim() || t.unknown_user
+                  const targetName = target?.full_name?.trim() || t.unknown_user
 
                   return (
                     <article
@@ -858,12 +929,26 @@ export default async function JobDetailsPage({
                       className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:p-5"
                     >
                       <div className="flex flex-col gap-3">
-                        <div>
-                          <div className="break-words text-sm font-semibold text-slate-900">
-                            {reviewerName} → {targetName}
+                        <div className="flex items-center gap-3">
+                          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-sm font-semibold text-white">
+                            {reviewer?.avatar_url ? (
+                              <img
+                                src={reviewer.avatar_url}
+                                alt={reviewerName}
+                                className="h-full w-full object-cover"
+                              />
+                            ) : (
+                              getInitials(reviewerName)
+                            )}
                           </div>
-                          <div className="mt-1 text-xs text-slate-500">
-                            {formatDateTime(review.created_at, locale)}
+
+                          <div className="min-w-0">
+                            <div className="break-words text-sm font-semibold text-slate-900">
+                              {reviewerName} → {targetName}
+                            </div>
+                            <div className="mt-1 text-xs text-slate-500">
+                              {formatDateTime(review.created_at, locale)}
+                            </div>
                           </div>
                         </div>
 
@@ -900,9 +985,8 @@ export default async function JobDetailsPage({
                 <EmptyPanel text={t.no_activity} />
               ) : (
                 activity.map((item, index) => {
-                  const actorName = item.actor_id
-                    ? profileById.get(item.actor_id)?.full_name?.trim() || t.unknown_user
-                    : null
+                  const actor = item.actor_id ? profileById.get(item.actor_id) : null
+                  const actorName = actor?.full_name?.trim() || t.unknown_user
 
                   return (
                     <div key={item.id} className="relative pl-8">
@@ -921,13 +1005,31 @@ export default async function JobDetailsPage({
                       </span>
 
                       <div className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm">
-                        <div className="break-words text-sm font-semibold text-slate-900">
-                          {getActivityLabel(item.type, t)}
-                        </div>
+                        <div className="flex items-center gap-3">
+                          {actor ? (
+                            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-xs font-semibold text-white">
+                              {actor.avatar_url ? (
+                                <img
+                                  src={actor.avatar_url}
+                                  alt={actorName}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                getInitials(actorName)
+                              )}
+                            </div>
+                          ) : null}
 
-                        <div className="mt-1 break-words text-xs text-slate-500">
-                          {actorName ? `${actorName} • ` : ""}
-                          {formatDateTime(item.created_at, locale)}
+                          <div className="min-w-0">
+                            <div className="break-words text-sm font-semibold text-slate-900">
+                              {getActivityLabel(item.type, t)}
+                            </div>
+
+                            <div className="mt-1 break-words text-xs text-slate-500">
+                              {item.actor_id ? `${actorName} • ` : ""}
+                              {formatDateTime(item.created_at, locale)}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>

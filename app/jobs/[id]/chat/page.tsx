@@ -32,6 +32,9 @@ type ProfileRow = {
   id: string
   full_name: string | null
   city: string | null
+  avatar_url: string | null
+  company_logo_url: string | null
+  company_name: string | null
 }
 
 type MessageRow = {
@@ -52,6 +55,12 @@ function formatDateTime(value: string) {
 
 function isHistoryStatus(status: string | null) {
   return status === "done" || status === "cancelled"
+}
+
+function getInitials(name: string) {
+  const parts = name.trim().split(/\s+/).slice(0, 2)
+  const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("")
+  return initials || "U"
 }
 
 function getStatusLabel(
@@ -161,11 +170,11 @@ function getStatusClasses(status: string | null) {
 
 function getHistoryHint(locale: "uk" | "ru" | "en" | "sv" | "pl", status: string | null) {
   if (status === "done") {
-    if (locale === "uk") return "Робота завершена. Чат лишається доступним для фінальних деталей та історії."
-    if (locale === "ru") return "Работа завершена. Чат остаётся доступным для финальных деталей и истории."
-    if (locale === "sv") return "Jobbet är slutfört. Chatten finns kvar för slutliga detaljer och historik."
-    if (locale === "pl") return "Zlecenie zostało zakończone. Czat pozostaje dostępny dla końcowych ustaleń i historii."
-    return "This job is completed. The chat stays available for final details and history."
+    if (locale === "uk") return "Робота завершена. Чат лишається доступним для історії."
+    if (locale === "ru") return "Работа завершена. Чат остаётся доступным для истории."
+    if (locale === "sv") return "Jobbet är slutfört. Chatten finns kvar för historik."
+    if (locale === "pl") return "Zlecenie zostało zakończone. Czat pozostaje dostępny jako historia."
+    return "This job is completed. The chat remains available as history."
   }
 
   if (status === "cancelled") {
@@ -295,6 +304,74 @@ function ChatEmptyState({
   )
 }
 
+function ParticipantCard({
+  label,
+  profile,
+  unknownUser,
+  cityNotSpecified,
+  isHistory,
+  noCompany,
+}: {
+  label: string
+  profile: ProfileRow | null
+  unknownUser: string
+  cityNotSpecified: string
+  isHistory: boolean
+  noCompany: string
+}) {
+  const name = profile?.full_name?.trim() || unknownUser
+  const companyName = profile?.company_name?.trim() || noCompany
+
+  return (
+    <div
+      className={
+        isHistory
+          ? "rounded-[28px] border border-slate-200 bg-white/90 p-4 opacity-85 shadow-[0_2px_10px_rgba(15,23,42,0.03)]"
+          : "rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm"
+      }
+    >
+      <div className="flex items-center gap-3">
+        <div className="relative shrink-0">
+          <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-sm font-semibold text-white">
+            {profile?.avatar_url ? (
+              <img
+                src={profile.avatar_url}
+                alt={name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              getInitials(name)
+            )}
+          </div>
+
+          {profile?.company_logo_url ? (
+            <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
+              <img
+                src={profile.company_logo_url}
+                alt={companyName}
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : null}
+        </div>
+
+        <div className="min-w-0">
+          <p className="text-[11px] uppercase tracking-wide text-slate-500">
+            {label}
+          </p>
+          <p className="mt-1 truncate text-base font-medium text-slate-900">
+            {name}
+          </p>
+          <p className="mt-1 truncate text-sm text-slate-500">{companyName}</p>
+          <p className="mt-1 text-sm text-slate-500">
+            {profile?.city || cityNotSpecified}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default async function JobChatPage({ params }: PageProps) {
   const { id } = await params
 
@@ -353,7 +430,7 @@ export default async function JobChatPage({ params }: PageProps) {
 
   const { data: profilesData } = await supabase
     .from("profiles")
-    .select("id, full_name, city")
+    .select("id, full_name, city, avatar_url, company_logo_url, company_name")
     .in("id", participantIds)
 
   const profiles = (profilesData || []) as ProfileRow[]
@@ -438,41 +515,43 @@ export default async function JobChatPage({ params }: PageProps) {
         </div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-2">
-          <div
-            className={
-              isHistory
-                ? "rounded-[28px] border border-slate-200 bg-white/90 p-4 opacity-85 shadow-[0_2px_10px_rgba(15,23,42,0.03)]"
-                : "rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm"
+          <ParticipantCard
+            label={dictionary.chat.author}
+            profile={authorProfile}
+            unknownUser={dictionary.chat.unknownUser}
+            cityNotSpecified={dictionary.chat.cityNotSpecified}
+            isHistory={isHistory}
+            noCompany={
+              locale === "uk"
+                ? "Без компанії"
+                : locale === "ru"
+                  ? "Без компании"
+                  : locale === "sv"
+                    ? "Inget företag"
+                    : locale === "pl"
+                      ? "Bez firmy"
+                      : "No company"
             }
-          >
-            <p className="text-[11px] uppercase tracking-wide text-slate-500">
-              {dictionary.chat.author}
-            </p>
-            <p className="mt-1 text-base font-medium text-slate-900">
-              {authorProfile?.full_name || dictionary.chat.unknownUser}
-            </p>
-            <p className="mt-1 text-sm text-slate-500">
-              {authorProfile?.city || dictionary.chat.cityNotSpecified}
-            </p>
-          </div>
+          />
 
-          <div
-            className={
-              isHistory
-                ? "rounded-[28px] border border-slate-200 bg-white/90 p-4 opacity-85 shadow-[0_2px_10px_rgba(15,23,42,0.03)]"
-                : "rounded-[28px] border border-slate-200 bg-white p-4 shadow-sm"
+          <ParticipantCard
+            label={dictionary.chat.worker}
+            profile={workerProfile}
+            unknownUser={dictionary.chat.unknownUser}
+            cityNotSpecified={dictionary.chat.cityNotSpecified}
+            isHistory={isHistory}
+            noCompany={
+              locale === "uk"
+                ? "Без компанії"
+                : locale === "ru"
+                  ? "Без компании"
+                  : locale === "sv"
+                    ? "Inget företag"
+                    : locale === "pl"
+                      ? "Bez firmy"
+                      : "No company"
             }
-          >
-            <p className="text-[11px] uppercase tracking-wide text-slate-500">
-              {dictionary.chat.worker}
-            </p>
-            <p className="mt-1 text-base font-medium text-slate-900">
-              {workerProfile?.full_name || dictionary.chat.unknownUser}
-            </p>
-            <p className="mt-1 text-sm text-slate-500">
-              {workerProfile?.city || dictionary.chat.cityNotSpecified}
-            </p>
-          </div>
+          />
         </div>
 
         <div
@@ -520,34 +599,64 @@ export default async function JobChatPage({ params }: PageProps) {
                     key={message.id}
                     className={`flex ${isMine ? "justify-end" : "justify-start"}`}
                   >
-                    <div
-                      className={`max-w-[85%] rounded-[24px] px-4 py-3 shadow-sm sm:max-w-[80%] ${
-                        isMine
-                          ? isHistory
-                            ? "bg-slate-900 text-white"
-                            : "bg-rose-600 text-white"
-                          : "border border-slate-200 bg-white text-slate-900"
-                      }`}
-                    >
-                      <div
-                        className={`mb-1 text-xs ${
-                          isMine ? "text-white/70" : "text-slate-500"
-                        }`}
-                      >
-                        {senderName}
-                      </div>
-
-                      <div className="whitespace-pre-wrap break-words text-sm leading-6">
-                        {message.body || ""}
-                      </div>
+                    <div className="flex max-w-[85%] items-end gap-2 sm:max-w-[80%]">
+                      {!isMine ? (
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-xs font-semibold text-white">
+                          {senderProfile?.avatar_url ? (
+                            <img
+                              src={senderProfile.avatar_url}
+                              alt={senderName}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            getInitials(senderName)
+                          )}
+                        </div>
+                      ) : null}
 
                       <div
-                        className={`mt-2 text-[11px] ${
-                          isMine ? "text-white/70" : "text-slate-400"
+                        className={`rounded-[24px] px-4 py-3 shadow-sm ${
+                          isMine
+                            ? isHistory
+                              ? "bg-slate-900 text-white"
+                              : "bg-rose-600 text-white"
+                            : "border border-slate-200 bg-white text-slate-900"
                         }`}
                       >
-                        {formatDateTime(message.created_at)}
+                        <div
+                          className={`mb-1 text-xs ${
+                            isMine ? "text-white/70" : "text-slate-500"
+                          }`}
+                        >
+                          {senderName}
+                        </div>
+
+                        <div className="whitespace-pre-wrap break-words text-sm leading-6">
+                          {message.body || ""}
+                        </div>
+
+                        <div
+                          className={`mt-2 text-[11px] ${
+                            isMine ? "text-white/70" : "text-slate-400"
+                          }`}
+                        >
+                          {formatDateTime(message.created_at)}
+                        </div>
                       </div>
+
+                      {isMine ? (
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-xs font-semibold text-white">
+                          {senderProfile?.avatar_url ? (
+                            <img
+                              src={senderProfile.avatar_url}
+                              alt={senderName}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            getInitials(senderName)
+                          )}
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 )
