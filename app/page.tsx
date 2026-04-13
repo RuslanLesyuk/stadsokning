@@ -12,18 +12,13 @@ export const metadata: Metadata = {
 function FeatureCard({
   title,
   description,
-  icon,
 }: {
   title: string
   description: string
-  icon: string
 }) {
   return (
     <div className="rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:p-7">
-      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 text-2xl">
-        {icon}
-      </div>
-      <h3 className="mt-5 text-lg font-semibold tracking-tight text-slate-950 md:text-xl">
+      <h3 className="text-lg font-semibold tracking-tight text-slate-950 md:text-xl">
         {title}
       </h3>
       <p className="mt-2 text-sm leading-6 text-slate-600 md:text-[15px]">{description}</p>
@@ -32,20 +27,15 @@ function FeatureCard({
 }
 
 function StepCard({
-  index,
   title,
   description,
 }: {
-  index: string
   title: string
   description: string
 }) {
   return (
     <div className="rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-7">
-      <div className="inline-flex h-10 min-w-10 items-center justify-center rounded-full bg-slate-900 px-3 text-sm font-semibold text-white">
-        {index}
-      </div>
-      <h3 className="mt-5 text-lg font-semibold tracking-tight text-slate-950 md:text-xl">
+      <h3 className="text-lg font-semibold tracking-tight text-slate-950 md:text-xl">
         {title}
       </h3>
       <p className="mt-2 text-sm leading-6 text-slate-600 md:text-[15px]">{description}</p>
@@ -65,11 +55,7 @@ export default async function HomePage() {
         <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-rose-50/40 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8 lg:p-10">
           <div className="grid items-center gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:gap-10">
             <div className="min-w-0">
-              <div className="inline-flex rounded-full border border-rose-100 bg-white px-4 py-2 text-xs font-medium uppercase tracking-wide text-rose-700 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
-                Clean Jobs
-              </div>
-
-              <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl">
+              <h1 className="max-w-4xl text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl">
                 {landing.hero_title}
               </h1>
 
@@ -94,44 +80,24 @@ export default async function HomePage() {
                   {landing.post_job}
                 </Link>
               </div>
-
-              <div className="mt-8 flex flex-wrap gap-3">
-                <div className="rounded-full bg-white px-4 py-2 text-sm text-slate-700 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
-                  Fast hiring
-                </div>
-                <div className="rounded-full bg-white px-4 py-2 text-sm text-slate-700 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
-                  Trusted profiles
-                </div>
-                <div className="rounded-full bg-white px-4 py-2 text-sm text-slate-700 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
-                  Clean, simple flow
-                </div>
-              </div>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+            <div className="grid gap-4">
               <div className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-6">
                 <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
-                  Marketplace
+                  {landing.trust_fast_title}
                 </div>
-                <div className="mt-3 text-2xl font-semibold tracking-tight text-slate-950">
-                  Cleaners & clients
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Post work, browse listings, open job details, and keep the process simple from
-                  first click to finished job.
+                <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
+                  {landing.trust_fast_desc}
                 </p>
               </div>
 
               <div className="rounded-[28px] border border-slate-200/80 bg-slate-950 p-5 text-white shadow-[0_12px_30px_rgba(15,23,42,0.16)] md:p-6">
                 <div className="text-[11px] font-medium uppercase tracking-wide text-slate-300">
-                  Premium experience
+                  {landing.trust_safe_title}
                 </div>
-                <div className="mt-3 text-2xl font-semibold tracking-tight">
-                  Airbnb-inspired UI
-                </div>
-                <p className="mt-2 text-sm leading-6 text-slate-300">
-                  Neutral base, clear hierarchy, soft cards, and pink accents that match the rest
-                  of Clean Jobs.
+                <p className="mt-3 text-sm leading-6 text-slate-300 md:text-[15px]">
+                  {landing.trust_safe_desc}
                 </p>
               </div>
             </div>
@@ -143,24 +109,21 @@ export default async function HomePage() {
             <h2 className="text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
               {landing.seo_title}
             </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500 md:text-base">
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500 md:text-base">
               {landing.seo_description}
             </p>
           </div>
 
           <div className="grid gap-5 md:grid-cols-3">
             <FeatureCard
-              icon="⚡"
               title={landing.trust_fast_title}
               description={landing.trust_fast_desc}
             />
             <FeatureCard
-              icon="🛡️"
               title={landing.trust_safe_title}
               description={landing.trust_safe_desc}
             />
             <FeatureCard
-              icon="✨"
               title={landing.trust_simple_title}
               description={landing.trust_simple_desc}
             />
@@ -172,27 +135,12 @@ export default async function HomePage() {
             <h2 className="text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
               {landing.how_title}
             </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-500 md:text-base">
-              Clean flow for both sides of the marketplace.
-            </p>
           </div>
 
           <div className="mt-8 grid gap-5 md:grid-cols-3">
-            <StepCard
-              index="01"
-              title={landing.step1_title}
-              description={landing.step1_desc}
-            />
-            <StepCard
-              index="02"
-              title={landing.step2_title}
-              description={landing.step2_desc}
-            />
-            <StepCard
-              index="03"
-              title={landing.step3_title}
-              description={landing.step3_desc}
-            />
+            <StepCard title={landing.step1_title} description={landing.step1_desc} />
+            <StepCard title={landing.step2_title} description={landing.step2_desc} />
+            <StepCard title={landing.step3_title} description={landing.step3_desc} />
           </div>
         </section>
 
@@ -201,11 +149,6 @@ export default async function HomePage() {
             <h2 className="text-2xl font-semibold tracking-tight text-slate-950 md:text-4xl">
               {landing.cta_title}
             </h2>
-
-            <p className="mt-4 text-sm leading-6 text-slate-600 md:text-base">
-              Create an account, publish your first job, or browse available cleaning work in a
-              cleaner interface that matches the rest of the platform.
-            </p>
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
