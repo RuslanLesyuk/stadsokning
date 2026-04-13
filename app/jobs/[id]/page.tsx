@@ -75,6 +75,7 @@ type Copy = {
   no_description: string
   chat: string
   edit: string
+  delete: string
   reviews: string
   no_reviews: string
   activity: string
@@ -122,6 +123,7 @@ const copy: Record<Locale, Copy> = {
     no_description: "Опис не додано.",
     chat: "Відкрити чат",
     edit: "Редагувати",
+    delete: "Видалити",
     reviews: "Відгуки",
     no_reviews: "Ще немає відгуків.",
     activity: "Історія активності",
@@ -167,6 +169,7 @@ const copy: Record<Locale, Copy> = {
     no_description: "Описание не добавлено.",
     chat: "Открыть чат",
     edit: "Редактировать",
+    delete: "Удалить",
     reviews: "Отзывы",
     no_reviews: "Отзывов пока нет.",
     activity: "История активности",
@@ -212,6 +215,7 @@ const copy: Record<Locale, Copy> = {
     no_description: "No description added.",
     chat: "Open chat",
     edit: "Edit",
+    delete: "Delete",
     reviews: "Reviews",
     no_reviews: "No reviews yet.",
     activity: "Activity timeline",
@@ -257,6 +261,7 @@ const copy: Record<Locale, Copy> = {
     no_description: "Ingen beskrivning tillagd.",
     chat: "Öppna chatt",
     edit: "Redigera",
+    delete: "Ta bort",
     reviews: "Recensioner",
     no_reviews: "Inga recensioner ännu.",
     activity: "Aktivitetshistorik",
@@ -302,6 +307,7 @@ const copy: Record<Locale, Copy> = {
     no_description: "Brak opisu.",
     chat: "Otwórz czat",
     edit: "Edytuj",
+    delete: "Usuń",
     reviews: "Opinie",
     no_reviews: "Brak opinii.",
     activity: "Historia aktywności",
@@ -600,6 +606,46 @@ export default async function JobDetailsPage({
   const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
   const t = copy[locale] || copy.en
 
+  async function deleteJobAction() {
+    "use server"
+
+    const supabase = await createClient()
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+      redirect(`/login?next=/jobs/${id}`)
+    }
+
+    const { data: existingJob } = await supabase
+      .from("jobs")
+      .select("id, created_by, status")
+      .eq("id", id)
+      .single()
+
+    if (!existingJob) {
+      notFound()
+    }
+
+    if (existingJob.created_by !== user.id) {
+      redirect(`/jobs/${id}`)
+    }
+
+    if (existingJob.status === "done" || existingJob.status === "cancelled") {
+      redirect(`/jobs/${id}`)
+    }
+
+    const { error } = await supabase.from("jobs").delete().eq("id", id).eq("created_by", user.id)
+
+    if (error) {
+      redirect(`/jobs/${id}`)
+    }
+
+    redirect("/dashboard")
+  }
+
   const supabase = await createClient()
 
   const {
@@ -710,6 +756,7 @@ export default async function JobDetailsPage({
     (job.created_by === user.id || job.assigned_to === user.id)
 
   const canEdit = isOwner && !isHistory
+  const canDelete = isOwner && !isHistory
 
   const heroHint =
     job.status === "done"
@@ -839,6 +886,17 @@ export default async function JobDetailsPage({
                   >
                     {t.edit}
                   </Link>
+                ) : null}
+
+                {canDelete ? (
+                  <form action={deleteJobAction}>
+                    <button
+                      type="submit"
+                      className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-rose-200 bg-white px-5 py-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
+                    >
+                      {t.delete}
+                    </button>
+                  </form>
                 ) : null}
 
                 {canTakeJob ? <TakeJobForm jobId={job.id} /> : null}
