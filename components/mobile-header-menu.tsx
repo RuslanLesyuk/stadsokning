@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { useEffect, useRef, useState } from "react"
 
@@ -17,6 +18,9 @@ type MobileHeaderMenuProps = {
   profileInitials: string
   unreadCount: number
   isAuthenticated: boolean
+  avatarUrl?: string | null
+  companyLogoUrl?: string | null
+  companyName?: string | null
 }
 
 function itemClass(primary = false) {
@@ -41,6 +45,9 @@ export default function MobileHeaderMenu({
   profileInitials,
   unreadCount,
   isAuthenticated,
+  avatarUrl,
+  companyLogoUrl,
+  companyName,
 }: MobileHeaderMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -153,16 +160,47 @@ export default function MobileHeaderMenu({
                     href="/profile"
                     onClick={closeMenu}
                     prefetch={false}
-                    className={`${itemClass()} gap-3`}
+                    className={`${itemClass()} items-start gap-3`}
                   >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-rose-600 text-xs font-semibold text-white">
-                      {profileInitials}
-                    </span>
-                    <div className="min-w-0 text-left">
+                    <div className="relative flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-rose-600 text-xs font-semibold text-white ring-1 ring-slate-200">
+                      {avatarUrl ? (
+                        <Image
+                          src={avatarUrl}
+                          alt={profileName || profileLabel}
+                          fill
+                          sizes="44px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        profileInitials
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1 text-left">
                       <p className="text-xs text-slate-500">{profileLabel}</p>
-                      <p className="truncate text-sm text-slate-800">
+                      <p className="truncate text-sm font-medium text-slate-900">
                         {profileName || profileLabel}
                       </p>
+
+                      {companyName ? (
+                        <div className="mt-1 flex items-center gap-2">
+                          {companyLogoUrl ? (
+                            <div className="relative h-5 w-5 shrink-0 overflow-hidden rounded-md border border-slate-200 bg-white">
+                              <Image
+                                src={companyLogoUrl}
+                                alt={companyName}
+                                fill
+                                sizes="20px"
+                                className="object-cover"
+                              />
+                            </div>
+                          ) : null}
+
+                          <p className="truncate text-xs font-medium text-slate-500">
+                            {companyName}
+                          </p>
+                        </div>
+                      ) : null}
                     </div>
                   </Link>
 
