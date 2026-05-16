@@ -6,7 +6,7 @@ import SiteHeader from "@/components/site-header"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://cleanjobs.app"),
+  metadataBase: new URL("https://stadsokning.vercel.app"),
 
   title: {
     default: "Clean Jobs",
@@ -56,7 +56,10 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-
+  themeColor: "#e11d48",
+  alternates: {
+  canonical: "https://stadsokning.vercel.app",
+},
   icons: {
     icon: "/favicon.ico",
   },

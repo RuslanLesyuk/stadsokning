@@ -1,40 +1,49 @@
 import type { MetadataRoute } from "next"
 
-function getBaseUrl() {
-  return (
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "http://localhost:3000"
-  )
-}
-
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = getBaseUrl()
-  const now = new Date()
+  const baseUrl = "https://stadsokning.vercel.app"
 
   return [
     {
-      url: `${baseUrl}/`,
-      lastModified: now,
+      url: baseUrl,
+      lastModified: new Date(),
       changeFrequency: "daily",
       priority: 1,
     },
+
     {
       url: `${baseUrl}/jobs`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "hourly",
       priority: 0.9,
     },
-    {
-      url: `${baseUrl}/login`,
-      lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.4,
-    },
+
     {
       url: `${baseUrl}/signup`,
-      lastModified: now,
+      lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.5,
+      priority: 0.7,
+    },
+
+    {
+      url: `${baseUrl}/login`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.7,
+    },
+
+    {
+      url: `${baseUrl}/terms`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.3,
+    },
+
+    {
+      url: `${baseUrl}/privacy`,
+      lastModified: new Date(),
+      changeFrequency: "yearly",
+      priority: 0.3,
     },
   ]
 }
