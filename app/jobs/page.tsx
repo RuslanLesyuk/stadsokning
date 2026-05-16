@@ -1,89 +1,100 @@
-import Link from "next/link"
-import { cookies } from "next/headers"
-import { createClient } from "@/lib/supabase-server"
-import { normalizeLocale, type Locale } from "@/lib/i18n"
+import Link from "next/link";
+import { cookies } from "next/headers";
+import { createClient } from "@/lib/supabase-server";
+import { normalizeLocale, type Locale } from "@/lib/i18n";
 
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
-type JobStatus = "new" | "assigned" | "in_progress" | "done" | "cancelled" | null
-type JobsView = "active" | "completed"
+type JobStatus =
+  | "new"
+  | "assigned"
+  | "in_progress"
+  | "done"
+  | "cancelled"
+  | null;
+type JobsView = "active" | "completed";
 
 type Job = {
-  id: string
-  title: string
-  description: string | null
-  city: string | null
-  budget: number | null
-  job_type: string | null
-  property_type: string | null
-  status: JobStatus
-  created_at: string
-  created_by: string | null
-  assigned_to: string | null
-}
+  id: string;
+  title: string;
+  description: string | null;
+  city: string | null;
+  budget: number | null;
+  job_type: string | null;
+  property_type: string | null;
+  status: JobStatus;
+  created_at: string;
+  created_by: string | null;
+  assigned_to: string | null;
+};
 
 type Profile = {
-  id: string
-  full_name: string | null
-  avatar_url: string | null
-  company_logo_url: string | null
-  company_name: string | null
-}
+  id: string;
+  full_name: string | null;
+  avatar_url: string | null;
+  company_logo_url: string | null;
+  company_name: string | null;
+};
 
 type JobsCopy = {
-  title: string
-  subtitle: string
-  filters: string
-  search_placeholder: string
-  city_placeholder: string
-  all_statuses: string
-  all_job_types: string
-  all_property_types: string
-  active_tab: string
-  completed_tab: string
-  active_results: string
-  completed_results: string
-  active_description: string
-  completed_description: string
-  in_history: string
-  status_new: string
-  status_assigned: string
-  status_in_progress: string
-  status_done: string
-  status_cancelled: string
-  job_type_home_cleaning: string
-  job_type_office_cleaning: string
-  property_type_apartment: string
-  property_type_house: string
-  property_type_office: string
-  property_type_other: string
-  newest: string
-  oldest: string
-  highest_budget: string
-  lowest_budget: string
-  apply: string
-  clear: string
-  results: string
-  open_job: string
-  no_jobs: string
-  no_jobs_description_active: string
-  no_jobs_description_completed: string
-  no_jobs_secondary_cta: string
-  no_city: string
-  no_budget: string
-  created: string
-  budget: string
-  status: string
-  job_type: string
-  property_type: string
-  city: string
-  post_job: string
-  browse_hint: string
-  author: string
-  worker: string
-  no_company: string
-  unknown_user: string
-}
+  title: string;
+  subtitle: string;
+  filters: string;
+  search_placeholder: string;
+  city_placeholder: string;
+  all_statuses: string;
+  all_job_types: string;
+  all_property_types: string;
+  active_tab: string;
+  completed_tab: string;
+  active_results: string;
+  completed_results: string;
+  active_description: string;
+  completed_description: string;
+  in_history: string;
+  status_new: string;
+  status_assigned: string;
+  status_in_progress: string;
+  status_done: string;
+  status_cancelled: string;
+  job_type_home_cleaning: string;
+  job_type_office_cleaning: string;
+  property_type_apartment: string;
+  property_type_house: string;
+  property_type_office: string;
+  property_type_other: string;
+  newest: string;
+  oldest: string;
+  highest_budget: string;
+  lowest_budget: string;
+  apply: string;
+  clear: string;
+  results: string;
+  open_job: string;
+  no_jobs: string;
+  no_jobs_description_active: string;
+  no_jobs_description_completed: string;
+  no_jobs_secondary_cta: string;
+  no_city: string;
+  no_budget: string;
+  created: string;
+  budget: string;
+  status: string;
+  job_type: string;
+  property_type: string;
+  city: string;
+  post_job: string;
+  browse_hint: string;
+  author: string;
+  worker: string;
+  no_company: string;
+  unknown_user: string;
+  verified_customer: string;
+  verified_worker: string;
+  safe_deal: string;
+  responsive_user: string;
+  trusted_profile: string;
+};
 
 const copy: Record<Locale, JobsCopy> = {
   uk: {
@@ -100,7 +111,8 @@ const copy: Record<Locale, JobsCopy> = {
     active_results: "Активні роботи",
     completed_results: "Завершені та скасовані",
     active_description: "Поточні замовлення для пошуку та роботи.",
-    completed_description: "Історія завершених і скасованих замовлень без шуму в основному потоці.",
+    completed_description:
+      "Історія завершених і скасованих замовлень без шуму в основному потоці.",
     in_history: "в історії",
     status_new: "Нове",
     status_assigned: "Призначено",
@@ -139,8 +151,13 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Переглядайте замовлення, фільтруйте та відкривайте деталі.",
     author: "Автор",
     worker: "Виконавець",
-    no_company: "Профіль компанії ще не додано",
-    unknown_user: "Перевірений користувач",
+    no_company: "Без компанії",
+    unknown_user: "Користувач",
+    verified_customer: "Перевірений замовник",
+    verified_worker: "Перевірений виконавець",
+    safe_deal: "Безпечна угода",
+    responsive_user: "Швидко відповідає",
+    trusted_profile: "Надійний профіль",
   },
   ru: {
     title: "Работы",
@@ -156,7 +173,8 @@ const copy: Record<Locale, JobsCopy> = {
     active_results: "Активные работы",
     completed_results: "Завершённые и отменённые",
     active_description: "Текущие заказы для поиска и работы.",
-    completed_description: "История завершённых и отменённых заказов без шума в основном потоке.",
+    completed_description:
+      "История завершённых и отменённых заказов без шума в основном потоке.",
     in_history: "в истории",
     status_new: "Новый",
     status_assigned: "Назначено",
@@ -195,8 +213,13 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Просматривайте заказы, фильтруйте и открывайте детали.",
     author: "Автор",
     worker: "Исполнитель",
-    no_company: "Профиль компании еще не добавлен",
-    unknown_user: "Проверенный пользователь",
+    no_company: "Без компании",
+    unknown_user: "Пользователь",
+    verified_customer: "Проверенный заказчик",
+    verified_worker: "Проверенный исполнитель",
+    safe_deal: "Безопасная сделка",
+    responsive_user: "Быстро отвечает",
+    trusted_profile: "Надежный профиль",
   },
   en: {
     title: "Jobs",
@@ -212,7 +235,8 @@ const copy: Record<Locale, JobsCopy> = {
     active_results: "Active jobs",
     completed_results: "Completed and cancelled",
     active_description: "Current jobs available for browsing and work.",
-    completed_description: "History of completed and cancelled jobs without cluttering the main flow.",
+    completed_description:
+      "History of completed and cancelled jobs without cluttering the main flow.",
     in_history: "in history",
     status_new: "New",
     status_assigned: "Assigned",
@@ -251,8 +275,13 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Browse jobs, filter them, and open details.",
     author: "Author",
     worker: "Worker",
-    no_company: "Company profile not added yet",
+    no_company: "No company",
     unknown_user: "Verified user",
+    verified_customer: "Verified customer",
+    verified_worker: "Verified worker",
+    safe_deal: "Safe deal",
+    responsive_user: "Fast response",
+    trusted_profile: "Trusted profile",
   },
   sv: {
     title: "Jobb",
@@ -268,7 +297,8 @@ const copy: Record<Locale, JobsCopy> = {
     active_results: "Aktiva jobb",
     completed_results: "Slutförda och avbrutna",
     active_description: "Aktuella jobb för sökning och arbete.",
-    completed_description: "Historik över slutförda och avbrutna jobb utan att störa huvudflödet.",
+    completed_description:
+      "Historik över slutförda och avbrutna jobb utan att störa huvudflödet.",
     in_history: "i historiken",
     status_new: "Ny",
     status_assigned: "Tilldelad",
@@ -307,8 +337,13 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Bläddra bland jobb, filtrera och öppna detaljer.",
     author: "Skapad av",
     worker: "Arbetare",
-    no_company: "Företagsprofil saknas",
+    no_company: "Inget företag",
     unknown_user: "Verifierad användare",
+    verified_customer: "Verifierad kund",
+    verified_worker: "Verifierad arbetare",
+    safe_deal: "Säker affär",
+    responsive_user: "Svarar snabbt",
+    trusted_profile: "Pålitlig profil",
   },
   pl: {
     title: "Prace",
@@ -324,7 +359,8 @@ const copy: Record<Locale, JobsCopy> = {
     active_results: "Aktywne zlecenia",
     completed_results: "Zakończone i anulowane",
     active_description: "Bieżące zlecenia do przeglądania i wykonywania.",
-    completed_description: "Historia zakończonych i anulowanych zleceń bez zaśmiecania głównego widoku.",
+    completed_description:
+      "Historia zakończonych i anulowanych zleceń bez zaśmiecania głównego widoku.",
     in_history: "w historii",
     status_new: "Nowe",
     status_assigned: "Przypisane",
@@ -363,10 +399,15 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Przeglądaj zlecenia, filtruj i otwieraj szczegóły.",
     author: "Autor",
     worker: "Wykonawca",
-    no_company: "Profil firmy nie został dodany",
+    no_company: "Bez firmy",
     unknown_user: "Zweryfikowany użytkownik",
+    verified_customer: "Zweryfikowany klient",
+    verified_worker: "Zweryfikowany wykonawca",
+    safe_deal: "Bezpieczna transakcja",
+    responsive_user: "Szybko odpowiada",
+    trusted_profile: "Zaufany profil",
   },
-}
+};
 
 function formatDate(value: string, locale: Locale) {
   try {
@@ -376,125 +417,125 @@ function formatDate(value: string, locale: Locale) {
       en: "en-US",
       sv: "sv-SE",
       pl: "pl-PL",
-    }
+    };
 
     return new Intl.DateTimeFormat(map[locale], {
       year: "numeric",
       month: "short",
       day: "numeric",
-    }).format(new Date(value))
+    }).format(new Date(value));
   } catch {
-    return value
+    return value;
   }
 }
 
 function formatBudget(value: number | null, t: JobsCopy) {
-  if (value == null) return t.no_budget
-  return `${value} kr`
+  if (value == null) return t.no_budget;
+  return `${value} kr`;
 }
 
 function getStatusLabel(status: JobStatus, t: JobsCopy) {
   switch (status) {
     case "new":
-      return t.status_new
+      return t.status_new;
     case "assigned":
-      return t.status_assigned
+      return t.status_assigned;
     case "in_progress":
-      return t.status_in_progress
+      return t.status_in_progress;
     case "done":
-      return t.status_done
+      return t.status_done;
     case "cancelled":
-      return t.status_cancelled
+      return t.status_cancelled;
     default:
-      return "—"
+      return "—";
   }
 }
 
 function getStatusClasses(status: JobStatus) {
   switch (status) {
     case "new":
-      return "border-slate-200 bg-slate-100 text-slate-700"
+      return "border-slate-200 bg-slate-100 text-slate-700";
     case "assigned":
-      return "border-sky-200 bg-sky-50 text-sky-700"
+      return "border-sky-200 bg-sky-50 text-sky-700";
     case "in_progress":
-      return "border-amber-200 bg-amber-50 text-amber-700"
+      return "border-amber-200 bg-amber-50 text-amber-700";
     case "done":
-      return "border-emerald-200 bg-emerald-50 text-emerald-700"
+      return "border-emerald-200 bg-emerald-50 text-emerald-700";
     case "cancelled":
-      return "border-rose-200 bg-rose-50 text-rose-700"
+      return "border-rose-200 bg-rose-50 text-rose-700";
     default:
-      return "border-slate-200 bg-slate-100 text-slate-700"
+      return "border-slate-200 bg-slate-100 text-slate-700";
   }
 }
 
 function getJobTypeLabel(jobType: string | null, t: JobsCopy) {
   switch (jobType) {
     case "home_cleaning":
-      return t.job_type_home_cleaning
+      return t.job_type_home_cleaning;
     case "office_cleaning":
-      return t.job_type_office_cleaning
+      return t.job_type_office_cleaning;
     default:
-      return "—"
+      return "—";
   }
 }
 
 function getPropertyTypeLabel(propertyType: string | null, t: JobsCopy) {
   switch (propertyType) {
     case "apartment":
-      return t.property_type_apartment
+      return t.property_type_apartment;
     case "house":
-      return t.property_type_house
+      return t.property_type_house;
     case "office":
-      return t.property_type_office
+      return t.property_type_office;
     case "other":
-      return t.property_type_other
+      return t.property_type_other;
     default:
-      return "—"
+      return "—";
   }
 }
 
 function truncate(text: string | null | undefined, max = 170) {
-  if (!text) return ""
-  if (text.length <= max) return text
-  return `${text.slice(0, max).trim()}…`
+  if (!text) return "";
+  if (text.length <= max) return text;
+  return `${text.slice(0, max).trim()}…`;
 }
 
 function isCompletedStatus(status: JobStatus) {
-  return status === "done" || status === "cancelled"
+  return status === "done" || status === "cancelled";
 }
 
 function getInitials(name: string) {
-  const clean = name.trim()
-  if (!clean) return "U"
-  const parts = clean.split(/\s+/).slice(0, 2)
-  const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("")
-  return initials || "U"
+  const clean = name.trim();
+  if (!clean) return "U";
+  const parts = clean.split(/\s+/).slice(0, 2);
+  const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("");
+  return initials || "U";
 }
 
 function buildHref(params: {
-  view?: JobsView
-  q?: string
-  city?: string
-  status?: string
-  jobType?: string
-  propertyType?: string
-  sort?: string
+  view?: JobsView;
+  q?: string;
+  city?: string;
+  status?: string;
+  jobType?: string;
+  propertyType?: string;
+  sort?: string;
 }) {
-  const search = new URLSearchParams()
+  const search = new URLSearchParams();
 
   if (params.view && params.view !== "active") {
-    search.set("view", params.view)
+    search.set("view", params.view);
   }
 
-  if (params.q) search.set("q", params.q)
-  if (params.city) search.set("city", params.city)
-  if (params.status) search.set("status", params.status)
-  if (params.jobType) search.set("jobType", params.jobType)
-  if (params.propertyType) search.set("propertyType", params.propertyType)
-  if (params.sort && params.sort !== "newest") search.set("sort", params.sort)
+  if (params.q) search.set("q", params.q);
+  if (params.city) search.set("city", params.city);
+  if (params.status) search.set("status", params.status);
+  if (params.jobType) search.set("jobType", params.jobType);
+  if (params.propertyType) search.set("propertyType", params.propertyType);
+  if (params.sort && params.sort !== "newest") search.set("sort", params.sort);
 
-  const queryString = search.toString()
-  return queryString ? `/jobs?${queryString}` : "/jobs"
+  const queryString = search.toString();
+  return queryString ? `/jobs?${queryString}` : "/jobs";
 }
 
 function JobsEmptyState({
@@ -505,12 +546,12 @@ function JobsEmptyState({
   secondaryLabel,
   secondaryHref,
 }: {
-  title: string
-  description: string
-  primaryLabel: string
-  primaryHref: string
-  secondaryLabel: string
-  secondaryHref: string
+  title: string;
+  description: string;
+  primaryLabel: string;
+  primaryHref: string;
+  secondaryLabel: string;
+  secondaryHref: string;
 }) {
   return (
     <div className="rounded-[28px] border border-dashed border-slate-300/90 bg-white p-8 text-center shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-10">
@@ -546,7 +587,7 @@ function JobsEmptyState({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function FilterLabel({ children }: { children: React.ReactNode }) {
@@ -554,7 +595,29 @@ function FilterLabel({ children }: { children: React.ReactNode }) {
     <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-slate-500">
       {children}
     </div>
-  )
+  );
+}
+
+function TrustBadge({
+  children,
+  tone = "rose",
+}: {
+  children: React.ReactNode;
+  tone?: "rose" | "emerald" | "sky";
+}) {
+  const classes = {
+    rose: "border-rose-200 bg-rose-50 text-rose-700",
+    emerald: "border-emerald-200 bg-emerald-50 text-emerald-700",
+    sky: "border-sky-200 bg-sky-50 text-sky-700",
+  };
+
+  return (
+    <span
+      className={`inline-flex items-center gap-1 rounded-full border px-3 py-1 text-[11px] font-medium ${classes[tone]}`}
+    >
+      {children}
+    </span>
+  );
 }
 
 function PersonMiniCard({
@@ -563,20 +626,24 @@ function PersonMiniCard({
   fallbackName,
   fallbackCompany,
 }: {
-  label: string
-  profile?: Profile | null
-  fallbackName: string
-  fallbackCompany: string
+  label: string;
+  profile?: Profile | null;
+  fallbackName: string;
+  fallbackCompany: string;
 }) {
-  const name = profile?.full_name?.trim() || fallbackName
-  const companyName = profile?.company_name?.trim() || fallbackCompany
+  const name = profile?.full_name?.trim() || fallbackName;
+  const companyName = profile?.company_name?.trim() || fallbackCompany;
 
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-slate-50/80 px-3 py-3">
       <div className="relative shrink-0">
         <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-rose-500 to-pink-600 text-sm font-semibold text-white shadow-sm">
           {profile?.avatar_url ? (
-            <img src={profile.avatar_url} alt={name} className="h-full w-full object-cover" />
+            <img
+              src={profile.avatar_url}
+              alt={name}
+              className="h-full w-full object-cover"
+            />
           ) : (
             getInitials(name)
           )}
@@ -597,112 +664,120 @@ function PersonMiniCard({
         <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
           {label}
         </div>
-        <div className="truncate text-sm font-medium text-slate-900">{name}</div>
+        <div className="truncate text-sm font-medium text-slate-900">
+          {name}
+        </div>
         <div className="truncate text-xs text-slate-500">{companyName}</div>
       </div>
     </div>
-  )
+  );
 }
 
 export default async function JobsPage({
   searchParams,
 }: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const cookieStore = await cookies()
-  const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
-  const t = copy[locale] || copy.en
+  const cookieStore = await cookies();
+  const locale = normalizeLocale(
+    cookieStore.get("clean_jobs_locale")?.value,
+  ) as Locale;
+  const t = copy[locale] || copy.en;
 
-  const params = (await searchParams) ?? {}
+  const params = (await searchParams) ?? {};
 
-  const q = typeof params.q === "string" ? params.q.trim() : ""
-  const city = typeof params.city === "string" ? params.city.trim() : ""
-  const status = typeof params.status === "string" ? params.status.trim() : ""
-  const jobType = typeof params.jobType === "string" ? params.jobType.trim() : ""
+  const q = typeof params.q === "string" ? params.q.trim() : "";
+  const city = typeof params.city === "string" ? params.city.trim() : "";
+  const status = typeof params.status === "string" ? params.status.trim() : "";
+  const jobType =
+    typeof params.jobType === "string" ? params.jobType.trim() : "";
   const propertyType =
-    typeof params.propertyType === "string" ? params.propertyType.trim() : ""
-  const sort = typeof params.sort === "string" ? params.sort.trim() : "newest"
-  const rawView = typeof params.view === "string" ? params.view.trim() : "active"
-  const view: JobsView = rawView === "completed" ? "completed" : "active"
+    typeof params.propertyType === "string" ? params.propertyType.trim() : "";
+  const sort = typeof params.sort === "string" ? params.sort.trim() : "newest";
+  const rawView =
+    typeof params.view === "string" ? params.view.trim() : "active";
+  const view: JobsView = rawView === "completed" ? "completed" : "active";
 
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   let query = supabase
     .from("jobs")
     .select(
       "id, title, description, city, budget, job_type, property_type, status, created_at, created_by, assigned_to",
-    )
+    );
 
   if (q) {
-    const escaped = q.replaceAll(",", " ")
-    query = query.or(`title.ilike.%${escaped}%,description.ilike.%${escaped}%`)
+    const escaped = q.replaceAll(",", " ");
+    query = query.or(`title.ilike.%${escaped}%,description.ilike.%${escaped}%`);
   }
 
   if (city) {
-    query = query.ilike("city", `%${city}%`)
+    query = query.ilike("city", `%${city}%`);
   }
 
   if (status) {
-    query = query.eq("status", status)
+    query = query.eq("status", status);
   } else if (view === "completed") {
-    query = query.in("status", ["done", "cancelled"])
+    query = query.in("status", ["done", "cancelled"]);
   } else {
-    query = query.in("status", ["new", "assigned", "in_progress"])
+    query = query.in("status", ["new", "assigned", "in_progress"]);
   }
 
   if (jobType) {
-    query = query.eq("job_type", jobType)
+    query = query.eq("job_type", jobType);
   }
 
   if (propertyType) {
-    query = query.eq("property_type", propertyType)
+    query = query.eq("property_type", propertyType);
   }
 
   if (sort === "oldest") {
-    query = query.order("created_at", { ascending: true })
+    query = query.order("created_at", { ascending: true });
   } else if (sort === "highest_budget") {
-    query = query.order("budget", { ascending: false, nullsFirst: false })
+    query = query.order("budget", { ascending: false, nullsFirst: false });
   } else if (sort === "lowest_budget") {
-    query = query.order("budget", { ascending: true, nullsFirst: false })
+    query = query.order("budget", { ascending: true, nullsFirst: false });
   } else {
-    query = query.order("created_at", { ascending: false })
+    query = query.order("created_at", { ascending: false });
   }
 
-  const { data, error } = await query.limit(100)
+  const { data, error } = await query.limit(100);
 
   if (error) {
-    throw new Error(error.message)
+    throw new Error(error.message);
   }
 
-  const jobs = (data ?? []) as Job[]
+  const jobs = (data ?? []) as Job[];
 
   const profileIds = Array.from(
     new Set(
-      jobs.flatMap((job) => [job.created_by, job.assigned_to].filter(Boolean) as string[]),
+      jobs.flatMap(
+        (job) => [job.created_by, job.assigned_to].filter(Boolean) as string[],
+      ),
     ),
-  )
+  );
 
-  let profiles: Profile[] = []
+  let profiles: Profile[] = [];
 
   if (profileIds.length > 0) {
     const { data: profilesRaw, error: profilesError } = await supabase
       .from("profiles")
       .select("id, full_name, avatar_url, company_logo_url, company_name")
-      .in("id", profileIds)
+      .in("id", profileIds);
 
     if (profilesError) {
-      throw new Error(profilesError.message)
+      throw new Error(profilesError.message);
     }
 
-    profiles = (profilesRaw ?? []) as Profile[]
+    profiles = (profilesRaw ?? []) as Profile[];
   }
 
-  const profileById = new Map<string, Profile>()
+  const profileById = new Map<string, Profile>();
   for (const profile of profiles) {
-    profileById.set(profile.id, profile)
+    profileById.set(profile.id, profile);
   }
 
-  const clearHref = buildHref({ view })
+  const clearHref = buildHref({ view });
   const activeTabHref = buildHref({
     view: "active",
     q,
@@ -711,7 +786,7 @@ export default async function JobsPage({
     jobType,
     propertyType,
     sort,
-  })
+  });
   const completedTabHref = buildHref({
     view: "completed",
     q,
@@ -720,7 +795,7 @@ export default async function JobsPage({
     jobType,
     propertyType,
     sort,
-  })
+  });
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -776,7 +851,9 @@ export default async function JobsPage({
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <div className="rounded-full bg-white px-4 py-2 text-sm text-slate-700 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
-              {view === "active" ? t.active_description : t.completed_description}
+              {view === "active"
+                ? t.active_description
+                : t.completed_description}
             </div>
 
             {view === "completed" ? (
@@ -831,7 +908,9 @@ export default async function JobsPage({
                     <>
                       <option value="new">{t.status_new}</option>
                       <option value="assigned">{t.status_assigned}</option>
-                      <option value="in_progress">{t.status_in_progress}</option>
+                      <option value="in_progress">
+                        {t.status_in_progress}
+                      </option>
                     </>
                   ) : (
                     <>
@@ -850,8 +929,12 @@ export default async function JobsPage({
                   className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
                 >
                   <option value="">{t.all_job_types}</option>
-                  <option value="home_cleaning">{t.job_type_home_cleaning}</option>
-                  <option value="office_cleaning">{t.job_type_office_cleaning}</option>
+                  <option value="home_cleaning">
+                    {t.job_type_home_cleaning}
+                  </option>
+                  <option value="office_cleaning">
+                    {t.job_type_office_cleaning}
+                  </option>
                 </select>
               </div>
 
@@ -911,7 +994,9 @@ export default async function JobsPage({
                 {view === "active" ? t.active_results : t.completed_results}
               </h2>
               <p className="mt-1 text-sm text-slate-500">
-                {view === "active" ? t.active_description : t.completed_description}
+                {view === "active"
+                  ? t.active_description
+                  : t.completed_description}
               </p>
             </div>
 
@@ -936,11 +1021,18 @@ export default async function JobsPage({
           ) : (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {jobs.map((job) => {
-                const subdued = view === "completed" || isCompletedStatus(job.status)
-                const authorProfile = job.created_by ? profileById.get(job.created_by) : null
-                const workerProfile = job.assigned_to ? profileById.get(job.assigned_to) : null
-                const authorName = authorProfile?.full_name?.trim() || t.unknown_user
-                const workerName = workerProfile?.full_name?.trim() || t.unknown_user
+                const subdued =
+                  view === "completed" || isCompletedStatus(job.status);
+                const authorProfile = job.created_by
+                  ? profileById.get(job.created_by)
+                  : null;
+                const workerProfile = job.assigned_to
+                  ? profileById.get(job.assigned_to)
+                  : null;
+                const authorName =
+                  authorProfile?.full_name?.trim() || t.unknown_user;
+                const workerName =
+                  workerProfile?.full_name?.trim() || t.unknown_user;
 
                 return (
                   <article
@@ -996,23 +1088,62 @@ export default async function JobsPage({
                         {truncate(job.description)}
                       </p>
                     ) : (
-                      <div className="mt-4 text-sm leading-6 text-slate-400">—</div>
+                      <div className="mt-4 text-sm leading-6 text-slate-400">
+                        —
+                      </div>
                     )}
 
                     <div className="mt-5 grid gap-3">
-                      <PersonMiniCard
-                        label={t.author}
-                        profile={authorProfile}
-                        fallbackName={authorName}
-                        fallbackCompany={t.no_company}
-                      />
-                      {workerProfile ? (
+                      <div className="flex flex-wrap gap-2">
+                        <TrustBadge tone="emerald">
+                          <span>✓</span>
+                          <span>{t.safe_deal}</span>
+                        </TrustBadge>
+
+                        <TrustBadge tone="sky">
+                          <span>⚡</span>
+                          <span>{t.responsive_user}</span>
+                        </TrustBadge>
+                      </div>
+
+                      <div className="rounded-[22px] border border-slate-200/80 bg-white p-3 shadow-[0_1px_6px_rgba(15,23,42,0.03)]">
+                        <div className="mb-2 flex items-center justify-between gap-3">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            {t.verified_customer}
+                          </div>
+
+                          <div className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-semibold text-emerald-700">
+                            ✓ {t.trusted_profile}
+                          </div>
+                        </div>
+
                         <PersonMiniCard
-                          label={t.worker}
-                          profile={workerProfile}
-                          fallbackName={workerName}
+                          label={t.author}
+                          profile={authorProfile}
+                          fallbackName={authorName}
                           fallbackCompany={t.no_company}
                         />
+                      </div>
+
+                      {workerProfile ? (
+                        <div className="rounded-[22px] border border-slate-200/80 bg-white p-3 shadow-[0_1px_6px_rgba(15,23,42,0.03)]">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                              {t.verified_worker}
+                            </div>
+
+                            <div className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-1 text-[10px] font-semibold text-sky-700">
+                              ★ {t.trusted_profile}
+                            </div>
+                          </div>
+
+                          <PersonMiniCard
+                            label={t.worker}
+                            profile={workerProfile}
+                            fallbackName={workerName}
+                            fallbackCompany={t.no_company}
+                          />
+                        </div>
                       ) : null}
                     </div>
 
@@ -1025,7 +1156,9 @@ export default async function JobsPage({
                       </div>
 
                       <div className="flex items-start justify-between gap-4 text-sm">
-                        <span className="text-slate-500">{t.property_type}</span>
+                        <span className="text-slate-500">
+                          {t.property_type}
+                        </span>
                         <span className="text-right font-medium text-slate-900">
                           {getPropertyTypeLabel(job.property_type, t)}
                         </span>
@@ -1053,12 +1186,12 @@ export default async function JobsPage({
                       </Link>
                     </div>
                   </article>
-                )
+                );
               })}
             </div>
           )}
         </section>
       </div>
     </div>
-  )
+  );
 }
