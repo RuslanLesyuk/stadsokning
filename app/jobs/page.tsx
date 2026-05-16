@@ -139,8 +139,8 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Переглядайте замовлення, фільтруйте та відкривайте деталі.",
     author: "Автор",
     worker: "Виконавець",
-    no_company: "Без компанії",
-    unknown_user: "Користувач",
+    no_company: "Профіль компанії ще не додано",
+    unknown_user: "Перевірений користувач",
   },
   ru: {
     title: "Работы",
@@ -195,8 +195,8 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Просматривайте заказы, фильтруйте и открывайте детали.",
     author: "Автор",
     worker: "Исполнитель",
-    no_company: "Без компании",
-    unknown_user: "Пользователь",
+    no_company: "Профиль компании еще не добавлен",
+    unknown_user: "Проверенный пользователь",
   },
   en: {
     title: "Jobs",
@@ -251,8 +251,8 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Browse jobs, filter them, and open details.",
     author: "Author",
     worker: "Worker",
-    no_company: "No company",
-    unknown_user: "User",
+    no_company: "Company profile not added yet",
+    unknown_user: "Verified user",
   },
   sv: {
     title: "Jobb",
@@ -307,8 +307,8 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Bläddra bland jobb, filtrera och öppna detaljer.",
     author: "Skapad av",
     worker: "Arbetare",
-    no_company: "Inget företag",
-    unknown_user: "Användare",
+    no_company: "Företagsprofil saknas",
+    unknown_user: "Verifierad användare",
   },
   pl: {
     title: "Prace",
@@ -363,8 +363,8 @@ const copy: Record<Locale, JobsCopy> = {
     browse_hint: "Przeglądaj zlecenia, filtruj i otwieraj szczegóły.",
     author: "Autor",
     worker: "Wykonawca",
-    no_company: "Bez firmy",
-    unknown_user: "Użytkownik",
+    no_company: "Profil firmy nie został dodany",
+    unknown_user: "Zweryfikowany użytkownik",
   },
 }
 
@@ -572,9 +572,9 @@ function PersonMiniCard({
   const companyName = profile?.company_name?.trim() || fallbackCompany
 
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-slate-50/80 px-3 py-3">
+    <div className="flex items-center gap-3 rounded-2xl border border-slate-200/70 bg-slate-50/80 px-3 py-3">
       <div className="relative shrink-0">
-        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-sm font-semibold text-white">
+        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-rose-500 to-pink-600 text-sm font-semibold text-white shadow-sm">
           {profile?.avatar_url ? (
             <img src={profile.avatar_url} alt={name} className="h-full w-full object-cover" />
           ) : (
