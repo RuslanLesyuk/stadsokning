@@ -1,47 +1,50 @@
 import type { MetadataRoute } from "next"
 
+const siteUrl = "https://stadsokning.vercel.app"
+
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://stadsokning.vercel.app"
+  const now = new Date()
 
   return [
     {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "daily",
+      url: siteUrl,
+      lastModified: now,
+      changeFrequency: "weekly",
       priority: 1,
     },
-
     {
-      url: `${baseUrl}/jobs`,
-      lastModified: new Date(),
-      changeFrequency: "hourly",
+      url: `${siteUrl}/jobs`,
+      lastModified: now,
+      changeFrequency: "daily",
       priority: 0.9,
     },
-
     {
-      url: `${baseUrl}/signup`,
-      lastModified: new Date(),
+      url: `${siteUrl}/signup`,
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.7,
     },
-
     {
-      url: `${baseUrl}/login`,
-      lastModified: new Date(),
+      url: `${siteUrl}/login`,
+      lastModified: now,
       changeFrequency: "monthly",
-      priority: 0.7,
+      priority: 0.6,
     },
-
     {
-      url: `${baseUrl}/terms`,
-      lastModified: new Date(),
+      url: `${siteUrl}/contact`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.5,
+    },
+    {
+      url: `${siteUrl}/terms`,
+      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.3,
     },
-
     {
-      url: `${baseUrl}/privacy`,
-      lastModified: new Date(),
+      url: `${siteUrl}/privacy`,
+      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.3,
     },
