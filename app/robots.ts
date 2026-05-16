@@ -1,13 +1,19 @@
 import type { MetadataRoute } from "next"
 
-const siteUrl = "https://stadsokning.vercel.app"
-
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
+      disallow: [
+        "/api/",
+        "/dashboard/",
+        "/chat/",
+      ],
     },
-    sitemap: `${siteUrl}/sitemap.xml`,
+
+    sitemap: "https://stadsokning.vercel.app/sitemap.xml",
+
+    host: "https://stadsokning.vercel.app",
   }
 }

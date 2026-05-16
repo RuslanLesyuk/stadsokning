@@ -95,16 +95,16 @@ function getInitials(name: string) {
 }
 
 function navLinkClass() {
-  return "inline-flex min-h-11 items-center rounded-xl px-2 py-2 text-sm font-medium text-slate-700 transition hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
+  return "inline-flex min-h-11 items-center rounded-2xl px-3 py-2 text-sm font-medium text-slate-700 transition duration-200 hover:bg-rose-50 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
 }
 
 function actionLinkClass(variant: "primary" | "secondary" = "secondary") {
   const base =
-    "inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97]"
+    "inline-flex min-h-11 items-center justify-center rounded-2xl px-4 py-2.5 text-sm font-medium transition duration-200 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97]"
   const variants = {
     primary: "bg-rose-600 text-white hover:bg-rose-700 active:bg-rose-800",
     secondary:
-      "border border-slate-200 bg-white text-slate-800 hover:bg-rose-50 active:bg-rose-100",
+      "border border-slate-200/80 bg-white text-slate-800 shadow-sm hover:border-rose-200 hover:bg-rose-50 active:bg-rose-100",
   }
 
   return `${base} ${variants[variant]}`
@@ -165,19 +165,19 @@ export default async function SiteHeader() {
   const companyLabel = companyName || t.noCompany
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="flex min-h-20 items-center justify-between gap-3 py-3">
-          <div className="flex min-w-0 items-center gap-6">
+        <div className="flex min-h-[76px] items-center justify-between gap-3 py-3">
+          <div className="flex min-w-0 items-center gap-4 md:gap-6">
             <Link
               href="/"
               prefetch={false}
-              className="shrink-0 rounded-xl text-2xl font-bold leading-none tracking-tight text-slate-950 transition hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
+              className="shrink-0 rounded-xl text-[26px] font-semibold leading-none tracking-[-0.03em] text-slate-950 transition duration-200 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
             >
               Clean Jobs
             </Link>
 
-            <nav className="hidden items-center gap-2 md:flex">
+            <nav className="hidden items-center gap-1 md:flex">
               <Link href="/jobs" prefetch={false} className={navLinkClass()}>
                 {t.jobs}
               </Link>
@@ -190,7 +190,7 @@ export default async function SiteHeader() {
                 >
                   <span>{t.dashboard}</span>
                   {unreadCount > 0 ? (
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
                       {unreadCount}
                     </span>
                   ) : null}
@@ -217,10 +217,10 @@ export default async function SiteHeader() {
                 <Link
                   href="/profile"
                   prefetch={false}
-                  className={`${actionLinkClass("secondary")} gap-3 pr-5`}
+                  className={`${actionLinkClass("secondary")} gap-3 pr-5 hover:-translate-y-0.5`}
                 >
                   <div className="relative shrink-0">
-                    <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-rose-600 text-xs font-semibold text-white">
+                    <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-rose-600 text-xs font-semibold text-white">
                       {avatarUrl ? (
                         <img
                           src={avatarUrl}
@@ -233,7 +233,7 @@ export default async function SiteHeader() {
                     </span>
 
                     {companyLogoUrl ? (
-                      <span className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
+                      <span className="absolute -bottom-1 -right-1 flex h-[18px] w-[18px] items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
                         <img
                           src={companyLogoUrl}
                           alt={companyLabel}
@@ -299,6 +299,9 @@ export default async function SiteHeader() {
               profileInitials={profileInitials}
               unreadCount={unreadCount}
               isAuthenticated={Boolean(user)}
+              avatarUrl={avatarUrl}
+              companyLogoUrl={companyLogoUrl}
+              companyName={companyName}
             />
           </div>
         </div>
