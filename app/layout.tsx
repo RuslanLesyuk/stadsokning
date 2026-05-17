@@ -1,4 +1,4 @@
-```tsx
+
 import type { Metadata } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
@@ -6,7 +6,7 @@ import "./globals.css"
 import SiteHeader from "@/components/site-header"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 
-const siteUrl = "https://cleansjob.se"
+const siteUrl = "https://cleansjob.com"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
