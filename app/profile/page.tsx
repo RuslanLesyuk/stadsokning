@@ -1,488 +1,188 @@
-import { cookies } from "next/headers"
+import type { Metadata } from "next"
+import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
+import { cookies } from "next/headers"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
-import FormSubmitButton from "@/components/form-submit-button"
 
 export const dynamic = "force-dynamic"
 
-type Profile = {
-  id: string
-  full_name: string | null
-  phone: string | null
-  city: string | null
-  avatar_url: string | null
-  company_logo_url: string | null
-  company_name: string | null
-  bio: string | null
-  is_premium: boolean | null
-  verified: boolean | null
-  subscription_ends_at: string | null
+export const metadata: Metadata = {
+  title: "Profile | Clean Jobs",
+  description: "Manage your Clean Jobs profile.",
 }
-
-type SearchParams = Promise<Record<string, string | string[] | undefined>>
 
 type Copy = {
   title: string
   subtitle: string
-  account_title: string
-  branding_title: string
-  stats_title: string
-  premium_title: string
-  premium_active: string
-  premium_free: string
-  premium_hint_active: string
-  premium_hint_free: string
-  verified_title: string
-  verified_yes: string
-  verified_no: string
-  verified_hint_yes: string
-  verified_hint_no: string
-  subscription_until: string
-  coming_soon: string
+
+  profile_information: string
   full_name: string
   email: string
   phone: string
   city: string
-  company_name: string
-  bio: string
-  avatar: string
-  company_logo: string
-  upload_hint: string
-  logo_hint: string
-  email_hint: string
-  bio_placeholder: string
-  company_placeholder: string
-  no_phone: string
-  no_city: string
-  no_name: string
-  no_company: string
-  no_bio: string
-  rating: string
-  reviews: string
-  save: string
-  saving: string
-  saved: string
-  save_failed: string
-  avatar_empty: string
-  logo_empty: string
+
+  premium_title: string
+  premium_active: string
+  premium_free: string
+  premium_description: string
+  upgrade_now: string
+  subscription_until: string
+
+  verified_title: string
+  verified_yes: string
+  verified_no: string
+
+  save_changes: string
+
+  back_to_jobs: string
 }
 
 const copy: Record<Locale, Copy> = {
   uk: {
     title: "Профіль",
-    subtitle: "Керуйте особистими даними, брендингом та тим, як ваш профіль бачать інші.",
-    account_title: "Дані акаунта",
-    branding_title: "Аватар і брендинг",
-    stats_title: "Статистика",
-    premium_title: "Premium статус",
-    premium_active: "Premium активний",
-    premium_free: "Free акаунт",
-    premium_hint_active: "Ваш профіль готовий до Premium переваг і пріоритетного показу.",
-    premium_hint_free: "Базовий акаунт активний. Premium функції можна буде підключити пізніше.",
-    verified_title: "Верифікація",
-    verified_yes: "Профіль підтверджено",
-    verified_no: "Профіль ще не підтверджено",
-    verified_hint_yes: "Цей профіль має підвищений рівень довіри на платформі.",
-    verified_hint_no: "Верифікація буде доступна пізніше для підвищення довіри до профілю.",
-    subscription_until: "Підписка активна до",
-    coming_soon: "Скоро",
+    subtitle: "Керуйте вашим профілем та Premium статусом.",
+
+    profile_information: "Інформація профілю",
     full_name: "Ім’я",
     email: "Email",
     phone: "Телефон",
     city: "Місто",
-    company_name: "Назва компанії",
-    bio: "Про вас",
-    avatar: "Фото профілю",
-    company_logo: "Логотип компанії",
-    upload_hint: "PNG, JPG або WEBP. Найкраще квадратне фото.",
-    logo_hint: "Невеликий logo mark для профілю та брендингу.",
-    email_hint: "Email береться з акаунта і тут не редагується.",
-    bio_placeholder: "Коротко розкажіть про себе, досвід або тип послуг, які ви надаєте.",
-    company_placeholder: "Наприклад: Clean Pro Stockholm",
-    no_phone: "Не вказано",
-    no_city: "Не вказано",
-    no_name: "Користувач",
-    no_company: "Без компанії",
-    no_bio: "Поки що без опису.",
-    rating: "Рейтинг",
-    reviews: "Відгуки",
-    save: "Зберегти зміни",
-    saving: "Збереження...",
-    saved: "Профіль оновлено",
-    save_failed: "Не вдалося оновити профіль",
-    avatar_empty: "Аватар ще не додано",
-    logo_empty: "Логотип ще не додано",
+
+    premium_title: "Premium статус",
+    premium_active: "Premium активний",
+    premium_free: "Безкоштовний акаунт",
+    premium_description:
+      "Premium профілі отримують вищу видимість та пріоритет у списках.",
+    upgrade_now: "Перейти на Premium",
+    subscription_until: "Підписка активна до",
+
+    verified_title: "Верифікація",
+    verified_yes: "Профіль підтверджено",
+    verified_no: "Профіль не підтверджено",
+
+    save_changes: "Зберегти зміни",
+
+    back_to_jobs: "← Назад до робіт",
   },
+
   ru: {
     title: "Профиль",
-    subtitle: "Управляйте личными данными, брендингом и тем, как ваш профиль видят другие.",
-    account_title: "Данные аккаунта",
-    branding_title: "Аватар и брендинг",
-    stats_title: "Статистика",
-    premium_title: "Premium статус",
-    premium_active: "Premium активен",
-    premium_free: "Free аккаунт",
-    premium_hint_active: "Ваш профиль готов к Premium преимуществам и приоритетному показу.",
-    premium_hint_free: "Базовый аккаунт активен. Premium функции можно будет подключить позже.",
-    verified_title: "Верификация",
-    verified_yes: "Профиль подтверждён",
-    verified_no: "Профиль ещё не подтверждён",
-    verified_hint_yes: "Этот профиль имеет повышенный уровень доверия на платформе.",
-    verified_hint_no: "Верификация будет доступна позже для повышения доверия к профилю.",
-    subscription_until: "Подписка активна до",
-    coming_soon: "Скоро",
+    subtitle: "Управляйте профилем и Premium статусом.",
+
+    profile_information: "Информация профиля",
     full_name: "Имя",
     email: "Email",
     phone: "Телефон",
     city: "Город",
-    company_name: "Название компании",
-    bio: "О вас",
-    avatar: "Фото профиля",
-    company_logo: "Логотип компании",
-    upload_hint: "PNG, JPG или WEBP. Лучше всего квадратное фото.",
-    logo_hint: "Небольшой logo mark для профиля и брендинга.",
-    email_hint: "Email берётся из аккаунта и здесь не редактируется.",
-    bio_placeholder: "Коротко расскажите о себе, опыте или типе услуг, которые вы предоставляете.",
-    company_placeholder: "Например: Clean Pro Stockholm",
-    no_phone: "Не указано",
-    no_city: "Не указано",
-    no_name: "Пользователь",
-    no_company: "Без компании",
-    no_bio: "Пока без описания.",
-    rating: "Рейтинг",
-    reviews: "Отзывы",
-    save: "Сохранить изменения",
-    saving: "Сохранение...",
-    saved: "Профиль обновлён",
-    save_failed: "Не удалось обновить профиль",
-    avatar_empty: "Аватар ещё не добавлен",
-    logo_empty: "Логотип ещё не добавлен",
+
+    premium_title: "Premium статус",
+    premium_active: "Premium активен",
+    premium_free: "Бесплатный аккаунт",
+    premium_description:
+      "Premium профили получают лучшую видимость и приоритет.",
+    upgrade_now: "Перейти на Premium",
+    subscription_until: "Подписка активна до",
+
+    verified_title: "Верификация",
+    verified_yes: "Профиль подтвержден",
+    verified_no: "Профиль не подтвержден",
+
+    save_changes: "Сохранить изменения",
+
+    back_to_jobs: "← Назад к работам",
   },
+
   en: {
     title: "Profile",
-    subtitle: "Manage your personal details, branding, and how your profile appears to others.",
-    account_title: "Account details",
-    branding_title: "Avatar and branding",
-    stats_title: "Stats",
-    premium_title: "Premium status",
-    premium_active: "Premium active",
-    premium_free: "Free account",
-    premium_hint_active: "Your profile is ready for Premium benefits and priority placement.",
-    premium_hint_free: "Your free account is active. Premium features can be enabled later.",
-    verified_title: "Verification",
-    verified_yes: "Profile verified",
-    verified_no: "Profile not verified yet",
-    verified_hint_yes: "This profile has a higher trust level on the platform.",
-    verified_hint_no: "Verification will be available later to increase profile trust.",
-    subscription_until: "Subscription active until",
-    coming_soon: "Coming soon",
-    full_name: "Name",
+    subtitle: "Manage your profile and Premium status.",
+
+    profile_information: "Profile information",
+    full_name: "Full name",
     email: "Email",
     phone: "Phone",
     city: "City",
-    company_name: "Company name",
-    bio: "About you",
-    avatar: "Profile photo",
-    company_logo: "Company logo",
-    upload_hint: "PNG, JPG, or WEBP. A square image works best.",
-    logo_hint: "A small logo mark for your profile and branding.",
-    email_hint: "Your email comes from your account and cannot be edited here.",
-    bio_placeholder: "Briefly describe yourself, your experience, or the services you provide.",
-    company_placeholder: "For example: Clean Pro Stockholm",
-    no_phone: "Not specified",
-    no_city: "Not specified",
-    no_name: "User",
-    no_company: "No company",
-    no_bio: "No description yet.",
-    rating: "Rating",
-    reviews: "Reviews",
-    save: "Save changes",
-    saving: "Saving...",
-    saved: "Profile updated",
-    save_failed: "Failed to update profile",
-    avatar_empty: "No avatar yet",
-    logo_empty: "No logo yet",
+
+    premium_title: "Premium status",
+    premium_active: "Premium active",
+    premium_free: "Free account",
+    premium_description:
+      "Premium profiles receive better visibility and priority ranking.",
+    upgrade_now: "Upgrade to Premium",
+    subscription_until: "Subscription active until",
+
+    verified_title: "Verification",
+    verified_yes: "Verified profile",
+    verified_no: "Not verified",
+
+    save_changes: "Save changes",
+
+    back_to_jobs: "← Back to jobs",
   },
+
   sv: {
     title: "Profil",
-    subtitle: "Hantera dina personuppgifter, ditt varumärke och hur din profil visas för andra.",
-    account_title: "Kontouppgifter",
-    branding_title: "Avatar och varumärke",
-    stats_title: "Statistik",
-    premium_title: "Premiumstatus",
-    premium_active: "Premium aktiv",
-    premium_free: "Free konto",
-    premium_hint_active: "Din profil är redo för Premium-fördelar och prioriterad placering.",
-    premium_hint_free: "Ditt gratiskonto är aktivt. Premiumfunktioner kan aktiveras senare.",
-    verified_title: "Verifiering",
-    verified_yes: "Profil verifierad",
-    verified_no: "Profilen är inte verifierad ännu",
-    verified_hint_yes: "Den här profilen har högre förtroendenivå på plattformen.",
-    verified_hint_no: "Verifiering blir tillgänglig senare för att öka förtroendet för profilen.",
-    subscription_until: "Prenumeration aktiv till",
-    coming_soon: "Kommer snart",
+    subtitle: "Hantera din profil och Premium-status.",
+
+    profile_information: "Profilinformation",
     full_name: "Namn",
     email: "E-post",
     phone: "Telefon",
     city: "Stad",
-    company_name: "Företagsnamn",
-    bio: "Om dig",
-    avatar: "Profilbild",
-    company_logo: "Företagslogotyp",
-    upload_hint: "PNG, JPG eller WEBP. En kvadratisk bild fungerar bäst.",
-    logo_hint: "En liten logotyp för din profil och ditt varumärke.",
-    email_hint: "Din e-post kommer från kontot och kan inte redigeras här.",
-    bio_placeholder: "Berätta kort om dig själv, din erfarenhet eller vilka tjänster du erbjuder.",
-    company_placeholder: "Till exempel: Clean Pro Stockholm",
-    no_phone: "Inte angivet",
-    no_city: "Inte angivet",
-    no_name: "Användare",
-    no_company: "Inget företag",
-    no_bio: "Ingen beskrivning ännu.",
-    rating: "Betyg",
-    reviews: "Recensioner",
-    save: "Spara ändringar",
-    saving: "Sparar...",
-    saved: "Profilen har uppdaterats",
-    save_failed: "Det gick inte att uppdatera profilen",
-    avatar_empty: "Ingen avatar ännu",
-    logo_empty: "Ingen logotyp ännu",
+
+    premium_title: "Premium-status",
+    premium_active: "Premium aktiv",
+    premium_free: "Gratis konto",
+    premium_description:
+      "Premium-profiler får bättre synlighet och högre prioritet.",
+    upgrade_now: "Uppgradera till Premium",
+    subscription_until: "Prenumerationen aktiv till",
+
+    verified_title: "Verifiering",
+    verified_yes: "Verifierad profil",
+    verified_no: "Inte verifierad",
+
+    save_changes: "Spara ändringar",
+
+    back_to_jobs: "← Tillbaka till jobb",
   },
+
   pl: {
     title: "Profil",
-    subtitle: "Zarządzaj swoimi danymi, brandingiem i tym, jak Twój profil widzą inni.",
-    account_title: "Dane konta",
-    branding_title: "Avatar i branding",
-    stats_title: "Statystyki",
-    premium_title: "Status Premium",
-    premium_active: "Premium aktywny",
-    premium_free: "Konto Free",
-    premium_hint_active: "Twój profil jest gotowy na korzyści Premium i priorytetowe wyświetlanie.",
-    premium_hint_free: "Twoje darmowe konto jest aktywne. Funkcje Premium będzie można włączyć później.",
-    verified_title: "Weryfikacja",
-    verified_yes: "Profil zweryfikowany",
-    verified_no: "Profil nie jest jeszcze zweryfikowany",
-    verified_hint_yes: "Ten profil ma wyższy poziom zaufania na platformie.",
-    verified_hint_no: "Weryfikacja będzie dostępna później, aby zwiększyć zaufanie do profilu.",
-    subscription_until: "Subskrypcja aktywna do",
-    coming_soon: "Wkrótce",
+    subtitle: "Zarządzaj profilem i statusem Premium.",
+
+    profile_information: "Informacje o profilu",
     full_name: "Imię",
     email: "Email",
     phone: "Telefon",
     city: "Miasto",
-    company_name: "Nazwa firmy",
-    bio: "O Tobie",
-    avatar: "Zdjęcie profilu",
-    company_logo: "Logo firmy",
-    upload_hint: "PNG, JPG lub WEBP. Najlepiej sprawdza się kwadratowe zdjęcie.",
-    logo_hint: "Mały znak logo do profilu i brandingu.",
-    email_hint: "Email pochodzi z konta i nie można go tutaj edytować.",
-    bio_placeholder: "Krótko opisz siebie, swoje doświadczenie lub rodzaj usług, które oferujesz.",
-    company_placeholder: "Na przykład: Clean Pro Stockholm",
-    no_phone: "Nie podano",
-    no_city: "Nie podano",
-    no_name: "Użytkownik",
-    no_company: "Bez firmy",
-    no_bio: "Brak opisu.",
-    rating: "Ocena",
-    reviews: "Opinie",
-    save: "Zapisz zmiany",
-    saving: "Zapisywanie...",
-    saved: "Profil został zaktualizowany",
-    save_failed: "Nie udało się zaktualizować profilu",
-    avatar_empty: "Brak avatara",
-    logo_empty: "Brak logo",
+
+    premium_title: "Status Premium",
+    premium_active: "Premium aktywny",
+    premium_free: "Darmowe konto",
+    premium_description:
+      "Profile Premium mają większą widoczność i priorytet.",
+    upgrade_now: "Przejdź na Premium",
+    subscription_until: "Subskrypcja aktywna do",
+
+    verified_title: "Weryfikacja",
+    verified_yes: "Zweryfikowany profil",
+    verified_no: "Profil niezweryfikowany",
+
+    save_changes: "Zapisz zmiany",
+
+    back_to_jobs: "← Powrót do ofert",
   },
 }
 
-function getInitials(name: string) {
-  const parts = name.trim().split(/\s+/).slice(0, 2)
-  const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("")
-  return initials || "U"
-}
-
-function normalizeText(value: FormDataEntryValue | null) {
-  return String(value || "").trim()
-}
-
-function getFileExtension(file: File) {
-  const fromName = file.name.split(".").pop()?.toLowerCase()
-  if (fromName) return fromName
-
-  if (file.type === "image/png") return "png"
-  if (file.type === "image/webp") return "webp"
-  if (file.type === "image/jpeg") return "jpg"
-
-  return "bin"
-}
-
-function isValidImageFile(file: File) {
-  if (!file || file.size === 0) return false
-  return ["image/png", "image/jpeg", "image/webp"].includes(file.type)
-}
-
-function formatDate(value: string | null, locale: Locale) {
-  if (!value) return null
-
-  const map: Record<Locale, string> = {
-    uk: "uk-UA",
-    ru: "ru-RU",
-    en: "en-US",
-    sv: "sv-SE",
-    pl: "pl-PL",
-  }
-
-  try {
-    return new Intl.DateTimeFormat(map[locale], {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-    }).format(new Date(value))
-  } catch {
-    return value
-  }
-}
-
-function StatCard({
-  label,
-  value,
-}: {
-  label: string
-  value: string
-}) {
-  return (
-    <div className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] md:p-6">
-      <div className="text-xs font-medium uppercase tracking-wide text-slate-500 md:text-sm">
-        {label}
-      </div>
-      <div className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl">
-        {value}
-      </div>
-    </div>
-  )
-}
-
-function StatusCard({
-  title,
-  value,
-  hint,
-  tone,
-}: {
-  title: string
-  value: string
-  hint: string
-  tone: "amber" | "emerald"
-}) {
-  const styles = {
-    amber: "border-amber-200 bg-gradient-to-br from-amber-50 to-white text-amber-700",
-    emerald: "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white text-emerald-700",
-  }
-
-  return (
-    <div className={`rounded-[28px] border p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] md:p-6 ${styles[tone]}`}>
-      <div className="text-xs font-semibold uppercase tracking-wide">
-        {title}
-      </div>
-      <div className="mt-3 text-xl font-semibold tracking-tight text-slate-900">
-        {value}
-      </div>
-      <p className="mt-2 text-sm leading-6 text-slate-600">{hint}</p>
-    </div>
-  )
-}
-
-function FieldLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <label className="mb-2 block text-sm font-medium text-slate-900">
-      {children}
-    </label>
-  )
-}
-
-function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return (
-    <input
-      {...props}
-      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995] disabled:cursor-not-allowed disabled:bg-slate-100"
-    />
-  )
-}
-
-function TextArea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
-  return (
-    <textarea
-      {...props}
-      className="w-full min-h-[120px] resize-y rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
-    />
-  )
-}
-
-function UploadCard({
-  title,
-  hint,
-  emptyLabel,
-  imageUrl,
-  inputName,
-  roundedClassName,
-}: {
-  title: string
-  hint: string
-  emptyLabel: string
-  imageUrl: string | null
-  inputName: string
-  roundedClassName: string
-}) {
-  return (
-    <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-      <div className="flex items-start gap-4">
-        <div
-          className={`flex shrink-0 items-center justify-center overflow-hidden bg-slate-100 ${roundedClassName}`}
-        >
-          {imageUrl ? (
-            <img
-              src={imageUrl}
-              alt={title}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="px-3 text-center text-xs font-medium text-slate-500">
-              {emptyLabel}
-            </div>
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <h3 className="text-base font-semibold tracking-tight text-slate-900">
-            {title}
-          </h3>
-
-          <p className="mt-1 text-sm leading-6 text-slate-500">{hint}</p>
-
-          <input
-            type="file"
-            name={inputName}
-            accept="image/png,image/jpeg,image/webp"
-            className="mt-4 block w-full text-sm text-slate-600 file:mr-4 file:rounded-2xl file:border-0 file:bg-rose-600 file:px-4 file:py-2.5 file:text-sm file:font-medium file:text-white hover:file:bg-rose-700"
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
-
-export default async function ProfilePage({
-  searchParams,
-}: {
-  searchParams?: SearchParams
-}) {
+export default async function ProfilePage() {
   const cookieStore = await cookies()
-  const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
-  const t = copy[locale] || copy.en
 
-  const params = (await searchParams) ?? {}
-  const saved = params.saved === "1"
-  const failed = params.error === "1"
+  const locale = normalizeLocale(
+    cookieStore.get("clean_jobs_locale")?.value,
+  ) as Locale
+
+  const t = copy[locale] || copy.en
 
   const supabase = await createClient()
 
@@ -494,393 +194,160 @@ export default async function ProfilePage({
     redirect("/login")
   }
 
-  const { data: profileRaw } = await supabase
+  const { data: profile } = await supabase
     .from("profiles")
-    .select(
-      "id, full_name, phone, city, avatar_url, company_logo_url, company_name, bio, is_premium, verified, subscription_ends_at",
-    )
+    .select("*")
     .eq("id", user.id)
     .single()
 
-  const profile = profileRaw as Profile | null
-
-  async function updateProfileAction(formData: FormData) {
-    "use server"
-
-    const supabase = await createClient()
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
-
-    if (!user) {
-      redirect("/login")
-    }
-
-    const { data: currentProfile } = await supabase
-      .from("profiles")
-      .select("avatar_url, company_logo_url")
-      .eq("id", user.id)
-      .single()
-
-    let avatarUrl = currentProfile?.avatar_url || null
-    let companyLogoUrl = currentProfile?.company_logo_url || null
-
-    const avatarFile = formData.get("avatar")
-    if (avatarFile instanceof File && avatarFile.size > 0) {
-      if (!isValidImageFile(avatarFile)) {
-        redirect("/profile?error=1")
-      }
-
-      const extension = getFileExtension(avatarFile)
-      const path = `${user.id}/avatar-${Date.now()}.${extension}`
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(path, avatarFile, {
-          upsert: true,
-          contentType: avatarFile.type,
-        })
-
-      if (uploadError) {
-        redirect("/profile?error=1")
-      }
-
-      avatarUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl
-    }
-
-    const logoFile = formData.get("company_logo")
-    if (logoFile instanceof File && logoFile.size > 0) {
-      if (!isValidImageFile(logoFile)) {
-        redirect("/profile?error=1")
-      }
-
-      const extension = getFileExtension(logoFile)
-      const path = `${user.id}/company-logo-${Date.now()}.${extension}`
-
-      const { error: uploadError } = await supabase.storage
-        .from("avatars")
-        .upload(path, logoFile, {
-          upsert: true,
-          contentType: logoFile.type,
-        })
-
-      if (uploadError) {
-        redirect("/profile?error=1")
-      }
-
-      companyLogoUrl = supabase.storage.from("avatars").getPublicUrl(path).data.publicUrl
-    }
-
-    const payload = {
-      id: user.id,
-      full_name: normalizeText(formData.get("full_name")) || null,
-      phone: normalizeText(formData.get("phone")) || null,
-      city: normalizeText(formData.get("city")) || null,
-      company_name: normalizeText(formData.get("company_name")) || null,
-      bio: normalizeText(formData.get("bio")) || null,
-      avatar_url: avatarUrl,
-      company_logo_url: companyLogoUrl,
-    }
-
-    const { error } = await supabase.from("profiles").upsert(payload, {
-      onConflict: "id",
-    })
-
-    if (error) {
-      redirect("/profile?error=1")
-    }
-
-    redirect("/profile?saved=1")
-  }
-
-  const { data: reviewsRaw } = await supabase
-    .from("reviews")
-    .select("rating")
-    .eq("review_target_id", user.id)
-
-  const ratings = (reviewsRaw ?? []) as Array<{ rating: number }>
-  const reviewsCount = ratings.length
-  const averageRating =
-    reviewsCount > 0
-      ? (ratings.reduce((sum, item) => sum + item.rating, 0) / reviewsCount).toFixed(1)
-      : "0.0"
-
-  const displayName = profile?.full_name?.trim() || user.email || t.no_name
-  const companyName = profile?.company_name?.trim() || t.no_company
-  const bio = profile?.bio?.trim() || t.no_bio
-  const subscriptionDate = formatDate(profile?.subscription_ends_at || null, locale)
-
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      <div className="mx-auto max-w-6xl px-4 py-6 md:px-6 md:py-10">
-        <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-rose-50/40 p-5 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="flex min-w-0 items-center gap-4">
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-2xl font-semibold text-white md:h-24 md:w-24 md:text-3xl">
-                {profile?.avatar_url ? (
-                  <img
-                    src={profile.avatar_url}
-                    alt={displayName}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  getInitials(displayName)
-                )}
-              </div>
+      <div className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-10">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
+              {t.title}
+            </h1>
 
-              <div className="min-w-0">
-                <div className="text-sm font-medium text-slate-500">{t.title}</div>
-
-                <h1 className="truncate text-2xl font-semibold tracking-tight text-slate-900 md:text-4xl">
-                  {displayName}
-                </h1>
-
-                <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
-                    {companyName}
-                  </span>
-                  <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
-                    {profile?.city?.trim() || t.no_city}
-                  </span>
-                  <span
-                    className={
-                      profile?.is_premium
-                        ? "inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800"
-                        : "inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
-                    }
-                  >
-                    {profile?.is_premium ? t.premium_active : t.premium_free}
-                  </span>
-                  <span
-                    className={
-                      profile?.verified
-                        ? "inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800"
-                        : "inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
-                    }
-                  >
-                    {profile?.verified ? t.verified_yes : t.verified_no}
-                  </span>
-                </div>
-
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
-                  {t.subtitle}
-                </p>
-              </div>
-            </div>
-
-            {profile?.company_logo_url ? (
-              <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-sm md:h-24 md:w-24">
-                <img
-                  src={profile.company_logo_url}
-                  alt={companyName}
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            ) : null}
+            <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
+              {t.subtitle}
+            </p>
           </div>
 
-          {saved ? (
-            <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-              {t.saved}
+          <Link
+            href="/jobs"
+            prefetch={false}
+            className="hidden rounded-2xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50 md:inline-flex"
+          >
+            {t.back_to_jobs}
+          </Link>
+        </div>
+
+        <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
+            <div className="text-sm font-semibold uppercase tracking-wide text-slate-500">
+              {t.profile_information}
             </div>
-          ) : null}
 
-          {failed ? (
-            <div className="mt-6 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
-              {t.save_failed}
-            </div>
-          ) : null}
-
-          <div className="mt-6">
-            <h2 className="text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
-              {t.stats_title}
-            </h2>
-
-            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard label={t.rating} value={averageRating} />
-              <StatCard label={t.reviews} value={String(reviewsCount)} />
-              <StatusCard
-                title={t.premium_title}
-                value={profile?.is_premium ? t.premium_active : t.premium_free}
-                hint={
-                  subscriptionDate
-                    ? `${t.subscription_until}: ${subscriptionDate}`
-                    : profile?.is_premium
-                      ? t.premium_hint_active
-                      : t.premium_hint_free
-                }
-                tone="amber"
-              />
-              <StatusCard
-                title={t.verified_title}
-                value={profile?.verified ? t.verified_yes : t.verified_no}
-                hint={profile?.verified ? t.verified_hint_yes : t.verified_hint_no}
-                tone="emerald"
-              />
-            </div>
-          </div>
-        </section>
-
-        <form action={updateProfileAction} className="mt-6 space-y-6 md:mt-8">
-          <section className="grid gap-4 lg:grid-cols-2">
-            <UploadCard
-              title={t.avatar}
-              hint={t.upload_hint}
-              emptyLabel={t.avatar_empty}
-              imageUrl={profile?.avatar_url || null}
-              inputName="avatar"
-              roundedClassName="h-20 w-20 rounded-full md:h-24 md:w-24"
-            />
-
-            <UploadCard
-              title={t.company_logo}
-              hint={t.logo_hint}
-              emptyLabel={t.logo_empty}
-              imageUrl={profile?.company_logo_url || null}
-              inputName="company_logo"
-              roundedClassName="h-20 w-20 rounded-[24px] md:h-24 md:w-24"
-            />
-          </section>
-
-          <section className="rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
-            <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
-              {t.account_title}
-            </h2>
-
-            <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <form className="mt-6 grid gap-5">
               <div>
-                <FieldLabel>{t.full_name}</FieldLabel>
-                <TextInput
-                  name="full_name"
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  {t.full_name}
+                </label>
+
+                <input
+                  type="text"
                   defaultValue={profile?.full_name || ""}
-                  placeholder={t.full_name}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-400"
                 />
               </div>
 
               <div>
-                <FieldLabel>{t.email}</FieldLabel>
-                <TextInput
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  {t.email}
+                </label>
+
+                <input
+                  type="email"
                   value={user.email || ""}
                   disabled
-                  readOnly
+                  className="w-full cursor-not-allowed rounded-2xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-500 outline-none"
                 />
-                <p className="mt-2 text-xs text-slate-500">{t.email_hint}</p>
               </div>
 
               <div>
-                <FieldLabel>{t.phone}</FieldLabel>
-                <TextInput
-                  name="phone"
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  {t.phone}
+                </label>
+
+                <input
+                  type="text"
                   defaultValue={profile?.phone || ""}
-                  placeholder={t.phone}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-400"
                 />
               </div>
 
               <div>
-                <FieldLabel>{t.city}</FieldLabel>
-                <TextInput
-                  name="city"
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  {t.city}
+                </label>
+
+                <input
+                  type="text"
                   defaultValue={profile?.city || ""}
-                  placeholder={t.city}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-400"
                 />
               </div>
 
-              <div className="md:col-span-2">
-                <FieldLabel>{t.company_name}</FieldLabel>
-                <TextInput
-                  name="company_name"
-                  defaultValue={profile?.company_name || ""}
-                  placeholder={t.company_placeholder}
-                />
-              </div>
-
-              <div className="md:col-span-2">
-                <FieldLabel>{t.bio}</FieldLabel>
-                <TextArea
-                  name="bio"
-                  rows={5}
-                  defaultValue={profile?.bio || ""}
-                  placeholder={t.bio_placeholder}
-                />
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <FormSubmitButton
-                locale={locale}
-                idleLabel={t.save}
-                loadingLabel={t.saving}
-              />
-            </div>
+              <button
+                type="submit"
+                className="mt-2 inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 active:scale-[0.98]"
+              >
+                {t.save_changes}
+              </button>
+            </form>
           </section>
-        </form>
 
-        <section className="mt-6 rounded-[32px] border border-slate-200 bg-white p-5 shadow-sm md:mt-8 md:p-6">
-          <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
-            {locale === "uk"
-              ? "Як профіль виглядає"
-              : locale === "ru"
-                ? "Как выглядит профиль"
-                : locale === "sv"
-                  ? "Så här ser profilen ut"
-                  : locale === "pl"
-                    ? "Jak wygląda profil"
-                    : "Profile preview"}
-          </h2>
-
-          <div className="mt-5 rounded-[28px] border border-slate-200 bg-slate-50/70 p-5 md:p-6">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex min-w-0 items-center gap-4">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-lg font-semibold text-white">
-                  {profile?.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt={displayName}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    getInitials(displayName)
-                  )}
-                </div>
-
-                <div className="min-w-0">
-                  <div className="truncate text-lg font-semibold tracking-tight text-slate-900">
-                    {displayName}
-                  </div>
-                  <div className="mt-1 text-sm text-slate-500">
-                    {companyName}
-                  </div>
-                  <div className="mt-1 text-sm text-slate-500">
-                    {profile?.city?.trim() || t.no_city}
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
-                      {profile?.is_premium ? t.premium_active : t.premium_free}
-                    </span>
-                    <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
-                      {profile?.verified ? t.verified_yes : t.verified_no}
-                    </span>
-                  </div>
-                </div>
+          <div className="space-y-6">
+            <section className="rounded-[28px] border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">
+                {t.premium_title}
               </div>
 
-              {profile?.company_logo_url ? (
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                  <img
-                    src={profile.company_logo_url}
-                    alt={companyName}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-              ) : null}
-            </div>
+              <div className="mt-3 text-2xl font-semibold text-slate-950">
+                {profile?.is_premium
+                  ? t.premium_active
+                  : t.premium_free}
+              </div>
 
-            <div className="mt-5 text-sm leading-7 text-slate-700">
-              {bio}
-            </div>
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                {t.premium_description}
+              </p>
+
+              {profile?.subscription_ends_at ? (
+                <p className="mt-4 text-sm text-slate-500">
+                  {t.subscription_until}:{" "}
+                  {new Date(
+                    profile.subscription_ends_at,
+                  ).toLocaleDateString()}
+                </p>
+              ) : null}
+
+              {!profile?.is_premium ? (
+                <form
+                  action="/api/stripe/checkout"
+                  method="POST"
+                  className="mt-6"
+                >
+                  <input
+                    type="hidden"
+                    name="type"
+                    value="premium"
+                  />
+
+                  <button
+                    type="submit"
+                    className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-600 active:scale-[0.98]"
+                  >
+                    {t.upgrade_now}
+                  </button>
+                </form>
+              ) : null}
+            </section>
+
+            <section className="rounded-[28px] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
+              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+                {t.verified_title}
+              </div>
+
+              <div className="mt-3 text-2xl font-semibold text-slate-950">
+                {profile?.verified
+                  ? t.verified_yes
+                  : t.verified_no}
+              </div>
+            </section>
           </div>
-        </section>
+        </div>
       </div>
     </div>
   )
