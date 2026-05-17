@@ -30,6 +30,8 @@ type Profile = {
   avatar_url: string | null
   company_logo_url: string | null
   company_name: string | null
+  is_premium: boolean | null
+  verified: boolean | null
 }
 
 type JobsCopy = {
@@ -87,6 +89,7 @@ type JobsCopy = {
   unknown_user: string
   featured: string
   premium: string
+  verified: string
 }
 
 const copy: Record<Locale, JobsCopy> = {
@@ -147,6 +150,7 @@ const copy: Record<Locale, JobsCopy> = {
     unknown_user: "Користувач",
     featured: "Рекомендовано",
     premium: "Premium",
+    verified: "Перевірено",
   },
   ru: {
     title: "Работы",
@@ -205,6 +209,7 @@ const copy: Record<Locale, JobsCopy> = {
     unknown_user: "Пользователь",
     featured: "Рекомендуется",
     premium: "Premium",
+    verified: "Проверено",
   },
   en: {
     title: "Jobs",
@@ -263,6 +268,7 @@ const copy: Record<Locale, JobsCopy> = {
     unknown_user: "User",
     featured: "Featured",
     premium: "Premium",
+    verified: "Verified",
   },
   sv: {
     title: "Jobb",
@@ -321,6 +327,7 @@ const copy: Record<Locale, JobsCopy> = {
     unknown_user: "Användare",
     featured: "Utvald",
     premium: "Premium",
+    verified: "Verifierad",
   },
   pl: {
     title: "Prace",
@@ -379,6 +386,7 @@ const copy: Record<Locale, JobsCopy> = {
     unknown_user: "Użytkownik",
     featured: "Polecane",
     premium: "Premium",
+    verified: "Zweryfikowano",
   },
 }
 
@@ -483,6 +491,16 @@ function getInitials(name: string) {
   const parts = clean.split(/\s+/).slice(0, 2)
   const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("")
   return initials || "U"
+}
+
+function isActiveFeatured(job: Job) {
+  if (!job.is_featured) return false
+  if (!job.featured_until) return true
+
+  const featuredUntil = new Date(job.featured_until).getTime()
+  if (Number.isNaN(featuredUntil)) return false
+
+  return featuredUntil > Date.now()
 }
 
 function buildHref(params: {
@@ -689,8 +707,8 @@ export default async function JobsPage({
   }
 
   const jobs = ((data ?? []) as Job[]).sort((a, b) => {
-    const aFeatured = Boolean(a.is_featured)
-    const bFeatured = Boolean(b.is_featured)
+    const aFeatured = isActiveFeatured(a)
+    const bFeatured = isActiveFeatured(b)
 
     if (aFeatured && !bFeatured) return -1
     if (!aFeatured && bFeatured) return 1
@@ -709,7 +727,7 @@ export default async function JobsPage({
   if (profileIds.length > 0) {
     const { data: profilesRaw, error: profilesError } = await supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, company_logo_url, company_name")
+      .select("id, full_name, avatar_url, company_logo_url, company_name, is_premium, verified")
       .in("id", profileIds)
 
     if (profilesError) {
@@ -963,6 +981,9 @@ export default async function JobsPage({
                 const workerProfile = job.assigned_to ? profileById.get(job.assigned_to) : null
                 const authorName = authorProfile?.full_name?.trim() || t.unknown_user
                 const workerName = workerProfile?.full_name?.trim() || t.unknown_user
+                const isFeatured = isActiveFeatured(job)
+                const isPremiumAuthor = Boolean(authorProfile?.is_premium)
+                const isVerifiedAuthor = Boolean(authorProfile?.verified)
 
                 return (
                   <article
@@ -970,7 +991,9 @@ export default async function JobsPage({
                     className={
                       subdued
                         ? "group flex h-full flex-col rounded-[28px] border border-slate-200/80 bg-white/90 p-5 opacity-80 shadow-[0_2px_10px_rgba(15,23,42,0.03)] transition duration-200"
-                        : "group flex h-full flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
+                        : isFeatured
+                          ? "group flex h-full flex-col rounded-[28px] border border-amber-200 bg-gradient-to-b from-white to-amber-50/50 p-5 shadow-[0_8px_28px_rgba(245,158,11,0.12)] ring-1 ring-amber-100 transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_36px_rgba(245,158,11,0.16)]"
+                          : "group flex h-full flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
                     }
                   >
                     <div className="flex items-start justify-between gap-3">
@@ -986,6 +1009,24 @@ export default async function JobsPage({
                         >
                           {getStatusLabel(job.status, t)}
                         </span>
+
+                        {isFeatured ? (
+                          <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                            ✨ {t.featured}
+                          </span>
+                        ) : null}
+
+                        {isPremiumAuthor ? (
+                          <span className="inline-flex rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+                            {t.premium}
+                          </span>
+                        ) : null}
+
+                        {isVerifiedAuthor ? (
+                          <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                            ✓ {t.verified}
+                          </span>
+                        ) : null}
                       </div>
 
                       <div
