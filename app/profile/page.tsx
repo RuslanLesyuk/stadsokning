@@ -15,6 +15,9 @@ type Profile = {
   company_logo_url: string | null
   company_name: string | null
   bio: string | null
+  is_premium: boolean | null
+  verified: boolean | null
+  subscription_ends_at: string | null
 }
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>
@@ -25,6 +28,18 @@ type Copy = {
   account_title: string
   branding_title: string
   stats_title: string
+  premium_title: string
+  premium_active: string
+  premium_free: string
+  premium_hint_active: string
+  premium_hint_free: string
+  verified_title: string
+  verified_yes: string
+  verified_no: string
+  verified_hint_yes: string
+  verified_hint_no: string
+  subscription_until: string
+  coming_soon: string
   full_name: string
   email: string
   phone: string
@@ -60,6 +75,18 @@ const copy: Record<Locale, Copy> = {
     account_title: "Дані акаунта",
     branding_title: "Аватар і брендинг",
     stats_title: "Статистика",
+    premium_title: "Premium статус",
+    premium_active: "Premium активний",
+    premium_free: "Free акаунт",
+    premium_hint_active: "Ваш профіль готовий до Premium переваг і пріоритетного показу.",
+    premium_hint_free: "Базовий акаунт активний. Premium функції можна буде підключити пізніше.",
+    verified_title: "Верифікація",
+    verified_yes: "Профіль підтверджено",
+    verified_no: "Профіль ще не підтверджено",
+    verified_hint_yes: "Цей профіль має підвищений рівень довіри на платформі.",
+    verified_hint_no: "Верифікація буде доступна пізніше для підвищення довіри до профілю.",
+    subscription_until: "Підписка активна до",
+    coming_soon: "Скоро",
     full_name: "Ім’я",
     email: "Email",
     phone: "Телефон",
@@ -93,6 +120,18 @@ const copy: Record<Locale, Copy> = {
     account_title: "Данные аккаунта",
     branding_title: "Аватар и брендинг",
     stats_title: "Статистика",
+    premium_title: "Premium статус",
+    premium_active: "Premium активен",
+    premium_free: "Free аккаунт",
+    premium_hint_active: "Ваш профиль готов к Premium преимуществам и приоритетному показу.",
+    premium_hint_free: "Базовый аккаунт активен. Premium функции можно будет подключить позже.",
+    verified_title: "Верификация",
+    verified_yes: "Профиль подтверждён",
+    verified_no: "Профиль ещё не подтверждён",
+    verified_hint_yes: "Этот профиль имеет повышенный уровень доверия на платформе.",
+    verified_hint_no: "Верификация будет доступна позже для повышения доверия к профилю.",
+    subscription_until: "Подписка активна до",
+    coming_soon: "Скоро",
     full_name: "Имя",
     email: "Email",
     phone: "Телефон",
@@ -126,6 +165,18 @@ const copy: Record<Locale, Copy> = {
     account_title: "Account details",
     branding_title: "Avatar and branding",
     stats_title: "Stats",
+    premium_title: "Premium status",
+    premium_active: "Premium active",
+    premium_free: "Free account",
+    premium_hint_active: "Your profile is ready for Premium benefits and priority placement.",
+    premium_hint_free: "Your free account is active. Premium features can be enabled later.",
+    verified_title: "Verification",
+    verified_yes: "Profile verified",
+    verified_no: "Profile not verified yet",
+    verified_hint_yes: "This profile has a higher trust level on the platform.",
+    verified_hint_no: "Verification will be available later to increase profile trust.",
+    subscription_until: "Subscription active until",
+    coming_soon: "Coming soon",
     full_name: "Name",
     email: "Email",
     phone: "Phone",
@@ -159,6 +210,18 @@ const copy: Record<Locale, Copy> = {
     account_title: "Kontouppgifter",
     branding_title: "Avatar och varumärke",
     stats_title: "Statistik",
+    premium_title: "Premiumstatus",
+    premium_active: "Premium aktiv",
+    premium_free: "Free konto",
+    premium_hint_active: "Din profil är redo för Premium-fördelar och prioriterad placering.",
+    premium_hint_free: "Ditt gratiskonto är aktivt. Premiumfunktioner kan aktiveras senare.",
+    verified_title: "Verifiering",
+    verified_yes: "Profil verifierad",
+    verified_no: "Profilen är inte verifierad ännu",
+    verified_hint_yes: "Den här profilen har högre förtroendenivå på plattformen.",
+    verified_hint_no: "Verifiering blir tillgänglig senare för att öka förtroendet för profilen.",
+    subscription_until: "Prenumeration aktiv till",
+    coming_soon: "Kommer snart",
     full_name: "Namn",
     email: "E-post",
     phone: "Telefon",
@@ -192,6 +255,18 @@ const copy: Record<Locale, Copy> = {
     account_title: "Dane konta",
     branding_title: "Avatar i branding",
     stats_title: "Statystyki",
+    premium_title: "Status Premium",
+    premium_active: "Premium aktywny",
+    premium_free: "Konto Free",
+    premium_hint_active: "Twój profil jest gotowy na korzyści Premium i priorytetowe wyświetlanie.",
+    premium_hint_free: "Twoje darmowe konto jest aktywne. Funkcje Premium będzie można włączyć później.",
+    verified_title: "Weryfikacja",
+    verified_yes: "Profil zweryfikowany",
+    verified_no: "Profil nie jest jeszcze zweryfikowany",
+    verified_hint_yes: "Ten profil ma wyższy poziom zaufania na platformie.",
+    verified_hint_no: "Weryfikacja będzie dostępna później, aby zwiększyć zaufanie do profilu.",
+    subscription_until: "Subskrypcja aktywna do",
+    coming_soon: "Wkrótce",
     full_name: "Imię",
     email: "Email",
     phone: "Telefon",
@@ -247,6 +322,28 @@ function isValidImageFile(file: File) {
   return ["image/png", "image/jpeg", "image/webp"].includes(file.type)
 }
 
+function formatDate(value: string | null, locale: Locale) {
+  if (!value) return null
+
+  const map: Record<Locale, string> = {
+    uk: "uk-UA",
+    ru: "ru-RU",
+    en: "en-US",
+    sv: "sv-SE",
+    pl: "pl-PL",
+  }
+
+  try {
+    return new Intl.DateTimeFormat(map[locale], {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }).format(new Date(value))
+  } catch {
+    return value
+  }
+}
+
 function StatCard({
   label,
   value,
@@ -262,6 +359,35 @@ function StatCard({
       <div className="mt-3 text-2xl font-semibold tracking-tight text-slate-900 md:text-3xl">
         {value}
       </div>
+    </div>
+  )
+}
+
+function StatusCard({
+  title,
+  value,
+  hint,
+  tone,
+}: {
+  title: string
+  value: string
+  hint: string
+  tone: "amber" | "emerald"
+}) {
+  const styles = {
+    amber: "border-amber-200 bg-gradient-to-br from-amber-50 to-white text-amber-700",
+    emerald: "border-emerald-200 bg-gradient-to-br from-emerald-50 to-white text-emerald-700",
+  }
+
+  return (
+    <div className={`rounded-[28px] border p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] md:p-6 ${styles[tone]}`}>
+      <div className="text-xs font-semibold uppercase tracking-wide">
+        {title}
+      </div>
+      <div className="mt-3 text-xl font-semibold tracking-tight text-slate-900">
+        {value}
+      </div>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{hint}</p>
     </div>
   )
 }
@@ -370,7 +496,9 @@ export default async function ProfilePage({
 
   const { data: profileRaw } = await supabase
     .from("profiles")
-    .select("id, full_name, phone, city, avatar_url, company_logo_url, company_name, bio")
+    .select(
+      "id, full_name, phone, city, avatar_url, company_logo_url, company_name, bio, is_premium, verified, subscription_ends_at",
+    )
     .eq("id", user.id)
     .single()
 
@@ -481,6 +609,7 @@ export default async function ProfilePage({
   const displayName = profile?.full_name?.trim() || user.email || t.no_name
   const companyName = profile?.company_name?.trim() || t.no_company
   const bio = profile?.bio?.trim() || t.no_bio
+  const subscriptionDate = formatDate(profile?.subscription_ends_at || null, locale)
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -513,6 +642,24 @@ export default async function ProfilePage({
                   </span>
                   <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
                     {profile?.city?.trim() || t.no_city}
+                  </span>
+                  <span
+                    className={
+                      profile?.is_premium
+                        ? "inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-800"
+                        : "inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+                    }
+                  >
+                    {profile?.is_premium ? t.premium_active : t.premium_free}
+                  </span>
+                  <span
+                    className={
+                      profile?.verified
+                        ? "inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800"
+                        : "inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+                    }
+                  >
+                    {profile?.verified ? t.verified_yes : t.verified_no}
                   </span>
                 </div>
 
@@ -550,9 +697,27 @@ export default async function ProfilePage({
               {t.stats_title}
             </h2>
 
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard label={t.rating} value={averageRating} />
               <StatCard label={t.reviews} value={String(reviewsCount)} />
+              <StatusCard
+                title={t.premium_title}
+                value={profile?.is_premium ? t.premium_active : t.premium_free}
+                hint={
+                  subscriptionDate
+                    ? `${t.subscription_until}: ${subscriptionDate}`
+                    : profile?.is_premium
+                      ? t.premium_hint_active
+                      : t.premium_hint_free
+                }
+                tone="amber"
+              />
+              <StatusCard
+                title={t.verified_title}
+                value={profile?.verified ? t.verified_yes : t.verified_no}
+                hint={profile?.verified ? t.verified_hint_yes : t.verified_hint_no}
+                tone="emerald"
+              />
             </div>
           </div>
         </section>
@@ -688,6 +853,14 @@ export default async function ProfilePage({
                   </div>
                   <div className="mt-1 text-sm text-slate-500">
                     {profile?.city?.trim() || t.no_city}
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="inline-flex rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-700">
+                      {profile?.is_premium ? t.premium_active : t.premium_free}
+                    </span>
+                    <span className="inline-flex rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                      {profile?.verified ? t.verified_yes : t.verified_no}
+                    </span>
                   </div>
                 </div>
               </div>
