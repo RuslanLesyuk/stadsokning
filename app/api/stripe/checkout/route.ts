@@ -6,69 +6,81 @@ export const dynamic = "force-dynamic"
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cleansjob.com"
 
+export async function GET() {
+  return NextResponse.redirect(new URL("/profile", siteUrl), 303)
+}
+
 export async function POST(request: Request) {
-  const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+  try {
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+    const premiumPriceId = process.env.STRIPE_PREMIUM_PRICE_ID
 
-  if (!stripeSecretKey) {
-    return NextResponse.json(
-      { error: "Missing STRIPE_SECRET_KEY" },
-      { status: 500 },
-    )
-  }
+    if (!stripeSecretKey) {
+      return NextResponse.json(
+        { error: "Missing STRIPE_SECRET_KEY in Vercel env" },
+        { status: 500 },
+      )
+    }
 
-  const stripe = new Stripe(stripeSecretKey)
-  const supabase = await createClient()
+    if (!premiumPriceId) {
+      return NextResponse.json(
+        { error: "Missing STRIPE_PREMIUM_PRICE_ID in Vercel env" },
+        { status: 500 },
+      )
+    }
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    const stripe = new Stripe(stripeSecretKey)
+    const supabase = await createClient()
 
-  if (!user) {
-    return NextResponse.redirect(new URL("/login", siteUrl), 303)
-  }
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-  const formData = await request.formData()
-  const checkoutType = String(formData.get("type") || "")
+    if (!user) {
+      return NextResponse.redirect(new URL("/login", siteUrl), 303)
+    }
 
-  if (checkoutType !== "premium") {
-    return NextResponse.json(
-      { error: "Invalid checkout type" },
-      { status: 400 },
-    )
-  }
+    const formData = await request.formData()
+    const checkoutType = String(formData.get("type") || "")
 
-  const priceId = process.env.STRIPE_PREMIUM_PRICE_ID
+    if (checkoutType !== "premium") {
+      return NextResponse.json(
+        { error: "Invalid checkout type" },
+        { status: 400 },
+      )
+    }
 
-  if (!priceId) {
-    return NextResponse.json(
-      { error: "Missing STRIPE_PREMIUM_PRICE_ID" },
-      { status: 500 },
-    )
-  }
-
-  const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    customer_email: user.email || undefined,
-    line_items: [
-      {
-        price: priceId,
-        quantity: 1,
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+      customer_email: user.email || undefined,
+      line_items: [
+        {
+          price: premiumPriceId,
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        user_id: user.id,
+        type: "premium",
       },
-    ],
-    metadata: {
-      user_id: user.id,
-      type: "premium",
-    },
-    success_url: `${siteUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${siteUrl}/billing/cancel`,
-  })
+      success_url: `${siteUrl}/billing/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${siteUrl}/billing/cancel`,
+    })
 
-  if (!session.url) {
+    if (!session.url) {
+      return NextResponse.json(
+        { error: "Stripe did not return checkout URL" },
+        { status: 500 },
+      )
+    }
+
+    return NextResponse.redirect(session.url, 303)
+  } catch (error) {
+    console.error("Stripe checkout error:", error)
+
     return NextResponse.json(
-      { error: "Could not create checkout session" },
+      { error: "Stripe checkout failed" },
       { status: 500 },
     )
   }
-
-  return NextResponse.redirect(session.url, 303)
 }
