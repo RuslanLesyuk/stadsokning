@@ -8,6 +8,7 @@ import TakeJobForm from "@/components/take-job-form"
 
 export const dynamic = "force-dynamic"
 
+
 type JobStatus = "new" | "assigned" | "in_progress" | "done" | "cancelled" | null
 
 type Job = {
@@ -545,6 +546,8 @@ function EmptyPanel({ text }: { text: string }) {
   )
 }
 
+const siteUrl = "https://cleansjob.com"
+
 export async function generateMetadata({
   params,
 }: {
@@ -555,34 +558,49 @@ export async function generateMetadata({
 
   const { data: job } = await supabase
     .from("jobs")
-    .select("title, description, city, budget")
+    .select("id, title, description, city, budget, status")
     .eq("id", id)
     .single()
 
   if (!job) {
     return {
       title: "Job not found | Clean Jobs",
+      description: "The cleaning job you are looking for could not be found.",
+      alternates: {
+        canonical: `${siteUrl}/jobs/${id}`,
+      },
     }
   }
 
-  const title = `${job.title}${job.city ? ` • ${job.city}` : ""}`
+  const cleanTitle = job.title?.trim() || `Cleaning job in ${job.city || "Sweden"}`
+  const title = `${cleanTitle}${job.city ? ` • ${job.city}` : ""}`
+
   const description =
-    job.description?.trim() ||
-    `Cleaning job${job.city ? ` in ${job.city}` : ""}${
-      job.budget != null ? ` for ${job.budget} kr` : ""
-    }`
+    job.description?.trim().slice(0, 160) ||
+    `Find cleaning jobs${job.city ? ` in ${job.city}` : ""}${
+      job.budget != null ? ` with a budget of ${job.budget} kr` : ""
+    } on Clean Jobs.`
+
+  const url = `${siteUrl}/jobs/${job.id}`
 
   return {
     title,
     description,
+    alternates: {
+      canonical: url,
+    },
     openGraph: {
       title,
       description,
+      url,
+      siteName: "Clean Jobs",
+      type: "website",
       images: [
         {
-          url: "/og-image.png",
+          url: `${siteUrl}/og-image.png`,
           width: 1200,
           height: 630,
+          alt: "Clean Jobs cleaning marketplace",
         },
       ],
     },
@@ -590,7 +608,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description,
-      images: ["/og-image.png"],
+      images: [`${siteUrl}/og-image.png`],
     },
   }
 }
