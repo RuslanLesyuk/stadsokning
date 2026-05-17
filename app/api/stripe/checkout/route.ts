@@ -16,15 +16,16 @@ export async function POST(request: Request) {
     const premiumPriceId = process.env.STRIPE_PREMIUM_PRICE_ID
 
     if (!stripeSecretKey) {
-      return NextResponse.json(
-        { error: "Missing STRIPE_SECRET_KEY in Vercel env" },
-        { status: 500 },
-      )
+      return NextResponse.json({ error: "Missing STRIPE_SECRET_KEY" }, { status: 500 })
     }
 
     if (!premiumPriceId) {
+      return NextResponse.json({ error: "Missing STRIPE_PREMIUM_PRICE_ID" }, { status: 500 })
+    }
+
+    if (!premiumPriceId.startsWith("price_")) {
       return NextResponse.json(
-        { error: "Missing STRIPE_PREMIUM_PRICE_ID in Vercel env" },
+        { error: "STRIPE_PREMIUM_PRICE_ID must start with price_" },
         { status: 500 },
       )
     }
@@ -34,7 +35,12 @@ export async function POST(request: Request) {
 
     const {
       data: { user },
+      error: userError,
     } = await supabase.auth.getUser()
+
+    if (userError) {
+      return NextResponse.json({ error: userError.message }, { status: 500 })
+    }
 
     if (!user) {
       return NextResponse.redirect(new URL("/login", siteUrl), 303)
@@ -44,21 +50,13 @@ export async function POST(request: Request) {
     const checkoutType = String(formData.get("type") || "")
 
     if (checkoutType !== "premium") {
-      return NextResponse.json(
-        { error: "Invalid checkout type" },
-        { status: 400 },
-      )
+      return NextResponse.json({ error: "Invalid checkout type" }, { status: 400 })
     }
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer_email: user.email || undefined,
-      line_items: [
-        {
-          price: premiumPriceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: premiumPriceId, quantity: 1 }],
       metadata: {
         user_id: user.id,
         type: "premium",
@@ -68,19 +66,15 @@ export async function POST(request: Request) {
     })
 
     if (!session.url) {
-      return NextResponse.json(
-        { error: "Stripe did not return checkout URL" },
-        { status: 500 },
-      )
+      return NextResponse.json({ error: "Stripe did not return checkout URL" }, { status: 500 })
     }
 
     return NextResponse.redirect(session.url, 303)
   } catch (error) {
-    console.error("Stripe checkout error:", error)
+    if (error instanceof Error) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
 
-    return NextResponse.json(
-      { error: "Stripe checkout failed" },
-      { status: 500 },
-    )
+    return NextResponse.json({ error: "Unknown Stripe checkout error" }, { status: 500 })
   }
 }
