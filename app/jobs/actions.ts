@@ -3,15 +3,134 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
+import { sendEmail } from "@/lib/resend"
+
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cleansjob.com"
 
 export type JobsActionState = {
   success: boolean
   message: string
 }
 
+function escapeHtml(value: string) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;")
+}
+
+function getJobUrl(jobId: string) {
+  return `${siteUrl}/jobs/${jobId}`
+}
+
+async function sendJobCreatedEmail({
+  to,
+  jobId,
+  title,
+  city,
+  budget,
+}: {
+  to: string
+  jobId: string
+  title: string
+  city: string
+  budget: number | null
+}) {
+  const safeTitle = escapeHtml(title)
+  const safeCity = escapeHtml(city)
+  const budgetText = budget == null ? "Not specified" : `${budget} kr`
+
+  await sendEmail({
+    to,
+    subject: "Your job was created | Clean Jobs",
+    html: `
+      <div style="font-family: Arial, sans-serif; background: #fafafa; padding: 32px;">
+        <div style="max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 28px;">
+          <div style="display: inline-block; background: #fff1f2; color: #be123c; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 700;">
+            Clean Jobs
+          </div>
+
+          <h1 style="margin: 20px 0 12px; color: #0f172a; font-size: 26px; line-height: 1.25;">
+            Your job was created successfully
+          </h1>
+
+          <p style="margin: 0; color: #475569; font-size: 16px; line-height: 1.6;">
+            Your cleaning job is now visible on Clean Jobs.
+          </p>
+
+          <div style="margin-top: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 18px; padding: 18px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">Job</div>
+            <div style="font-size: 18px; font-weight: 700; color: #0f172a;">${safeTitle}</div>
+
+            <div style="margin-top: 14px; font-size: 14px; color: #475569;">
+              City: <strong>${safeCity}</strong>
+            </div>
+
+            <div style="margin-top: 6px; font-size: 14px; color: #475569;">
+              Budget: <strong>${budgetText}</strong>
+            </div>
+          </div>
+
+          <a href="${getJobUrl(jobId)}" style="display: inline-block; margin-top: 24px; background: #e11d48; color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 16px; font-weight: 700;">
+            Open job
+          </a>
+        </div>
+      </div>
+    `,
+  })
+}
+
+async function sendJobTakenEmail({
+  to,
+  jobId,
+  title,
+  workerName,
+}: {
+  to: string
+  jobId: string
+  title: string
+  workerName: string
+}) {
+  const safeTitle = escapeHtml(title)
+  const safeWorkerName = escapeHtml(workerName)
+
+  await sendEmail({
+    to,
+    subject: "Someone took your job | Clean Jobs",
+    html: `
+      <div style="font-family: Arial, sans-serif; background: #fafafa; padding: 32px;">
+        <div style="max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 28px;">
+          <div style="display: inline-block; background: #fff1f2; color: #be123c; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 700;">
+            Clean Jobs
+          </div>
+
+          <h1 style="margin: 20px 0 12px; color: #0f172a; font-size: 26px; line-height: 1.25;">
+            Someone took your job
+          </h1>
+
+          <p style="margin: 0; color: #475569; font-size: 16px; line-height: 1.6;">
+            <strong>${safeWorkerName}</strong> accepted your cleaning job.
+          </p>
+
+          <div style="margin-top: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 18px; padding: 18px;">
+            <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">Job</div>
+            <div style="font-size: 18px; font-weight: 700; color: #0f172a;">${safeTitle}</div>
+          </div>
+
+          <a href="${getJobUrl(jobId)}" style="display: inline-block; margin-top: 24px; background: #e11d48; color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 16px; font-weight: 700;">
+            Open job
+          </a>
+        </div>
+      </div>
+    `,
+  })
+}
+
 export async function createJobAction(
   _prevState: JobsActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<JobsActionState> {
   const supabase = await createClient()
 
@@ -98,6 +217,20 @@ export async function createJobAction(
     }
   }
 
+  if (user.email) {
+    try {
+      await sendJobCreatedEmail({
+        to: user.email,
+        jobId: data.id,
+        title,
+        city,
+        budget,
+      })
+    } catch (emailError) {
+      console.error("Failed to send job created email:", emailError)
+    }
+  }
+
   revalidatePath("/")
   revalidatePath("/jobs")
   revalidatePath("/dashboard")
@@ -107,7 +240,7 @@ export async function createJobAction(
 
 export async function takeJobAction(
   _prevState: JobsActionState,
-  formData: FormData
+  formData: FormData,
 ): Promise<JobsActionState> {
   const supabase = await createClient()
 
@@ -133,7 +266,7 @@ export async function takeJobAction(
 
   const { data: job, error: jobError } = await supabase
     .from("jobs")
-    .select("id, created_by, assigned_to, status")
+    .select("id, title, created_by, assigned_to, status")
     .eq("id", jobId)
     .maybeSingle()
 
@@ -180,6 +313,32 @@ export async function takeJobAction(
       success: false,
       message: updateError.message || "Failed to take job.",
     }
+  }
+
+  try {
+    const [{ data: owner }, { data: workerProfile }] = await Promise.all([
+      supabase.auth.admin.getUserById(job.created_by),
+      supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .maybeSingle(),
+    ])
+
+    const ownerEmail = owner.user?.email
+    const workerName =
+      workerProfile?.full_name?.trim() || user.email || "A worker"
+
+    if (ownerEmail) {
+      await sendJobTakenEmail({
+        to: ownerEmail,
+        jobId,
+        title: job.title || "Cleaning job",
+        workerName,
+      })
+    }
+  } catch (emailError) {
+    console.error("Failed to send job taken email:", emailError)
   }
 
   revalidatePath("/jobs")
