@@ -1,10 +1,13 @@
 import Link from "next/link"
 import { cookies } from "next/headers"
-import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
+import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
+
+type JobStatus = "new" | "assigned" | "in_progress" | "done" | "cancelled" | null
+type JobsView = "active" | "completed"
 
 type Job = {
   id: string
@@ -12,19 +15,14 @@ type Job = {
   description: string | null
   city: string | null
   budget: number | null
-  status: "new" | "assigned" | "in_progress" | "done" | "cancelled" | null
+  job_type: string | null
+  property_type: string | null
+  status: JobStatus
   created_at: string
-  created_by: string
+  created_by: string | null
   assigned_to: string | null
-}
-
-type Message = {
-  id: string
-  job_id: string
-  sender_id: string
-  content: string | null
-  created_at: string
-  read_at: string | null
+  is_featured: boolean | null
+  featured_until: string | null
 }
 
 type Profile = {
@@ -35,288 +33,376 @@ type Profile = {
   company_name: string | null
 }
 
-type DashboardCopy = {
+type AdminJob = {
+  id: string
+  title: string
+  city: string | null
+  budget: number | null
+  status: Job["status"]
+  created_at: string
+  created_by: string
+  assigned_to: string | null
+  is_featured?: boolean | null
+  featured_until?: string | null
+}
+
+type AdminProfile = {
+  id: string
+  full_name: string | null
+  company_name: string | null
+  is_premium?: boolean | null
+  verified?: boolean | null
+}
+
+
+type JobsCopy = {
   title: string
   subtitle: string
-  stats_posted: string
-  stats_taken: string
-  stats_unread: string
-  stats_done: string
-  posted_jobs: string
-  taken_jobs: string
-  completed_posted_jobs: string
-  completed_taken_jobs: string
+  filters: string
+  search_placeholder: string
+  city_placeholder: string
+  all_statuses: string
+  all_job_types: string
+  all_property_types: string
+  active_tab: string
+  completed_tab: string
+  active_results: string
+  completed_results: string
+  active_description: string
   completed_description: string
-  show_completed: string
-  completed_count: string
-  empty_posted: string
-  empty_taken: string
-  empty_posted_description: string
-  empty_taken_description: string
-  empty_posted_cta: string
-  empty_taken_cta: string
-  empty_posted_secondary_cta: string
-  empty_taken_secondary_cta: string
-  empty_completed_posted: string
-  empty_completed_taken: string
-  open_job: string
-  edit_job: string
-  open_chat: string
-  no_budget: string
-  no_city: string
-  last_message: string
-  no_messages: string
-  unread: string
-  created: string
-  assigned_worker: string
-  your_job: string
-  author: string
-  worker: string
-  unknown_user: string
-  no_company: string
+  in_history: string
   status_new: string
   status_assigned: string
   status_in_progress: string
   status_done: string
   status_cancelled: string
+  job_type_home_cleaning: string
+  job_type_office_cleaning: string
+  property_type_apartment: string
+  property_type_house: string
+  property_type_office: string
+  property_type_other: string
+  newest: string
+  oldest: string
+  highest_budget: string
+  lowest_budget: string
+  apply: string
+  clear: string
+  results: string
+  open_job: string
+  no_jobs: string
+  no_jobs_description_active: string
+  no_jobs_description_completed: string
+  no_jobs_secondary_cta: string
+  no_city: string
+  no_budget: string
+  created: string
+  budget: string
+  status: string
+  job_type: string
+  property_type: string
+  city: string
+  post_job: string
+  browse_hint: string
+  author: string
+  worker: string
+  no_company: string
+  unknown_user: string
+  featured: string
+  premium: string
 }
 
-const copy: Record<Locale, DashboardCopy> = {
+const copy: Record<Locale, JobsCopy> = {
   uk: {
-    title: "Дашборд",
-    subtitle: "Ваші замовлення, чати та поточний статус роботи.",
-    stats_posted: "Створено замовлень",
-    stats_taken: "Взято в роботу",
-    stats_unread: "Непрочитані повідомлення",
-    stats_done: "Завершено",
-    posted_jobs: "Мої активні замовлення",
-    taken_jobs: "Активні замовлення, які я виконую",
-    completed_posted_jobs: "Завершені та скасовані мої замовлення",
-    completed_taken_jobs: "Завершені та скасовані замовлення, які я виконував",
-    completed_description: "Ці замовлення залишаються в історії, але не відволікають від активної роботи.",
-    show_completed: "Показати завершені",
-    completed_count: "в історії",
-    empty_posted: "У вас ще немає створених замовлень",
-    empty_taken: "У вас ще немає взятих у роботу замовлень",
-    empty_posted_description:
-      "Створіть перше оголошення, щоб швидко знайти виконавця та почати отримувати відгуки.",
-    empty_taken_description:
-      "Перейдіть до списку доступних замовлень і виберіть роботу, яка вам підходить.",
-    empty_posted_cta: "Створити замовлення",
-    empty_taken_cta: "Перейти до замовлень",
-    empty_posted_secondary_cta: "Переглянути всі замовлення",
-    empty_taken_secondary_cta: "Створити своє замовлення",
-    empty_completed_posted: "У вас ще немає завершених або скасованих створених замовлень",
-    empty_completed_taken: "У вас ще немає завершених або скасованих взятих у роботу замовлень",
-    open_job: "Відкрити",
-    edit_job: "Редагувати",
-    open_chat: "Чат",
-    no_budget: "Бюджет не вказано",
-    no_city: "Місто не вказано",
-    last_message: "Останнє повідомлення",
-    no_messages: "Ще немає повідомлень",
-    unread: "непрочитано",
-    created: "Створено",
-    assigned_worker: "Є виконавець",
-    your_job: "Ваше замовлення",
-    author: "Автор",
-    worker: "Виконавець",
-    unknown_user: "Користувач",
-    no_company: "Без компанії",
+    title: "Роботи",
+    subtitle: "Знайдіть клінінгову роботу у вашому місті.",
+    filters: "Фільтри",
+    search_placeholder: "Пошук за назвою або описом",
+    city_placeholder: "Місто",
+    all_statuses: "Усі статуси",
+    all_job_types: "Усі типи робіт",
+    all_property_types: "Усі типи об'єктів",
+    active_tab: "Активні",
+    completed_tab: "Завершені",
+    active_results: "Активні роботи",
+    completed_results: "Завершені та скасовані",
+    active_description: "Поточні замовлення для пошуку та роботи.",
+    completed_description: "Історія завершених і скасованих замовлень без шуму в основному потоці.",
+    in_history: "в історії",
     status_new: "Нове",
     status_assigned: "Призначено",
     status_in_progress: "В процесі",
     status_done: "Завершено",
     status_cancelled: "Скасовано",
+    job_type_home_cleaning: "Прибирання дому",
+    job_type_office_cleaning: "Прибирання офісу",
+    property_type_apartment: "Квартира",
+    property_type_house: "Будинок",
+    property_type_office: "Офіс",
+    property_type_other: "Інше",
+    newest: "Спочатку нові",
+    oldest: "Спочатку старі",
+    highest_budget: "Найвищий бюджет",
+    lowest_budget: "Найнижчий бюджет",
+    apply: "Застосувати",
+    clear: "Очистити",
+    results: "Результати",
+    open_job: "Відкрити",
+    no_jobs: "Нічого не знайдено",
+    no_jobs_description_active:
+      "Зараз немає активних замовлень за цими фільтрами. Спробуйте змінити пошук або створіть нове оголошення.",
+    no_jobs_description_completed:
+      "У завершеній історії зараз немає замовлень за цими фільтрами. Спробуйте змінити пошук або скинути фільтри.",
+    no_jobs_secondary_cta: "Скинути фільтри",
+    no_city: "Місто не вказано",
+    no_budget: "Бюджет не вказано",
+    created: "Створено",
+    budget: "Бюджет",
+    status: "Статус",
+    job_type: "Тип роботи",
+    property_type: "Тип об'єкта",
+    city: "Місто",
+    post_job: "Створити роботу",
+    browse_hint: "Переглядайте замовлення, фільтруйте та відкривайте деталі.",
+    author: "Автор",
+    worker: "Виконавець",
+    no_company: "Без компанії",
+    unknown_user: "Користувач",
+    featured: "Рекомендовано",
+    premium: "Premium",
   },
   ru: {
-    title: "Дашборд",
-    subtitle: "Ваши заказы, чаты и текущий статус работы.",
-    stats_posted: "Создано заказов",
-    stats_taken: "Взято в работу",
-    stats_unread: "Непрочитанные сообщения",
-    stats_done: "Завершено",
-    posted_jobs: "Мои активные заказы",
-    taken_jobs: "Активные заказы, которые я выполняю",
-    completed_posted_jobs: "Завершённые и отменённые мои заказы",
-    completed_taken_jobs: "Завершённые и отменённые заказы, которые я выполнял",
-    completed_description: "Эти заказы остаются в истории, но не засоряют активную рабочую зону.",
-    show_completed: "Показать завершённые",
-    completed_count: "в истории",
-    empty_posted: "У вас пока нет созданных заказов",
-    empty_taken: "У вас пока нет взятых в работу заказов",
-    empty_posted_description:
-      "Создайте первое задание, чтобы быстрее найти исполнителя и начать получать отзывы.",
-    empty_taken_description:
-      "Перейдите к списку доступных заказов и выберите работу, которая вам подходит.",
-    empty_posted_cta: "Создать заказ",
-    empty_taken_cta: "Перейти к заказам",
-    empty_posted_secondary_cta: "Посмотреть все заказы",
-    empty_taken_secondary_cta: "Создать свой заказ",
-    empty_completed_posted: "У вас пока нет завершённых или отменённых созданных заказов",
-    empty_completed_taken: "У вас пока нет завершённых или отменённых взятых в работу заказов",
-    open_job: "Открыть",
-    edit_job: "Редактировать",
-    open_chat: "Чат",
-    no_budget: "Бюджет не указан",
-    no_city: "Город не указан",
-    last_message: "Последнее сообщение",
-    no_messages: "Сообщений пока нет",
-    unread: "непрочитано",
-    created: "Создано",
-    assigned_worker: "Есть исполнитель",
-    your_job: "Ваш заказ",
-    author: "Автор",
-    worker: "Исполнитель",
-    unknown_user: "Пользователь",
-    no_company: "Без компании",
+    title: "Работы",
+    subtitle: "Найдите клининговую работу в вашем городе.",
+    filters: "Фильтры",
+    search_placeholder: "Поиск по названию или описанию",
+    city_placeholder: "Город",
+    all_statuses: "Все статусы",
+    all_job_types: "Все типы работ",
+    all_property_types: "Все типы объектов",
+    active_tab: "Активные",
+    completed_tab: "Завершённые",
+    active_results: "Активные работы",
+    completed_results: "Завершённые и отменённые",
+    active_description: "Текущие заказы для поиска и работы.",
+    completed_description: "История завершённых и отменённых заказов без шума в основном потоке.",
+    in_history: "в истории",
     status_new: "Новый",
     status_assigned: "Назначено",
     status_in_progress: "В процессе",
     status_done: "Завершено",
     status_cancelled: "Отменено",
+    job_type_home_cleaning: "Уборка дома",
+    job_type_office_cleaning: "Уборка офиса",
+    property_type_apartment: "Квартира",
+    property_type_house: "Дом",
+    property_type_office: "Офис",
+    property_type_other: "Другое",
+    newest: "Сначала новые",
+    oldest: "Сначала старые",
+    highest_budget: "Самый высокий бюджет",
+    lowest_budget: "Самый низкий бюджет",
+    apply: "Применить",
+    clear: "Очистить",
+    results: "Результаты",
+    open_job: "Открыть",
+    no_jobs: "Ничего не найдено",
+    no_jobs_description_active:
+      "Сейчас нет активных заказов по этим фильтрам. Попробуйте изменить поиск или создайте новое объявление.",
+    no_jobs_description_completed:
+      "В завершённой истории сейчас нет заказов по этим фильтрам. Попробуйте изменить поиск или сбросить фильтры.",
+    no_jobs_secondary_cta: "Сбросить фильтры",
+    no_city: "Город не указан",
+    no_budget: "Бюджет не указан",
+    created: "Создано",
+    budget: "Бюджет",
+    status: "Статус",
+    job_type: "Тип работы",
+    property_type: "Тип объекта",
+    city: "Город",
+    post_job: "Создать работу",
+    browse_hint: "Просматривайте заказы, фильтруйте и открывайте детали.",
+    author: "Автор",
+    worker: "Исполнитель",
+    no_company: "Без компании",
+    unknown_user: "Пользователь",
+    featured: "Рекомендуется",
+    premium: "Premium",
   },
   en: {
-    title: "Dashboard",
-    subtitle: "Your jobs, chats, and current work status.",
-    stats_posted: "Posted jobs",
-    stats_taken: "Taken jobs",
-    stats_unread: "Unread messages",
-    stats_done: "Completed",
-    posted_jobs: "My active posted jobs",
-    taken_jobs: "Active jobs I am working on",
-    completed_posted_jobs: "My completed and cancelled posted jobs",
-    completed_taken_jobs: "Completed and cancelled jobs I worked on",
-    completed_description: "These jobs stay in your history without cluttering your active workspace.",
-    show_completed: "Show completed",
-    completed_count: "in history",
-    empty_posted: "You haven’t posted any jobs yet",
-    empty_taken: "You haven’t taken any jobs yet",
-    empty_posted_description:
-      "Create your first job to find a worker faster and start collecting reviews.",
-    empty_taken_description:
-      "Browse available jobs and pick a task that matches your schedule.",
-    empty_posted_cta: "Post a job",
-    empty_taken_cta: "Browse jobs",
-    empty_posted_secondary_cta: "See all jobs",
-    empty_taken_secondary_cta: "Post your own job",
-    empty_completed_posted: "You do not have any completed or cancelled posted jobs yet",
-    empty_completed_taken: "You do not have any completed or cancelled taken jobs yet",
-    open_job: "Open",
-    edit_job: "Edit",
-    open_chat: "Chat",
-    no_budget: "Budget not specified",
-    no_city: "City not specified",
-    last_message: "Last message",
-    no_messages: "No messages yet",
-    unread: "unread",
-    created: "Created",
-    assigned_worker: "Worker assigned",
-    your_job: "Your job",
-    author: "Author",
-    worker: "Worker",
-    unknown_user: "User",
-    no_company: "No company",
+    title: "Jobs",
+    subtitle: "Find cleaning jobs in your city.",
+    filters: "Filters",
+    search_placeholder: "Search by title or description",
+    city_placeholder: "City",
+    all_statuses: "All statuses",
+    all_job_types: "All job types",
+    all_property_types: "All property types",
+    active_tab: "Active",
+    completed_tab: "Completed",
+    active_results: "Active jobs",
+    completed_results: "Completed and cancelled",
+    active_description: "Current jobs available for browsing and work.",
+    completed_description: "History of completed and cancelled jobs without cluttering the main flow.",
+    in_history: "in history",
     status_new: "New",
     status_assigned: "Assigned",
     status_in_progress: "In progress",
     status_done: "Done",
     status_cancelled: "Cancelled",
+    job_type_home_cleaning: "Home cleaning",
+    job_type_office_cleaning: "Office cleaning",
+    property_type_apartment: "Apartment",
+    property_type_house: "House",
+    property_type_office: "Office",
+    property_type_other: "Other",
+    newest: "Newest first",
+    oldest: "Oldest first",
+    highest_budget: "Highest budget",
+    lowest_budget: "Lowest budget",
+    apply: "Apply",
+    clear: "Clear",
+    results: "Results",
+    open_job: "Open",
+    no_jobs: "No jobs found",
+    no_jobs_description_active:
+      "There are no active jobs matching these filters right now. Try adjusting your search or create a new job.",
+    no_jobs_description_completed:
+      "There are no completed jobs matching these filters right now. Try adjusting your search or reset the filters.",
+    no_jobs_secondary_cta: "Reset filters",
+    no_city: "City not specified",
+    no_budget: "Budget not specified",
+    created: "Created",
+    budget: "Budget",
+    status: "Status",
+    job_type: "Job type",
+    property_type: "Property type",
+    city: "City",
+    post_job: "Post job",
+    browse_hint: "Browse jobs, filter them, and open details.",
+    author: "Author",
+    worker: "Worker",
+    no_company: "No company",
+    unknown_user: "User",
+    featured: "Featured",
+    premium: "Premium",
   },
   sv: {
-    title: "Dashboard",
-    subtitle: "Dina jobb, chattar och aktuell status.",
-    stats_posted: "Skapade jobb",
-    stats_taken: "Tagna jobb",
-    stats_unread: "Olästa meddelanden",
-    stats_done: "Slutförda",
-    posted_jobs: "Mina aktiva upplagda jobb",
-    taken_jobs: "Aktiva jobb jag arbetar med",
-    completed_posted_jobs: "Mina slutförda och avbrutna upplagda jobb",
-    completed_taken_jobs: "Slutförda och avbrutna jobb jag har arbetat med",
-    completed_description: "De här jobben finns kvar i historiken utan att störa den aktiva översikten.",
-    show_completed: "Visa slutförda",
-    completed_count: "i historiken",
-    empty_posted: "Du har inte lagt upp några jobb ännu",
-    empty_taken: "Du har inte tagit några jobb ännu",
-    empty_posted_description:
-      "Skapa ditt första jobb för att snabbare hitta en arbetare och börja få recensioner.",
-    empty_taken_description:
-      "Bläddra bland tillgängliga jobb och välj ett uppdrag som passar dig.",
-    empty_posted_cta: "Lägg upp jobb",
-    empty_taken_cta: "Visa jobb",
-    empty_posted_secondary_cta: "Se alla jobb",
-    empty_taken_secondary_cta: "Skapa eget jobb",
-    empty_completed_posted: "Du har ännu inga slutförda eller avbrutna upplagda jobb",
-    empty_completed_taken: "Du har ännu inga slutförda eller avbrutna tagna jobb",
-    open_job: "Öppna",
-    edit_job: "Redigera",
-    open_chat: "Chatt",
-    no_budget: "Ingen budget angiven",
-    no_city: "Ingen stad angiven",
-    last_message: "Senaste meddelandet",
-    no_messages: "Inga meddelanden ännu",
-    unread: "olästa",
-    created: "Skapad",
-    assigned_worker: "Arbetare tilldelad",
-    your_job: "Ditt jobb",
-    author: "Skapad av",
-    worker: "Arbetare",
-    unknown_user: "Användare",
-    no_company: "Inget företag",
+    title: "Jobb",
+    subtitle: "Hitta städjobb i din stad.",
+    filters: "Filter",
+    search_placeholder: "Sök på titel eller beskrivning",
+    city_placeholder: "Stad",
+    all_statuses: "Alla statusar",
+    all_job_types: "Alla jobbtyper",
+    all_property_types: "Alla objekttyper",
+    active_tab: "Aktiva",
+    completed_tab: "Slutförda",
+    active_results: "Aktiva jobb",
+    completed_results: "Slutförda och avbrutna",
+    active_description: "Aktuella jobb för sökning och arbete.",
+    completed_description: "Historik över slutförda och avbrutna jobb utan att störa huvudflödet.",
+    in_history: "i historiken",
     status_new: "Ny",
     status_assigned: "Tilldelad",
     status_in_progress: "Pågår",
     status_done: "Klar",
     status_cancelled: "Avbruten",
+    job_type_home_cleaning: "Hemstädning",
+    job_type_office_cleaning: "Kontorsstädning",
+    property_type_apartment: "Lägenhet",
+    property_type_house: "Hus",
+    property_type_office: "Kontor",
+    property_type_other: "Annat",
+    newest: "Nyaste först",
+    oldest: "Äldsta först",
+    highest_budget: "Högst budget",
+    lowest_budget: "Lägst budget",
+    apply: "Använd",
+    clear: "Rensa",
+    results: "Resultat",
+    open_job: "Öppna",
+    no_jobs: "Inga jobb hittades",
+    no_jobs_description_active:
+      "Det finns inga aktiva jobb som matchar dessa filter just nu. Prova att ändra din sökning eller skapa ett nytt jobb.",
+    no_jobs_description_completed:
+      "Det finns inga slutförda jobb som matchar dessa filter just nu. Prova att ändra din sökning eller återställ filtren.",
+    no_jobs_secondary_cta: "Återställ filter",
+    no_city: "Ingen stad angiven",
+    no_budget: "Ingen budget angiven",
+    created: "Skapad",
+    budget: "Budget",
+    status: "Status",
+    job_type: "Jobbtyp",
+    property_type: "Typ av objekt",
+    city: "Stad",
+    post_job: "Skapa jobb",
+    browse_hint: "Bläddra bland jobb, filtrera och öppna detaljer.",
+    author: "Skapad av",
+    worker: "Arbetare",
+    no_company: "Inget företag",
+    unknown_user: "Användare",
+    featured: "Utvald",
+    premium: "Premium",
   },
   pl: {
-    title: "Panel",
-    subtitle: "Twoje zlecenia, czaty i aktualny status pracy.",
-    stats_posted: "Dodane zlecenia",
-    stats_taken: "Przyjęte zlecenia",
-    stats_unread: "Nieprzeczytane wiadomości",
-    stats_done: "Zakończone",
-    posted_jobs: "Moje aktywne zlecenia",
-    taken_jobs: "Aktywne zlecenia, które wykonuję",
-    completed_posted_jobs: "Moje zakończone i anulowane zlecenia",
-    completed_taken_jobs: "Zakończone i anulowane zlecenia, które wykonywałem",
-    completed_description: "Te zlecenia zostają w historii, ale nie zaśmiecają aktywnego widoku.",
-    show_completed: "Pokaż zakończone",
-    completed_count: "w historii",
-    empty_posted: "Nie masz jeszcze dodanych zleceń",
-    empty_taken: "Nie masz jeszcze przyjętych zleceń",
-    empty_posted_description:
-      "Dodaj pierwsze zlecenie, aby szybciej znaleźć wykonawcę i zacząć zbierać opinie.",
-    empty_taken_description:
-      "Przejrzyj dostępne zlecenia i wybierz pracę, która Ci odpowiada.",
-    empty_posted_cta: "Dodaj zlecenie",
-    empty_taken_cta: "Przeglądaj zlecenia",
-    empty_posted_secondary_cta: "Zobacz wszystkie zlecenia",
-    empty_taken_secondary_cta: "Dodaj własne zlecenie",
-    empty_completed_posted: "Nie masz jeszcze zakończonych lub anulowanych dodanych zleceń",
-    empty_completed_taken: "Nie masz jeszcze zakończonych lub anulowanych przyjętych zleceń",
-    open_job: "Otwórz",
-    edit_job: "Edytuj",
-    open_chat: "Czat",
-    no_budget: "Nie podano budżetu",
-    no_city: "Nie podano miasta",
-    last_message: "Ostatnia wiadomość",
-    no_messages: "Brak wiadomości",
-    unread: "nieprzeczytane",
-    created: "Utworzono",
-    assigned_worker: "Pracownik przypisany",
-    your_job: "Twoje zlecenie",
-    author: "Autor",
-    worker: "Wykonawca",
-    unknown_user: "Użytkownik",
-    no_company: "Bez firmy",
+    title: "Prace",
+    subtitle: "Znajdź pracę przy sprzątaniu w swoim mieście.",
+    filters: "Filtry",
+    search_placeholder: "Szukaj po tytule lub opisie",
+    city_placeholder: "Miasto",
+    all_statuses: "Wszystkie statusy",
+    all_job_types: "Wszystkie typy prac",
+    all_property_types: "Wszystkie typy obiektów",
+    active_tab: "Aktywne",
+    completed_tab: "Zakończone",
+    active_results: "Aktywne zlecenia",
+    completed_results: "Zakończone i anulowane",
+    active_description: "Bieżące zlecenia do przeglądania i wykonywania.",
+    completed_description: "Historia zakończonych i anulowanych zleceń bez zaśmiecania głównego widoku.",
+    in_history: "w historii",
     status_new: "Nowe",
     status_assigned: "Przypisane",
     status_in_progress: "W trakcie",
     status_done: "Zakończone",
     status_cancelled: "Anulowane",
-  } as DashboardCopy,
+    job_type_home_cleaning: "Sprzątanie domu",
+    job_type_office_cleaning: "Sprzątanie biura",
+    property_type_apartment: "Mieszkanie",
+    property_type_house: "Dom",
+    property_type_office: "Biuro",
+    property_type_other: "Inne",
+    newest: "Najnowsze",
+    oldest: "Najstarsze",
+    highest_budget: "Najwyższy budżet",
+    lowest_budget: "Najniższy budżet",
+    apply: "Zastosuj",
+    clear: "Wyczyść",
+    results: "Wyniki",
+    open_job: "Otwórz",
+    no_jobs: "Nie znaleziono zleceń",
+    no_jobs_description_active:
+      "Obecnie nie ma aktywnych zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub dodaj nowe zlecenie.",
+    no_jobs_description_completed:
+      "Obecnie nie ma zakończonych zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub zresetuj filtry.",
+    no_jobs_secondary_cta: "Resetuj filtry",
+    no_city: "Nie podano miasta",
+    no_budget: "Nie podano budżetu",
+    created: "Utworzono",
+    budget: "Budżet",
+    status: "Status",
+    job_type: "Typ pracy",
+    property_type: "Typ obiektu",
+    city: "Miasto",
+    post_job: "Dodaj zlecenie",
+    browse_hint: "Przeglądaj zlecenia, filtruj i otwieraj szczegóły.",
+    author: "Autor",
+    worker: "Wykonawca",
+    no_company: "Bez firmy",
+    unknown_user: "Użytkownik",
+    featured: "Polecane",
+    premium: "Premium",
+  },
 }
 
 function formatDate(value: string, locale: Locale) {
@@ -339,34 +425,12 @@ function formatDate(value: string, locale: Locale) {
   }
 }
 
-function formatDateTime(value: string, locale: Locale) {
-  try {
-    const map: Record<Locale, string> = {
-      uk: "uk-UA",
-      ru: "ru-RU",
-      en: "en-US",
-      sv: "sv-SE",
-      pl: "pl-PL",
-    }
-
-    return new Intl.DateTimeFormat(map[locale], {
-      year: "numeric",
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    }).format(new Date(value))
-  } catch {
-    return value
-  }
-}
-
-function formatBudget(value: number | null, t: DashboardCopy) {
+function formatBudget(value: number | null, t: JobsCopy) {
   if (value == null) return t.no_budget
   return `${value} kr`
 }
 
-function getStatusLabel(status: Job["status"], t: DashboardCopy) {
+function getStatusLabel(status: JobStatus, t: JobsCopy) {
   switch (status) {
     case "new":
       return t.status_new
@@ -383,7 +447,7 @@ function getStatusLabel(status: Job["status"], t: DashboardCopy) {
   }
 }
 
-function getStatusClasses(status: Job["status"]) {
+function getStatusClasses(status: JobStatus) {
   switch (status) {
     case "new":
       return "border-slate-200 bg-slate-100 text-slate-700"
@@ -400,109 +464,77 @@ function getStatusClasses(status: Job["status"]) {
   }
 }
 
-function truncate(text: string | null | undefined, max = 120) {
+function getJobTypeLabel(jobType: string | null, t: JobsCopy) {
+  switch (jobType) {
+    case "home_cleaning":
+      return t.job_type_home_cleaning
+    case "office_cleaning":
+      return t.job_type_office_cleaning
+    default:
+      return "—"
+  }
+}
+
+function getPropertyTypeLabel(propertyType: string | null, t: JobsCopy) {
+  switch (propertyType) {
+    case "apartment":
+      return t.property_type_apartment
+    case "house":
+      return t.property_type_house
+    case "office":
+      return t.property_type_office
+    case "other":
+      return t.property_type_other
+    default:
+      return "—"
+  }
+}
+
+function truncate(text: string | null | undefined, max = 170) {
   if (!text) return ""
   if (text.length <= max) return text
   return `${text.slice(0, max).trim()}…`
 }
 
+function isCompletedStatus(status: JobStatus) {
+  return status === "done" || status === "cancelled"
+}
+
 function getInitials(name: string) {
   const clean = name.trim()
   if (!clean) return "U"
-
   const parts = clean.split(/\s+/).slice(0, 2)
   const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("")
   return initials || "U"
 }
 
-function isCompletedStatus(status: Job["status"]) {
-  return status === "done" || status === "cancelled"
-}
-
-function StatCard({
-  label,
-  value,
-}: {
-  label: string
-  value: number
+function buildHref(params: {
+  view?: JobsView
+  q?: string
+  city?: string
+  status?: string
+  jobType?: string
+  propertyType?: string
+  sort?: string
 }) {
-  return (
-    <div className="rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] md:p-6">
-      <div className="text-xs font-medium uppercase tracking-wide text-slate-500 md:text-sm">
-        {label}
-      </div>
-      <div className="mt-3 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
-        {value}
-      </div>
-    </div>
-  )
+  const search = new URLSearchParams()
+
+  if (params.view && params.view !== "active") {
+    search.set("view", params.view)
+  }
+
+  if (params.q) search.set("q", params.q)
+  if (params.city) search.set("city", params.city)
+  if (params.status) search.set("status", params.status)
+  if (params.jobType) search.set("jobType", params.jobType)
+  if (params.propertyType) search.set("propertyType", params.propertyType)
+  if (params.sort && params.sort !== "newest") search.set("sort", params.sort)
+
+  const queryString = search.toString()
+  return queryString ? `/jobs?${queryString}` : "/jobs"
 }
 
-function PersonBadge({
-  label,
-  name,
-  avatarUrl,
-  companyLogoUrl,
-  companyName,
-  muted = false,
-  fallbackCompany,
-}: {
-  label: string
-  name: string
-  avatarUrl?: string | null
-  companyLogoUrl?: string | null
-  companyName?: string | null
-  muted?: boolean
-  fallbackCompany: string
-}) {
-  return (
-    <div
-      className={
-        muted
-          ? "flex items-center gap-3 rounded-2xl bg-slate-50 px-3 py-3"
-          : "flex items-center gap-3 rounded-2xl bg-slate-50/90 px-3 py-3"
-      }
-    >
-      <div className="relative shrink-0">
-        <div
-          className={
-            muted
-              ? "flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-300 text-sm font-semibold text-white"
-              : "flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-sm font-semibold text-white"
-          }
-        >
-          {avatarUrl ? (
-            <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
-          ) : (
-            getInitials(name)
-          )}
-        </div>
-
-        {companyLogoUrl ? (
-          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
-            <img
-              src={companyLogoUrl}
-              alt={companyName || fallbackCompany}
-              className="h-full w-full object-cover"
-            />
-          </div>
-        ) : null}
-      </div>
-
-      <div className="min-w-0">
-        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
-          {label}
-        </div>
-        <div className="truncate text-sm font-medium text-slate-800">{name}</div>
-        <div className="truncate text-xs text-slate-500">
-          {companyName?.trim() || fallbackCompany}
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function DashboardEmptyState({
+function JobsEmptyState({
   title,
   description,
   primaryLabel,
@@ -514,17 +546,17 @@ function DashboardEmptyState({
   description: string
   primaryLabel: string
   primaryHref: string
-  secondaryLabel?: string
-  secondaryHref?: string
+  secondaryLabel: string
+  secondaryHref: string
 }) {
   return (
     <div className="rounded-[28px] border border-dashed border-slate-300/90 bg-white p-8 text-center shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-10">
       <div className="mx-auto flex max-w-2xl flex-col items-center">
         <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-rose-50 text-2xl">
-          ✨
+          🔎
         </div>
 
-        <h3 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+        <h3 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
           {title}
         </h3>
 
@@ -536,404 +568,160 @@ function DashboardEmptyState({
           <Link
             href={primaryHref}
             prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-700"
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
           >
             {primaryLabel}
           </Link>
 
-          {secondaryLabel && secondaryHref ? (
-            <Link
-              href={secondaryHref}
-              prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-            >
-              {secondaryLabel}
-            </Link>
-          ) : null}
+          <Link
+            href={secondaryHref}
+            prefetch={false}
+            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
+          >
+            {secondaryLabel}
+          </Link>
         </div>
       </div>
     </div>
   )
 }
 
-function JobCard({
-  job,
-  locale,
-  t,
-  isOwner,
-  unreadCount,
-  lastMessage,
-  authorProfile,
-  workerProfile,
-  subdued = false,
+function FilterLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mb-2 text-[11px] font-medium uppercase tracking-wide text-slate-500">
+      {children}
+    </div>
+  )
+}
+
+function PersonMiniCard({
+  label,
+  profile,
+  fallbackName,
+  fallbackCompany,
 }: {
-  job: Job
-  locale: Locale
-  t: DashboardCopy
-  isOwner: boolean
-  unreadCount: number
-  lastMessage?: Message
-  authorProfile?: Profile
-  workerProfile?: Profile | null
-  subdued?: boolean
+  label: string
+  profile?: Profile | null
+  fallbackName: string
+  fallbackCompany: string
 }) {
-  const completed = isCompletedStatus(job.status)
-  const isSubdued = subdued || completed
-  const authorName = authorProfile?.full_name?.trim() || t.unknown_user
-  const workerName = workerProfile?.full_name?.trim() || t.unknown_user
+  const name = profile?.full_name?.trim() || fallbackName
+  const companyName = profile?.company_name?.trim() || fallbackCompany
 
   return (
-    <article
-      className={
-        isSubdued
-          ? "group flex flex-col rounded-[28px] border border-slate-200/80 bg-white/90 p-5 opacity-80 shadow-[0_2px_10px_rgba(15,23,42,0.03)] transition duration-200 md:p-6"
-          : "group flex flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)] md:p-6"
-      }
-    >
-      <div className="flex flex-col gap-5">
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
-            >
-              {getStatusLabel(job.status, t)}
-            </span>
-
-            {isOwner ? (
-              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                {t.your_job}
-              </span>
-            ) : null}
-
-            {job.assigned_to ? (
-              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                {t.assigned_worker}
-              </span>
-            ) : null}
-
-            {!isSubdued && unreadCount > 0 ? (
-              <span className="inline-flex rounded-full bg-rose-600 px-3 py-1 text-xs font-medium text-white">
-                {unreadCount} {t.unread}
-              </span>
-            ) : null}
-          </div>
-
-          <h2 className="mt-4 text-xl font-semibold tracking-tight text-slate-950">
-            {job.title}
-          </h2>
-
-          <div className="mt-3 flex flex-wrap gap-2">
-            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-              {job.city || t.no_city}
-            </span>
-            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-              {formatBudget(job.budget, t)}
-            </span>
-            <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-              {t.created}: {formatDate(job.created_at, locale)}
-            </span>
-          </div>
-
-          {job.description ? (
-            <p className="mt-4 text-sm leading-6 text-slate-600">
-              {truncate(job.description, 180)}
-            </p>
+    <div className="flex items-center gap-3 rounded-2xl bg-slate-50/80 px-3 py-3">
+      <div className="relative shrink-0">
+        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-sm font-semibold text-white">
+          {profile?.avatar_url ? (
+            <img src={profile.avatar_url} alt={name} className="h-full w-full object-cover" />
           ) : (
-            <div className="mt-4 text-sm leading-6 text-slate-400">—</div>
+            getInitials(name)
           )}
         </div>
 
-        <div className="grid gap-3 md:grid-cols-2">
-          <PersonBadge
-            label={t.author}
-            name={authorName}
-            avatarUrl={authorProfile?.avatar_url}
-            companyLogoUrl={authorProfile?.company_logo_url}
-            companyName={authorProfile?.company_name}
-            muted={isSubdued}
-            fallbackCompany={t.no_company}
-          />
-          {workerProfile ? (
-            <PersonBadge
-              label={t.worker}
-              name={workerName}
-              avatarUrl={workerProfile.avatar_url}
-              companyLogoUrl={workerProfile.company_logo_url}
-              companyName={workerProfile.company_name}
-              muted={isSubdued}
-              fallbackCompany={t.no_company}
+        {profile?.company_logo_url ? (
+          <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
+            <img
+              src={profile.company_logo_url}
+              alt={companyName}
+              className="h-full w-full object-cover"
             />
-          ) : null}
-        </div>
-
-        <div className="rounded-2xl bg-slate-50/80 p-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
-              {t.last_message}
-            </div>
-
-            {lastMessage ? (
-              <div className="text-xs text-slate-500">
-                {formatDateTime(lastMessage.created_at, locale)}
-              </div>
-            ) : null}
           </div>
-
-          <div className="mt-2 text-sm leading-6 text-slate-700">
-            {lastMessage?.content?.trim()
-              ? truncate(lastMessage.content, 140)
-              : t.no_messages}
-          </div>
-        </div>
-
-        <div className={`grid gap-3 ${isOwner ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
-          <Link
-            href={`/jobs/${job.id}`}
-            prefetch={false}
-            className={
-              isSubdued
-                ? "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-                : "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-4 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-700"
-            }
-          >
-            {t.open_job}
-          </Link>
-
-          {isOwner ? (
-            completed ? (
-              <div className="hidden sm:block" />
-            ) : (
-              <Link
-                href={`/jobs/${job.id}/edit`}
-                prefetch={false}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-              >
-                {t.edit_job}
-              </Link>
-            )
-          ) : null}
-
-          {job.assigned_to ? (
-            <Link
-              href={`/jobs/${job.id}/chat`}
-              prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-            >
-              {t.open_chat}
-            </Link>
-          ) : isOwner ? (
-            <div className="hidden sm:block" />
-          ) : null}
-        </div>
+        ) : null}
       </div>
-    </article>
+
+      <div className="min-w-0">
+        <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500">
+          {label}
+        </div>
+        <div className="truncate text-sm font-medium text-slate-900">{name}</div>
+        <div className="truncate text-xs text-slate-500">{companyName}</div>
+      </div>
+    </div>
   )
 }
 
-function JobsSection({
-  title,
-  ctaLabel,
-  ctaHref,
-  jobs,
-  locale,
-  t,
-  unreadByJob,
-  lastMessageByJob,
-  profileById,
-  isOwnerSection,
-  emptyTitle,
-  emptyDescription,
-  emptyPrimaryLabel,
-  emptyPrimaryHref,
-  emptySecondaryLabel,
-  emptySecondaryHref,
+export default async function JobsPage({
+  searchParams,
 }: {
-  title: string
-  ctaLabel: string
-  ctaHref: string
-  jobs: Job[]
-  locale: Locale
-  t: DashboardCopy
-  unreadByJob: Map<string, number>
-  lastMessageByJob: Map<string, Message>
-  profileById: Map<string, Profile>
-  isOwnerSection: boolean
-  emptyTitle: string
-  emptyDescription: string
-  emptyPrimaryLabel: string
-  emptyPrimaryHref: string
-  emptySecondaryLabel?: string
-  emptySecondaryHref?: string
+  searchParams?: Promise<Record<string, string | string[] | undefined>>
 }) {
-  return (
-    <section className="mt-10">
-      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
-          {title}
-        </h2>
-
-        <Link
-          href={ctaHref}
-          prefetch={false}
-          className={
-            isOwnerSection
-              ? "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-700"
-              : "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-          }
-        >
-          {ctaLabel}
-        </Link>
-      </div>
-
-      <div className="space-y-5">
-        {jobs.length === 0 ? (
-          <DashboardEmptyState
-            title={emptyTitle}
-            description={emptyDescription}
-            primaryLabel={emptyPrimaryLabel}
-            primaryHref={emptyPrimaryHref}
-            secondaryLabel={emptySecondaryLabel}
-            secondaryHref={emptySecondaryHref}
-          />
-        ) : (
-          jobs.map((job) => (
-            <JobCard
-              key={job.id}
-              job={job}
-              locale={locale}
-              t={t}
-              isOwner={isOwnerSection}
-              unreadCount={unreadByJob.get(job.id) ?? 0}
-              lastMessage={lastMessageByJob.get(job.id)}
-              authorProfile={profileById.get(job.created_by)}
-              workerProfile={job.assigned_to ? profileById.get(job.assigned_to) || null : null}
-            />
-          ))
-        )}
-      </div>
-    </section>
-  )
-}
-
-function CompletedSection({
-  title,
-  description,
-  jobs,
-  locale,
-  t,
-  unreadByJob,
-  lastMessageByJob,
-  profileById,
-  isOwnerSection,
-  emptyTitle,
-}: {
-  title: string
-  description: string
-  jobs: Job[]
-  locale: Locale
-  t: DashboardCopy
-  unreadByJob: Map<string, number>
-  lastMessageByJob: Map<string, Message>
-  profileById: Map<string, Profile>
-  isOwnerSection: boolean
-  emptyTitle: string
-}) {
-  return (
-    <section className="mt-6">
-      <details className="group rounded-[28px] border border-slate-200/80 bg-white/80 shadow-[0_2px_10px_rgba(15,23,42,0.03)]">
-        <summary className="flex cursor-pointer list-none items-center justify-between gap-4 rounded-[28px] px-5 py-5 outline-none transition hover:bg-slate-50/80 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-inset active:scale-[0.998] md:px-6">
-          <div className="min-w-0">
-            <div className="flex flex-wrap items-center gap-2">
-              <h3 className="text-lg font-semibold tracking-tight text-slate-900 md:text-xl">
-                {title}
-              </h3>
-              <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
-                {jobs.length} {t.completed_count}
-              </span>
-            </div>
-            <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
-          </div>
-
-          <div className="shrink-0 rounded-full bg-slate-100 px-3 py-2 text-xs font-medium text-slate-600 transition group-open:bg-rose-50 group-open:text-rose-700">
-            {t.show_completed}
-          </div>
-        </summary>
-
-        <div className="border-t border-slate-200/80 px-5 py-5 md:px-6">
-          {jobs.length === 0 ? (
-            <div className="rounded-[24px] border border-dashed border-slate-200 bg-slate-50/70 p-6 text-sm text-slate-500">
-              {emptyTitle}
-            </div>
-          ) : (
-            <div className="space-y-5">
-              {jobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  locale={locale}
-                  t={t}
-                  isOwner={isOwnerSection}
-                  unreadCount={unreadByJob.get(job.id) ?? 0}
-                  lastMessage={lastMessageByJob.get(job.id)}
-                  authorProfile={profileById.get(job.created_by)}
-                  workerProfile={job.assigned_to ? profileById.get(job.assigned_to) || null : null}
-                  subdued
-                />
-              ))}
-            </div>
-          )}
-        </div>
-      </details>
-    </section>
-  )
-}
-
-export default async function DashboardPage() {
   const cookieStore = await cookies()
   const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
   const t = copy[locale] || copy.en
 
+  const params = (await searchParams) ?? {}
+
+  const q = typeof params.q === "string" ? params.q.trim() : ""
+  const city = typeof params.city === "string" ? params.city.trim() : ""
+  const status = typeof params.status === "string" ? params.status.trim() : ""
+  const jobType = typeof params.jobType === "string" ? params.jobType.trim() : ""
+  const propertyType =
+    typeof params.propertyType === "string" ? params.propertyType.trim() : ""
+  const sort = typeof params.sort === "string" ? params.sort.trim() : "newest"
+  const rawView = typeof params.view === "string" ? params.view.trim() : "active"
+  const view: JobsView = rawView === "completed" ? "completed" : "active"
+
   const supabase = await createClient()
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect("/login")
-  }
-
-  const { data: jobsRaw, error: jobsError } = await supabase
+  let query = supabase
     .from("jobs")
-    .select("id, title, description, city, budget, status, created_at, created_by, assigned_to")
-    .or(`created_by.eq.${user.id},assigned_to.eq.${user.id}`)
-    .order("created_at", { ascending: false })
+    .select(
+      "id, title, description, city, budget, job_type, property_type, status, created_at, created_by, assigned_to, is_featured, featured_until",
+    )
 
-  if (jobsError) {
-    throw new Error(jobsError.message)
+  if (q) {
+    const escaped = q.replaceAll(",", " ")
+    query = query.or(`title.ilike.%${escaped}%,description.ilike.%${escaped}%`)
   }
 
-  const jobs = (jobsRaw ?? []) as Job[]
-  const jobIds = jobs.map((job) => job.id)
-
-  let messages: Message[] = []
-
-  if (jobIds.length > 0) {
-    const { data: messagesRaw, error: messagesError } = await supabase
-      .from("messages")
-      .select("id, job_id, sender_id, content, created_at, read_at")
-      .in("job_id", jobIds)
-      .order("created_at", { ascending: false })
-      .limit(500)
-
-    if (messagesError) {
-      throw new Error(messagesError.message)
-    }
-
-    messages = (messagesRaw ?? []) as Message[]
+  if (city) {
+    query = query.ilike("city", `%${city}%`)
   }
 
-  const userIds = Array.from(
+  if (status) {
+    query = query.eq("status", status)
+  } else if (view === "completed") {
+    query = query.in("status", ["done", "cancelled"])
+  } else {
+    query = query.in("status", ["new", "assigned", "in_progress"])
+  }
+
+  if (jobType) {
+    query = query.eq("job_type", jobType)
+  }
+
+  if (propertyType) {
+    query = query.eq("property_type", propertyType)
+  }
+
+  if (sort === "oldest") {
+    query = query.order("created_at", { ascending: true })
+  } else if (sort === "highest_budget") {
+    query = query.order("budget", { ascending: false, nullsFirst: false })
+  } else if (sort === "lowest_budget") {
+    query = query.order("budget", { ascending: true, nullsFirst: false })
+  } else {
+    query = query.order("created_at", { ascending: false })
+  }
+
+  const { data, error } = await query.limit(100)
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  const jobs = ((data ?? []) as Job[]).sort((a, b) => {
+    const aFeatured = Boolean(a.is_featured)
+    const bFeatured = Boolean(b.is_featured)
+
+    if (aFeatured && !bFeatured) return -1
+    if (!aFeatured && bFeatured) return 1
+
+    return 0
+  })
+
+  const profileIds = Array.from(
     new Set(
       jobs.flatMap((job) => [job.created_by, job.assigned_to].filter(Boolean) as string[]),
     ),
@@ -941,11 +729,11 @@ export default async function DashboardPage() {
 
   let profiles: Profile[] = []
 
-  if (userIds.length > 0) {
+  if (profileIds.length > 0) {
     const { data: profilesRaw, error: profilesError } = await supabase
       .from("profiles")
       .select("id, full_name, avatar_url, company_logo_url, company_name")
-      .in("id", userIds)
+      .in("id", profileIds)
 
     if (profilesError) {
       throw new Error(profilesError.message)
@@ -955,122 +743,560 @@ export default async function DashboardPage() {
   }
 
   const profileById = new Map<string, Profile>()
-
   for (const profile of profiles) {
     profileById.set(profile.id, profile)
   }
 
-  const unreadByJob = new Map<string, number>()
-  const lastMessageByJob = new Map<string, Message>()
-
-  for (const message of messages) {
-    if (!lastMessageByJob.has(message.job_id)) {
-      lastMessageByJob.set(message.job_id, message)
-    }
-
-    const isUnreadForCurrentUser =
-      message.sender_id !== user.id && message.read_at === null
-
-    if (isUnreadForCurrentUser) {
-      unreadByJob.set(message.job_id, (unreadByJob.get(message.job_id) ?? 0) + 1)
-    }
-  }
-
-  const postedJobs = jobs.filter((job) => job.created_by === user.id)
-  const takenJobs = jobs.filter((job) => job.assigned_to === user.id)
-
-  const postedActiveJobs = postedJobs.filter((job) => !isCompletedStatus(job.status))
-  const postedCompletedJobs = postedJobs.filter((job) => isCompletedStatus(job.status))
-  const takenActiveJobs = takenJobs.filter((job) => !isCompletedStatus(job.status))
-  const takenCompletedJobs = takenJobs.filter((job) => isCompletedStatus(job.status))
-
-  const unreadTotal = [...unreadByJob.values()].reduce((sum, n) => sum + n, 0)
-  const doneTotal = jobs.filter((job) => job.status === "done").length
+  const clearHref = buildHref({ view })
+  const activeTabHref = buildHref({
+    view: "active",
+    q,
+    city,
+    status: status && !isCompletedStatus(status as JobStatus) ? status : "",
+    jobType,
+    propertyType,
+    sort,
+  })
+  const completedTabHref = buildHref({
+    view: "completed",
+    q,
+    city,
+    status: status && isCompletedStatus(status as JobStatus) ? status : "",
+    jobType,
+    propertyType,
+    sort,
+  })
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
+      <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
         <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-rose-50/40 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
-          <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
-            {t.title}
-          </h1>
+          <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+            <div className="min-w-0">
+              <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
+                {t.title}
+              </h1>
 
-          <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
-            {t.subtitle}
-          </p>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
+                {t.subtitle}
+              </p>
 
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard label={t.stats_posted} value={postedJobs.length} />
-            <StatCard label={t.stats_taken} value={takenJobs.length} />
-            <StatCard label={t.stats_unread} value={unreadTotal} />
-            <StatCard label={t.stats_done} value={doneTotal} />
+              <p className="mt-2 text-sm text-slate-500">{t.browse_hint}</p>
+            </div>
+
+            <Link
+              href="/jobs/create"
+              prefetch={false}
+              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
+            >
+              {t.post_job}
+            </Link>
           </div>
+
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href={activeTabHref}
+              prefetch={false}
+              className={
+                view === "active"
+                  ? "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
+                  : "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
+              }
+            >
+              {t.active_tab}
+            </Link>
+
+            <Link
+              href={completedTabHref}
+              prefetch={false}
+              className={
+                view === "completed"
+                  ? "inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-900 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-950"
+                  : "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+              }
+            >
+              {t.completed_tab}
+            </Link>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <div className="rounded-full bg-white px-4 py-2 text-sm text-slate-700 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
+              {view === "active" ? t.active_description : t.completed_description}
+            </div>
+
+            {view === "completed" ? (
+              <div className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-600">
+                {jobs.length} {t.in_history}
+              </div>
+            ) : null}
+          </div>
+
+          <form
+            method="get"
+            className="mt-8 rounded-[28px] border border-slate-200/80 bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)] md:p-5"
+          >
+            <input type="hidden" name="view" value={view} />
+
+            <div className="mb-5 text-sm font-semibold tracking-tight text-slate-900">
+              {t.filters}
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+              <div>
+                <FilterLabel>{t.search_placeholder}</FilterLabel>
+                <input
+                  type="text"
+                  name="q"
+                  defaultValue={q}
+                  placeholder={t.search_placeholder}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
+                />
+              </div>
+
+              <div>
+                <FilterLabel>{t.city}</FilterLabel>
+                <input
+                  type="text"
+                  name="city"
+                  defaultValue={city}
+                  placeholder={t.city_placeholder}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
+                />
+              </div>
+
+              <div>
+                <FilterLabel>{t.status}</FilterLabel>
+                <select
+                  name="status"
+                  defaultValue={status}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
+                >
+                  <option value="">{t.all_statuses}</option>
+                  {view === "active" ? (
+                    <>
+                      <option value="new">{t.status_new}</option>
+                      <option value="assigned">{t.status_assigned}</option>
+                      <option value="in_progress">{t.status_in_progress}</option>
+                    </>
+                  ) : (
+                    <>
+                      <option value="done">{t.status_done}</option>
+                      <option value="cancelled">{t.status_cancelled}</option>
+                    </>
+                  )}
+                </select>
+              </div>
+
+              <div>
+                <FilterLabel>{t.job_type}</FilterLabel>
+                <select
+                  name="jobType"
+                  defaultValue={jobType}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
+                >
+                  <option value="">{t.all_job_types}</option>
+                  <option value="home_cleaning">{t.job_type_home_cleaning}</option>
+                  <option value="office_cleaning">{t.job_type_office_cleaning}</option>
+                </select>
+              </div>
+
+              <div>
+                <FilterLabel>{t.property_type}</FilterLabel>
+                <select
+                  name="propertyType"
+                  defaultValue={propertyType}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
+                >
+                  <option value="">{t.all_property_types}</option>
+                  <option value="apartment">{t.property_type_apartment}</option>
+                  <option value="house">{t.property_type_house}</option>
+                  <option value="office">{t.property_type_office}</option>
+                  <option value="other">{t.property_type_other}</option>
+                </select>
+              </div>
+
+              <div>
+                <FilterLabel>{t.results}</FilterLabel>
+                <select
+                  name="sort"
+                  defaultValue={sort}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
+                >
+                  <option value="newest">{t.newest}</option>
+                  <option value="oldest">{t.oldest}</option>
+                  <option value="highest_budget">{t.highest_budget}</option>
+                  <option value="lowest_budget">{t.lowest_budget}</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+              <button
+                type="submit"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
+              >
+                {t.apply}
+              </button>
+
+              <Link
+                href={clearHref}
+                prefetch={false}
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
+              >
+                {t.clear}
+              </Link>
+            </div>
+          </form>
         </section>
 
-        <JobsSection
-          title={t.posted_jobs}
-          ctaLabel={t.empty_posted_cta}
-          ctaHref="/jobs/create"
-          jobs={postedActiveJobs}
-          locale={locale}
-          t={t}
-          unreadByJob={unreadByJob}
-          lastMessageByJob={lastMessageByJob}
-          profileById={profileById}
-          isOwnerSection
-          emptyTitle={t.empty_posted}
-          emptyDescription={t.empty_posted_description}
-          emptyPrimaryLabel={t.empty_posted_cta}
-          emptyPrimaryHref="/jobs/create"
-          emptySecondaryLabel={t.empty_posted_secondary_cta}
-          emptySecondaryHref="/jobs"
-        />
+        <section className="mt-10">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+                {view === "active" ? t.active_results : t.completed_results}
+              </h2>
+              <p className="mt-1 text-sm text-slate-500">
+                {view === "active" ? t.active_description : t.completed_description}
+              </p>
+            </div>
 
-        <CompletedSection
-          title={t.completed_posted_jobs}
-          description={t.completed_description}
-          jobs={postedCompletedJobs}
-          locale={locale}
-          t={t}
-          unreadByJob={unreadByJob}
-          lastMessageByJob={lastMessageByJob}
-          profileById={profileById}
-          isOwnerSection
-          emptyTitle={t.empty_completed_posted}
-        />
+            <div className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
+              {jobs.length}
+            </div>
+          </div>
 
-        <JobsSection
-          title={t.taken_jobs}
-          ctaLabel={t.empty_taken_cta}
-          ctaHref="/jobs"
-          jobs={takenActiveJobs}
-          locale={locale}
-          t={t}
-          unreadByJob={unreadByJob}
-          lastMessageByJob={lastMessageByJob}
-          profileById={profileById}
-          isOwnerSection={false}
-          emptyTitle={t.empty_taken}
-          emptyDescription={t.empty_taken_description}
-          emptyPrimaryLabel={t.empty_taken_cta}
-          emptyPrimaryHref="/jobs"
-          emptySecondaryLabel={t.empty_taken_secondary_cta}
-          emptySecondaryHref="/jobs/create"
-        />
+          {jobs.length === 0 ? (
+            <JobsEmptyState
+              title={t.no_jobs}
+              description={
+                view === "active"
+                  ? t.no_jobs_description_active
+                  : t.no_jobs_description_completed
+              }
+              primaryLabel={t.post_job}
+              primaryHref="/jobs/create"
+              secondaryLabel={t.no_jobs_secondary_cta}
+              secondaryHref={clearHref}
+            />
+          ) : (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {jobs.map((job) => {
+                const subdued = view === "completed" || isCompletedStatus(job.status)
+                const authorProfile = job.created_by ? profileById.get(job.created_by) : null
+                const workerProfile = job.assigned_to ? profileById.get(job.assigned_to) : null
+                const authorName = authorProfile?.full_name?.trim() || t.unknown_user
+                const workerName = workerProfile?.full_name?.trim() || t.unknown_user
 
-        <CompletedSection
-          title={t.completed_taken_jobs}
-          description={t.completed_description}
-          jobs={takenCompletedJobs}
-          locale={locale}
-          t={t}
-          unreadByJob={unreadByJob}
-          lastMessageByJob={lastMessageByJob}
-          profileById={profileById}
-          isOwnerSection={false}
-          emptyTitle={t.empty_completed_taken}
-        />
+                return (
+                  <article
+                    key={job.id}
+                    className={
+                      subdued
+                        ? "group flex h-full flex-col rounded-[28px] border border-slate-200/80 bg-white/90 p-5 opacity-80 shadow-[0_2px_10px_rgba(15,23,42,0.03)] transition duration-200"
+                        : "group flex h-full flex-col rounded-[28px] border border-slate-200/80 bg-white p-5 shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:shadow-[0_12px_30px_rgba(15,23,42,0.08)]"
+                    }
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex flex-wrap items-center gap-2">
+                        {job.is_featured ? (
+                          <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
+                            ✨ {t.featured}
+                          </span>
+                        ) : null}
+
+                        <span
+                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
+                        >
+                          {getStatusLabel(job.status, t)}
+                        </span>
+                      </div>
+
+                      <div
+                        className={
+                          subdued
+                            ? "rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600"
+                            : "rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700"
+                        }
+                      >
+                        {formatDate(job.created_at, locale)}
+                      </div>
+                    </div>
+
+                    <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-950">
+                      {job.title}
+                    </h3>
+
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                        {job.city || t.no_city}
+                      </span>
+
+                      <span
+                        className={
+                          subdued
+                            ? "inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700"
+                            : "inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700"
+                        }
+                      >
+                        {formatBudget(job.budget, t)}
+                      </span>
+                    </div>
+
+                    {job.description ? (
+                      <p className="mt-4 text-sm leading-6 text-slate-600">
+                        {truncate(job.description)}
+                      </p>
+                    ) : (
+                      <div className="mt-4 text-sm leading-6 text-slate-400">—</div>
+                    )}
+
+                    <div className="mt-5 grid gap-3">
+                      <PersonMiniCard
+                        label={t.author}
+                        profile={authorProfile}
+                        fallbackName={authorName}
+                        fallbackCompany={t.no_company}
+                      />
+                      {workerProfile ? (
+                        <PersonMiniCard
+                          label={t.worker}
+                          profile={workerProfile}
+                          fallbackName={workerName}
+                          fallbackCompany={t.no_company}
+                        />
+                      ) : null}
+                    </div>
+
+                    <div className="mt-5 space-y-3 rounded-2xl bg-slate-50/80 p-4">
+                      <div className="flex items-start justify-between gap-4 text-sm">
+                        <span className="text-slate-500">{t.job_type}</span>
+                        <span className="text-right font-medium text-slate-900">
+                          {getJobTypeLabel(job.job_type, t)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-start justify-between gap-4 text-sm">
+                        <span className="text-slate-500">{t.property_type}</span>
+                        <span className="text-right font-medium text-slate-900">
+                          {getPropertyTypeLabel(job.property_type, t)}
+                        </span>
+                      </div>
+
+                      <div className="flex items-start justify-between gap-4 text-sm">
+                        <span className="text-slate-500">{t.status}</span>
+                        <span className="text-right font-medium text-slate-900">
+                          {getStatusLabel(job.status, t)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-5 pt-1">
+                      <Link
+                        href={`/jobs/${job.id}`}
+                        prefetch={false}
+                        className={
+                          subdued
+                            ? "inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+                            : "inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
+                        }
+                      >
+                        {t.open_job}
+                      </Link>
+                    </div>
+                  </article>
+                )
+              })}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   )
+
+function AdminModerationPanel({
+  jobs,
+  profiles,
+  locale,
+}: {
+  jobs: AdminJob[]
+  profiles: AdminProfile[]
+  locale: Locale
+}) {
+  const activeJobs = jobs.filter((job) => !isCompletedStatus(job.status)).length
+  const completedJobs = jobs.filter((job) => isCompletedStatus(job.status)).length
+  const featuredJobs = jobs.filter((job) => {
+    if (!job.featured_until) return false
+    return new Date(job.featured_until) > new Date()
+  }).length
+  const premiumProfiles = profiles.filter((profile) => profile.is_premium).length
+  const verifiedProfiles = profiles.filter((profile) => profile.verified).length
+
+  return (
+    <section className="mt-8 rounded-[32px] border border-slate-900/10 bg-slate-950 p-5 text-white shadow-[0_18px_45px_rgba(15,23,42,0.18)] md:p-7">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <div className="inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+            Admin
+          </div>
+
+          <h2 className="mt-4 text-2xl font-semibold tracking-tight md:text-3xl">
+            Moderation overview
+          </h2>
+
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">
+            Quick production control for jobs, premium profiles, verified users,
+            and marketplace health.
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/10 px-4 py-3 text-sm text-slate-200">
+          Admin access is controlled by <span className="font-semibold text-white">ADMIN_EMAILS</span>.
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-400">Active jobs</div>
+          <div className="mt-2 text-2xl font-semibold">{activeJobs}</div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-400">History jobs</div>
+          <div className="mt-2 text-2xl font-semibold">{completedJobs}</div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-400">Featured</div>
+          <div className="mt-2 text-2xl font-semibold">{featuredJobs}</div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-400">Premium users</div>
+          <div className="mt-2 text-2xl font-semibold">{premiumProfiles}</div>
+        </div>
+
+        <div className="rounded-2xl border border-white/10 bg-white/10 p-4">
+          <div className="text-xs uppercase tracking-wide text-slate-400">Verified users</div>
+          <div className="mt-2 text-2xl font-semibold">{verifiedProfiles}</div>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-5 xl:grid-cols-[1.2fr_0.8fr]">
+        <div className="rounded-3xl border border-white/10 bg-white p-4 text-slate-950 md:p-5">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-lg font-semibold tracking-tight">Latest jobs</h3>
+            <Link
+              href="/jobs"
+              prefetch={false}
+              className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800"
+            >
+              Open jobs
+            </Link>
+          </div>
+
+          <div className="mt-4 space-y-3">
+            {jobs.slice(0, 8).map((job) => {
+              const isFeatured =
+                job.featured_until && new Date(job.featured_until) > new Date()
+
+              return (
+                <div
+                  key={job.id}
+                  className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-semibold ${getStatusClasses(job.status)}`}
+                      >
+                        {job.status || "unknown"}
+                      </span>
+
+                      {isFeatured ? (
+                        <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                          Featured
+                        </span>
+                      ) : null}
+                    </div>
+
+                    <div className="mt-2 truncate text-sm font-semibold text-slate-950">
+                      {job.title}
+                    </div>
+
+                    <div className="mt-1 text-xs text-slate-500">
+                      {job.city || "No city"} • {formatBudget(job.budget, copy[locale] || copy.en)} •{" "}
+                      {formatDate(job.created_at, locale)}
+                    </div>
+                  </div>
+
+                  <Link
+                    href={`/jobs/${job.id}`}
+                    prefetch={false}
+                    className="inline-flex min-h-10 items-center justify-center rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-rose-50 hover:text-rose-700"
+                  >
+                    Review
+                  </Link>
+                </div>
+              )
+            })}
+
+            {jobs.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500">
+                No jobs found.
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-white/10 bg-white p-4 text-slate-950 md:p-5">
+          <h3 className="text-lg font-semibold tracking-tight">Users overview</h3>
+
+          <div className="mt-4 space-y-3">
+            {profiles.slice(0, 10).map((profile) => (
+              <div
+                key={profile.id}
+                className="rounded-2xl border border-slate-200 bg-slate-50 p-3"
+              >
+                <div className="truncate text-sm font-semibold text-slate-950">
+                  {profile.full_name || "User"}
+                </div>
+
+                <div className="mt-1 truncate text-xs text-slate-500">
+                  {profile.company_name || "No company"}
+                </div>
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {profile.is_premium ? (
+                    <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-700">
+                      Premium
+                    </span>
+                  ) : null}
+
+                  {profile.verified ? (
+                    <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-semibold text-emerald-700">
+                      Verified
+                    </span>
+                  ) : null}
+
+                  {!profile.is_premium && !profile.verified ? (
+                    <span className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-500">
+                      Free
+                    </span>
+                  ) : null}
+                </div>
+              </div>
+            ))}
+
+            {profiles.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5 text-sm text-slate-500">
+                No profiles found.
+              </div>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 }
