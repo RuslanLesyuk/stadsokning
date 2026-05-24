@@ -253,13 +253,12 @@ export default async function SiteHeader() {
                   </span>
                 </Link>
 
-                <Link
-                  href="/auth/signout"
-                  prefetch={false}
-                  className={actionLinkClass("secondary")}
-                >
-                  {t.logout}
-                </Link>
+                <a
+  href="/auth/signout"
+  className={actionLinkClass("secondary")}
+>
+  {t.logout}
+</a>
               </>
             ) : (
               <>

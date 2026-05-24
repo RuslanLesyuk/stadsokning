@@ -204,14 +204,13 @@ export default function MobileHeaderMenu({
                     </div>
                   </Link>
 
-                  <Link
-                    href="/auth/signout"
-                    onClick={closeMenu}
-                    prefetch={false}
-                    className={itemClass()}
-                  >
-                    {logoutLabel}
-                  </Link>
+                  <a
+  href="/auth/signout"
+  onClick={closeMenu}
+  className={itemClass()}
+>
+  {logoutLabel}
+</a>
                 </>
               ) : (
                 <>
