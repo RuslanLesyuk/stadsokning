@@ -24,53 +24,58 @@ const initialState: ReviewActionState = {
 const reviewLabels = {
   uk: {
     title: "Залишити відгук",
-    subtitle: "Оцініть користувача",
+    subtitle: "Оцініть співпрацю з користувачем",
     rating: "Оцінка",
     comment: "Коментар",
-    placeholder: "Напишіть короткий відгук...",
+    placeholder: "Напишіть коротко, як пройшла робота...",
     submit: "Надіслати відгук",
     sending: "Надсилання...",
     success: "Відгук надіслано.",
+    trust: "Ваш відгук допоможе іншим користувачам довіряти профілям на Clean Jobs.",
   },
   ru: {
     title: "Оставить отзыв",
-    subtitle: "Оцените пользователя",
+    subtitle: "Оцените сотрудничество с пользователем",
     rating: "Оценка",
     comment: "Комментарий",
-    placeholder: "Напишите короткий отзыв...",
+    placeholder: "Коротко напишите, как прошла работа...",
     submit: "Отправить отзыв",
     sending: "Отправка...",
     success: "Отзыв отправлен.",
+    trust: "Ваш отзыв поможет другим пользователям доверять профилям на Clean Jobs.",
   },
   en: {
     title: "Leave a review",
-    subtitle: "Rate this user",
+    subtitle: "Rate your experience with this user",
     rating: "Rating",
     comment: "Comment",
-    placeholder: "Write a short review...",
+    placeholder: "Briefly describe how the job went...",
     submit: "Submit review",
     sending: "Submitting...",
     success: "Review submitted.",
+    trust: "Your review helps other users trust profiles on Clean Jobs.",
   },
   sv: {
     title: "Lämna en recension",
-    subtitle: "Betygsätt användaren",
+    subtitle: "Betygsätt samarbetet med användaren",
     rating: "Betyg",
     comment: "Kommentar",
-    placeholder: "Skriv en kort recension...",
+    placeholder: "Beskriv kort hur jobbet gick...",
     submit: "Skicka recension",
     sending: "Skickar...",
     success: "Recension skickad.",
+    trust: "Din recension hjälper andra användare att känna förtroende på Clean Jobs.",
   },
   pl: {
     title: "Dodaj opinię",
-    subtitle: "Oceń użytkownika",
+    subtitle: "Oceń współpracę z użytkownikiem",
     rating: "Ocena",
     comment: "Komentarz",
-    placeholder: "Napisz krótką opinię...",
+    placeholder: "Krótko opisz, jak przebiegła praca...",
     submit: "Wyślij opinię",
     sending: "Wysyłanie...",
     success: "Opinia została wysłana.",
+    trust: "Twoja opinia pomaga innym użytkownikom ufać profilom na Clean Jobs.",
   },
 } as const
 
@@ -87,7 +92,7 @@ function SubmitButton({
     <button
       type="submit"
       disabled={pending}
-      className="inline-flex h-12 items-center justify-center rounded-2xl bg-black px-6 text-sm font-medium text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+      className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
     >
       {pending ? loadingLabel : idleLabel}
     </button>
@@ -117,53 +122,66 @@ export default function ReviewForm({
       setRating("5")
       setComment("")
       formRef.current?.reset()
-    } else {
-      toast.error(state.message)
+      return
     }
+
+    toast.error(state.message)
   }, [state, labels.success])
 
   return (
     <form
       ref={formRef}
       action={formAction}
-      className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm"
+      className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-6"
     >
       <input type="hidden" name="jobId" value={jobId} />
-      <input
-        type="hidden"
-        name="reviewTargetUserId"
-        value={reviewTargetUserId}
-      />
+      <input type="hidden" name="reviewTargetUserId" value={reviewTargetUserId} />
 
-      <div className="mb-5">
-        <h3 className="text-lg font-semibold text-black">{labels.title}</h3>
-        <p className="mt-1 text-sm text-black/60">
-          {labels.subtitle}: {reviewTargetName}
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <div className="inline-flex rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+            Review
+          </div>
+
+          <h3 className="mt-3 text-xl font-semibold tracking-tight text-slate-950">
+            {labels.title}
+          </h3>
+
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            {labels.subtitle}:{" "}
+            <span className="font-medium text-slate-800">
+              {reviewTargetName}
+            </span>
+          </p>
+        </div>
+
+        <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-500 sm:max-w-xs">
+          {labels.trust}
+        </div>
       </div>
 
-      <div className="space-y-5">
+      <div className="mt-6 space-y-5">
         <div>
-          <label className="mb-2 block text-sm font-medium text-black">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
             {labels.rating}
           </label>
 
           <select
             name="rating"
             value={rating}
-            onChange={(e) => setRating(e.target.value)}
-            className="h-12 w-full rounded-2xl border border-black/10 px-4 text-sm outline-none transition focus:border-black/30"
+            onChange={(event) => setRating(event.target.value)}
+            className="h-12 w-full rounded-2xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10"
           >
-            <option value="5">5</option>
-            <option value="4">4</option>
-            <option value="3">3</option>
-            <option value="2">2</option>
-            <option value="1">1</option>
+            <option value="5">★★★★★ 5</option>
+            <option value="4">★★★★☆ 4</option>
+            <option value="3">★★★☆☆ 3</option>
+            <option value="2">★★☆☆☆ 2</option>
+            <option value="1">★☆☆☆☆ 1</option>
           </select>
         </div>
 
         <div>
-          <label className="mb-2 block text-sm font-medium text-black">
+          <label className="mb-2 block text-sm font-medium text-slate-700">
             {labels.comment}
           </label>
 
@@ -171,16 +189,13 @@ export default function ReviewForm({
             name="comment"
             rows={4}
             value={comment}
-            onChange={(e) => setComment(e.target.value)}
+            onChange={(event) => setComment(event.target.value)}
             placeholder={labels.placeholder}
-            className="w-full rounded-2xl border border-black/10 px-4 py-3 text-sm outline-none transition focus:border-black/30"
+            className="w-full resize-none rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10"
           />
         </div>
 
-        <SubmitButton
-          idleLabel={labels.submit}
-          loadingLabel={labels.sending}
-        />
+        <SubmitButton idleLabel={labels.submit} loadingLabel={labels.sending} />
       </div>
     </form>
   )
