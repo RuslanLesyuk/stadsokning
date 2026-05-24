@@ -1,9 +1,44 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
+
+
+export const metadata: Metadata = {
+  title: "Cleaning Jobs Marketplace | Clean Jobs Sweden",
+  description:
+    "Browse active cleaning jobs in Sweden. Find house cleaning, office cleaning and apartment cleaning work near you.",
+  alternates: {
+    canonical: "/jobs",
+  },
+  openGraph: {
+    title: "Cleaning Jobs Marketplace | Clean Jobs Sweden",
+    description:
+      "Browse active cleaning jobs in Sweden. Find house cleaning, office cleaning and apartment cleaning work near you.",
+    url: "https://cleansjob.com/jobs",
+    siteName: "Clean Jobs",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Clean Jobs marketplace",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Cleaning Jobs Marketplace | Clean Jobs Sweden",
+    description:
+      "Browse active cleaning jobs in Sweden. Find house cleaning, office cleaning and apartment cleaning work near you.",
+    images: ["/og-image.png"],
+  },
+}
+
 
 type JobStatus = "new" | "assigned" | "in_progress" | "done" | "cancelled" | null
 type JobsView = "active" | "completed"

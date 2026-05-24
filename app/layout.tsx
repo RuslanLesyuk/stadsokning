@@ -1,4 +1,4 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { Analytics } from "@vercel/analytics/react"
@@ -14,44 +14,53 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
 
   title: {
-    default: "Clean Jobs",
+    default: "Cleaning Jobs in Sweden | Find Cleaners & Cleaning Work",
     template: "%s | Clean Jobs",
   },
 
   description:
-    "Find cleaning jobs or hire cleaners quickly. Clean Jobs connects clients and workers in your city.",
+    "Find cleaning jobs across Sweden or hire trusted cleaners. Browse house cleaning, office cleaning, apartment cleaning and professional cleaning work in Stockholm, Göteborg, Malmö and nearby cities.",
+
+  applicationName: "Clean Jobs",
 
   keywords: [
-    "cleaning jobs",
-    "cleaner",
-    "hire cleaner",
-    "jobs marketplace",
-    "cleaning services",
-    "städjobb",
-    "hemstädning",
-    "kontorsstädning",
-    "Stockholm cleaning jobs",
+    "cleaning jobs Sweden",
+    "cleaning jobs Stockholm",
+    "städjobb Stockholm",
+    "städjobb Sverige",
+    "städfirma jobb",
+    "cleaner jobs Sweden",
+    "house cleaning jobs",
+    "office cleaning jobs",
+    "apartment cleaning",
+    "hire cleaner Sweden",
+    "hire cleaner Stockholm",
+    "hemstädning jobb",
+    "kontorsstädning jobb",
+    "cleaning marketplace Sweden",
+    "Clean Jobs",
   ],
 
   authors: [{ name: "Clean Jobs" }],
   creator: "Clean Jobs",
+  publisher: "Clean Jobs",
 
   alternates: {
-    canonical: siteUrl,
+    canonical: "/",
   },
 
   openGraph: {
-    title: "Clean Jobs",
+    title: "Cleaning Jobs in Sweden | Clean Jobs",
     description:
-      "Find cleaning jobs or hire cleaners quickly in your city.",
-    url: siteUrl,
+      "Find cleaning jobs across Sweden or hire trusted cleaners for house cleaning, office cleaning and apartment cleaning.",
+    url: "/",
     siteName: "Clean Jobs",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Clean Jobs cleaning marketplace",
+        alt: "Clean Jobs marketplace for cleaning jobs in Sweden",
       },
     ],
     locale: "en_US",
@@ -60,22 +69,34 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: "Clean Jobs",
+    title: "Cleaning Jobs in Sweden | Clean Jobs",
     description:
-      "Find cleaning jobs or hire cleaners quickly in your city.",
+      "Find cleaning jobs across Sweden or hire trusted cleaners for house cleaning, office cleaning and apartment cleaning.",
     images: ["/og-image.png"],
   },
 
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
   },
-
-  themeColor: "#e11d48",
 
   icons: {
     icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
+
+  category: "marketplace",
+}
+
+export const viewport: Viewport = {
+  themeColor: "#e11d48",
 }
 
 type FooterCopy = {
@@ -91,7 +112,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
   uk: {
     title: "Clean Jobs",
     subtitle:
-      "Платформа для пошуку клінінгової роботи та виконавців.",
+      "Платформа для пошуку клінінгової роботи та виконавців у Швеції.",
     terms: "Умови користування",
     privacy: "Політика конфіденційності",
     contact: "Контакти",
@@ -101,7 +122,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
   ru: {
     title: "Clean Jobs",
     subtitle:
-      "Платформа для поиска клининговой работы и исполнителей.",
+      "Платформа для поиска клининговой работы и исполнителей в Швеции.",
     terms: "Условия использования",
     privacy: "Политика конфиденциальности",
     contact: "Контакты",
@@ -111,7 +132,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
   en: {
     title: "Clean Jobs",
     subtitle:
-      "Cleaning marketplace for clients and workers.",
+      "Cleaning marketplace for clients and workers across Sweden.",
     terms: "Terms",
     privacy: "Privacy",
     contact: "Contact",
@@ -121,7 +142,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
   sv: {
     title: "Clean Jobs",
     subtitle:
-      "Marknadsplats för städjobb och städare.",
+      "Marknadsplats för städjobb och städare i Sverige.",
     terms: "Villkor",
     privacy: "Integritet",
     contact: "Kontakt",
@@ -131,7 +152,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
   pl: {
     title: "Clean Jobs",
     subtitle:
-      "Platforma dla zleceń sprzątania i wykonawców.",
+      "Platforma dla zleceń sprzątania i wykonawców w Szwecji.",
     terms: "Regulamin",
     privacy: "Prywatność",
     contact: "Kontakt",
@@ -158,9 +179,7 @@ export default async function RootLayout({
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
 
-          <main className="flex-1">
-            {children}
-          </main>
+          <main className="flex-1">{children}</main>
 
           <footer className="border-t border-slate-200 bg-white">
             <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 md:flex-row md:items-center md:justify-between md:px-6">
@@ -174,8 +193,7 @@ export default async function RootLayout({
                 </p>
 
                 <p className="mt-4 text-xs text-slate-400">
-                  © {new Date().getFullYear()} Clean Jobs.{" "}
-                  {t.copyright}
+                  © {new Date().getFullYear()} Clean Jobs. {t.copyright}
                 </p>
               </div>
 

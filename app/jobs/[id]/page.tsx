@@ -9,6 +9,84 @@ import TakeJobForm from "@/components/take-job-form"
 export const dynamic = "force-dynamic"
 
 
+export async function generateMetadata({
+  params,
+}: {
+  params: { id: string } | Promise<{ id: string }>
+}): Promise<Metadata> {
+  const resolvedParams = await params
+  const id = resolvedParams.id
+
+  const supabase = await createClient()
+
+  const { data: job } = await supabase
+    .from("jobs")
+    .select("title, city, budget, description")
+    .eq("id", id)
+    .maybeSingle()
+
+  if (!job) {
+    return {
+      title: "Cleaning Job | Clean Jobs",
+      description:
+        "Browse cleaning jobs across Sweden. Find house cleaning, office cleaning and apartment cleaning work near you.",
+      alternates: {
+        canonical: `/jobs/${id}`,
+      },
+    }
+  }
+
+  const city = typeof job.city === "string" && job.city.trim() ? job.city.trim() : "Sweden"
+  const cleanTitle =
+    typeof job.title === "string" && job.title.trim()
+      ? job.title.trim()
+      : "Cleaning Job"
+
+  const budgetLabel =
+    typeof job.budget === "number" && Number.isFinite(job.budget)
+      ? ` | ${job.budget} kr`
+      : ""
+
+  const title = `${cleanTitle} in ${city}${budgetLabel} | Clean Jobs`
+
+  const fallbackDescription = `Find cleaning jobs in ${city}. Browse house cleaning, office cleaning and apartment cleaning work on Clean Jobs.`
+  const description =
+    typeof job.description === "string" && job.description.trim()
+      ? job.description.trim().slice(0, 155)
+      : fallbackDescription
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: `/jobs/${id}`,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `/jobs/${id}`,
+      siteName: "Clean Jobs",
+      type: "article",
+      images: [
+        {
+          url: "/og-image.png",
+          width: 1200,
+          height: 630,
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/og-image.png"],
+    },
+  }
+}
+
+
+
 type JobStatus = "new" | "assigned" | "in_progress" | "done" | "cancelled" | null
 
 type Job = {
@@ -547,71 +625,6 @@ function EmptyPanel({ text }: { text: string }) {
 }
 
 const siteUrl = "https://cleansjob.com"
-
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}): Promise<Metadata> {
-  const { id } = await params
-  const supabase = await createClient()
-
-  const { data: job } = await supabase
-    .from("jobs")
-    .select("id, title, description, city, budget, status")
-    .eq("id", id)
-    .single()
-
-  if (!job) {
-    return {
-      title: "Job not found | Clean Jobs",
-      description: "The cleaning job you are looking for could not be found.",
-      alternates: {
-        canonical: `${siteUrl}/jobs/${id}`,
-      },
-    }
-  }
-
-  const cleanTitle = job.title?.trim() || `Cleaning job in ${job.city || "Sweden"}`
-  const title = `${cleanTitle}${job.city ? ` • ${job.city}` : ""}`
-
-  const description =
-    job.description?.trim().slice(0, 160) ||
-    `Find cleaning jobs${job.city ? ` in ${job.city}` : ""}${
-      job.budget != null ? ` with a budget of ${job.budget} kr` : ""
-    } on Clean Jobs.`
-
-  const url = `${siteUrl}/jobs/${job.id}`
-
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: url,
-    },
-    openGraph: {
-      title,
-      description,
-      url,
-      siteName: "Clean Jobs",
-      type: "website",
-      images: [
-        {
-          url: `${siteUrl}/og-image.png`,
-          width: 1200,
-          height: 630,
-          alt: "Clean Jobs cleaning marketplace",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [`${siteUrl}/og-image.png`],
-    },
-  }
-}
 
 export default async function JobDetailsPage({
   params,
