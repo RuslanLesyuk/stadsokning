@@ -1,17 +1,12 @@
-import { NextRequest, NextResponse } from "next/server"
+import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 
-async function handleSignOut(request: NextRequest) {
+export const dynamic = "force-dynamic"
+
+export async function GET() {
   const supabase = await createClient()
+
   await supabase.auth.signOut()
 
-  return NextResponse.redirect(new URL("/", request.url))
-}
-
-export async function GET(request: NextRequest) {
-  return handleSignOut(request)
-}
-
-export async function POST(request: NextRequest) {
-  return handleSignOut(request)
+  redirect("/login")
 }
