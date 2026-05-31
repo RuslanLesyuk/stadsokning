@@ -12,17 +12,13 @@ const siteUrl = "https://cleansjob.com"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-
   title: {
     default: "Cleaning Jobs in Sweden | Find Cleaners & Cleaning Work",
     template: "%s | Clean Jobs",
   },
-
   description:
     "Find cleaning jobs across Sweden or hire trusted cleaners. Browse house cleaning, office cleaning, apartment cleaning and professional cleaning work in Stockholm, Göteborg, Malmö and nearby cities.",
-
   applicationName: "Clean Jobs",
-
   keywords: [
     "cleaning jobs Sweden",
     "cleaning jobs Stockholm",
@@ -40,15 +36,12 @@ export const metadata: Metadata = {
     "cleaning marketplace Sweden",
     "Clean Jobs",
   ],
-
   authors: [{ name: "Clean Jobs" }],
   creator: "Clean Jobs",
   publisher: "Clean Jobs",
-
   alternates: {
     canonical: "/",
   },
-
   openGraph: {
     title: "Cleaning Jobs in Sweden | Clean Jobs",
     description:
@@ -66,7 +59,6 @@ export const metadata: Metadata = {
     locale: "en_US",
     type: "website",
   },
-
   twitter: {
     card: "summary_large_image",
     title: "Cleaning Jobs in Sweden | Clean Jobs",
@@ -74,7 +66,6 @@ export const metadata: Metadata = {
       "Find cleaning jobs across Sweden or hire trusted cleaners for house cleaning, office cleaning and apartment cleaning.",
     images: ["/og-image.png"],
   },
-
   robots: {
     index: true,
     follow: true,
@@ -86,12 +77,10 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
-
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
-
   category: "marketplace",
 }
 
@@ -118,7 +107,6 @@ const footerCopy: Record<Locale, FooterCopy> = {
     contact: "Контакти",
     copyright: "Усі права захищено.",
   },
-
   ru: {
     title: "Clean Jobs",
     subtitle:
@@ -128,36 +116,59 @@ const footerCopy: Record<Locale, FooterCopy> = {
     contact: "Контакты",
     copyright: "Все права защищены.",
   },
-
   en: {
     title: "Clean Jobs",
-    subtitle:
-      "Cleaning marketplace for clients and workers across Sweden.",
+    subtitle: "Cleaning marketplace for clients and workers across Sweden.",
     terms: "Terms",
     privacy: "Privacy",
     contact: "Contact",
     copyright: "All rights reserved.",
   },
-
   sv: {
     title: "Clean Jobs",
-    subtitle:
-      "Marknadsplats för städjobb och städare i Sverige.",
+    subtitle: "Marknadsplats för städjobb och städare i Sverige.",
     terms: "Villkor",
     privacy: "Integritet",
     contact: "Kontakt",
     copyright: "Alla rättigheter förbehållna.",
   },
-
   pl: {
     title: "Clean Jobs",
-    subtitle:
-      "Platforma dla zleceń sprzątania i wykonawców w Szwecji.",
+    subtitle: "Platforma dla zleceń sprzątania i wykonawców w Szwecji.",
     terms: "Regulamin",
     privacy: "Prywatność",
     contact: "Kontakt",
     copyright: "Wszelkie prawa zastrzeżone.",
   },
+}
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${siteUrl}/#organization`,
+      name: "Clean Jobs",
+      url: siteUrl,
+      logo: `${siteUrl}/og-image.png`,
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${siteUrl}/#website`,
+      url: siteUrl,
+      name: "Clean Jobs",
+      description:
+        "Cleaning jobs marketplace for clients and workers across Sweden.",
+      publisher: {
+        "@id": `${siteUrl}/#organization`,
+      },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${siteUrl}/jobs?search={search_term_string}`,
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
 }
 
 export default async function RootLayout({
@@ -176,6 +187,13 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body className="min-h-screen bg-[#fafafa] text-slate-900">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          }}
+        />
+
         <div className="flex min-h-screen flex-col">
           <SiteHeader />
 
