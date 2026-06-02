@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { cookies } from "next/headers"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
+import { updateProfile } from "@/app/profile/actions"
 
 export const dynamic = "force-dynamic"
 
@@ -229,13 +230,18 @@ export default async function ProfilePage() {
               {t.profile_information}
             </div>
 
-            <form className="mt-6 grid gap-5">
+            <form action={updateProfile} className="mt-6 grid gap-5">
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="full_name"
+                  className="mb-2 block text-sm font-medium text-slate-700"
+                >
                   {t.full_name}
                 </label>
 
                 <input
+                  id="full_name"
+                  name="full_name"
                   type="text"
                   defaultValue={profile?.full_name || ""}
                   className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-400"
@@ -243,11 +249,15 @@ export default async function ProfilePage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="email"
+                  className="mb-2 block text-sm font-medium text-slate-700"
+                >
                   {t.email}
                 </label>
 
                 <input
+                  id="email"
                   type="email"
                   value={user.email || ""}
                   disabled
@@ -256,11 +266,16 @@ export default async function ProfilePage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="phone"
+                  className="mb-2 block text-sm font-medium text-slate-700"
+                >
                   {t.phone}
                 </label>
 
                 <input
+                  id="phone"
+                  name="phone"
                   type="text"
                   defaultValue={profile?.phone || ""}
                   className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-400"
@@ -268,11 +283,16 @@ export default async function ProfilePage() {
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-slate-700">
+                <label
+                  htmlFor="city"
+                  className="mb-2 block text-sm font-medium text-slate-700"
+                >
                   {t.city}
                 </label>
 
                 <input
+                  id="city"
+                  name="city"
                   type="text"
                   defaultValue={profile?.city || ""}
                   className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-400"
@@ -295,9 +315,7 @@ export default async function ProfilePage() {
               </div>
 
               <div className="mt-3 text-2xl font-semibold text-slate-950">
-                {profile?.is_premium
-                  ? t.premium_active
-                  : t.premium_free}
+                {profile?.is_premium ? t.premium_active : t.premium_free}
               </div>
 
               <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -307,9 +325,7 @@ export default async function ProfilePage() {
               {profile?.subscription_ends_at ? (
                 <p className="mt-4 text-sm text-slate-500">
                   {t.subscription_until}:{" "}
-                  {new Date(
-                    profile.subscription_ends_at,
-                  ).toLocaleDateString()}
+                  {new Date(profile.subscription_ends_at).toLocaleDateString()}
                 </p>
               ) : null}
 
@@ -319,11 +335,7 @@ export default async function ProfilePage() {
                   method="POST"
                   className="mt-6"
                 >
-                  <input
-                    type="hidden"
-                    name="type"
-                    value="premium"
-                  />
+                  <input type="hidden" name="type" value="premium" />
 
                   <button
                     type="submit"
@@ -341,9 +353,7 @@ export default async function ProfilePage() {
               </div>
 
               <div className="mt-3 text-2xl font-semibold text-slate-950">
-                {profile?.verified
-                  ? t.verified_yes
-                  : t.verified_no}
+                {profile?.verified ? t.verified_yes : t.verified_no}
               </div>
             </section>
           </div>

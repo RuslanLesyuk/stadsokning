@@ -1,66 +1,49 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 
-export type ProfileActionState = {
-  success: boolean
-  message: string
+function cleanText(value: FormDataEntryValue | null) {
+  if (typeof value !== "string") {
+    return null
+  }
+
+  const trimmed = value.trim()
+
+  return trimmed.length > 0 ? trimmed : null
 }
 
-export async function updateProfileAction(
-  _prevState: ProfileActionState,
-  formData: FormData
-): Promise<ProfileActionState> {
+export async function updateProfile(formData: FormData) {
   const supabase = await createClient()
 
   const {
     data: { user },
+    error: userError,
   } = await supabase.auth.getUser()
 
-  if (!user) {
-    return {
-      success: false,
-      message: "You must be logged in.",
-    }
+  if (userError || !user) {
+    redirect("/login")
   }
 
-  const fullName = String(formData.get("full_name") ?? "").trim()
-  const phone = String(formData.get("phone") ?? "").trim()
-  const city = String(formData.get("city") ?? "").trim()
+  const fullName = cleanText(formData.get("full_name"))
+  const phone = cleanText(formData.get("phone"))
+  const city = cleanText(formData.get("city"))
 
-  if (!fullName) {
-    return {
-      success: false,
-      message: "Full name is required.",
-    }
-  }
-
-  const payload = {
-    id: user.id,
-    full_name: fullName,
-    phone: phone || null,
-    city: city || null,
-  }
-
-  const { error } = await supabase.from("profiles").upsert(payload, {
-    onConflict: "id",
-  })
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      full_name: fullName,
+      phone,
+      city,
+    })
+    .eq("id", user.id)
 
   if (error) {
-    return {
-      success: false,
-      message: error.message || "Failed to update profile.",
-    }
+    throw new Error(error.message)
   }
 
   revalidatePath("/profile")
-  revalidatePath("/dashboard")
-  revalidatePath("/jobs")
   revalidatePath("/")
-
-  return {
-    success: true,
-    message: "Profile updated.",
-  }
+  revalidatePath("/jobs")
 }
