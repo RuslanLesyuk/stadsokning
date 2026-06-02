@@ -1,20 +1,25 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
-import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { createAdminClient } from "@/lib/supabase-admin"
 
+export type ProfileActionState = {
+  message: string
+  type: "success" | "error" | null
+}
+
 function cleanText(value: FormDataEntryValue | null) {
-  if (typeof value !== "string") {
-    return null
-  }
+  if (typeof value !== "string") return null
 
   const trimmed = value.trim()
   return trimmed.length > 0 ? trimmed : null
 }
 
-export async function updateProfileAction(formData: FormData) {
+export async function updateProfileAction(
+  _prevState: ProfileActionState,
+  formData: FormData,
+): Promise<ProfileActionState> {
   const supabase = await createClient()
 
   const {
@@ -23,7 +28,10 @@ export async function updateProfileAction(formData: FormData) {
   } = await supabase.auth.getUser()
 
   if (userError || !user) {
-    redirect("/login")
+    return {
+      type: "error",
+      message: "You must be logged in to update your profile.",
+    }
   }
 
   const fullName = cleanText(formData.get("full_name"))
@@ -45,14 +53,20 @@ export async function updateProfileAction(formData: FormData) {
   )
 
   if (error) {
-    throw new Error(error.message)
+    return {
+      type: "error",
+      message: error.message,
+    }
   }
 
   revalidatePath("/profile")
   revalidatePath("/")
   revalidatePath("/jobs")
 
-  redirect("/profile")
+  return {
+    type: "success",
+    message: "Profile updated successfully.",
+  }
 }
 
 export const updateProfile = updateProfileAction
