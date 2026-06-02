@@ -183,29 +183,32 @@ export async function POST(request: Request) {
       }
 
       case "invoice.payment_failed": {
-        const invoice = event.data.object as Stripe.Invoice
-        const subscriptionId =
-          typeof invoice.subscription === "string"
-            ? invoice.subscription
-            : invoice.subscription?.id || null
+  const invoice = event.data.object as Stripe.Invoice & {
+    subscription?: string | Stripe.Subscription | null
+  }
 
-        if (subscriptionId) {
-          const supabase = createAdminClient()
+  const subscriptionId =
+    typeof invoice.subscription === "string"
+      ? invoice.subscription
+      : invoice.subscription?.id || null
 
-          const { error } = await supabase
-            .from("profiles")
-            .update({
-              is_premium: false,
-            })
-            .eq("stripe_subscription_id", subscriptionId)
+  if (subscriptionId) {
+    const supabase = createAdminClient()
 
-          if (error) {
-            throw error
-          }
-        }
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        is_premium: false,
+      })
+      .eq("stripe_subscription_id", subscriptionId)
 
-        break
-      }
+    if (error) {
+      throw error
+    }
+  }
+
+  break
+}
 
       default:
         break
