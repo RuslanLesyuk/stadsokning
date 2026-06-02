@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Image from "next/image"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { getUiDictionary } from "@/lib/ui-i18n"
@@ -21,7 +22,9 @@ function FeatureCard({
       <h3 className="text-lg font-semibold tracking-tight text-slate-950 md:text-xl">
         {title}
       </h3>
-      <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">{description}</p>
+      <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
+        {description}
+      </p>
     </div>
   )
 }
@@ -38,7 +41,9 @@ function StepCard({
       <h3 className="text-lg font-semibold tracking-tight text-slate-950 md:text-xl">
         {title}
       </h3>
-      <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">{description}</p>
+      <p className="mt-3 text-sm leading-6 text-slate-600 md:text-[15px]">
+        {description}
+      </p>
     </div>
   )
 }
@@ -52,32 +57,49 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
-        <section className="rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-rose-50/40 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8 lg:p-10">
-          <div className="max-w-4xl">
-            <h1 className="text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl md:leading-[1.02]">
-              {landing.hero_title}
-            </h1>
+        <section className="overflow-hidden rounded-[32px] border border-slate-200/80 bg-gradient-to-b from-white to-rose-50/40 p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8 lg:p-10">
+          <div className="grid items-center gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:gap-10">
+            <div className="max-w-4xl">
+              <h1 className="text-4xl font-semibold tracking-tight text-slate-950 md:text-6xl md:leading-[1.02]">
+                {landing.hero_title}
+              </h1>
 
-            <p className="mt-5 max-w-3xl text-base leading-7 text-slate-600 md:text-lg">
-              {landing.hero_description}
-            </p>
+              <p className="mt-5 max-w-3xl text-base leading-7 text-slate-600 md:text-lg">
+                {landing.hero_description}
+              </p>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/jobs"
-                prefetch={false}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
-              >
-                {landing.find_jobs}
-              </Link>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/jobs"
+                  prefetch={false}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
+                >
+                  {landing.find_jobs}
+                </Link>
 
-              <Link
-                href="/jobs/create"
-                prefetch={false}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
-              >
-                {landing.post_job}
-              </Link>
+                <Link
+                  href="/jobs/create"
+                  prefetch={false}
+                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
+                >
+                  {landing.post_job}
+                </Link>
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="absolute -inset-4 rounded-[36px] bg-rose-100/60 blur-2xl" />
+
+              <div className="relative overflow-hidden rounded-[30px] border border-white bg-white shadow-[0_24px_70px_rgba(15,23,42,0.14)]">
+                <Image
+                  src="/hero-cleaner.png"
+                  alt="Professional cleaner in a bright modern home"
+                  width={1536}
+                  height={1024}
+                  priority
+                  className="h-[280px] w-full object-cover object-center sm:h-[360px] lg:h-[500px]"
+                />
+              </div>
             </div>
           </div>
         </section>
