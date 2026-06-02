@@ -14,7 +14,7 @@ function cleanText(value: FormDataEntryValue | null) {
   return trimmed.length > 0 ? trimmed : null
 }
 
-export async function updateProfile(formData: FormData) {
+export async function updateProfileAction(formData: FormData) {
   const supabase = await createClient()
 
   const {
@@ -54,3 +54,5 @@ export async function updateProfile(formData: FormData) {
 
   redirect("/profile")
 }
+
+export const updateProfile = updateProfileAction
