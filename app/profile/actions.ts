@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
+import { createAdminClient } from "@/lib/supabase-admin"
 
 function cleanText(value: FormDataEntryValue | null) {
   if (typeof value !== "string") {
@@ -10,7 +11,6 @@ function cleanText(value: FormDataEntryValue | null) {
   }
 
   const trimmed = value.trim()
-
   return trimmed.length > 0 ? trimmed : null
 }
 
@@ -30,14 +30,19 @@ export async function updateProfile(formData: FormData) {
   const phone = cleanText(formData.get("phone"))
   const city = cleanText(formData.get("city"))
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({
+  const admin = createAdminClient()
+
+  const { error } = await admin.from("profiles").upsert(
+    {
+      id: user.id,
       full_name: fullName,
       phone,
       city,
-    })
-    .eq("id", user.id)
+    },
+    {
+      onConflict: "id",
+    },
+  )
 
   if (error) {
     throw new Error(error.message)
@@ -46,4 +51,6 @@ export async function updateProfile(formData: FormData) {
   revalidatePath("/profile")
   revalidatePath("/")
   revalidatePath("/jobs")
+
+  redirect("/profile")
 }
