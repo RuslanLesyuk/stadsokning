@@ -172,9 +172,12 @@ export default async function SiteHeader() {
             <Link
               href="/"
               prefetch={false}
-              className="shrink-0 rounded-xl text-[26px] font-semibold leading-none tracking-[-0.03em] text-slate-950 transition duration-200 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
+              className="shrink-0 rounded-xl text-[26px] font-semibold leading-none tracking-[-0.03em] transition duration-200 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
             >
-              Clean Jobs
+              <span className="text-rose-600 transition duration-200 group-hover:text-rose-700">
+                Clean
+              </span>{" "}
+              <span className="text-slate-950">Jobs</span>
             </Link>
 
             <nav className="hidden items-center gap-1 md:flex">
@@ -253,12 +256,9 @@ export default async function SiteHeader() {
                   </span>
                 </Link>
 
-                <a
-  href="/auth/signout"
-  className={actionLinkClass("secondary")}
->
-  {t.logout}
-</a>
+                <a href="/auth/signout" className={actionLinkClass("secondary")}>
+                  {t.logout}
+                </a>
               </>
             ) : (
               <>
