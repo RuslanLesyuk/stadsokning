@@ -1,8 +1,8 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase-server"
 import { cookies } from "next/headers"
+import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { updateProfile } from "@/app/profile/actions"
 
@@ -16,26 +16,24 @@ export const metadata: Metadata = {
 type Copy = {
   title: string
   subtitle: string
-
   profile_information: string
   full_name: string
   email: string
   phone: string
   city: string
-
+  company_name: string
+  avatar: string
+  company_logo: string
+  save_changes: string
   premium_title: string
   premium_active: string
   premium_free: string
   premium_description: string
   upgrade_now: string
   subscription_until: string
-
   verified_title: string
   verified_yes: string
   verified_no: string
-
-  save_changes: string
-
   back_to_jobs: string
 }
 
@@ -43,13 +41,15 @@ const copy: Record<Locale, Copy> = {
   uk: {
     title: "Профіль",
     subtitle: "Керуйте вашим профілем та Premium статусом.",
-
     profile_information: "Інформація профілю",
     full_name: "Ім’я",
     email: "Email",
     phone: "Телефон",
     city: "Місто",
-
+    company_name: "Назва компанії",
+    avatar: "Аватар",
+    company_logo: "Логотип компанії",
+    save_changes: "Зберегти зміни",
     premium_title: "Premium статус",
     premium_active: "Premium активний",
     premium_free: "Безкоштовний акаунт",
@@ -57,26 +57,23 @@ const copy: Record<Locale, Copy> = {
       "Premium профілі отримують вищу видимість та пріоритет у списках.",
     upgrade_now: "Перейти на Premium",
     subscription_until: "Підписка активна до",
-
     verified_title: "Верифікація",
     verified_yes: "Профіль підтверджено",
     verified_no: "Профіль не підтверджено",
-
-    save_changes: "Зберегти зміни",
-
     back_to_jobs: "← Назад до робіт",
   },
-
   ru: {
     title: "Профиль",
     subtitle: "Управляйте профилем и Premium статусом.",
-
     profile_information: "Информация профиля",
     full_name: "Имя",
     email: "Email",
     phone: "Телефон",
     city: "Город",
-
+    company_name: "Название компании",
+    avatar: "Аватар",
+    company_logo: "Логотип компании",
+    save_changes: "Сохранить изменения",
     premium_title: "Premium статус",
     premium_active: "Premium активен",
     premium_free: "Бесплатный аккаунт",
@@ -84,26 +81,23 @@ const copy: Record<Locale, Copy> = {
       "Premium профили получают лучшую видимость и приоритет.",
     upgrade_now: "Перейти на Premium",
     subscription_until: "Подписка активна до",
-
     verified_title: "Верификация",
     verified_yes: "Профиль подтвержден",
     verified_no: "Профиль не подтвержден",
-
-    save_changes: "Сохранить изменения",
-
     back_to_jobs: "← Назад к работам",
   },
-
   en: {
     title: "Profile",
     subtitle: "Manage your profile and Premium status.",
-
     profile_information: "Profile information",
     full_name: "Full name",
     email: "Email",
     phone: "Phone",
     city: "City",
-
+    company_name: "Company name",
+    avatar: "Avatar",
+    company_logo: "Company logo",
+    save_changes: "Save changes",
     premium_title: "Premium status",
     premium_active: "Premium active",
     premium_free: "Free account",
@@ -111,26 +105,23 @@ const copy: Record<Locale, Copy> = {
       "Premium profiles receive better visibility and priority ranking.",
     upgrade_now: "Upgrade to Premium",
     subscription_until: "Subscription active until",
-
     verified_title: "Verification",
     verified_yes: "Verified profile",
     verified_no: "Not verified",
-
-    save_changes: "Save changes",
-
     back_to_jobs: "← Back to jobs",
   },
-
   sv: {
     title: "Profil",
     subtitle: "Hantera din profil och Premium-status.",
-
     profile_information: "Profilinformation",
     full_name: "Namn",
     email: "E-post",
     phone: "Telefon",
     city: "Stad",
-
+    company_name: "Företagsnamn",
+    avatar: "Avatar",
+    company_logo: "Företagslogotyp",
+    save_changes: "Spara ändringar",
     premium_title: "Premium-status",
     premium_active: "Premium aktiv",
     premium_free: "Gratis konto",
@@ -138,26 +129,23 @@ const copy: Record<Locale, Copy> = {
       "Premium-profiler får bättre synlighet och högre prioritet.",
     upgrade_now: "Uppgradera till Premium",
     subscription_until: "Prenumerationen aktiv till",
-
     verified_title: "Verifiering",
     verified_yes: "Verifierad profil",
     verified_no: "Inte verifierad",
-
-    save_changes: "Spara ändringar",
-
     back_to_jobs: "← Tillbaka till jobb",
   },
-
   pl: {
     title: "Profil",
     subtitle: "Zarządzaj profilem i statusem Premium.",
-
     profile_information: "Informacje o profilu",
     full_name: "Imię",
     email: "Email",
     phone: "Telefon",
     city: "Miasto",
-
+    company_name: "Nazwa firmy",
+    avatar: "Avatar",
+    company_logo: "Logo firmy",
+    save_changes: "Zapisz zmiany",
     premium_title: "Status Premium",
     premium_active: "Premium aktywny",
     premium_free: "Darmowe konto",
@@ -165,24 +153,16 @@ const copy: Record<Locale, Copy> = {
       "Profile Premium mają większą widoczność i priorytet.",
     upgrade_now: "Przejdź na Premium",
     subscription_until: "Subskrypcja aktywna do",
-
     verified_title: "Weryfikacja",
     verified_yes: "Zweryfikowany profil",
     verified_no: "Profil niezweryfikowany",
-
-    save_changes: "Zapisz zmiany",
-
     back_to_jobs: "← Powrót do ofert",
   },
 }
 
 export default async function ProfilePage() {
   const cookieStore = await cookies()
-
-  const locale = normalizeLocale(
-    cookieStore.get("clean_jobs_locale")?.value,
-  ) as Locale
-
+  const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
   const t = copy[locale] || copy.en
 
   const supabase = await createClient()
@@ -209,7 +189,6 @@ export default async function ProfilePage() {
             <h1 className="text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
               {t.title}
             </h1>
-
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
               {t.subtitle}
             </p>
@@ -231,14 +210,66 @@ export default async function ProfilePage() {
             </div>
 
             <form action={updateProfile} className="mt-6 grid gap-5">
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label className="mb-3 block text-sm font-medium text-slate-700">
+                    {t.avatar}
+                  </label>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-rose-100 text-xl font-semibold text-rose-700">
+                      {profile?.avatar_url ? (
+                        <img
+                          src={profile.avatar_url}
+                          alt="Avatar"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        "U"
+                      )}
+                    </div>
+
+                    <input
+                      name="avatar"
+                      type="file"
+                      accept="image/*"
+                      className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-xl file:border-0 file:bg-rose-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-rose-700 hover:file:bg-rose-100"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="mb-3 block text-sm font-medium text-slate-700">
+                    {t.company_logo}
+                  </label>
+
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-2xl bg-slate-100 text-xl font-semibold text-slate-500">
+                      {profile?.company_logo_url ? (
+                        <img
+                          src={profile.company_logo_url}
+                          alt="Company logo"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        "Logo"
+                      )}
+                    </div>
+
+                    <input
+                      name="company_logo"
+                      type="file"
+                      accept="image/*"
+                      className="block w-full text-sm text-slate-600 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-slate-700 hover:file:bg-slate-200"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
-                <label
-                  htmlFor="full_name"
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="full_name" className="mb-2 block text-sm font-medium text-slate-700">
                   {t.full_name}
                 </label>
-
                 <input
                   id="full_name"
                   name="full_name"
@@ -249,13 +280,22 @@ export default async function ProfilePage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="email"
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="company_name" className="mb-2 block text-sm font-medium text-slate-700">
+                  {t.company_name}
+                </label>
+                <input
+                  id="company_name"
+                  name="company_name"
+                  type="text"
+                  defaultValue={profile?.company_name || ""}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm outline-none transition focus:border-rose-400"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-700">
                   {t.email}
                 </label>
-
                 <input
                   id="email"
                   type="email"
@@ -266,13 +306,9 @@ export default async function ProfilePage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="phone"
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="phone" className="mb-2 block text-sm font-medium text-slate-700">
                   {t.phone}
                 </label>
-
                 <input
                   id="phone"
                   name="phone"
@@ -283,13 +319,9 @@ export default async function ProfilePage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="city"
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="city" className="mb-2 block text-sm font-medium text-slate-700">
                   {t.city}
                 </label>
-
                 <input
                   id="city"
                   name="city"
@@ -330,13 +362,8 @@ export default async function ProfilePage() {
               ) : null}
 
               {!profile?.is_premium ? (
-                <form
-                  action="/api/stripe/checkout"
-                  method="POST"
-                  className="mt-6"
-                >
+                <form action="/api/stripe/checkout" method="POST" className="mt-6">
                   <input type="hidden" name="type" value="premium" />
-
                   <button
                     type="submit"
                     className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-600 active:scale-[0.98]"
@@ -351,7 +378,6 @@ export default async function ProfilePage() {
               <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
                 {t.verified_title}
               </div>
-
               <div className="mt-3 text-2xl font-semibold text-slate-950">
                 {profile?.verified ? t.verified_yes : t.verified_no}
               </div>

@@ -1,21 +1,72 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { createAdminClient } from "@/lib/supabase-admin"
 
-export type ProfileActionState = {
-  success: boolean
-  message: string
-}
+const AVATAR_BUCKET = "avatars"
+const COMPANY_LOGO_BUCKET = "company-logos"
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 
 function cleanText(value: FormDataEntryValue | null) {
-  if (typeof value !== "string") return ""
-
-  return value.trim()
+  if (typeof value !== "string") return null
+  const trimmed = value.trim()
+  return trimmed.length > 0 ? trimmed : null
 }
 
-async function saveProfile(formData: FormData): Promise<ProfileActionState> {
+function getFile(value: FormDataEntryValue | null) {
+  if (!(value instanceof File)) return null
+  if (value.size <= 0) return null
+  return value
+}
+
+function getFileExtension(file: File) {
+  const extension = file.name.split(".").pop()?.toLowerCase()
+  return extension || "jpg"
+}
+
+async function uploadProfileImage({
+  bucket,
+  userId,
+  file,
+  prefix,
+}: {
+  bucket: string
+  userId: string
+  file: File | null
+  prefix: string
+}) {
+  if (!file) return null
+
+  if (!file.type.startsWith("image/")) {
+    throw new Error("Only image files are allowed.")
+  }
+
+  if (file.size > MAX_IMAGE_SIZE) {
+    throw new Error("Image size must be under 5MB.")
+  }
+
+  const admin = createAdminClient()
+  const extension = getFileExtension(file)
+  const path = `${userId}/${prefix}-${Date.now()}.${extension}`
+
+  const { error } = await admin.storage.from(bucket).upload(path, file, {
+    cacheControl: "3600",
+    upsert: true,
+    contentType: file.type,
+  })
+
+  if (error) {
+    throw new Error(error.message)
+  }
+
+  const { data } = admin.storage.from(bucket).getPublicUrl(path)
+
+  return data.publicUrl
+}
+
+export async function updateProfile(formData: FormData) {
   const supabase = await createClient()
 
   const {
@@ -24,32 +75,52 @@ async function saveProfile(formData: FormData): Promise<ProfileActionState> {
   } = await supabase.auth.getUser()
 
   if (userError || !user) {
-    return {
-      success: false,
-      message: "You must be logged in to update your profile.",
-    }
+    redirect("/login")
   }
 
   const fullName = cleanText(formData.get("full_name"))
   const phone = cleanText(formData.get("phone"))
   const city = cleanText(formData.get("city"))
+  const companyName = cleanText(formData.get("company_name"))
+
+  const avatarFile = getFile(formData.get("avatar"))
+  const companyLogoFile = getFile(formData.get("company_logo"))
+
+  const avatarUrl = await uploadProfileImage({
+    bucket: AVATAR_BUCKET,
+    userId: user.id,
+    file: avatarFile,
+    prefix: "avatar",
+  })
+
+  const companyLogoUrl = await uploadProfileImage({
+    bucket: COMPANY_LOGO_BUCKET,
+    userId: user.id,
+    file: companyLogoFile,
+    prefix: "company-logo",
+  })
+
+  const payload: Record<string, string | null> = {
+    full_name: fullName,
+    phone,
+    city,
+    company_name: companyName,
+  }
+
+  if (avatarUrl) {
+    payload.avatar_url = avatarUrl
+  }
+
+  if (companyLogoUrl) {
+    payload.company_logo_url = companyLogoUrl
+  }
 
   const admin = createAdminClient()
 
-  const { error } = await admin
-    .from("profiles")
-    .update({
-      full_name: fullName,
-      phone,
-      city,
-    })
-    .eq("id", user.id)
+  const { error } = await admin.from("profiles").update(payload).eq("id", user.id)
 
   if (error) {
-    return {
-      success: false,
-      message: error.message,
-    }
+    throw new Error(error.message)
   }
 
   revalidatePath("/profile")
@@ -57,23 +128,24 @@ async function saveProfile(formData: FormData): Promise<ProfileActionState> {
   revalidatePath("/jobs")
   revalidatePath("/dashboard")
 
-  return {
-    success: true,
-    message: "Profile updated successfully.",
-  }
+  redirect("/profile")
 }
 
 export async function updateProfileAction(
-  _prevState: ProfileActionState,
+  _prevState: { success: boolean; message: string },
   formData: FormData,
-): Promise<ProfileActionState> {
-  return saveProfile(formData)
-}
+) {
+  try {
+    await updateProfile(formData)
 
-export async function updateProfile(formData: FormData) {
-  const result = await saveProfile(formData)
-
-  if (!result.success) {
-    throw new Error(result.message)
+    return {
+      success: true,
+      message: "Profile updated successfully.",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Failed to update profile.",
+    }
   }
 }
