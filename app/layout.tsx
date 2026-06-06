@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/react"
 import "./globals.css"
 
 import SiteHeader from "@/components/site-header"
+import LanguageWelcomeModal from "@/components/language-welcome-modal"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 
 const siteUrl = "https://cleansjob.com"
@@ -244,6 +245,8 @@ export default async function RootLayout({
             </div>
           </footer>
         </div>
+
+        <LanguageWelcomeModal />
 
         <Script id="microsoft-clarity" strategy="afterInteractive">
           {`
