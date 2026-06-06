@@ -58,10 +58,10 @@ export default async function SavedJobsPage() {
     .order("created_at", { ascending: false })
 
   const rows = (savedJobs || []).map((row) => ({
-  id: row.id,
-  created_at: row.created_at,
-  jobs: Array.isArray(row.jobs) ? row.jobs[0] : row.jobs,
-})) as SavedJobRow[]
+    id: row.id,
+    created_at: row.created_at,
+    jobs: Array.isArray(row.jobs) ? row.jobs[0] : row.jobs,
+  })) as SavedJobRow[]
 
   return (
     <div className="min-h-screen bg-[#fafafa]">

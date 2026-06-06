@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import TakeJobForm from "@/components/take-job-form"
+import SaveJobButton from "@/components/save-job-button"
 
 export const dynamic = "force-dynamic"
 
@@ -777,6 +778,16 @@ export default async function JobDetailsPage({
 
   const activity = (activityRaw ?? []) as Activity[]
 
+  const { data: savedJobRaw } = await supabase
+    .from("saved_jobs")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("job_id", job.id)
+    .maybeSingle()
+
+  const isSaved = Boolean(savedJobRaw)
+
+
   const canTakeJob =
     job.status === "new" &&
     job.assigned_to === null &&
@@ -929,6 +940,8 @@ export default async function JobDetailsPage({
                     </button>
                   </form>
                 ) : null}
+
+                <SaveJobButton jobId={job.id} initialSaved={isSaved} />
 
                 {canTakeJob ? <TakeJobForm jobId={job.id} /> : null}
               </div>
