@@ -132,3 +132,50 @@ export async function cancelJobAction(formData: FormData) {
 
   redirect("/admin")
 }
+
+export async function resolveReportAction(formData: FormData) {
+  const supabase = await requireAdmin()
+  const reportId = String(formData.get("reportId") || "").trim()
+  const jobId = String(formData.get("jobId") || "").trim()
+
+  if (!reportId) {
+    redirect("/admin")
+  }
+
+  await supabase
+    .from("job_reports")
+    .update({
+      status: "resolved",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", reportId)
+
+  revalidatePath("/admin")
+
+  if (jobId) {
+    revalidatePath(`/jobs/${jobId}`)
+  }
+
+  redirect("/admin")
+}
+
+export async function dismissReportAction(formData: FormData) {
+  const supabase = await requireAdmin()
+  const reportId = String(formData.get("reportId") || "").trim()
+
+  if (!reportId) {
+    redirect("/admin")
+  }
+
+  await supabase
+    .from("job_reports")
+    .update({
+      status: "dismissed",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", reportId)
+
+  revalidatePath("/admin")
+
+  redirect("/admin")
+}

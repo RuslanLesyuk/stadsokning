@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import TakeJobForm from "@/components/take-job-form"
 import SaveJobButton from "@/components/save-job-button"
+import ReportJobForm from "@/components/report-job-form"
 
 export const dynamic = "force-dynamic"
 
@@ -943,7 +944,9 @@ export default async function JobDetailsPage({
 
                 <SaveJobButton jobId={job.id} initialSaved={isSaved} />
 
-                {canTakeJob ? <TakeJobForm jobId={job.id} /> : null}
+<ReportJobForm jobId={job.id} />
+
+{canTakeJob ? <TakeJobForm jobId={job.id} /> : null}
               </div>
             </div>
           </div>

@@ -92,10 +92,10 @@ export default function LanguageSwitcher({
         aria-haspopup="menu"
         onClick={() => setIsOpen((prev) => !prev)}
         disabled={isPending}
-        className={`inline-flex h-11 items-center gap-2 rounded-2xl border px-3 text-sm font-medium text-slate-800 transition focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.97] disabled:opacity-60 ${
+        className={`inline-flex h-11 items-center gap-2 rounded-2xl border px-3 text-sm font-medium text-slate-800 transition focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] disabled:opacity-60 ${
           isOpen
-            ? "border-slate-300 bg-slate-100"
-            : "border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100"
+            ? "border-rose-200 bg-rose-50"
+            : "border-slate-200 bg-white hover:bg-rose-50 active:bg-rose-100"
         }`}
       >
         <span className="text-base leading-none">{current.flag}</span>
@@ -125,10 +125,10 @@ export default function LanguageSwitcher({
                     type="button"
                     onClick={() => changeLocale(item.value)}
                     disabled={isPending}
-                    className={`flex min-h-11 items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 active:scale-[0.98] ${
+                    className={`flex min-h-11 items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98] ${
                       isActive
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-800 hover:bg-slate-50 active:bg-slate-100"
+                        ? "bg-rose-50 text-rose-700"
+                        : "text-slate-800 hover:bg-rose-50 active:bg-rose-100"
                     } disabled:opacity-60`}
                   >
                     <span className="flex items-center gap-3">
@@ -137,9 +137,7 @@ export default function LanguageSwitcher({
                     </span>
 
                     {isActive ? (
-                      <span className="text-xs font-semibold text-slate-500">
-                        ✓
-                      </span>
+                      <span className="text-xs font-semibold text-rose-600">✓</span>
                     ) : null}
                   </button>
                 )
