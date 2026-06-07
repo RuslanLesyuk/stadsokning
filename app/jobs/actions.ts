@@ -13,6 +13,12 @@ export type JobsActionState = {
   message: string
 }
 
+type SpamCheckResult = {
+  blocked: boolean
+  score: number
+  reasons: string[]
+}
+
 function createAdminClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
   const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -31,11 +37,104 @@ function createAdminClient() {
 
 function escapeHtml(value: string) {
   return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;")
+}
+
+function analyzeJobForSpam({
+  title,
+  description,
+  address,
+  budget,
+}: {
+  title: string
+  description: string
+  address: string
+  budget: number | null
+}): SpamCheckResult {
+  const text = `${title} ${description} ${address}`.toLowerCase()
+  const reasons: string[] = []
+  let score = 0
+
+  const suspiciousPatterns: Array<{
+    pattern: RegExp
+    points: number
+    reason: string
+  }> = [
+    {
+      pattern: /\b(whatsapp|telegram|signal)\b/i,
+      points: 2,
+      reason: "Mentions external messenger contact.",
+    },
+    {
+      pattern: /\b(crypto|bitcoin|btc|usdt|wallet|binance)\b/i,
+      points: 4,
+      reason: "Mentions crypto or wallet payments.",
+    },
+    {
+      pattern: /\b(pay\s*first|payment\s*before|deposit\s*first|advance\s*payment|förskottsbetalning)\b/i,
+      points: 4,
+      reason: "Asks for payment before work.",
+    },
+    {
+      pattern: /\b(bankid|bank\s*id|passport|id\s*card|personnummer)\b/i,
+      points: 3,
+      reason: "Requests sensitive identity information.",
+    },
+    {
+      pattern: /\b(make\s*money\s*fast|easy\s*money|guaranteed\s*income|work\s*from\s*home)\b/i,
+      points: 3,
+      reason: "Uses common scam wording.",
+    },
+    {
+      pattern: /(https?:\/\/|www\.)/i,
+      points: 2,
+      reason: "Contains external links.",
+    },
+    {
+      pattern: /\b\d{10,}\b/,
+      points: 1,
+      reason: "Contains long phone-like number.",
+    },
+  ]
+
+  for (const item of suspiciousPatterns) {
+    if (item.pattern.test(text)) {
+      score += item.points
+      reasons.push(item.reason)
+    }
+  }
+
+  if (description.length < 15) {
+    score += 1
+    reasons.push("Description is very short.")
+  }
+
+  if (title.length > 120) {
+    score += 1
+    reasons.push("Title is unusually long.")
+  }
+
+  if (budget !== null && budget > 50000) {
+    score += 2
+    reasons.push("Budget is unusually high for a cleaning job.")
+  }
+
+  const repeatedCharacters = /(.)\1{7,}/.test(text)
+
+  if (repeatedCharacters) {
+    score += 2
+    reasons.push("Text contains repeated spam-like characters.")
+  }
+
+  return {
+    blocked: score >= 6,
+    score,
+    reasons,
+  }
 }
 
 async function sendJobTakenEmail({
@@ -139,6 +238,21 @@ export async function createJobAction(
     }
 
     budget = parsedBudget
+  }
+
+  const spamCheck = analyzeJobForSpam({
+    title,
+    description,
+    address,
+    budget,
+  })
+
+  if (spamCheck.blocked) {
+    return {
+      success: false,
+      message:
+        "This job looks suspicious and could not be posted. Please remove external links, crypto/payment requests, sensitive ID requests, or spam-like text.",
+    }
   }
 
   const { data, error } = await supabase
@@ -255,19 +369,17 @@ export async function takeJobAction(
     const admin = createAdminClient()
 
     if (admin) {
-      const [{ data: ownerData }, { data: workerProfile }] =
-        await Promise.all([
-          admin.auth.admin.getUserById(job.created_by),
-          supabase
-            .from("profiles")
-            .select("full_name")
-            .eq("id", user.id)
-            .maybeSingle(),
-        ])
+      const [{ data: ownerData }, { data: workerProfile }] = await Promise.all([
+        admin.auth.admin.getUserById(job.created_by),
+        supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .maybeSingle(),
+      ])
 
       const ownerEmail = ownerData.user?.email
-      const workerName =
-        workerProfile?.full_name?.trim() || user.email || "Worker"
+      const workerName = workerProfile?.full_name?.trim() || user.email || "Worker"
 
       if (ownerEmail) {
         await sendJobTakenEmail({
