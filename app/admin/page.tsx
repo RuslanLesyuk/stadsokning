@@ -81,7 +81,7 @@ function getReasonLabel(reason: string) {
     case "other":
       return "Other"
     default:
-      return reason.replaceAll("_", " ")
+      return reason.replace("_", " ")
   }
 }
 

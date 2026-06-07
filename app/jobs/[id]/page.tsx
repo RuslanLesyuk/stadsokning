@@ -517,7 +517,7 @@ function getActivityLabel(type: string, t: Copy) {
     case "review_left":
       return t.activity_review_left
     default:
-      return type.replaceAll("_", " ")
+      return type.replace(/ /g, "_")
   }
 }
 
