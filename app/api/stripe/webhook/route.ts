@@ -5,7 +5,13 @@ import { createAdminClient } from "@/lib/supabase-admin"
 export const runtime = "nodejs"
 export const dynamic = "force-dynamic"
 
-function getSubscriptionPeriodEnd(subscription: Stripe.Subscription) {
+function getCustomerId(subscription: Stripe.Subscription) {
+  return typeof subscription.customer === "string"
+    ? subscription.customer
+    : subscription.customer.id
+}
+
+function getPeriodEnd(subscription: Stripe.Subscription) {
   const currentPeriodEnd = subscription.items.data[0]?.current_period_end
 
   if (!currentPeriodEnd) {
@@ -15,44 +21,61 @@ function getSubscriptionPeriodEnd(subscription: Stripe.Subscription) {
   return new Date(currentPeriodEnd * 1000).toISOString()
 }
 
-async function updatePremiumBySubscription(subscription: Stripe.Subscription) {
+function isSubscriptionPremiumActive(subscription: Stripe.Subscription) {
+  if (subscription.cancel_at_period_end) {
+    return subscription.status === "active" || subscription.status === "trialing"
+  }
+
+  return subscription.status === "active" || subscription.status === "trialing"
+}
+
+async function updateProfileByUserId({
+  userId,
+  customerId,
+  subscriptionId,
+  isPremium,
+  subscriptionEndsAt,
+}: {
+  userId: string
+  customerId: string | null
+  subscriptionId: string | null
+  isPremium: boolean
+  subscriptionEndsAt: string | null
+}) {
   const supabase = createAdminClient()
-
-  const customerId =
-    typeof subscription.customer === "string"
-      ? subscription.customer
-      : subscription.customer.id
-
-  const subscriptionId = subscription.id
-  const userId = subscription.metadata?.user_id || null
-  const subscriptionEndsAt = getSubscriptionPeriodEnd(subscription)
-
-  const isActive =
-    subscription.status === "active" || subscription.status === "trialing"
-
-  const updatePayload = {
-    is_premium: isActive,
-    stripe_customer_id: customerId,
-    stripe_subscription_id: subscriptionId,
-    subscription_ends_at: subscriptionEndsAt,
-  }
-
-  if (userId) {
-    const { error } = await supabase
-      .from("profiles")
-      .update(updatePayload)
-      .eq("id", userId)
-
-    if (error) {
-      throw error
-    }
-
-    return
-  }
 
   const { error } = await supabase
     .from("profiles")
-    .update(updatePayload)
+    .update({
+      is_premium: isPremium,
+      stripe_customer_id: customerId,
+      stripe_subscription_id: subscriptionId,
+      subscription_ends_at: subscriptionEndsAt,
+    })
+    .eq("id", userId)
+
+  if (error) {
+    throw error
+  }
+}
+
+async function updateProfileBySubscriptionId({
+  subscriptionId,
+  isPremium,
+  subscriptionEndsAt,
+}: {
+  subscriptionId: string
+  isPremium: boolean
+  subscriptionEndsAt: string | null
+}) {
+  const supabase = createAdminClient()
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({
+      is_premium: isPremium,
+      subscription_ends_at: subscriptionEndsAt,
+    })
     .eq("stripe_subscription_id", subscriptionId)
 
   if (error) {
@@ -60,9 +83,10 @@ async function updatePremiumBySubscription(subscription: Stripe.Subscription) {
   }
 }
 
-async function updatePremiumByCheckoutSession(session: Stripe.Checkout.Session) {
-  const supabase = createAdminClient()
-
+async function handleCheckoutSessionCompleted(
+  session: Stripe.Checkout.Session,
+  stripe: Stripe,
+) {
   const userId = session.metadata?.user_id
   const type = session.metadata?.type
 
@@ -80,54 +104,90 @@ async function updatePremiumByCheckoutSession(session: Stripe.Checkout.Session) 
       ? session.subscription
       : session.subscription?.id || null
 
-  const updatePayload = {
-    is_premium: true,
-    stripe_customer_id: customerId,
-    stripe_subscription_id: subscriptionId,
+  let subscriptionEndsAt: string | null = null
+
+  if (subscriptionId) {
+    const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+    subscriptionEndsAt = getPeriodEnd(subscription)
   }
 
-  const { error } = await supabase
-    .from("profiles")
-    .update(updatePayload)
-    .eq("id", userId)
-
-  if (error) {
-    throw error
-  }
+  await updateProfileByUserId({
+    userId,
+    customerId,
+    subscriptionId,
+    isPremium: true,
+    subscriptionEndsAt,
+  })
 }
 
-async function removePremiumBySubscription(subscription: Stripe.Subscription) {
-  const supabase = createAdminClient()
-
+async function handleSubscriptionChanged(subscription: Stripe.Subscription) {
+  const customerId = getCustomerId(subscription)
   const subscriptionId = subscription.id
   const userId = subscription.metadata?.user_id || null
-
-  const updatePayload = {
-    is_premium: false,
-    subscription_ends_at: null,
-  }
+  const subscriptionEndsAt = getPeriodEnd(subscription)
+  const isPremium = isSubscriptionPremiumActive(subscription)
 
   if (userId) {
-    const { error } = await supabase
-      .from("profiles")
-      .update(updatePayload)
-      .eq("id", userId)
-
-    if (error) {
-      throw error
-    }
+    await updateProfileByUserId({
+      userId,
+      customerId,
+      subscriptionId,
+      isPremium,
+      subscriptionEndsAt,
+    })
 
     return
   }
 
-  const { error } = await supabase
-    .from("profiles")
-    .update(updatePayload)
-    .eq("stripe_subscription_id", subscriptionId)
+  await updateProfileBySubscriptionId({
+    subscriptionId,
+    isPremium,
+    subscriptionEndsAt,
+  })
+}
 
-  if (error) {
-    throw error
+async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
+  const subscriptionId = subscription.id
+  const userId = subscription.metadata?.user_id || null
+
+  if (userId) {
+    await updateProfileByUserId({
+      userId,
+      customerId: getCustomerId(subscription),
+      subscriptionId,
+      isPremium: false,
+      subscriptionEndsAt: null,
+    })
+
+    return
   }
+
+  await updateProfileBySubscriptionId({
+    subscriptionId,
+    isPremium: false,
+    subscriptionEndsAt: null,
+  })
+}
+
+async function handleInvoicePaymentFailed(event: Stripe.Event) {
+  const invoice = event.data.object as Stripe.Invoice & {
+    subscription?: string | Stripe.Subscription | null
+  }
+
+  const subscriptionId =
+    typeof invoice.subscription === "string"
+      ? invoice.subscription
+      : invoice.subscription?.id || null
+
+  if (!subscriptionId) {
+    return
+  }
+
+  await updateProfileBySubscriptionId({
+    subscriptionId,
+    isPremium: false,
+    subscriptionEndsAt: null,
+  })
 }
 
 export async function POST(request: Request) {
@@ -143,11 +203,15 @@ export async function POST(request: Request) {
   }
 
   const stripe = new Stripe(stripeSecretKey)
+
   const body = await request.text()
   const signature = request.headers.get("stripe-signature")
 
   if (!signature) {
-    return NextResponse.json({ error: "Missing stripe-signature header" }, { status: 400 })
+    return NextResponse.json(
+      { error: "Missing stripe-signature header" },
+      { status: 400 },
+    )
   }
 
   let event: Stripe.Event
@@ -164,51 +228,28 @@ export async function POST(request: Request) {
   try {
     switch (event.type) {
       case "checkout.session.completed": {
-        const session = event.data.object as Stripe.Checkout.Session
-        await updatePremiumByCheckoutSession(session)
+        await handleCheckoutSessionCompleted(
+          event.data.object as Stripe.Checkout.Session,
+          stripe,
+        )
         break
       }
 
       case "customer.subscription.created":
       case "customer.subscription.updated": {
-        const subscription = event.data.object as Stripe.Subscription
-        await updatePremiumBySubscription(subscription)
+        await handleSubscriptionChanged(event.data.object as Stripe.Subscription)
         break
       }
 
       case "customer.subscription.deleted": {
-        const subscription = event.data.object as Stripe.Subscription
-        await removePremiumBySubscription(subscription)
+        await handleSubscriptionDeleted(event.data.object as Stripe.Subscription)
         break
       }
 
       case "invoice.payment_failed": {
-  const invoice = event.data.object as Stripe.Invoice & {
-    subscription?: string | Stripe.Subscription | null
-  }
-
-  const subscriptionId =
-    typeof invoice.subscription === "string"
-      ? invoice.subscription
-      : invoice.subscription?.id || null
-
-  if (subscriptionId) {
-    const supabase = createAdminClient()
-
-    const { error } = await supabase
-      .from("profiles")
-      .update({
-        is_premium: false,
-      })
-      .eq("stripe_subscription_id", subscriptionId)
-
-    if (error) {
-      throw error
-    }
-  }
-
-  break
-}
+        await handleInvoicePaymentFailed(event)
+        break
+      }
 
       default:
         break
@@ -216,8 +257,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ received: true })
   } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Webhook handler failed"
+    const message = error instanceof Error ? error.message : "Webhook handler failed"
 
     return NextResponse.json({ error: message }, { status: 500 })
   }
