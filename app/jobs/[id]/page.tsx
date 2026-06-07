@@ -944,7 +944,7 @@ export default async function JobDetailsPage({
 
                 <SaveJobButton jobId={job.id} initialSaved={isSaved} />
 
-<ReportJobForm jobId={job.id} />
+<ReportJobForm jobId={job.id} locale={locale} />
 
 {canTakeJob ? <TakeJobForm jobId={job.id} /> : null}
               </div>
