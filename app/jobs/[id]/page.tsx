@@ -942,7 +942,11 @@ export default async function JobDetailsPage({
                   </form>
                 ) : null}
 
-                <SaveJobButton jobId={job.id} initialSaved={isSaved} />
+                <SaveJobButton
+  jobId={job.id}
+  initialSaved={isSaved}
+  locale={locale}
+/>
 
 <ReportJobForm jobId={job.id} locale={locale} />
 
