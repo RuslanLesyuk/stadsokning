@@ -3,6 +3,7 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
+import DashboardLiveRefresh from "@/components/dashboard-live-refresh"
 
 export const dynamic = "force-dynamic"
 
@@ -685,6 +686,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
+      <DashboardLiveRefresh interval={15000} />
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
         <section className="rounded-[36px] border border-slate-200 bg-gradient-to-br from-white via-white to-rose-50/40 p-6 shadow-[0_2px_14px_rgba(15,23,42,0.04)] md:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
