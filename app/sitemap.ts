@@ -93,5 +93,32 @@ export default function sitemap(): MetadataRoute.Sitemap {
   changeFrequency: "weekly",
   priority: 0.85,
 },
+{
+  url: `${siteUrl}/cleaning-jobs-gothenburg`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+
+{
+  url: `${siteUrl}/stadjobb-goteborg`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+
+{
+  url: `${siteUrl}/cleaning-jobs-malmo`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+
+{
+  url: `${siteUrl}/stadjobb-malmo`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
   ]
 }
