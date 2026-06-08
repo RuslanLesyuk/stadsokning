@@ -256,6 +256,18 @@ export default async function HomePage() {
               title="Jobb utan svenska"
               description="Hitta jobb i Sverige även om du inte talar flytande svenska."
             />
+            <GuideCard
+              href="/how-to-find-a-job-in-sweden"
+              label="Guide"
+              title="How to Find a Job in Sweden"
+              description="Learn where to search, how to apply and how to get hired faster."
+            />
+            <GuideCard
+              href="/hur-man-far-jobb-i-sverige"
+              label="Guide"
+              title="Hur man får jobb i Sverige"
+              description="Praktisk guide för att hitta arbete och få fler intervjuer."
+            />
           </div>
         </section>
 
