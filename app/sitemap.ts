@@ -133,5 +133,17 @@ export default function sitemap(): MetadataRoute.Sitemap {
   changeFrequency: "weekly",
   priority: 0.9,
 },
+{
+  url: `${siteUrl}/how-to-find-a-job-in-sweden`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.95,
+},
+{
+  url: `${siteUrl}/hur-man-far-jobb-i-sverige`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.95,
+},
   ]
 }
