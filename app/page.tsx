@@ -230,6 +230,19 @@ export default async function HomePage() {
               title="Städjobb Stockholm"
               description="Hitta städjobb, hemstädning, kontorsstädning och flyttstädning i Stockholm."
             />
+            <GuideCard
+              href="/cleaning-jobs-gothenburg"
+              label="Gothenburg"
+              title="Cleaning Jobs Gothenburg"
+              description="Find cleaning jobs, cleaner work and cleaning companies in Gothenburg."
+            />
+
+            <GuideCard
+              href="/stadjobb-goteborg"
+              label="Svenska"
+              title="Städjobb Göteborg"
+              description="Hitta städjobb, hemstädning, kontorsstädning och flyttstädning i Göteborg."
+            />
           </div>
         </section>
 
