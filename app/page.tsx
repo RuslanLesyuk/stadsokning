@@ -243,6 +243,19 @@ export default async function HomePage() {
               title="Städjobb Göteborg"
               description="Hitta städjobb, hemstädning, kontorsstädning och flyttstädning i Göteborg."
             />
+            <GuideCard
+              href="/jobs-for-foreigners-in-sweden"
+              label="Sweden"
+              title="Jobs for Foreigners in Sweden"
+              description="Guide for immigrants, expats and newcomers looking for jobs in Sweden."
+            />
+
+            <GuideCard
+              href="/jobb-utan-svenska"
+              label="Svenska"
+              title="Jobb utan svenska"
+              description="Hitta jobb i Sverige även om du inte talar flytande svenska."
+            />
           </div>
         </section>
 

@@ -120,5 +120,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   changeFrequency: "weekly",
   priority: 0.85,
 },
+{
+  url: `${siteUrl}/jobs-for-foreigners-in-sweden`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.9,
+},
+
+{
+  url: `${siteUrl}/jobb-utan-svenska`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.9,
+},
   ]
 }
