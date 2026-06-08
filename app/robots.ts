@@ -5,9 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/dashboard/", "/chat/"],
     },
     sitemap: "https://cleansjob.com/sitemap.xml",
-    host: "https://cleansjob.com",
   }
 }

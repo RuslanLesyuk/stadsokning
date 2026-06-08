@@ -48,6 +48,42 @@ function StepCard({
   )
 }
 
+function GuideCard({
+  href,
+  title,
+  description,
+  label,
+}: {
+  href: string
+  title: string
+  description: string
+  label: string
+}) {
+  return (
+    <Link
+      href={href}
+      prefetch={false}
+      className="group rounded-[28px] border border-slate-200/80 bg-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] transition duration-200 hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-[0_14px_36px_rgba(15,23,42,0.08)]"
+    >
+      <div className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+        {label}
+      </div>
+
+      <h3 className="mt-4 text-lg font-semibold tracking-tight text-slate-950 transition group-hover:text-rose-700 md:text-xl">
+        {title}
+      </h3>
+
+      <p className="mt-3 text-sm leading-6 text-slate-600">
+        {description}
+      </p>
+
+      <div className="mt-5 text-sm font-semibold text-rose-700">
+        Read guide →
+      </div>
+    </Link>
+  )
+}
+
 export default async function HomePage() {
   const cookieStore = await cookies()
   const locale = cookieStore.get("clean_jobs_locale")?.value
@@ -145,6 +181,55 @@ export default async function HomePage() {
                 {landing.seo_description}
               </p>
             </div>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-rose-700">
+                SEO guides
+              </div>
+
+              <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+                Popular guides about jobs and cleaning work in Sweden
+              </h2>
+
+              <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 md:text-base">
+                Learn how to find work in Sweden, how cleaning jobs work, and how
+                clients can hire trusted cleaners in Stockholm and across Sweden.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            <GuideCard
+              href="/work-in-sweden"
+              label="English"
+              title="Work in Sweden"
+              description="Complete guide to jobs in Sweden, cleaning work, part-time jobs and opportunities for foreigners."
+            />
+
+            <GuideCard
+              href="/jobb-i-sverige"
+              label="Svenska"
+              title="Jobb i Sverige"
+              description="Guide till arbete i Sverige, städjobb, extrajobb och möjligheter för arbetare och företag."
+            />
+
+            <GuideCard
+              href="/cleaning-jobs-stockholm"
+              label="Stockholm"
+              title="Cleaning Jobs Stockholm"
+              description="Find cleaning jobs, cleaner work and cleaning companies in Stockholm and nearby areas."
+            />
+
+            <GuideCard
+              href="/stadjobb-stockholm"
+              label="Svenska"
+              title="Städjobb Stockholm"
+              description="Hitta städjobb, hemstädning, kontorsstädning och flyttstädning i Stockholm."
+            />
           </div>
         </section>
 
