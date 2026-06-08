@@ -3,9 +3,7 @@ import Link from "next/link"
 import Script from "next/script"
 import { cookies } from "next/headers"
 import { Analytics } from "@vercel/analytics/react"
-
 import "./globals.css"
-
 import SiteHeader from "@/components/site-header"
 import LanguageWelcomeModal from "@/components/language-welcome-modal"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
@@ -241,6 +239,37 @@ export default async function RootLayout({
                 >
                   {t.contact}
                 </Link>
+                <Link
+  href="/work-in-sweden"
+  prefetch={false}
+  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+>
+  Work in Sweden
+</Link>
+
+<Link
+  href="/jobb-i-sverige"
+  prefetch={false}
+  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+>
+  Jobb i Sverige
+</Link>
+
+<Link
+  href="/cleaning-jobs-stockholm"
+  prefetch={false}
+  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+>
+  Cleaning Jobs Stockholm
+</Link>
+
+<Link
+  href="/stadjobb-stockholm"
+  prefetch={false}
+  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+>
+  Städjobb Stockholm
+</Link>
               </div>
             </div>
           </footer>
