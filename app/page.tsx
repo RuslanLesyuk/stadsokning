@@ -268,6 +268,19 @@ export default async function HomePage() {
               title="Hur man får jobb i Sverige"
               description="Praktisk guide för att hitta arbete och få fler intervjuer."
             />
+            <GuideCard
+                href="/how-much-do-cleaners-earn-in-sweden"
+                label="Salary"
+                title="How Much Do Cleaners Earn in Sweden"
+                description="Cleaner salary guide with monthly pay, salary factors and tips for getting more cleaning work."
+              />
+
+            <GuideCard
+              href="/vad-tjanar-en-stadare-i-sverige"
+              label="Lön"
+              title="Vad tjänar en städare i Sverige"
+              description="Guide till städare lön, månadslön och hur du kan hitta fler städjobb."
+            />
           </div>
         </section>
 
