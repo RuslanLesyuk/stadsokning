@@ -145,5 +145,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   changeFrequency: "weekly",
   priority: 0.95,
 },
+{
+  url: `${siteUrl}/how-much-do-cleaners-earn-in-sweden`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.9,
+},
+
+{
+  url: `${siteUrl}/vad-tjanar-en-stadare-i-sverige`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.9,
+},
   ]
 }
