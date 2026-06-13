@@ -171,5 +171,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   changeFrequency: "weekly",
   priority: 0.9,
 },
+{
+  url: `${siteUrl}/cleaning-company-statistics-sweden`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+
+{
+  url: `${siteUrl}/stadbranschen-i-sverige-statistik`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
   ]
 }

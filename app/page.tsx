@@ -294,6 +294,19 @@ export default async function HomePage() {
   title="Städfirma Stockholm"
   description="Hitta städfirmor, hemstädning och kontorsstädning i Stockholm."
 />
+<GuideCard
+  href="/cleaning-company-statistics-sweden"
+  label="Statistics"
+  title="Cleaning Company Statistics Sweden"
+  description="Market data, industry trends, cleaning companies and opportunities in Sweden."
+/>
+
+<GuideCard
+  href="/stadbranschen-i-sverige-statistik"
+  label="Statistik"
+  title="Städbranschen i Sverige Statistik"
+  description="Guide till städbranschen, städföretag, marknadsutveckling och statistik i Sverige."
+/>
           </div>
         </section>
 
