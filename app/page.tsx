@@ -307,6 +307,19 @@ export default async function HomePage() {
   title="Städbranschen i Sverige Statistik"
   description="Guide till städbranschen, städföretag, marknadsutveckling och statistik i Sverige."
 />
+<GuideCard
+  href="/best-cleaning-companies-in-sweden"
+  label="Companies"
+  title="Best Cleaning Companies in Sweden"
+  description="Find trusted cleaning companies, home cleaning services and office cleaning providers across Sweden."
+/>
+
+<GuideCard
+  href="/basta-stadforetag-i-sverige"
+  label="Företag"
+  title="Bästa Städföretag i Sverige"
+  description="Hitta städföretag, hemstädning och kontorsstädning i hela Sverige."
+/>
           </div>
         </section>
 
