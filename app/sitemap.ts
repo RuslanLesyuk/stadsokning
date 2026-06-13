@@ -158,5 +158,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
   changeFrequency: "weekly",
   priority: 0.9,
 },
+{
+  url: `${siteUrl}/hire-cleaner-stockholm`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.9,
+},
+
+{
+  url: `${siteUrl}/stadfirma-stockholm`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.9,
+},
   ]
 }

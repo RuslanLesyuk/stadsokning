@@ -281,6 +281,19 @@ export default async function HomePage() {
               title="Vad tjänar en städare i Sverige"
               description="Guide till städare lön, månadslön och hur du kan hitta fler städjobb."
             />
+            <GuideCard
+  href="/hire-cleaner-stockholm"
+  label="Clients"
+  title="Hire a Cleaner in Stockholm"
+  description="Find trusted cleaners and cleaning companies in Stockholm."
+/>
+
+<GuideCard
+  href="/stadfirma-stockholm"
+  label="Stockholm"
+  title="Städfirma Stockholm"
+  description="Hitta städfirmor, hemstädning och kontorsstädning i Stockholm."
+/>
           </div>
         </section>
 
