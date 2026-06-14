@@ -32,6 +32,7 @@ type Profile = {
   company_name: string | null
   is_premium: boolean | null
   verified: boolean | null
+  bankid_verified: boolean | null
 }
 
 type JobsCopy = {
@@ -727,7 +728,9 @@ export default async function JobsPage({
   if (profileIds.length > 0) {
     const { data: profilesRaw, error: profilesError } = await supabase
       .from("profiles")
-      .select("id, full_name, avatar_url, company_logo_url, company_name, is_premium, verified")
+      .select(
+  "id, full_name, avatar_url, company_logo_url, company_name, is_premium, verified, bankid_verified"
+)
       .in("id", profileIds)
 
     if (profilesError) {
@@ -983,7 +986,9 @@ export default async function JobsPage({
                 const workerName = workerProfile?.full_name?.trim() || t.unknown_user
                 const isFeatured = isActiveFeatured(job)
                 const isPremiumAuthor = Boolean(authorProfile?.is_premium)
-                const isVerifiedAuthor = Boolean(authorProfile?.verified)
+                const isVerifiedAuthor =
+  Boolean(authorProfile?.verified) ||
+  Boolean(authorProfile?.bankid_verified)
 
                 return (
                   <article
@@ -1023,10 +1028,10 @@ export default async function JobsPage({
                         ) : null}
 
                         {isVerifiedAuthor ? (
-                          <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-                            ✓ {t.verified}
-                          </span>
-                        ) : null}
+  <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+    ✓ BankID Verified
+  </span>
+) : null}
                       </div>
 
                       <div
