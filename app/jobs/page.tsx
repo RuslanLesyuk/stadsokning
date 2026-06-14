@@ -91,6 +91,7 @@ type JobsCopy = {
   featured: string
   premium: string
   verified: string
+  bankid_only: string
 }
 
 const copy: Record<Locale, JobsCopy> = {
@@ -152,6 +153,7 @@ const copy: Record<Locale, JobsCopy> = {
     featured: "Рекомендовано",
     premium: "Premium",
     verified: "Перевірено",
+    bankid_only: "Тільки BankID",
   },
   ru: {
     title: "Работы",
@@ -211,6 +213,7 @@ const copy: Record<Locale, JobsCopy> = {
     featured: "Рекомендуется",
     premium: "Premium",
     verified: "Проверено",
+    bankid_only: "Только BankID",
   },
   en: {
     title: "Jobs",
@@ -270,6 +273,7 @@ const copy: Record<Locale, JobsCopy> = {
     featured: "Featured",
     premium: "Premium",
     verified: "Verified",
+    bankid_only: "Only BankID verified",
   },
   sv: {
     title: "Jobb",
@@ -329,6 +333,7 @@ const copy: Record<Locale, JobsCopy> = {
     featured: "Utvald",
     premium: "Premium",
     verified: "Verifierad",
+    bankid_only: "Endast BankID-verifierade",
   },
   pl: {
     title: "Prace",
@@ -388,6 +393,7 @@ const copy: Record<Locale, JobsCopy> = {
     featured: "Polecane",
     premium: "Premium",
     verified: "Zweryfikowano",
+    bankid_only: "Tylko BankID",
   },
 }
 
@@ -512,6 +518,7 @@ function buildHref(params: {
   jobType?: string
   propertyType?: string
   sort?: string
+  bankidOnly?: boolean
 }) {
   const search = new URLSearchParams()
 
@@ -525,6 +532,7 @@ function buildHref(params: {
   if (params.jobType) search.set("jobType", params.jobType)
   if (params.propertyType) search.set("propertyType", params.propertyType)
   if (params.sort && params.sort !== "newest") search.set("sort", params.sort)
+  if (params.bankidOnly) search.set("bankidOnly", "1")
 
   const queryString = search.toString()
   return queryString ? `/jobs?${queryString}` : "/jobs"
@@ -655,6 +663,7 @@ export default async function JobsPage({
   const propertyType =
     typeof params.propertyType === "string" ? params.propertyType.trim() : ""
   const sort = typeof params.sort === "string" ? params.sort.trim() : "newest"
+  const bankidOnly = params.bankidOnly === "1"
   const rawView = typeof params.view === "string" ? params.view.trim() : "active"
   const view: JobsView = rawView === "completed" ? "completed" : "active"
 
@@ -744,6 +753,15 @@ export default async function JobsPage({
   for (const profile of profiles) {
     profileById.set(profile.id, profile)
   }
+  const visibleJobs = bankidOnly
+  ? jobs.filter((job) => {
+      const authorProfile = job.created_by
+        ? profileById.get(job.created_by)
+        : null
+
+      return Boolean(authorProfile?.bankid_verified)
+    })
+  : jobs
 
   const clearHref = buildHref({ view })
   const activeTabHref = buildHref({
@@ -754,6 +772,8 @@ export default async function JobsPage({
     jobType,
     propertyType,
     sort,
+    bankidOnly,
+
   })
   const completedTabHref = buildHref({
     view: "completed",
@@ -763,6 +783,7 @@ export default async function JobsPage({
     jobType,
     propertyType,
     sort,
+    bankidOnly,
   })
 
   return (
@@ -816,6 +837,28 @@ export default async function JobsPage({
               {t.completed_tab}
             </Link>
           </div>
+          <div className="mt-4 flex flex-wrap gap-3">
+  <Link
+    href={buildHref({
+      view,
+      q,
+      city,
+      status,
+      jobType,
+      propertyType,
+      sort,
+      bankidOnly: !bankidOnly,
+    })}
+    prefetch={false}
+    className={
+      bankidOnly
+        ? "inline-flex min-h-10 items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
+        : "inline-flex min-h-10 items-center justify-center rounded-2xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+    }
+  >
+    ✓ {t.bankid_only}
+  </Link>
+</div>
 
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <div className="rounded-full bg-white px-4 py-2 text-sm text-slate-700 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
@@ -824,7 +867,7 @@ export default async function JobsPage({
 
             {view === "completed" ? (
               <div className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-600">
-                {jobs.length} {t.in_history}
+                {visibleJobs.length} {t.in_history}
               </div>
             ) : null}
           </div>
@@ -834,6 +877,7 @@ export default async function JobsPage({
             className="mt-8 rounded-[28px] border border-slate-200/80 bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)] md:p-5"
           >
             <input type="hidden" name="view" value={view} />
+            {bankidOnly ? <input type="hidden" name="bankidOnly" value="1" /> : null}
 
             <div className="mb-5 text-sm font-semibold tracking-tight text-slate-900">
               {t.filters}
@@ -959,11 +1003,11 @@ export default async function JobsPage({
             </div>
 
             <div className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-sm text-slate-600 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
-              {jobs.length}
+              {visibleJobs.length}
             </div>
           </div>
 
-          {jobs.length === 0 ? (
+          {visibleJobs.length === 0 ? (
             <JobsEmptyState
               title={t.no_jobs}
               description={
@@ -978,7 +1022,7 @@ export default async function JobsPage({
             />
           ) : (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {jobs.map((job) => {
+              {visibleJobs.map((job) => {
                 const subdued = view === "completed" || isCompletedStatus(job.status)
                 const authorProfile = job.created_by ? profileById.get(job.created_by) : null
                 const workerProfile = job.assigned_to ? profileById.get(job.assigned_to) : null
