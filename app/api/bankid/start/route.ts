@@ -6,12 +6,13 @@ export const dynamic = "force-dynamic"
 
 function getRequiredEnv(name: string) {
   const value = process.env[name]
-
-  if (!value) {
-    throw new Error(`Missing ${name}`)
-  }
-
+  if (!value) throw new Error(`Missing ${name}`)
   return value
+}
+
+function isSecureRequest(request: Request) {
+  const url = new URL(request.url)
+  return url.protocol === "https:"
 }
 
 export async function GET(request: Request) {
@@ -44,10 +45,11 @@ export async function GET(request: Request) {
     authorizationUrl.searchParams.set("acr_values", "urn:grn:authn:se:bankid")
 
     const response = NextResponse.redirect(authorizationUrl)
+    const secure = isSecureRequest(request)
 
     response.cookies.set("bankid_state", state, {
       httpOnly: true,
-      secure: true,
+      secure,
       sameSite: "lax",
       path: "/",
       maxAge: 10 * 60,
@@ -55,7 +57,7 @@ export async function GET(request: Request) {
 
     response.cookies.set("bankid_nonce", nonce, {
       httpOnly: true,
-      secure: true,
+      secure,
       sameSite: "lax",
       path: "/",
       maxAge: 10 * 60,

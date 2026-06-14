@@ -38,6 +38,7 @@ type Profile = {
   company_name: string | null
   is_premium: boolean | null
   verified: boolean | null
+  bankid_verified: boolean | null
   subscription_ends_at: string | null
 }
 
@@ -618,8 +619,8 @@ export default async function DashboardPage() {
   const { data: profileRaw } = await supabase
     .from("profiles")
     .select(
-      "id, full_name, avatar_url, company_logo_url, company_name, is_premium, verified, subscription_ends_at",
-    )
+  "id, full_name, avatar_url, company_logo_url, company_name, is_premium, verified, bankid_verified, subscription_ends_at",
+)
     .eq("id", user.id)
     .maybeSingle()
 
@@ -756,15 +757,17 @@ export default async function DashboardPage() {
               >
                 {profile?.is_premium ? t.premium_active : t.free_account}
               </span>
-              <span
-                className={
-                  profile?.verified
-                    ? "rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700"
-                    : "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
-                }
-              >
-                {profile?.verified ? t.verified : t.not_verified}
-              </span>
+             <span
+  className={
+    profile?.bankid_verified
+      ? "rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700"
+      : "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+  }
+>
+  {profile?.bankid_verified
+    ? "✓ BankID Verified"
+    : "Not BankID Verified"}
+</span>
             </div>
           </div>
 

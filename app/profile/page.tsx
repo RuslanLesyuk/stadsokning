@@ -161,10 +161,22 @@ const copy: Record<Locale, Copy> = {
   },
 }
 
-export default async function ProfilePage() {
+export default async function ProfilePage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    bankid_verified?: string
+    bankid_error?: string
+  }>
+}) {
+  
   const cookieStore = await cookies()
   const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
   const t = copy[locale] || copy.en
+  const params = await searchParams
+
+const bankidVerified = params.bankid_verified === "1"
+const bankidError = params.bankid_error
 
   const supabase = await createClient()
 
@@ -181,6 +193,8 @@ export default async function ProfilePage() {
     .select("*")
     .eq("id", user.id)
     .single()
+
+    
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -203,7 +217,17 @@ export default async function ProfilePage() {
             {t.back_to_jobs}
           </Link>
         </div>
+{bankidVerified ? (
+  <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+    ✓ BankID verification completed successfully.
+  </div>
+) : null}
 
+{bankidError ? (
+  <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
+    BankID verification failed: {decodeURIComponent(bankidError)}
+  </div>
+) : null}
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
           <section className="rounded-[28px] border border-slate-200 bg-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
             <div className="text-sm font-semibold uppercase tracking-wide text-slate-500">

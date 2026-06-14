@@ -35,6 +35,7 @@ type ProfileRow = {
   avatar_url: string | null
   company_logo_url: string | null
   company_name: string | null
+  bankid_verified: boolean | null
 }
 
 type MessageRow = {
@@ -359,9 +360,17 @@ function ParticipantCard({
           <p className="text-[11px] uppercase tracking-wide text-slate-500">
             {label}
           </p>
-          <p className="mt-1 truncate text-base font-medium text-slate-900">
-            {name}
-          </p>
+          <div className="mt-1 flex flex-wrap items-center gap-2">
+  <p className="truncate text-base font-medium text-slate-900">
+    {name}
+  </p>
+
+  {profile?.bankid_verified ? (
+    <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+      ✓ BankID
+    </span>
+  ) : null}
+</div>
           <p className="mt-1 truncate text-sm text-slate-500">{companyName}</p>
           <p className="mt-1 text-sm text-slate-500">
             {profile?.city || cityNotSpecified}
@@ -430,7 +439,9 @@ export default async function JobChatPage({ params }: PageProps) {
 
   const { data: profilesData } = await supabase
     .from("profiles")
-    .select("id, full_name, city, avatar_url, company_logo_url, company_name")
+    .select(
+  "id, full_name, city, avatar_url, company_logo_url, company_name, bankid_verified"
+)
     .in("id", participantIds)
 
   const profiles = (profilesData || []) as ProfileRow[]
@@ -624,12 +635,24 @@ export default async function JobChatPage({ params }: PageProps) {
                         }`}
                       >
                         <div
-                          className={`mb-1 text-xs ${
-                            isMine ? "text-white/70" : "text-slate-500"
-                          }`}
-                        >
-                          {senderName}
-                        </div>
+  className={`mb-1 flex items-center gap-2 text-xs ${
+    isMine ? "text-white/70" : "text-slate-500"
+  }`}
+>
+  <span>{senderName}</span>
+
+  {senderProfile?.bankid_verified ? (
+    <span
+      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+        isMine
+          ? "bg-white/20 text-white"
+          : "bg-emerald-100 text-emerald-700"
+      }`}
+    >
+      ✓ BankID
+    </span>
+  ) : null}
+</div>
 
                         <div className="whitespace-pre-wrap break-words text-sm leading-6">
                           {message.body || ""}
