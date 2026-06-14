@@ -1,0 +1,24 @@
+"use client"
+
+type Props = {
+  verified?: boolean
+}
+
+export default function BankIdVerifyButton({ verified = false }: Props) {
+  if (verified) {
+    return (
+      <div className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-emerald-200 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700">
+        ✓ Verified with BankID
+      </div>
+    )
+  }
+
+  return (
+    <a
+      href="/api/bankid/start"
+      className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 active:scale-[0.97]"
+    >
+      Verify with BankID
+    </a>
+  )
+}

@@ -5,6 +5,7 @@ import { cookies } from "next/headers"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { updateProfile } from "@/app/profile/actions"
+import BankIdVerifyButton from "@/components/bankid-verify-button"
 
 export const dynamic = "force-dynamic"
 
@@ -375,13 +376,29 @@ export default async function ProfilePage() {
             </section>
 
             <section className="rounded-[28px] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">
-              <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
-                {t.verified_title}
-              </div>
-              <div className="mt-3 text-2xl font-semibold text-slate-950">
-                {profile?.verified ? t.verified_yes : t.verified_no}
-              </div>
-            </section>
+  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-700">
+    {t.verified_title}
+  </div>
+
+  <div className="mt-3 text-2xl font-semibold text-slate-950">
+    {profile?.bankid_verified
+      ? "✓ Verified with BankID"
+      : t.verified_no}
+  </div>
+
+  {profile?.bankid_verified_at ? (
+    <p className="mt-3 text-sm text-slate-500">
+      Verified on{" "}
+      {new Date(profile.bankid_verified_at).toLocaleDateString()}
+    </p>
+  ) : null}
+
+  <div className="mt-5">
+    <BankIdVerifyButton
+      verified={Boolean(profile?.bankid_verified)}
+    />
+  </div>
+</section>
           </div>
         </div>
       </div>
