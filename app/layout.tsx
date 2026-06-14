@@ -200,79 +200,116 @@ export default async function RootLayout({
           <main className="flex-1">{children}</main>
 
           <footer className="border-t border-slate-200 bg-white">
-            <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 md:flex-row md:items-center md:justify-between md:px-6">
-              <div>
-                <div className="text-lg font-semibold tracking-tight text-slate-950">
-                  {t.title}
-                </div>
+  <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
 
-                <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-                  {t.subtitle}
-                </p>
+    <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+      <div>
+        <div className="text-lg font-semibold tracking-tight text-slate-950">
+          {t.title}
+        </div>
 
-                <p className="mt-4 text-xs text-slate-400">
-                  © {new Date().getFullYear()} Clean Jobs. {t.copyright}
-                </p>
-              </div>
+        <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+          {t.subtitle}
+        </p>
 
-              <div className="flex flex-wrap items-center gap-3">
-                <Link
-                  href="/terms"
-                  prefetch={false}
-                  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-                >
-                  {t.terms}
-                </Link>
+        <p className="mt-4 text-xs text-slate-400">
+          © {new Date().getFullYear()} Clean Jobs. {t.copyright}
+        </p>
+      </div>
 
-                <Link
-                  href="/privacy"
-                  prefetch={false}
-                  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-                >
-                  {t.privacy}
-                </Link>
+      <div className="flex flex-wrap items-center gap-3">
+        <Link
+          href="/terms"
+          prefetch={false}
+          className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+        >
+          {t.terms}
+        </Link>
 
-                <Link
-                  href="/contact"
-                  prefetch={false}
-                  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-                >
-                  {t.contact}
-                </Link>
-                <Link
-  href="/work-in-sweden"
-  prefetch={false}
-  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
->
-  Work in Sweden
-</Link>
+        <Link
+          href="/privacy"
+          prefetch={false}
+          className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+        >
+          {t.privacy}
+        </Link>
 
-<Link
-  href="/jobb-i-sverige"
-  prefetch={false}
-  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
->
-  Jobb i Sverige
-</Link>
+        <Link
+          href="/contact"
+          prefetch={false}
+          className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+        >
+          {t.contact}
+        </Link>
+      </div>
+    </div>
 
-<Link
-  href="/cleaning-jobs-stockholm"
-  prefetch={false}
-  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
->
-  Cleaning Jobs Stockholm
-</Link>
+    <div className="mt-8 border-t border-slate-200 pt-8">
+      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-900">
+        Popular Guides
+      </h3>
 
-<Link
-  href="/stadjobb-stockholm"
-  prefetch={false}
-  className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
->
-  Städjobb Stockholm
-</Link>
-              </div>
-            </div>
-          </footer>
+      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+        <Link href="/work-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
+          Work in Sweden
+        </Link>
+
+        <Link href="/jobs-for-foreigners-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
+          Jobs for Foreigners in Sweden
+        </Link>
+
+        <Link href="/how-to-find-a-job-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
+          How to Find a Job in Sweden
+        </Link>
+
+        <Link href="/jobb-i-sverige" className="text-sm text-slate-600 hover:text-rose-600">
+          Jobb i Sverige
+        </Link>
+
+        <Link href="/jobb-utan-svenska" className="text-sm text-slate-600 hover:text-rose-600">
+          Jobb utan svenska
+        </Link>
+
+        <Link href="/hur-man-far-jobb-i-sverige" className="text-sm text-slate-600 hover:text-rose-600">
+          Hur man får jobb i Sverige
+        </Link>
+
+        <Link href="/how-much-do-cleaners-earn-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
+          Cleaner Salary Sweden
+        </Link>
+
+        <Link href="/vad-tjanar-en-stadare-i-sverige" className="text-sm text-slate-600 hover:text-rose-600">
+          Vad tjänar en städare
+        </Link>
+
+        <Link href="/cleaning-company-statistics-sweden" className="text-sm text-slate-600 hover:text-rose-600">
+          Cleaning Industry Statistics
+        </Link>
+
+        <Link href="/stadbranschen-i-sverige-statistik" className="text-sm text-slate-600 hover:text-rose-600">
+          Städbranschen Statistik
+        </Link>
+
+        <Link href="/hire-cleaner-stockholm" className="text-sm text-slate-600 hover:text-rose-600">
+          Hire Cleaner Stockholm
+        </Link>
+
+        <Link href="/stadfirma-stockholm" className="text-sm text-slate-600 hover:text-rose-600">
+          Städfirma Stockholm
+        </Link>
+
+        <Link href="/best-cleaning-companies-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
+          Best Cleaning Companies
+        </Link>
+
+        <Link href="/basta-stadforetag-i-sverige" className="text-sm text-slate-600 hover:text-rose-600">
+          Bästa Städföretag
+        </Link>
+      </div>
+    </div>
+
+  </div>
+</footer>
         </div>
 
         <LanguageWelcomeModal />
