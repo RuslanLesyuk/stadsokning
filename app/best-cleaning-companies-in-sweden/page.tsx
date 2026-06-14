@@ -1,6 +1,7 @@
 
 import type { Metadata } from "next"
 import Link from "next/link"
+import RelatedGuides from "@/components/related-guides"
 
 const siteUrl = "https://cleansjob.com"
 
@@ -306,6 +307,10 @@ export default function BestCleaningCompaniesInSwedenPage() {
               </Link>
             </div>
           </section>
+          <RelatedGuides currentPath="/work-in-sweden" />
+          <RelatedGuides currentPath="/jobs-for-foreigners-in-sweden" />
+          <RelatedGuides currentPath="/cleaning-jobs-stockholm" />
+          <RelatedGuides currentPath="/vad-tjanar-en-stadare-i-sverige" title="Relaterade guider" />
         </div>
       </main>
     </div>

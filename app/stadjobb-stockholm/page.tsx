@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import RelatedGuides from "@/components/related-guides"
 
 const siteUrl = "https://cleansjob.com"
 
@@ -160,6 +161,10 @@ export default function SeoLandingPage() {
               <Link href="/signup" prefetch={false} className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/15 active:scale-[0.97]">Create account</Link>
             </div>
           </section>
+          <RelatedGuides currentPath="/work-in-sweden" />
+                  <RelatedGuides currentPath="/jobs-for-foreigners-in-sweden" />
+                  <RelatedGuides currentPath="/cleaning-jobs-stockholm" />
+                  <RelatedGuides currentPath="/vad-tjanar-en-stadare-i-sverige" title="Relaterade guider" />
         </div>
       </main>
     </div>

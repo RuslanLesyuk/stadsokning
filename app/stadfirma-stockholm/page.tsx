@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import RelatedGuides from "@/components/related-guides"
 
 export const metadata: Metadata = {
   title: "Städfirma Stockholm | Clean Jobs",
@@ -17,6 +18,10 @@ export default function Page() {
         <Link href="/jobs" className="rounded-2xl bg-rose-600 px-6 py-3 text-white">
           Se städtjänster
         </Link>
+        <RelatedGuides currentPath="/work-in-sweden" />
+                <RelatedGuides currentPath="/jobs-for-foreigners-in-sweden" />
+                <RelatedGuides currentPath="/cleaning-jobs-stockholm" />
+                <RelatedGuides currentPath="/vad-tjanar-en-stadare-i-sverige" title="Relaterade guider" />
       </main>
     </div>
   )

@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import RelatedGuides from "@/components/related-guides"
 
 const siteUrl = "https://cleansjob.com"
 
@@ -131,7 +132,10 @@ export default function HurManFarJobbISverigePage() {
             Stockholm, Göteborg och Malmö erbjuder flest möjligheter,
             men även Uppsala, Västerås, Örebro, Linköping och
             Helsingborg har många lediga tjänster inom service,
-            städning och andra yrken.
+            städni<RelatedGuides currentPath="/work-in-sweden" />
+        <RelatedGuides currentPath="/jobs-for-foreigners-in-sweden" />
+        <RelatedGuides currentPath="/cleaning-jobs-stockholm" />
+        <RelatedGuides currentPath="/vad-tjanar-en-stadare-i-sverige" title="Relaterade guider" />ng och andra yrken.
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
@@ -150,6 +154,10 @@ export default function HurManFarJobbISverigePage() {
             >
               Skapa konto
             </Link>
+            <RelatedGuides currentPath="/work-in-sweden" />
+                    <RelatedGuides currentPath="/jobs-for-foreigners-in-sweden" />
+                    <RelatedGuides currentPath="/cleaning-jobs-stockholm" />
+                    <RelatedGuides currentPath="/vad-tjanar-en-stadare-i-sverige" title="Relaterade guider" />
           </div>
         </article>
       </main>
