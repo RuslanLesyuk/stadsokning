@@ -115,6 +115,7 @@ type Profile = {
   avatar_url: string | null
   company_logo_url: string | null
   company_name: string | null
+  bankid_verified: boolean | null
 }
 
 type Review = {
@@ -580,9 +581,17 @@ function PersonCard({
           <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 md:text-xs">
             {label}
           </div>
-          <div className="truncate text-base font-semibold tracking-tight text-slate-900 md:text-lg">
-            {name}
-          </div>
+          <div className="flex flex-wrap items-center gap-2">
+  <div className="truncate text-base font-semibold tracking-tight text-slate-900 md:text-lg">
+    {name}
+  </div>
+
+  {profile?.bankid_verified ? (
+    <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+      ✓ BankID
+    </span>
+  ) : null}
+</div>
           <div className="mt-0.5 truncate text-sm text-slate-500">{companyName}</div>
           {profile?.city ? <div className="mt-0.5 text-sm text-slate-500">{profile.city}</div> : null}
         </div>
@@ -727,7 +736,9 @@ export default async function JobDetailsPage({
   if (profileIds.length > 0) {
     const { data } = await supabase
       .from("profiles")
-      .select("id, full_name, city, avatar_url, company_logo_url, company_name")
+      .select(
+  "id, full_name, city, avatar_url, company_logo_url, company_name, bankid_verified"
+)
       .in("id", profileIds)
 
     profiles = (data ?? []) as Profile[]
@@ -762,7 +773,9 @@ export default async function JobDetailsPage({
     if (missingIds.length > 0) {
       const { data } = await supabase
         .from("profiles")
-        .select("id, full_name, city, avatar_url, company_logo_url, company_name")
+        .select(
+  "id, full_name, city, avatar_url, company_logo_url, company_name, bankid_verified"
+)
         .in("id", missingIds)
 
       for (const profile of (data ?? []) as Profile[]) {
