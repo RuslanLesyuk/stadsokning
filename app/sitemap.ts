@@ -1,201 +1,196 @@
 import type { MetadataRoute } from "next"
+import { createClient } from "@/lib/supabase-server"
 
 const siteUrl = "https://cleansjob.com"
 
-export default function sitemap(): MetadataRoute.Sitemap {
-  return [
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const now = new Date()
+
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: siteUrl,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "daily",
       priority: 1,
     },
-
     {
       url: `${siteUrl}/jobs`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "daily",
       priority: 0.95,
     },
-
     {
       url: `${siteUrl}/login`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.5,
     },
-
     {
       url: `${siteUrl}/signup`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
     },
-
+    {
+      url: `${siteUrl}/companies`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
     {
       url: `${siteUrl}/work-in-sweden`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
-
     {
       url: `${siteUrl}/jobb-i-sverige`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.9,
     },
-
     {
       url: `${siteUrl}/cleaning-jobs-stockholm`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.85,
     },
-
     {
       url: `${siteUrl}/stadjobb-stockholm`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "weekly",
       priority: 0.85,
     },
-
+    {
+      url: `${siteUrl}/cleaning-jobs-gothenburg`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${siteUrl}/stadjobb-goteborg`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${siteUrl}/cleaning-jobs-malmo`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${siteUrl}/stadjobb-malmo`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${siteUrl}/jobs-for-foreigners-in-sweden`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/jobb-utan-svenska`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/how-to-find-a-job-in-sweden`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${siteUrl}/hur-man-far-jobb-i-sverige`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${siteUrl}/how-much-do-cleaners-earn-in-sweden`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/vad-tjanar-en-stadare-i-sverige`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/hire-cleaner-stockholm`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/stadfirma-stockholm`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/cleaning-company-statistics-sweden`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${siteUrl}/stadbranschen-i-sverige-statistik`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${siteUrl}/best-cleaning-companies-in-sweden`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${siteUrl}/basta-stadforetag-i-sverige`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
     {
       url: `${siteUrl}/privacy`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.3,
     },
-
     {
       url: `${siteUrl}/terms`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "yearly",
       priority: 0.3,
     },
-
     {
       url: `${siteUrl}/contact`,
-      lastModified: new Date(),
+      lastModified: now,
       changeFrequency: "monthly",
       priority: 0.4,
     },
-    {
-  url: `${siteUrl}/cleaning-jobs-gothenburg`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.85,
-},
-
-{
-  url: `${siteUrl}/stadjobb-goteborg`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.85,
-},
-{
-  url: `${siteUrl}/cleaning-jobs-gothenburg`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.85,
-},
-
-{
-  url: `${siteUrl}/stadjobb-goteborg`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.85,
-},
-
-{
-  url: `${siteUrl}/cleaning-jobs-malmo`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.85,
-},
-
-{
-  url: `${siteUrl}/stadjobb-malmo`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.85,
-},
-{
-  url: `${siteUrl}/jobs-for-foreigners-in-sweden`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.9,
-},
-
-{
-  url: `${siteUrl}/jobb-utan-svenska`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.9,
-},
-{
-  url: `${siteUrl}/how-to-find-a-job-in-sweden`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.95,
-},
-{
-  url: `${siteUrl}/hur-man-far-jobb-i-sverige`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.95,
-},
-{
-  url: `${siteUrl}/how-much-do-cleaners-earn-in-sweden`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.9,
-},
-
-{
-  url: `${siteUrl}/vad-tjanar-en-stadare-i-sverige`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.9,
-},
-{
-  url: `${siteUrl}/hire-cleaner-stockholm`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.9,
-},
-
-{
-  url: `${siteUrl}/stadfirma-stockholm`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.9,
-},
-{
-  url: `${siteUrl}/cleaning-company-statistics-sweden`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.85,
-},
-
-{
-  url: `${siteUrl}/stadbranschen-i-sverige-statistik`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.85,
-},
-{
-  url: `${siteUrl}/best-cleaning-companies-in-sweden`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.9,
-},
-
-{
-  url: `${siteUrl}/basta-stadforetag-i-sverige`,
-  lastModified: new Date(),
-  changeFrequency: "weekly",
-  priority: 0.9,
-},
   ]
+
+  const supabase = await createClient()
+
+  const { data: companies } = await supabase
+    .from("companies")
+    .select("slug, created_at")
+    .order("created_at", { ascending: false })
+
+  const companyPages: MetadataRoute.Sitemap =
+    companies?.map((company) => ({
+      url: `${siteUrl}/companies/${company.slug}`,
+      lastModified: company.created_at ? new Date(company.created_at) : now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    })) ?? []
+
+  return [...staticPages, ...companyPages]
 }
