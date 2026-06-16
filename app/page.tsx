@@ -156,6 +156,89 @@ export default async function HomePage() {
             />
           </div>
         </section>
+        <section className="mt-10 rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
+  <div className="flex items-end justify-between gap-4">
+    <div>
+      <div className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-rose-700">
+        Companies
+      </div>
+
+      <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+        Cleaning Companies in Stockholm
+      </h2>
+
+      <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 md:text-base">
+        Browse trusted cleaning companies in Stockholm. Compare services,
+        contact information and company profiles.
+      </p>
+    </div>
+
+    <Link
+      href="/companies"
+      prefetch={false}
+      className="hidden rounded-2xl border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 md:inline-flex"
+    >
+      View all companies →
+    </Link>
+  </div>
+
+  <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-5">
+    <Link
+      href="/companies/hemfrid-stockholm"
+      prefetch={false}
+      className="rounded-3xl border border-slate-200 p-5 transition hover:border-rose-200 hover:shadow-md"
+    >
+      <h3 className="font-semibold text-slate-950">Hemfrid</h3>
+      <p className="mt-2 text-sm text-slate-500">Stockholm</p>
+    </Link>
+
+    <Link
+      href="/companies/homemaid-stockholm"
+      prefetch={false}
+      className="rounded-3xl border border-slate-200 p-5 transition hover:border-rose-200 hover:shadow-md"
+    >
+      <h3 className="font-semibold text-slate-950">HomeMaid</h3>
+      <p className="mt-2 text-sm text-slate-500">Stockholm</p>
+    </Link>
+
+    <Link
+      href="/companies/freska-stockholm"
+      prefetch={false}
+      className="rounded-3xl border border-slate-200 p-5 transition hover:border-rose-200 hover:shadow-md"
+    >
+      <h3 className="font-semibold text-slate-950">Freska</h3>
+      <p className="mt-2 text-sm text-slate-500">Stockholm</p>
+    </Link>
+
+    <Link
+      href="/companies/hello-clean-stockholm"
+      prefetch={false}
+      className="rounded-3xl border border-slate-200 p-5 transition hover:border-rose-200 hover:shadow-md"
+    >
+      <h3 className="font-semibold text-slate-950">Hello Clean</h3>
+      <p className="mt-2 text-sm text-slate-500">Stockholm</p>
+    </Link>
+
+    <Link
+      href="/companies/veterankraft-stockholm"
+      prefetch={false}
+      className="rounded-3xl border border-slate-200 p-5 transition hover:border-rose-200 hover:shadow-md"
+    >
+      <h3 className="font-semibold text-slate-950">Veterankraft</h3>
+      <p className="mt-2 text-sm text-slate-500">Stockholm</p>
+    </Link>
+  </div>
+
+  <div className="mt-6 md:hidden">
+    <Link
+      href="/companies"
+      prefetch={false}
+      className="inline-flex rounded-2xl border border-slate-300 px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+    >
+      View all companies →
+    </Link>
+  </div>
+</section>
 
         <section className="mt-10 rounded-[32px] border border-slate-200/80 bg-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8">
           <div className="max-w-3xl">
