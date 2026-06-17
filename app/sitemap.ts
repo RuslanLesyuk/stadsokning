@@ -38,6 +38,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
+      url: `${siteUrl}/services`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
+      url: `${siteUrl}/services/stockholm`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.95,
+    },
+    {
       url: `${siteUrl}/work-in-sweden`,
       lastModified: now,
       changeFrequency: "weekly",
@@ -192,5 +204,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     })) ?? []
 
-  return [...staticPages, ...companyPages]
+    const { data: services } = await supabase
+  .from("service_profiles")
+  .select("slug, created_at")
+  .order("created_at", { ascending: false })
+
+const servicePages: MetadataRoute.Sitemap =
+  services?.map((service) => ({
+    url: `${siteUrl}/services/${service.slug}`,
+    lastModified: service.created_at
+      ? new Date(service.created_at)
+      : now,
+    changeFrequency: "weekly",
+    priority: 0.85,
+  })) ?? []
+
+  return [
+  ...staticPages,
+  ...companyPages,
+  ...servicePages,
+]
 }
