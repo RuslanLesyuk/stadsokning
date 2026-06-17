@@ -80,3 +80,45 @@ export async function updateServiceProfile(formData: FormData) {
 
   redirect("/dashboard/services")
 }
+
+export async function deleteServiceProfile(formData: FormData) {
+  const supabase = await createClient()
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser()
+
+  if (userError || !user) {
+    redirect("/login")
+  }
+
+  const serviceId = cleanText(formData.get("service_id"))
+
+  if (!serviceId) {
+    redirect("/dashboard/services")
+  }
+
+  const { data: service } = await supabase
+    .from("service_profiles")
+    .select("slug")
+    .eq("id", serviceId)
+    .eq("user_id", user.id)
+    .single()
+
+  await supabase
+    .from("service_profiles")
+    .delete()
+    .eq("id", serviceId)
+    .eq("user_id", user.id)
+
+  revalidatePath("/services")
+  revalidatePath("/services/stockholm")
+  revalidatePath("/dashboard/services")
+
+  if (service?.slug) {
+    revalidatePath(`/services/${service.slug}`)
+  }
+
+  redirect("/dashboard/services")
+}

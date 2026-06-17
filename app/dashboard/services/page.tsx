@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
+import { deleteServiceProfile } from "./actions"
 
 export const dynamic = "force-dynamic"
 
@@ -93,9 +94,7 @@ export default async function DashboardServicesPage() {
                 )}
               </div>
 
-              <p className="mt-2 text-sm text-black/50">
-                {service.city}
-              </p>
+              <p className="mt-2 text-sm text-black/50">{service.city}</p>
 
               {service.hourly_rate ? (
                 <p className="mt-4 text-sm font-semibold text-black">
@@ -134,6 +133,17 @@ export default async function DashboardServicesPage() {
                 >
                   Edit
                 </Link>
+
+                <form action={deleteServiceProfile}>
+                  <input type="hidden" name="service_id" value={service.id} />
+
+                  <button
+                    type="submit"
+                    className="inline-flex items-center justify-center rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
+                  >
+                    Delete
+                  </button>
+                </form>
               </div>
             </div>
           ))}
