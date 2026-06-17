@@ -125,6 +125,24 @@ export default function MobileHeaderMenu({
                 {jobsLabel}
               </Link>
 
+              <Link
+                href="/services"
+                onClick={closeMenu}
+                prefetch={false}
+                className={itemClass()}
+              >
+                Services
+              </Link>
+
+              <Link
+                href="/companies"
+                onClick={closeMenu}
+                prefetch={false}
+                className={itemClass()}
+              >
+                Companies
+              </Link>
+
               {isAuthenticated ? (
                 <Link
                   href="/dashboard"
@@ -149,6 +167,17 @@ export default function MobileHeaderMenu({
                   className={itemClass()}
                 >
                   {createJobLabel}
+                </Link>
+              ) : null}
+
+              {isAuthenticated ? (
+                <Link
+                  href="/dashboard/services"
+                  onClick={closeMenu}
+                  prefetch={false}
+                  className={itemClass()}
+                >
+                  My services
                 </Link>
               ) : null}
 
@@ -205,12 +234,12 @@ export default function MobileHeaderMenu({
                   </Link>
 
                   <a
-  href="/auth/signout"
-  onClick={closeMenu}
-  className={itemClass()}
->
-  {logoutLabel}
-</a>
+                    href="/auth/signout"
+                    onClick={closeMenu}
+                    className={itemClass()}
+                  >
+                    {logoutLabel}
+                  </a>
                 </>
               ) : (
                 <>

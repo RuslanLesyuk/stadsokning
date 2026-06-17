@@ -181,9 +181,25 @@ export default async function SiteHeader() {
             </Link>
 
             <nav className="hidden items-center gap-1 md:flex">
+              
               <Link href="/jobs" prefetch={false} className={navLinkClass()}>
                 {t.jobs}
               </Link>
+              <Link
+  href="/services"
+  prefetch={false}
+  className={navLinkClass()}
+>
+  Services
+</Link>
+
+<Link
+  href="/companies"
+  prefetch={false}
+  className={navLinkClass()}
+>
+  Companies
+</Link>
 
               {user ? (
                 <Link
