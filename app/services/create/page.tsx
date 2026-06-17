@@ -59,8 +59,11 @@ export default async function CreateServicePage() {
     }
 
     const companyName = normalizeText(formData.get("company_name"))
-    const city = normalizeText(formData.get("city")) || "Stockholm"
-    const baseSlug = slugify(`${companyName}-${city}`)
+const city = normalizeText(formData.get("city")) || "Stockholm"
+
+const baseSlug = slugify(
+  `${companyName}-cleaning-services-${city}`
+)
 
     const payload = {
       user_id: user.id,
