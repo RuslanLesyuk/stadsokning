@@ -21,6 +21,9 @@ type MobileHeaderMenuProps = {
   avatarUrl?: string | null
   companyLogoUrl?: string | null
   companyName?: string | null
+  servicesLabel: string
+  companiesLabel: string
+  myServicesLabel: string
 }
 
 function itemClass(primary = false) {
@@ -33,6 +36,9 @@ function itemClass(primary = false) {
 
 export default function MobileHeaderMenu({
   jobsLabel,
+  servicesLabel,
+  companiesLabel,
+  myServicesLabel,
   dashboardLabel,
   createJobLabel,
   loginLabel,
@@ -131,8 +137,8 @@ export default function MobileHeaderMenu({
                 prefetch={false}
                 className={itemClass()}
               >
-                Services
-              </Link>
+  {servicesLabel}
+</Link>
 
               <Link
                 href="/companies"
@@ -140,8 +146,8 @@ export default function MobileHeaderMenu({
                 prefetch={false}
                 className={itemClass()}
               >
-                Companies
-              </Link>
+  {companiesLabel}
+</Link>
 
               {isAuthenticated ? (
                 <Link
@@ -177,8 +183,8 @@ export default function MobileHeaderMenu({
                   prefetch={false}
                   className={itemClass()}
                 >
-                  My services
-                </Link>
+  {myServicesLabel}
+</Link>
               ) : null}
 
               <div className="my-1 h-px bg-slate-200" />

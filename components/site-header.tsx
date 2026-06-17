@@ -7,6 +7,9 @@ import MobileHeaderMenu from "@/components/mobile-header-menu"
 
 type HeaderCopy = {
   jobs: string
+  services: string
+  companies: string
+  myServices: string
   dashboard: string
   createJob: string
   login: string
@@ -21,6 +24,9 @@ type HeaderCopy = {
 const copy: Record<Locale, HeaderCopy> = {
   uk: {
     jobs: "Роботи",
+    services: "Послуги",
+    companies: "Компанії",
+    myServices: "Мої послуги",
     dashboard: "Кабінет",
     createJob: "Створити роботу",
     login: "Увійти",
@@ -33,6 +39,9 @@ const copy: Record<Locale, HeaderCopy> = {
   },
   ru: {
     jobs: "Работы",
+    services: "Услуги",
+    companies: "Компании",
+    myServices: "Мои услуги",
     dashboard: "Кабинет",
     createJob: "Создать работу",
     login: "Войти",
@@ -45,6 +54,9 @@ const copy: Record<Locale, HeaderCopy> = {
   },
   en: {
     jobs: "Jobs",
+    services: "Services",
+    companies: "Companies",
+    myServices: "My services",
     dashboard: "Dashboard",
     createJob: "Post job",
     login: "Login",
@@ -57,6 +69,9 @@ const copy: Record<Locale, HeaderCopy> = {
   },
   sv: {
     jobs: "Jobb",
+    services: "Tjänster",
+    companies: "Företag",
+    myServices: "Mina tjänster",
     dashboard: "Dashboard",
     createJob: "Skapa jobb",
     login: "Logga in",
@@ -69,6 +84,9 @@ const copy: Record<Locale, HeaderCopy> = {
   },
   pl: {
     jobs: "Prace",
+    services: "Usługi",
+    companies: "Firmy",
+    myServices: "Moje usługi",
     dashboard: "Panel",
     createJob: "Dodaj zlecenie",
     login: "Zaloguj się",
@@ -174,39 +192,25 @@ export default async function SiteHeader() {
               prefetch={false}
               className="shrink-0 rounded-xl text-[26px] font-semibold leading-none tracking-[-0.03em] transition duration-200 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
             >
-              <span className="text-rose-600 transition duration-200 group-hover:text-rose-700">
-                Clean
-              </span>{" "}
+              <span className="text-rose-600">Clean</span>{" "}
               <span className="text-slate-950">Jobs</span>
             </Link>
 
             <nav className="hidden items-center gap-1 md:flex">
-              
               <Link href="/jobs" prefetch={false} className={navLinkClass()}>
                 {t.jobs}
               </Link>
-              <Link
-  href="/services"
-  prefetch={false}
-  className={navLinkClass()}
->
-  Services
-</Link>
 
-<Link
-  href="/companies"
-  prefetch={false}
-  className={navLinkClass()}
->
-  Companies
-</Link>
+              <Link href="/services" prefetch={false} className={navLinkClass()}>
+                {t.services}
+              </Link>
+
+              <Link href="/companies" prefetch={false} className={navLinkClass()}>
+                {t.companies}
+              </Link>
 
               {user ? (
-                <Link
-                  href="/dashboard"
-                  prefetch={false}
-                  className={`${navLinkClass()} relative gap-2`}
-                >
+                <Link href="/dashboard" prefetch={false} className={`${navLinkClass()} relative gap-2`}>
                   <span>{t.dashboard}</span>
                   {unreadCount > 0 ? (
                     <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
@@ -217,12 +221,14 @@ export default async function SiteHeader() {
               ) : null}
 
               {user ? (
-                <Link
-                  href="/jobs/create"
-                  prefetch={false}
-                  className={navLinkClass()}
-                >
+                <Link href="/jobs/create" prefetch={false} className={navLinkClass()}>
                   {t.createJob}
+                </Link>
+              ) : null}
+
+              {user ? (
+                <Link href="/dashboard/services" prefetch={false} className={navLinkClass()}>
+                  {t.myServices}
                 </Link>
               ) : null}
             </nav>
@@ -233,19 +239,11 @@ export default async function SiteHeader() {
 
             {user ? (
               <>
-                <Link
-                  href="/profile"
-                  prefetch={false}
-                  className={`${actionLinkClass("secondary")} gap-3 pr-5 hover:-translate-y-0.5`}
-                >
+                <Link href="/profile" prefetch={false} className={`${actionLinkClass("secondary")} gap-3 pr-5 hover:-translate-y-0.5`}>
                   <div className="relative shrink-0">
                     <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-rose-600 text-xs font-semibold text-white">
                       {avatarUrl ? (
-                        <img
-                          src={avatarUrl}
-                          alt={profileLabel}
-                          className="h-full w-full object-cover"
-                        />
+                        <img src={avatarUrl} alt={profileLabel} className="h-full w-full object-cover" />
                       ) : (
                         profileInitials
                       )}
@@ -253,11 +251,7 @@ export default async function SiteHeader() {
 
                     {companyLogoUrl ? (
                       <span className="absolute -bottom-1 -right-1 flex h-[18px] w-[18px] items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
-                        <img
-                          src={companyLogoUrl}
-                          alt={companyLabel}
-                          className="h-full w-full object-cover"
-                        />
+                        <img src={companyLogoUrl} alt={companyLabel} className="h-full w-full object-cover" />
                       </span>
                     ) : null}
                   </div>
@@ -278,19 +272,11 @@ export default async function SiteHeader() {
               </>
             ) : (
               <>
-                <Link
-                  href="/login"
-                  prefetch={false}
-                  className={actionLinkClass("secondary")}
-                >
+                <Link href="/login" prefetch={false} className={actionLinkClass("secondary")}>
                   {t.login}
                 </Link>
 
-                <Link
-                  href="/signup"
-                  prefetch={false}
-                  className={actionLinkClass("primary")}
-                >
+                <Link href="/signup" prefetch={false} className={actionLinkClass("primary")}>
                   {t.signup}
                 </Link>
               </>
@@ -302,6 +288,9 @@ export default async function SiteHeader() {
 
             <MobileHeaderMenu
               jobsLabel={t.jobs}
+              servicesLabel={t.services}
+              companiesLabel={t.companies}
+              myServicesLabel={t.myServices}
               dashboardLabel={t.dashboard}
               createJobLabel={t.createJob}
               loginLabel={t.login}
