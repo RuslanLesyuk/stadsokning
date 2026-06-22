@@ -109,7 +109,7 @@ export default function DeleteJobForm({ jobId }: { jobId: string }) {
         {t.delete}
       </button>
       <button type="button" onClick={() => alert("TEST")}>
-  TEST
+  TEST1
 </button>
 
       {isOpen ? (
