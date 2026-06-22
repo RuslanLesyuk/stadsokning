@@ -175,24 +175,30 @@ export async function deleteServiceProfile(formData: FormData) {
 
   const { data: service } = await supabase
     .from("service_profiles")
-    .select("slug")
+    .select("id, slug, user_id")
     .eq("id", serviceId)
     .eq("user_id", user.id)
     .single()
 
-  await supabase
+  if (!service) {
+    redirect("/dashboard/services")
+  }
+
+  const { error } = await supabase
     .from("service_profiles")
     .delete()
     .eq("id", serviceId)
     .eq("user_id", user.id)
 
+  if (error) {
+    console.error("Delete service error:", error)
+    redirect("/dashboard/services")
+  }
+
   revalidatePath("/services")
   revalidatePath("/services/city/stockholm")
   revalidatePath("/dashboard/services")
-
-  if (service?.slug) {
-    revalidatePath(`/services/${service.slug}`)
-  }
+  revalidatePath(`/services/${service.slug}`)
 
   redirect("/dashboard/services")
 }
