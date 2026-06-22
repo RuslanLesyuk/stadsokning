@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
@@ -82,13 +81,11 @@ export default async function DashboardServicesPage() {
               <div className="mb-4 flex items-center gap-4">
                 {service.logo_url ? (
                   <div className="relative h-16 w-16 overflow-hidden rounded-2xl border border-black/10 bg-white">
-                    <Image
-                      src={service.logo_url}
-                      alt={service.company_name}
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                    />
+                    <img
+  src={service.logo_url}
+  alt={service.company_name}
+  className="h-full w-full object-contain p-2"
+/>
                   </div>
                 ) : (
                   <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-black/10 bg-rose-50 text-lg font-bold text-rose-600">
