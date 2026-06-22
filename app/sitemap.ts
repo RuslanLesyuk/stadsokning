@@ -187,6 +187,60 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "monthly",
       priority: 0.4,
     },
+    {
+  url: `${siteUrl}/services/city/stockholm`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.9,
+},
+{
+  url: `${siteUrl}/services/city/sollentuna`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+{
+  url: `${siteUrl}/services/city/taby`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+{
+  url: `${siteUrl}/services/city/jarfalla`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+{
+  url: `${siteUrl}/services/city/nacka`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+{
+  url: `${siteUrl}/services/city/huddinge`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+{
+  url: `${siteUrl}/services/city/botkyrka`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+{
+  url: `${siteUrl}/services/city/solna`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+},
+{
+  url: `${siteUrl}/services/city/sundbyberg`,
+  lastModified: new Date(),
+  changeFrequency: "weekly",
+  priority: 0.85,
+}
   ]
 
   const supabase = await createClient()
