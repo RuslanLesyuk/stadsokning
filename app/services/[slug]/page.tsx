@@ -1,4 +1,3 @@
-import Image from "next/image"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -95,13 +94,11 @@ export default async function ServicePage({ params }: PageProps) {
               <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
                 {service.logo_url ? (
                   <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-                    <Image
-                      src={service.logo_url}
-                      alt={service.company_name}
-                      fill
-                      sizes="96px"
-                      className="object-contain p-2"
-                    />
+                    <img
+  src={service.logo_url}
+  alt={service.company_name}
+  className="h-full w-full object-contain p-2"
+/>
                   </div>
                 ) : (
                   <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl border border-slate-200 bg-rose-50 text-3xl font-bold text-rose-600 shadow-sm">
@@ -328,13 +325,11 @@ export default async function ServicePage({ params }: PageProps) {
                   <div className="flex items-center gap-3">
                     {related.logo_url ? (
                       <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                        <Image
-                          src={related.logo_url}
-                          alt={related.company_name}
-                          fill
-                          sizes="48px"
-                          className="object-contain p-2"
-                        />
+                        <img
+  src={related.logo_url}
+  alt={related.company_name}
+  className="h-full w-full object-contain p-1"
+/>
                       </div>
                     ) : (
                       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 font-bold text-rose-600">
