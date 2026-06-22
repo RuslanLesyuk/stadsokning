@@ -7,6 +7,7 @@ import { normalizeLocale, type Locale } from "@/lib/i18n"
 import TakeJobForm from "@/components/take-job-form"
 import SaveJobButton from "@/components/save-job-button"
 import ReportJobForm from "@/components/report-job-form"
+import DeleteJobButton from "@/components/delete-job-button"
 
 export const dynamic = "force-dynamic"
 
@@ -946,13 +947,21 @@ export default async function JobDetailsPage({
 
                 {canDelete ? (
                   <form action={deleteJobAction}>
-                    <button
-                      type="submit"
-                      className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-rose-200 bg-white px-5 py-3 text-sm font-medium text-rose-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
-                    >
-                      {t.delete}
-                    </button>
-                  </form>
+  <DeleteJobButton
+    label={t.delete}
+    confirmText={
+      locale === "uk"
+        ? "Ти точно хочеш видалити цю роботу?"
+        : locale === "ru"
+        ? "Ты точно хочешь удалить эту работу?"
+        : locale === "sv"
+        ? "Är du säker på att du vill radera det här jobbet?"
+        : locale === "pl"
+        ? "Czy na pewno chcesz usunąć tę pracę?"
+        : "Are you sure you want to delete this job?"
+    }
+  />
+</form>
                 ) : null}
 
                 <SaveJobButton
