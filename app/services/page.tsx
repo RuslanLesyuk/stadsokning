@@ -62,7 +62,7 @@ export default async function ServicesPage() {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              href="/services/stockholm"
+              href="/services/city/stockholm"
               prefetch={false}
               className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
             >
@@ -149,22 +149,42 @@ export default async function ServicesPage() {
                 prefetch={false}
                 className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-xl font-bold text-slate-950">
-                    {service.company_name}
-                  </h3>
-
-                  {service.verified && (
-                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                      Verified
-                    </span>
+                <div className="flex items-start gap-4">
+                  {service.logo_url ? (
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                      <img
+                        src={service.logo_url}
+                        alt={service.company_name}
+                        className="h-full w-full object-contain p-2"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-rose-50 text-xl font-bold text-rose-600 shadow-sm">
+                      {service.company_name?.charAt(0)?.toUpperCase() || "C"}
+                    </div>
                   )}
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-start justify-between gap-3">
+                      <h3 className="truncate text-xl font-bold text-slate-950">
+                        {service.company_name}
+                      </h3>
+
+                      {service.verified && (
+                        <span className="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                          Verified
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="mt-2 text-sm text-slate-500">
+                      {service.city}
+                    </p>
+                  </div>
                 </div>
 
-                <p className="mt-3 text-sm text-slate-500">{service.city}</p>
-
                 {service.hourly_rate && (
-                  <p className="mt-4 text-sm font-semibold text-slate-950">
+                  <p className="mt-5 text-sm font-semibold text-slate-950">
                     From {service.hourly_rate} SEK/hour
                   </p>
                 )}
