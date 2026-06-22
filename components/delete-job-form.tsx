@@ -61,6 +61,14 @@ function SubmitButton({ locale }: { locale: keyof typeof copy }) {
     <button
       type="submit"
       disabled={pending}
+      onClick={(event) => {
+        const confirmed = window.confirm(t.confirm)
+
+        if (!confirmed) {
+          event.preventDefault()
+          event.stopPropagation()
+        }
+      }}
       className="inline-flex items-center justify-center rounded-xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-60"
     >
       {pending ? t.deleting : t.delete}
@@ -71,7 +79,6 @@ function SubmitButton({ locale }: { locale: keyof typeof copy }) {
 export default function DeleteJobForm({ jobId }: { jobId: string }) {
   const [state, formAction] = useActionState(deleteJobAction, initialState)
   const locale = getLocale() as keyof typeof copy
-  const t = copy[locale] || copy.en
 
   useEffect(() => {
     if (!state.message) return
@@ -85,16 +92,7 @@ export default function DeleteJobForm({ jobId }: { jobId: string }) {
   }, [state])
 
   return (
-    <form
-      action={formAction}
-      onSubmit={(event) => {
-        const confirmed = window.confirm(t.confirm)
-
-        if (!confirmed) {
-          event.preventDefault()
-        }
-      }}
-    >
+    <form action={formAction}>
       <input type="hidden" name="jobId" value={jobId} />
       <SubmitButton locale={locale} />
     </form>
