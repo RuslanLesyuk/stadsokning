@@ -108,6 +108,9 @@ export default function DeleteJobForm({ jobId }: { jobId: string }) {
       >
         {t.delete}
       </button>
+      <button type="button" onClick={() => alert("TEST")}>
+  TEST
+</button>
 
       {isOpen ? (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-4">
