@@ -1,11 +1,37 @@
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
-import { deleteServiceProfile } from "./actions"
+import { cookies } from "next/headers"
+import { normalizeLocale } from "@/lib/i18n"
+import DeleteServiceButton from "@/components/delete-service-button"
 
 export const dynamic = "force-dynamic"
-
+const deleteCopy = {
+  uk: {
+    button: "Видалити",
+    confirm: "Ти точно хочеш видалити цей сервіс?",
+  },
+  ru: {
+    button: "Удалить",
+    confirm: "Ты точно хочешь удалить этот сервис?",
+  },
+  en: {
+    button: "Delete",
+    confirm: "Are you sure you want to delete this service?",
+  },
+  sv: {
+    button: "Radera",
+    confirm: "Är du säker på att du vill radera den här tjänsten?",
+  },
+  pl: {
+    button: "Usuń",
+    confirm: "Czy na pewno chcesz usunąć tę usługę?",
+  },
+}
 export default async function DashboardServicesPage() {
+  const cookieStore = await cookies()
+const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value)
+const deleteText = deleteCopy[locale] || deleteCopy.en
   const supabase = await createClient()
 
   const {
@@ -154,16 +180,11 @@ export default async function DashboardServicesPage() {
                   Edit
                 </Link>
 
-                <form action={deleteServiceProfile}>
-                  <input type="hidden" name="service_id" value={service.id} />
-
-                  <button
-                    type="submit"
-                    className="inline-flex items-center justify-center rounded-2xl border border-red-200 bg-red-50 px-4 py-2 text-sm font-medium text-red-700 transition hover:bg-red-100"
-                  >
-                    Delete
-                  </button>
-                </form>
+                <DeleteServiceButton
+  serviceId={service.id}
+  buttonLabel={deleteText.button}
+  confirmMessage={deleteText.confirm}
+/>
               </div>
             </div>
           ))}
