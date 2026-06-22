@@ -32,6 +32,89 @@ export default async function CompaniesPage() {
             <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-950 md:text-6xl">
               Cleaning Companies in Stockholm
             </h1>
+            <section className="mt-10 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+  <h2 className="text-2xl font-bold text-slate-950">
+    Browse companies by city
+  </h2>
+
+  <p className="mt-3 text-sm leading-7 text-slate-600">
+    Find cleaning companies in Stockholm and surrounding municipalities.
+  </p>
+
+  <div className="mt-6 flex flex-wrap gap-2">
+    <Link
+      href="/companies/city/stockholm"
+      prefetch={false}
+      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-rose-50"
+    >
+      Stockholm
+    </Link>
+
+    <Link
+      href="/companies/city/sollentuna"
+      prefetch={false}
+      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-rose-50"
+    >
+      Sollentuna
+    </Link>
+
+    <Link
+      href="/companies/city/taby"
+      prefetch={false}
+      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-rose-50"
+    >
+      Täby
+    </Link>
+
+    <Link
+      href="/companies/city/jarfalla"
+      prefetch={false}
+      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-rose-50"
+    >
+      Järfälla
+    </Link>
+
+    <Link
+      href="/companies/city/nacka"
+      prefetch={false}
+      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-rose-50"
+    >
+      Nacka
+    </Link>
+
+    <Link
+      href="/companies/city/huddinge"
+      prefetch={false}
+      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-rose-50"
+    >
+      Huddinge
+    </Link>
+
+    <Link
+      href="/companies/city/botkyrka"
+      prefetch={false}
+      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-rose-50"
+    >
+      Botkyrka
+    </Link>
+
+    <Link
+      href="/companies/city/solna"
+      prefetch={false}
+      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-rose-50"
+    >
+      Solna
+    </Link>
+
+    <Link
+      href="/companies/city/sundbyberg"
+      prefetch={false}
+      className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium hover:bg-rose-50"
+    >
+      Sundbyberg
+    </Link>
+  </div>
+</section>
 
             <p className="mt-5 text-lg leading-8 text-slate-600">
               Find cleaning companies in Stockholm for home cleaning, office
