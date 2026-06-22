@@ -100,7 +100,7 @@ export default async function ServicePage({ params }: PageProps) {
                       alt={service.company_name}
                       fill
                       sizes="96px"
-                      className="object-cover"
+                      className="object-contain p-2"
                     />
                   </div>
                 ) : (
@@ -333,7 +333,7 @@ export default async function ServicePage({ params }: PageProps) {
                           alt={related.company_name}
                           fill
                           sizes="48px"
-                          className="object-cover"
+                          className="object-contain p-2"
                         />
                       </div>
                     ) : (
