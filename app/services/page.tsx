@@ -11,6 +11,28 @@ export const metadata: Metadata = {
   },
 }
 
+const cityLinks = [
+  { name: "Stockholm", href: "/services/city/stockholm" },
+  { name: "Sollentuna", href: "/services/city/sollentuna" },
+  { name: "Täby", href: "/services/city/taby" },
+  { name: "Järfälla", href: "/services/city/jarfalla" },
+  { name: "Nacka", href: "/services/city/nacka" },
+  { name: "Huddinge", href: "/services/city/huddinge" },
+  { name: "Botkyrka", href: "/services/city/botkyrka" },
+  { name: "Solna", href: "/services/city/solna" },
+  { name: "Sundbyberg", href: "/services/city/sundbyberg" },
+]
+
+const serviceTypeLinks = [
+  "Hemstädning",
+  "Flyttstädning",
+  "Kontorsstädning",
+  "Fönsterputs",
+  "Storstädning",
+  "Trappstädning",
+  "Byggstädning",
+]
+
 export default async function ServicesPage() {
   const supabase = await createClient()
 
@@ -48,12 +70,64 @@ export default async function ServicesPage() {
             </Link>
 
             <Link
-              href="/signup"
+              href="/services/create"
               prefetch={false}
               className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
             >
               Add your service
             </Link>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-2xl">
+              <h2 className="text-2xl font-bold text-slate-950">
+                Browse cleaning services by city
+              </h2>
+
+              <p className="mt-3 text-sm leading-7 text-slate-600 md:text-base">
+                Find local cleaning companies and private cleaners in Stockholm
+                and nearby areas. City pages help customers compare providers by
+                area and service type.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2 lg:max-w-2xl lg:justify-end">
+              {cityLinks.map((city) => (
+                <Link
+                  key={city.href}
+                  href={city.href}
+                  prefetch={false}
+                  className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                >
+                  {city.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+          <h2 className="text-2xl font-bold text-slate-950">
+            Popular cleaning service types
+          </h2>
+
+          <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 md:text-base">
+            Customers often compare cleaning companies by service type. Clean
+            Jobs helps users find providers for regular home cleaning, moving
+            cleaning, office cleaning and more.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-2">
+            {serviceTypeLinks.map((type) => (
+              <span
+                key={type}
+                className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700"
+              >
+                {type}
+              </span>
+            ))}
           </div>
         </section>
 
@@ -87,9 +161,7 @@ export default async function ServicesPage() {
                   )}
                 </div>
 
-                <p className="mt-3 text-sm text-slate-500">
-                  {service.city}
-                </p>
+                <p className="mt-3 text-sm text-slate-500">{service.city}</p>
 
                 {service.hourly_rate && (
                   <p className="mt-4 text-sm font-semibold text-slate-950">
