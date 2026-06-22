@@ -63,11 +63,38 @@ export default async function EditServicePage({ params }: PageProps) {
         </p>
 
         <form
-          action={updateServiceProfile}
-          className="mt-8 grid gap-5 md:grid-cols-2"
-        >
+  action={updateServiceProfile}
+  encType="multipart/form-data"
+  className="mt-8 grid gap-5 md:grid-cols-2"
+>
           <input type="hidden" name="service_id" value={service.id} />
+          <div className="md:col-span-2">
+  <label className="mb-2 block text-sm font-medium text-black">
+    Company logo
+  </label>
 
+  {service.logo_url ? (
+    <div className="mb-4">
+      <img
+        src={service.logo_url}
+        alt={service.company_name}
+        className="h-20 w-20 rounded-2xl border border-black/10 object-cover"
+      />
+    </div>
+  ) : null}
+
+  <input
+    id="logo"
+    name="logo"
+    type="file"
+    accept="image/*"
+    className="block w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm"
+  />
+
+  <p className="mt-2 text-xs text-black/50">
+    JPG, PNG or WEBP. Maximum 5MB.
+  </p>
+</div>
           <div className="md:col-span-2">
             <Input
               id="company_name"
