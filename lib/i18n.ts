@@ -230,6 +230,21 @@ export type Dictionary = {
 
   allServices: string
   relatedServices: string
+  backToServices: string
+visitWebsite: string
+call: string
+priceFrom: string
+
+cityLabel: string
+websiteLabel: string
+
+pending: string
+
+hours: string
+
+serviceAreasTitle: string
+languagesTitle: string
+servicesTitle: string
 }
 }
 
@@ -462,6 +477,22 @@ const dictionaries: Record<Locale, Dictionary> = {
   no: "Ні",
   allServices: "Усі послуги",
   relatedServices: "Схожі послуги",
+  backToServices: "Усі послуги",
+visitWebsite: "Відкрити сайт",
+call: "Подзвонити",
+priceFrom: "Ціна від",
+
+cityLabel: "Місто",
+websiteLabel: "Сайт",
+
+pending: "Очікує",
+
+hours: "годин",
+
+serviceAreasTitle: "Райони роботи",
+languagesTitle: "Мови",
+servicesTitle: "Послуги",
+  
 },
   },
   ru: {
@@ -693,6 +724,21 @@ const dictionaries: Record<Locale, Dictionary> = {
   no: "Нет",
   allServices: "Все услуги",
   relatedServices: "Похожие услуги",
+  backToServices: "Все услуги",
+visitWebsite: "Открыть сайт",
+call: "Позвонить",
+priceFrom: "Цена от",
+
+cityLabel: "Город",
+websiteLabel: "Сайт",
+
+pending: "Ожидает",
+
+hours: "часов",
+
+serviceAreasTitle: "Районы обслуживания",
+languagesTitle: "Языки",
+servicesTitle: "Услуги",
 },
   },
   en: {
@@ -931,6 +977,21 @@ const dictionaries: Record<Locale, Dictionary> = {
 
   allServices: "All Services",
   relatedServices: "Related Services",
+  backToServices: "All Services",
+visitWebsite: "Visit Website",
+call: "Call",
+priceFrom: "Price From",
+
+cityLabel: "City",
+websiteLabel: "Website",
+
+pending: "Pending",
+
+hours: "hours",
+
+serviceAreasTitle: "Service Areas",
+languagesTitle: "Languages",
+servicesTitle: "Services",
 },
   },
   sv: {
@@ -1161,6 +1222,21 @@ const dictionaries: Record<Locale, Dictionary> = {
   no: "Nej",
   allServices: "Alla tjänster",
   relatedServices: "Relaterade tjänster",
+  backToServices: "Alla tjänster",
+visitWebsite: "Besök webbplats",
+call: "Ring",
+priceFrom: "Pris från",
+
+cityLabel: "Stad",
+websiteLabel: "Webbplats",
+
+pending: "Väntar",
+
+hours: "timmar",
+
+serviceAreasTitle: "Serviceområden",
+languagesTitle: "Språk",
+servicesTitle: "Tjänster",
 },
   },
   pl: {
@@ -1392,6 +1468,21 @@ const dictionaries: Record<Locale, Dictionary> = {
   no: "Nie",
   allServices: "Wszystkie usługi",
   relatedServices: "Podobne usługi",
+  backToServices: "Wszystkie usługi",
+visitWebsite: "Odwiedź stronę",
+call: "Zadzwoń",
+priceFrom: "Cena od",
+
+cityLabel: "Miasto",
+websiteLabel: "Strona",
+
+pending: "Oczekujące",
+
+hours: "godzin",
+
+serviceAreasTitle: "Obszary działania",
+languagesTitle: "Języki",
+servicesTitle: "Usługi",
 },
   },
 }
