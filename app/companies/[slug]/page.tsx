@@ -1,7 +1,14 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE_NAME,
+  getDictionary,
+  normalizeLocale,
+} from "@/lib/i18n"
 
 type PageProps = {
   params: Promise<{
@@ -29,10 +36,10 @@ export async function generateMetadata({
   }
 
   return {
-    title: `${company.name} | Cleaning Company in ${company.city} | Clean Jobs`,
+    title: `${company.name} | ${company.city} | Clean Jobs`,
     description:
       company.description ||
-      `Find information about ${company.name} cleaning services in ${company.city}.`,
+      `Professional cleaning company in ${company.city}.`,
     alternates: {
       canonical: `https://cleansjob.com/companies/${company.slug}`,
     },
@@ -43,6 +50,15 @@ export default async function CompanyPage({
   params,
 }: PageProps) {
   const { slug } = await params
+
+  const cookieStore = await cookies()
+
+  const locale = normalizeLocale(
+    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE
+  )
+
+  const dictionary = getDictionary(locale)
+  const t = dictionary.companies
 
   const supabase = await createClient()
 
@@ -67,8 +83,8 @@ export default async function CompanyPage({
     "@type": "LocalBusiness",
     name: company.name,
     description: company.description,
-    url: company.website || "",
-    telephone: company.phone || "",
+    telephone: company.phone,
+    url: company.website,
     address: {
       "@type": "PostalAddress",
       addressLocality: company.city,
@@ -85,92 +101,131 @@ export default async function CompanyPage({
         }}
       />
 
-      <main className="mx-auto max-w-5xl px-4 py-10">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm">
-          <div className="flex flex-wrap items-center gap-3">
-            <h1 className="text-4xl font-bold text-slate-900">
-              {company.name}
-            </h1>
-
-            {company.verified && (
-              <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
-                Verified Company
-              </span>
+      <main className="mx-auto max-w-6xl px-4 py-10">
+        <div className="rounded-[32px] border border-slate-200 bg-white p-8 shadow-sm">
+          <div className="flex items-start gap-5">
+            {company.logo_url ? (
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-slate-200 bg-white">
+                <img
+                  src={company.logo_url}
+                  alt={company.name}
+                  className="h-full w-full object-contain p-3"
+                />
+              </div>
+            ) : (
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl border border-slate-200 bg-rose-50 text-3xl font-bold text-rose-600">
+                {company.name?.charAt(0)?.toUpperCase() || "C"}
+              </div>
             )}
-          </div>
 
-          <p className="mt-4 text-slate-500">
-            {company.city}
-          </p>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="text-4xl font-bold tracking-tight text-slate-950">
+                  {company.name}
+                </h1>
 
-          <div className="mt-8 space-y-4">
-            {company.description && (
-              <p className="text-lg leading-8 text-slate-700">
-                {company.description}
+                {company.verified && (
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
+                    {t.verifiedCompany}
+                  </span>
+                )}
+              </div>
+
+              <p className="mt-3 text-lg text-slate-500">
+                {company.city}
               </p>
-            )}
-
-            {company.phone && (
-              <div>
-                <span className="font-semibold text-slate-900">
-                  Phone:
-                </span>{" "}
-                {company.phone}
-              </div>
-            )}
-
-            {company.email && (
-              <div>
-                <span className="font-semibold text-slate-900">
-                  Email:
-                </span>{" "}
-                {company.email}
-              </div>
-            )}
-
-            {company.website && (
-              <div>
-                <span className="font-semibold text-slate-900">
-                  Website:
-                </span>{" "}
-                <a
-                  href={company.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-rose-600 hover:underline"
-                >
-                  {company.website}
-                </a>
-              </div>
-            )}
+            </div>
           </div>
 
-          <div className="mt-8 flex flex-wrap gap-3">
+          {company.description && (
+            <p className="mt-8 max-w-4xl text-lg leading-8 text-slate-600">
+              {company.description}
+            </p>
+          )}
+
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            <div className="rounded-3xl border border-slate-200 p-6">
+              <h2 className="text-xl font-bold text-slate-950">
+                {t.phone} & {t.email}
+              </h2>
+
+              <div className="mt-5 space-y-3">
+                {company.phone && (
+                  <div>
+                    <span className="font-semibold">
+                      {t.phone}:
+                    </span>{" "}
+                    {company.phone}
+                  </div>
+                )}
+
+                {company.email && (
+                  <div>
+                    <span className="font-semibold">
+                      {t.email}:
+                    </span>{" "}
+                    {company.email}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="rounded-3xl border border-slate-200 p-6">
+              <h2 className="text-xl font-bold text-slate-950">
+                {t.website}
+              </h2>
+
+              <div className="mt-5">
+                {company.website ? (
+                  <a
+                    href={company.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-rose-600 hover:underline"
+                  >
+                    {company.website}
+                  </a>
+                ) : (
+                  <span className="text-slate-500">—</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-10 flex flex-wrap gap-3">
             {company.website && (
               <a
                 href={company.website}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
+                className="rounded-2xl bg-rose-600 px-6 py-3 font-semibold text-white transition hover:bg-rose-700"
               >
-                Visit Website
+                {t.visitWebsite}
               </a>
             )}
 
             <Link
               href="/jobs"
               prefetch={false}
-              className="inline-flex items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
+              className="rounded-2xl border border-slate-300 px-6 py-3 font-semibold text-slate-900 transition hover:bg-slate-50"
             >
-              Find Cleaning Jobs
+              {t.findCleaningJobs}
+            </Link>
+
+            <Link
+              href="/companies"
+              prefetch={false}
+              className="rounded-2xl border border-slate-300 px-6 py-3 font-semibold text-slate-900 transition hover:bg-slate-50"
+            >
+              ← Companies
             </Link>
           </div>
         </div>
 
         {relatedCompanies && relatedCompanies.length > 0 && (
           <section className="mt-12">
-            <h2 className="mb-6 text-2xl font-bold text-slate-900">
-              Related Companies
+            <h2 className="mb-6 text-2xl font-bold text-slate-950">
+              {t.relatedCompanies}
             </h2>
 
             <div className="grid gap-6 md:grid-cols-3">
@@ -181,7 +236,7 @@ export default async function CompanyPage({
                   prefetch={false}
                   className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md"
                 >
-                  <h3 className="font-bold text-slate-900">
+                  <h3 className="font-bold text-slate-950">
                     {related.name}
                   </h3>
 

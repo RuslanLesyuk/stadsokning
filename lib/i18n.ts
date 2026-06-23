@@ -263,6 +263,14 @@ companies: {
   findServicesText: string
   areYouCompanyTitle: string
   areYouCompanyText: string
+  companyNotFound: string
+verifiedCompany: string
+phone: string
+email: string
+website: string
+visitWebsite: string
+relatedCompanies: string
+findCleaningJobs: string
 }
 }
 
@@ -533,6 +541,14 @@ companies: {
   areYouCompanyTitle: "У вас клінінгова компанія?",
   areYouCompanyText:
     "Створіть профіль на Clean Jobs, щоб клієнтам було легше вас знайти.",
+    companyNotFound: "Компанію не знайдено",
+verifiedCompany: "Перевірена компанія",
+phone: "Телефон",
+email: "Email",
+website: "Сайт",
+visitWebsite: "Відкрити сайт",
+relatedCompanies: "Схожі компанії",
+findCleaningJobs: "Знайти роботу з прибирання",
 },
   },
   ru: {
@@ -801,6 +817,14 @@ companies: {
   areYouCompanyTitle: "У вас клининговая компания?",
   areYouCompanyText:
     "Создайте профиль на Clean Jobs, чтобы клиентам было проще вас найти.",
+    companyNotFound: "Компания не найдена",
+verifiedCompany: "Проверенная компания",
+phone: "Телефон",
+email: "Email",
+website: "Сайт",
+visitWebsite: "Открыть сайт",
+relatedCompanies: "Похожие компании",
+findCleaningJobs: "Найти работу по уборке",
 },
   },
   en: {
@@ -1075,6 +1099,14 @@ companies: {
   areYouCompanyTitle: "Are you a cleaning company?",
   areYouCompanyText:
     "Create a profile on Clean Jobs to make your company easier to find.",
+    companyNotFound: "Company Not Found",
+verifiedCompany: "Verified Company",
+phone: "Phone",
+email: "Email",
+website: "Website",
+visitWebsite: "Visit Website",
+relatedCompanies: "Related Companies",
+findCleaningJobs: "Find Cleaning Jobs",
 },
   },
   sv: {
@@ -1342,6 +1374,14 @@ companies: {
   areYouCompanyTitle: "Driver du ett städföretag?",
   areYouCompanyText:
     "Skapa en profil på Clean Jobs så blir ditt företag lättare att hitta.",
+    companyNotFound: "Företaget hittades inte",
+verifiedCompany: "Verifierat företag",
+phone: "Telefon",
+email: "E-post",
+website: "Webbplats",
+visitWebsite: "Besök webbplats",
+relatedCompanies: "Relaterade företag",
+findCleaningJobs: "Hitta städjobb",
 },
   },
   pl: {
@@ -1610,6 +1650,15 @@ companies: {
   areYouCompanyTitle: "Prowadzisz firmę sprzątającą?",
   areYouCompanyText:
     "Utwórz profil w Clean Jobs, aby klienci łatwiej mogli Cię znaleźć.",
+    companyNotFound: "Nie znaleziono firmy",
+verifiedCompany: "Zweryfikowana firma",
+phone: "Telefon",
+email: "Email",
+website: "Strona",
+visitWebsite: "Odwiedź stronę",
+relatedCompanies: "Podobne firmy",
+findCleaningJobs: "Znajdź pracę przy sprzątaniu",
+    
 },
   },
 }
