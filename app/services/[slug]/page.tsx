@@ -1,7 +1,14 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE_NAME,
+  getDictionary,
+  normalizeLocale,
+} from "@/lib/i18n"
 
 type PageProps = {
   params: Promise<{
@@ -38,6 +45,14 @@ export async function generateMetadata({
 
 export default async function ServicePage({ params }: PageProps) {
   const { slug } = await params
+
+  const cookieStore = await cookies()
+  const locale = normalizeLocale(
+    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
+  )
+  const dictionary = getDictionary(locale)
+  const t = dictionary.services
+
   const supabase = await createClient()
 
   const { data: service } = await supabase
@@ -87,7 +102,7 @@ export default async function ServicePage({ params }: PageProps) {
               prefetch={false}
               className="text-sm font-semibold text-rose-600"
             >
-              ← All services
+              ← {t.backToServices}
             </Link>
 
             <div className="mt-8 flex flex-col gap-6 md:flex-row md:items-start md:justify-between">
@@ -95,10 +110,10 @@ export default async function ServicePage({ params }: PageProps) {
                 {service.logo_url ? (
                   <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
                     <img
-  src={service.logo_url}
-  alt={service.company_name}
-  className="h-full w-full object-contain p-2"
-/>
+                      src={service.logo_url}
+                      alt={service.company_name}
+                      className="h-full w-full object-contain p-2"
+                    />
                   </div>
                 ) : (
                   <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-3xl border border-slate-200 bg-rose-50 text-3xl font-bold text-rose-600 shadow-sm">
@@ -112,9 +127,13 @@ export default async function ServicePage({ params }: PageProps) {
                       {service.company_name}
                     </h1>
 
-                    {service.verified && (
+                    {service.verified ? (
                       <span className="rounded-full bg-emerald-100 px-3 py-1 text-sm font-semibold text-emerald-700">
-                        Verified
+                        {t.verified}
+                      </span>
+                    ) : (
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
+                        {t.pending}
                       </span>
                     )}
                   </div>
@@ -126,13 +145,13 @@ export default async function ServicePage({ params }: PageProps) {
                   <div className="mt-5 flex flex-wrap gap-2">
                     {service.rut_available ? (
                       <span className="rounded-full bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
-                        RUT available
+                        {t.rutAvailable}
                       </span>
                     ) : null}
 
                     {service.minimum_order ? (
                       <span className="rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700">
-                        Minimum {service.minimum_order}h
+                        {t.minimumOrderHours} {service.minimum_order}h
                       </span>
                     ) : null}
                   </div>
@@ -141,7 +160,9 @@ export default async function ServicePage({ params }: PageProps) {
 
               {service.hourly_rate ? (
                 <div className="rounded-3xl border border-rose-100 bg-white px-6 py-5 text-left shadow-sm md:text-right">
-                  <p className="text-sm font-medium text-slate-500">Price from</p>
+                  <p className="text-sm font-medium text-slate-500">
+                    {t.priceFrom}
+                  </p>
                   <p className="mt-1 text-3xl font-bold text-rose-600">
                     {service.hourly_rate} SEK/h
                   </p>
@@ -150,7 +171,7 @@ export default async function ServicePage({ params }: PageProps) {
             </div>
 
             <p className="mt-8 max-w-4xl text-lg leading-8 text-slate-600">
-              {service.description || "Cleaning service provider listed on Clean Jobs."}
+              {service.description || t.serviceProvider}
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
@@ -161,7 +182,7 @@ export default async function ServicePage({ params }: PageProps) {
                   rel="noopener noreferrer"
                   className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
                 >
-                  Visit website
+                  {t.visitWebsite}
                 </a>
               ) : null}
 
@@ -170,7 +191,7 @@ export default async function ServicePage({ params }: PageProps) {
                   href={`tel:${service.phone}`}
                   className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
                 >
-                  Call
+                  {t.call}
                 </a>
               ) : null}
 
@@ -179,7 +200,7 @@ export default async function ServicePage({ params }: PageProps) {
                   href={`mailto:${service.email}`}
                   className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
                 >
-                  Email
+                  {t.email}
                 </a>
               ) : null}
             </div>
@@ -189,32 +210,40 @@ export default async function ServicePage({ params }: PageProps) {
         <section className="mt-8 grid gap-6 md:grid-cols-2">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-bold text-slate-950">
-              Contact Information
+              {t.contactInformation}
             </h2>
 
             <div className="mt-5 space-y-3 text-sm leading-6 text-slate-600">
               <div>
-                <span className="font-semibold text-slate-950">City:</span>{" "}
+                <span className="font-semibold text-slate-950">
+                  {t.cityLabel}:
+                </span>{" "}
                 {service.city}
               </div>
 
               {service.phone ? (
                 <div>
-                  <span className="font-semibold text-slate-950">Phone:</span>{" "}
+                  <span className="font-semibold text-slate-950">
+                    {t.phone}:
+                  </span>{" "}
                   {service.phone}
                 </div>
               ) : null}
 
               {service.email ? (
                 <div>
-                  <span className="font-semibold text-slate-950">Email:</span>{" "}
+                  <span className="font-semibold text-slate-950">
+                    {t.email}:
+                  </span>{" "}
                   {service.email}
                 </div>
               ) : null}
 
               {service.website ? (
                 <div>
-                  <span className="font-semibold text-slate-950">Website:</span>{" "}
+                  <span className="font-semibold text-slate-950">
+                    {t.websiteLabel}:
+                  </span>{" "}
                   <a
                     href={service.website}
                     target="_blank"
@@ -230,22 +259,22 @@ export default async function ServicePage({ params }: PageProps) {
 
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="text-xl font-bold text-slate-950">
-              Service Details
+              {t.serviceDetails}
             </h2>
 
             <div className="mt-5 space-y-3 text-sm leading-6 text-slate-600">
               <div>
                 <span className="font-semibold text-slate-950">
-                  Minimum Order:
+                  {t.minimumOrderHours}:
                 </span>{" "}
-                {service.minimum_order || "-"} hours
+                {service.minimum_order || "-"} {t.hours}
               </div>
 
               <div>
                 <span className="font-semibold text-slate-950">
-                  RUT Available:
+                  {t.rutAvailable}:
                 </span>{" "}
-                {service.rut_available ? "Yes" : "No"}
+                {service.rut_available ? t.yes : t.no}
               </div>
             </div>
           </div>
@@ -254,7 +283,7 @@ export default async function ServicePage({ params }: PageProps) {
         {service.languages?.length > 0 && (
           <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-xl font-bold text-slate-950">
-              Languages
+              {t.languagesTitle}
             </h2>
 
             <div className="flex flex-wrap gap-2">
@@ -273,7 +302,7 @@ export default async function ServicePage({ params }: PageProps) {
         {service.service_types?.length > 0 && (
           <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-xl font-bold text-slate-950">
-              Services
+              {t.servicesTitle}
             </h2>
 
             <div className="flex flex-wrap gap-2">
@@ -292,7 +321,7 @@ export default async function ServicePage({ params }: PageProps) {
         {service.service_areas?.length > 0 && (
           <section className="mt-8 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <h2 className="mb-4 text-xl font-bold text-slate-950">
-              Service Areas
+              {t.serviceAreasTitle}
             </h2>
 
             <div className="flex flex-wrap gap-2">
@@ -311,7 +340,7 @@ export default async function ServicePage({ params }: PageProps) {
         {relatedServices && relatedServices.length > 0 && (
           <section className="mt-12">
             <h2 className="mb-6 text-2xl font-bold text-slate-950">
-              Related Services
+              {t.relatedServices}
             </h2>
 
             <div className="grid gap-6 md:grid-cols-3">
@@ -326,10 +355,10 @@ export default async function ServicePage({ params }: PageProps) {
                     {related.logo_url ? (
                       <div className="relative h-12 w-12 overflow-hidden rounded-2xl border border-slate-200 bg-white">
                         <img
-  src={related.logo_url}
-  alt={related.company_name}
-  className="h-full w-full object-contain p-1"
-/>
+                          src={related.logo_url}
+                          alt={related.company_name}
+                          className="h-full w-full object-contain p-1"
+                        />
                       </div>
                     ) : (
                       <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-50 font-bold text-rose-600">
