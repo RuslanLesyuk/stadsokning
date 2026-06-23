@@ -8,6 +8,7 @@ import {
   getDictionary,
   normalizeLocale,
 } from "@/lib/i18n"
+import { getLanguageAlternates } from "@/lib/seo"
 
 export async function generateMetadata(): Promise<Metadata> {
   const cookieStore = await cookies()
@@ -21,8 +22,9 @@ export async function generateMetadata(): Promise<Metadata> {
     title: `${t.pageTitle} | Clean Jobs`,
     description: t.pageSubtitle,
     alternates: {
-      canonical: "https://cleansjob.com/services",
-    },
+  canonical: "https://cleansjob.com/services",
+  languages: getLanguageAlternates("/services"),
+},
   }
 }
 
