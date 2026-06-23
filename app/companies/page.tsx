@@ -9,13 +9,23 @@ import {
   normalizeLocale,
 } from "@/lib/i18n"
 
-export const metadata: Metadata = {
-  title: "Cleaning Companies in Stockholm | Clean Jobs",
-  description:
-    "Browse cleaning companies in Stockholm. Compare cleaning services, websites and contact details from local cleaning companies.",
-  alternates: {
-    canonical: "https://cleansjob.com/companies",
-  },
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies()
+
+  const locale = normalizeLocale(
+    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE
+  )
+
+  const dictionary = getDictionary(locale)
+  const t = dictionary.companies
+
+  return {
+    title: `${t.pageTitle} | Clean Jobs`,
+    description: t.pageSubtitle,
+    alternates: {
+      canonical: "https://cleansjob.com/companies",
+    },
+  }
 }
 
 const cityLinks = [
