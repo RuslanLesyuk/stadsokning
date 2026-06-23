@@ -246,6 +246,24 @@ serviceAreasTitle: string
 languagesTitle: string
 servicesTitle: string
 }
+companies: {
+  pageTitle: string
+  pageSubtitle: string
+  badge: string
+  browseByCity: string
+  browseByCityText: string
+  findJobs: string
+  addCompany: string
+  listedCompanies: string
+  availableCompanies: string
+  verified: string
+  viewCompany: string
+  fallbackDescription: string
+  findServicesTitle: string
+  findServicesText: string
+  areYouCompanyTitle: string
+  areYouCompanyText: string
+}
 }
 
 const dictionaries: Record<Locale, Dictionary> = {
@@ -494,6 +512,28 @@ languagesTitle: "Мови",
 servicesTitle: "Послуги",
   
 },
+companies: {
+  pageTitle: "Клінінгові компанії Стокгольма",
+  pageSubtitle:
+    "Знайдіть клінінгові компанії у Стокгольмі для прибирання квартир, офісів, переїздів та регулярного прибирання.",
+  badge: "Каталог клінінгових компаній",
+  browseByCity: "Пошук по містах",
+  browseByCityText:
+    "Знайдіть клінінгові компанії у Стокгольмі та навколишніх муніципалітетах.",
+  findJobs: "Знайти роботу",
+  addCompany: "Додати компанію",
+  listedCompanies: "Компанії в каталозі",
+  availableCompanies: "клінінгових компаній доступно",
+  verified: "Перевірено",
+  viewCompany: "Переглянути компанію",
+  fallbackDescription: "Клінінгова компанія на Clean Jobs.",
+  findServicesTitle: "Знайти клінінгові послуги у Стокгольмі",
+  findServicesText:
+    "У Стокгольмі працює багато клінінгових компаній для квартир, будинків, офісів та переїздів.",
+  areYouCompanyTitle: "У вас клінінгова компанія?",
+  areYouCompanyText:
+    "Створіть профіль на Clean Jobs, щоб клієнтам було легше вас знайти.",
+},
   },
   ru: {
     header: {
@@ -739,6 +779,28 @@ hours: "часов",
 serviceAreasTitle: "Районы обслуживания",
 languagesTitle: "Языки",
 servicesTitle: "Услуги",
+},
+companies: {
+  pageTitle: "Клининговые компании Стокгольма",
+  pageSubtitle:
+    "Найдите клининговые компании в Стокгольме для уборки квартир, офисов, переездов и регулярной уборки.",
+  badge: "Каталог клининговых компаний",
+  browseByCity: "Поиск по городам",
+  browseByCityText:
+    "Найдите клининговые компании в Стокгольме и ближайших муниципалитетах.",
+  findJobs: "Найти работу",
+  addCompany: "Добавить компанию",
+  listedCompanies: "Компании в каталоге",
+  availableCompanies: "клининговых компаний доступно",
+  verified: "Проверено",
+  viewCompany: "Открыть компанию",
+  fallbackDescription: "Клининговая компания на Clean Jobs.",
+  findServicesTitle: "Найти клининговые услуги в Стокгольме",
+  findServicesText:
+    "В Стокгольме работает множество клининговых компаний для квартир, домов, офисов и переездов.",
+  areYouCompanyTitle: "У вас клининговая компания?",
+  areYouCompanyText:
+    "Создайте профиль на Clean Jobs, чтобы клиентам было проще вас найти.",
 },
   },
   en: {
@@ -993,6 +1055,27 @@ serviceAreasTitle: "Service Areas",
 languagesTitle: "Languages",
 servicesTitle: "Services",
 },
+companies: {
+  pageTitle: "Cleaning Companies in Stockholm",
+  pageSubtitle:
+    "Find cleaning companies in Stockholm for home cleaning, office cleaning, moving cleaning and regular cleaning services.",
+  badge: "Cleaning company directory",
+  browseByCity: "Browse companies by city",
+  browseByCityText: "Find cleaning companies in Stockholm and surrounding municipalities.",
+  findJobs: "Find cleaning jobs",
+  addCompany: "Add your company",
+  listedCompanies: "Listed companies",
+  availableCompanies: "cleaning companies available",
+  verified: "Verified",
+  viewCompany: "View company",
+  fallbackDescription: "Cleaning company listed on Clean Jobs.",
+  findServicesTitle: "Find cleaning services in Stockholm",
+  findServicesText:
+    "Stockholm has many cleaning companies offering services for apartments, houses, offices and moving.",
+  areYouCompanyTitle: "Are you a cleaning company?",
+  areYouCompanyText:
+    "Create a profile on Clean Jobs to make your company easier to find.",
+},
   },
   sv: {
     header: {
@@ -1237,6 +1320,28 @@ hours: "timmar",
 serviceAreasTitle: "Serviceområden",
 languagesTitle: "Språk",
 servicesTitle: "Tjänster",
+},
+companies: {
+  pageTitle: "Städföretag i Stockholm",
+  pageSubtitle:
+    "Hitta städföretag i Stockholm för hemstädning, kontorsstädning, flyttstädning och regelbunden städservice.",
+  badge: "Katalog över städföretag",
+  browseByCity: "Bläddra efter stad",
+  browseByCityText:
+    "Hitta städföretag i Stockholm och närliggande kommuner.",
+  findJobs: "Hitta städjobb",
+  addCompany: "Lägg till ditt företag",
+  listedCompanies: "Registrerade företag",
+  availableCompanies: "städföretag tillgängliga",
+  verified: "Verifierad",
+  viewCompany: "Visa företag",
+  fallbackDescription: "Städföretag listat på Clean Jobs.",
+  findServicesTitle: "Hitta städtjänster i Stockholm",
+  findServicesText:
+    "Stockholm har många städföretag som erbjuder tjänster för lägenheter, hus, kontor och flyttstädning.",
+  areYouCompanyTitle: "Driver du ett städföretag?",
+  areYouCompanyText:
+    "Skapa en profil på Clean Jobs så blir ditt företag lättare att hitta.",
 },
   },
   pl: {
@@ -1483,6 +1588,28 @@ hours: "godzin",
 serviceAreasTitle: "Obszary działania",
 languagesTitle: "Języki",
 servicesTitle: "Usługi",
+},
+companies: {
+  pageTitle: "Firmy sprzątające w Sztokholmie",
+  pageSubtitle:
+    "Znajdź firmy sprzątające w Sztokholmie do sprzątania mieszkań, biur, przeprowadzek i regularnych usług.",
+  badge: "Katalog firm sprzątających",
+  browseByCity: "Przeglądaj według miasta",
+  browseByCityText:
+    "Znajdź firmy sprzątające w Sztokholmie i okolicznych gminach.",
+  findJobs: "Znajdź pracę",
+  addCompany: "Dodaj firmę",
+  listedCompanies: "Firmy w katalogu",
+  availableCompanies: "firm sprzątających dostępnych",
+  verified: "Zweryfikowana",
+  viewCompany: "Zobacz firmę",
+  fallbackDescription: "Firma sprzątająca w katalogu Clean Jobs.",
+  findServicesTitle: "Znajdź usługi sprzątające w Sztokholmie",
+  findServicesText:
+    "W Sztokholmie działa wiele firm sprzątających dla mieszkań, domów, biur i przeprowadzek.",
+  areYouCompanyTitle: "Prowadzisz firmę sprzątającą?",
+  areYouCompanyText:
+    "Utwórz profil w Clean Jobs, aby klienci łatwiej mogli Cię znaleźć.",
 },
   },
 }
