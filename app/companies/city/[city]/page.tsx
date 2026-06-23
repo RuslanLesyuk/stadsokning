@@ -1,7 +1,14 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE_NAME,
+  getDictionary,
+  normalizeLocale,
+} from "@/lib/i18n"
 
 type Props = {
   params: Promise<{
@@ -25,12 +32,9 @@ export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
   const { city } = await params
-
   const cityName = cityNames[city]
 
-  if (!cityName) {
-    return {}
-  }
+  if (!cityName) return {}
 
   return {
     title: `Cleaning Companies in ${cityName} | Clean Jobs`,
@@ -41,16 +45,20 @@ export async function generateMetadata({
   }
 }
 
-export default async function CompaniesCityPage({
-  params,
-}: Props) {
+export default async function CompaniesCityPage({ params }: Props) {
   const { city } = await params
-
   const cityName = cityNames[city]
 
   if (!cityName) {
     notFound()
   }
+
+  const cookieStore = await cookies()
+  const locale = normalizeLocale(
+    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
+  )
+  const dictionary = getDictionary(locale)
+  const t = dictionary.companies
 
   const supabase = await createClient()
 
@@ -68,29 +76,28 @@ export default async function CompaniesCityPage({
           <Link
             href="/companies"
             prefetch={false}
-            className="text-sm font-medium text-rose-600"
+            className="text-sm font-semibold text-rose-600"
           >
-            ← All companies
+            ← {t.listedCompanies}
           </Link>
 
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-950 md:text-6xl">
-            Cleaning Companies in {cityName}
+            {t.pageTitle} — {cityName}
           </h1>
 
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
-            Compare cleaning companies in {cityName}. Browse company websites,
-            contact details and cleaning services.
+            {t.pageSubtitle}
           </p>
         </section>
 
         <section className="mt-10">
           <div className="mb-5">
             <h2 className="text-2xl font-bold text-slate-950">
-              Available companies
+              {t.listedCompanies}
             </h2>
 
             <p className="mt-1 text-sm text-slate-500">
-              {companies?.length ?? 0} companies found.
+              {companies?.length ?? 0} {t.availableCompanies}
             </p>
           </div>
 
@@ -107,11 +114,11 @@ export default async function CompaniesCityPage({
                     {company.name}
                   </h3>
 
-                  {company.verified && (
+                  {company.verified ? (
                     <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                      Verified
+                      {t.verified}
                     </span>
-                  )}
+                  ) : null}
                 </div>
 
                 <p className="mt-3 text-sm text-slate-500">
@@ -119,13 +126,12 @@ export default async function CompaniesCityPage({
                 </p>
 
                 <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
-                  {company.description ||
-                    "Cleaning company listed on Clean Jobs."}
+                  {company.description || t.fallbackDescription}
                 </p>
 
                 <div className="mt-6 flex items-center justify-between">
                   <span className="text-sm font-semibold text-rose-600">
-                    View company
+                    {t.viewCompany}
                   </span>
 
                   <span className="text-slate-400 transition-transform group-hover:translate-x-1">
