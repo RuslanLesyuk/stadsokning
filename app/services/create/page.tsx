@@ -1,8 +1,15 @@
 import Link from "next/link"
+import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import FormSubmitButton from "@/components/form-submit-button"
 import { Input, Select, Textarea } from "@/components/ui/field"
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE_NAME,
+  getDictionary,
+  normalizeLocale,
+} from "@/lib/i18n"
 
 export const dynamic = "force-dynamic"
 
@@ -35,6 +42,13 @@ function slugify(value: string) {
 }
 
 export default async function CreateServicePage() {
+  const cookieStore = await cookies()
+  const locale = normalizeLocale(
+    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
+  )
+  const dictionary = getDictionary(locale)
+  const t = dictionary.services
+
   const supabase = await createClient()
 
   const {
@@ -59,11 +73,9 @@ export default async function CreateServicePage() {
     }
 
     const companyName = normalizeText(formData.get("company_name"))
-const city = normalizeText(formData.get("city")) || "Stockholm"
+    const city = normalizeText(formData.get("city")) || "Stockholm"
 
-const baseSlug = slugify(
-  `${companyName}-cleaning-services-${city}`
-)
+    const baseSlug = slugify(`${companyName}-cleaning-services-${city}`)
 
     const payload = {
       user_id: user.id,
@@ -104,18 +116,17 @@ const baseSlug = slugify(
           prefetch={false}
           className="rounded-md text-sm text-black/60 transition hover:text-black focus:outline-none focus:ring-2 focus:ring-black/20 focus:ring-offset-2"
         >
-          ← Back to services
+          ← {t.backToServices}
         </Link>
       </div>
 
       <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm md:p-8">
         <h1 className="text-3xl font-semibold tracking-tight text-black">
-          Add your cleaning service
+          {t.addServiceProfile}
         </h1>
 
         <p className="mt-2 text-sm leading-6 text-black/60">
-          Create a public service profile for your cleaning company or private
-          cleaning service.
+          {t.myServicesSubtitle}
         </p>
 
         <form
@@ -127,8 +138,8 @@ const baseSlug = slugify(
               id="company_name"
               name="company_name"
               required
-              label="Company or service name"
-              placeholder="Example: Stockholm Clean Service"
+              label={t.companyName}
+              placeholder="Stockholm Clean Service"
             />
           </div>
 
@@ -137,8 +148,8 @@ const baseSlug = slugify(
               id="description"
               name="description"
               rows={5}
-              label="Description"
-              placeholder="Describe your cleaning services, experience and what areas you work in."
+              label={t.description}
+              placeholder={t.serviceProvider}
             />
           </div>
 
@@ -146,23 +157,18 @@ const baseSlug = slugify(
             id="city"
             name="city"
             required
-            label="Main city"
+            label={t.city}
             placeholder="Stockholm"
             defaultValue="Stockholm"
           />
 
-          <Input
-            id="phone"
-            name="phone"
-            label="Phone"
-            placeholder="+46 ..."
-          />
+          <Input id="phone" name="phone" label={t.phone} placeholder="+46 ..." />
 
           <Input
             id="email"
             name="email"
             type="email"
-            label="Email"
+            label={t.email}
             placeholder="company@email.com"
           />
 
@@ -170,7 +176,7 @@ const baseSlug = slugify(
             id="website"
             name="website"
             type="url"
-            label="Website"
+            label={t.website}
             placeholder="https://example.com"
           />
 
@@ -180,7 +186,7 @@ const baseSlug = slugify(
             type="number"
             min="0"
             step="1"
-            label="Price from SEK/hour"
+            label={t.hourlyRate}
             placeholder="295"
           />
 
@@ -190,24 +196,24 @@ const baseSlug = slugify(
             type="number"
             min="0"
             step="1"
-            label="Minimum order hours"
+            label={t.minimumOrder}
             placeholder="2"
           />
 
           <Select
             id="rut_available"
             name="rut_available"
-            label="RUT available"
+            label={t.rutAvailable}
             defaultValue="yes"
           >
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
+            <option value="yes">{t.yes}</option>
+            <option value="no">{t.no}</option>
           </Select>
 
           <Input
             id="languages"
             name="languages"
-            label="Languages"
+            label={t.languages}
             placeholder="Svenska, English, Polski, Українська"
           />
 
@@ -215,7 +221,7 @@ const baseSlug = slugify(
             <Input
               id="service_types"
               name="service_types"
-              label="Service types"
+              label={t.serviceTypes}
               placeholder="Hemstädning, Flyttstädning, Kontorsstädning, Fönsterputs"
             />
           </div>
@@ -224,16 +230,16 @@ const baseSlug = slugify(
             <Input
               id="service_areas"
               name="service_areas"
-              label="Service areas"
+              label={t.serviceAreas}
               placeholder="Stockholm, Solna, Täby, Järfälla, Nacka"
             />
           </div>
 
           <div className="md:col-span-2 pt-1">
             <FormSubmitButton
-              locale="en"
-              idleLabel="Create service profile"
-              loadingLabel="Creating..."
+              locale={locale}
+              idleLabel={t.addServiceProfile}
+              loadingLabel={t.saving}
             />
           </div>
         </form>
