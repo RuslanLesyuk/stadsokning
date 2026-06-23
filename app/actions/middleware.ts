@@ -5,7 +5,20 @@ import {
   LOCALE_COOKIE_NAME,
   getPreferredLocale,
   normalizeLocale,
+  type Locale,
 } from "@/lib/i18n"
+
+const SUPPORTED_LOCALES: Locale[] = ["uk", "ru", "en", "sv", "pl"]
+
+function getLocaleFromPath(pathname: string) {
+  const firstSegment = pathname.split("/").filter(Boolean)[0]
+
+  if (SUPPORTED_LOCALES.includes(firstSegment as Locale)) {
+    return firstSegment as Locale
+  }
+
+  return null
+}
 
 export async function middleware(request: NextRequest) {
   const requestHeaders = new Headers(request.headers)
@@ -13,10 +26,15 @@ export async function middleware(request: NextRequest) {
 
   requestHeaders.set("x-current-path", currentPath)
 
+  const pathLocale = getLocaleFromPath(request.nextUrl.pathname)
   const existingLocaleCookie = request.cookies.get(LOCALE_COOKIE_NAME)?.value
-  const locale = existingLocaleCookie
-    ? normalizeLocale(existingLocaleCookie)
-    : getPreferredLocale(request.headers.get("accept-language")) || DEFAULT_LOCALE
+
+  const locale = pathLocale
+    ? pathLocale
+    : existingLocaleCookie
+      ? normalizeLocale(existingLocaleCookie)
+      : getPreferredLocale(request.headers.get("accept-language")) ||
+        DEFAULT_LOCALE
 
   let response = NextResponse.next({
     request: {
@@ -48,12 +66,12 @@ export async function middleware(request: NextRequest) {
           }
         },
       },
-    }
+    },
   )
 
   await supabase.auth.getUser()
 
-  if (!existingLocaleCookie) {
+  if (!existingLocaleCookie || existingLocaleCookie !== locale) {
     response.cookies.set(LOCALE_COOKIE_NAME, locale, {
       path: "/",
       maxAge: 60 * 60 * 24 * 365,

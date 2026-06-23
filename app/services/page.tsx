@@ -1,6 +1,13 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { cookies } from "next/headers"
 import { createClient } from "@/lib/supabase-server"
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE_NAME,
+  getDictionary,
+  normalizeLocale,
+} from "@/lib/i18n"
 
 export const metadata: Metadata = {
   title: "Find Cleaning Services in Sweden | Clean Jobs",
@@ -34,6 +41,13 @@ const serviceTypeLinks = [
 ]
 
 export default async function ServicesPage() {
+  const cookieStore = await cookies()
+  const locale = normalizeLocale(
+    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
+  )
+  const dictionary = getDictionary(locale)
+  const t = dictionary.services
+
   const supabase = await createClient()
 
   const { data: services } = await supabase
@@ -47,17 +61,15 @@ export default async function ServicesPage() {
       <main className="mx-auto max-w-7xl px-4 py-10">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-10">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-rose-600">
-            Cleaning services
+            {t.serviceProvider}
           </p>
 
           <h1 className="mt-4 max-w-4xl text-4xl font-bold tracking-tight text-slate-950 md:text-6xl">
-            Find Cleaning Services in Sweden
+            {t.pageTitle}
           </h1>
 
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">
-            Compare cleaning companies, private cleaners, service areas, prices
-            and RUT availability. Find home cleaning, moving cleaning, office
-            cleaning and window cleaning services.
+            {t.pageSubtitle}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -66,7 +78,7 @@ export default async function ServicesPage() {
               prefetch={false}
               className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
             >
-              Services in Stockholm
+              Stockholm
             </Link>
 
             <Link
@@ -74,7 +86,7 @@ export default async function ServicesPage() {
               prefetch={false}
               className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
             >
-              Add your service
+              {t.addService}
             </Link>
           </div>
         </section>
@@ -83,13 +95,11 @@ export default async function ServicesPage() {
           <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-2xl">
               <h2 className="text-2xl font-bold text-slate-950">
-                Browse cleaning services by city
+                {t.city}
               </h2>
 
               <p className="mt-3 text-sm leading-7 text-slate-600 md:text-base">
-                Find local cleaning companies and private cleaners in Stockholm
-                and nearby areas. City pages help customers compare providers by
-                area and service type.
+                {t.pageSubtitle}
               </p>
             </div>
 
@@ -110,13 +120,11 @@ export default async function ServicesPage() {
 
         <section className="mt-10 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <h2 className="text-2xl font-bold text-slate-950">
-            Popular cleaning service types
+            {t.serviceTypes}
           </h2>
 
           <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-600 md:text-base">
-            Customers often compare cleaning companies by service type. Clean
-            Jobs helps users find providers for regular home cleaning, moving
-            cleaning, office cleaning and more.
+            {t.pageSubtitle}
           </p>
 
           <div className="mt-6 flex flex-wrap gap-2">
@@ -134,10 +142,10 @@ export default async function ServicesPage() {
         <section className="mt-10">
           <div className="mb-5">
             <h2 className="text-2xl font-bold text-slate-950">
-              Cleaning service providers
+              {t.providers}
             </h2>
             <p className="mt-1 text-sm text-slate-500">
-              {services?.length ?? 0} service profiles available.
+              {services?.length ?? 0} {t.availableProfiles}
             </p>
           </div>
 
@@ -172,7 +180,7 @@ export default async function ServicesPage() {
 
                       {service.verified && (
                         <span className="shrink-0 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                          Verified
+                          {t.verified}
                         </span>
                       )}
                     </div>
@@ -185,13 +193,12 @@ export default async function ServicesPage() {
 
                 {service.hourly_rate && (
                   <p className="mt-5 text-sm font-semibold text-slate-950">
-                    From {service.hourly_rate} SEK/hour
+                    {t.fromPrice} {service.hourly_rate} {t.perHour}
                   </p>
                 )}
 
                 <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
-                  {service.description ||
-                    "Cleaning service provider listed on Clean Jobs."}
+                  {service.description || t.serviceProvider}
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-2">
@@ -207,7 +214,7 @@ export default async function ServicesPage() {
 
                 <div className="mt-6 flex items-center justify-between">
                   <span className="text-sm font-semibold text-rose-600">
-                    View service
+                    {t.viewService}
                   </span>
 
                   <span className="text-slate-400 transition-transform group-hover:translate-x-1">

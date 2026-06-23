@@ -185,6 +185,52 @@ export type Dictionary = {
     office: string
     other: string
   }
+  services: {
+  pageTitle: string
+  pageSubtitle: string
+  addService: string
+  providers: string
+  availableProfiles: string
+  viewService: string
+  fromPrice: string
+  perHour: string
+  verified: string
+  serviceProvider: string
+
+  myServicesTitle: string
+  myServicesSubtitle: string
+  addServiceProfile: string
+  noServicesYet: string
+  createFirstService: string
+
+  editServiceTitle: string
+  editServiceSubtitle: string
+
+  companyName: string
+  description: string
+  city: string
+  phone: string
+  email: string
+  website: string
+  hourlyRate: string
+  minimumOrder: string
+  rutAvailable: string
+  languages: string
+  serviceTypes: string
+  serviceAreas: string
+
+  saveChanges: string
+  saving: string
+
+  contactInformation: string
+  serviceDetails: string
+  minimumOrderHours: string
+  yes: string
+  no: string
+
+  allServices: string
+  relatedServices: string
+}
 }
 
 const dictionaries: Record<Locale, Dictionary> = {
@@ -377,6 +423,46 @@ const dictionaries: Record<Locale, Dictionary> = {
       office: "Офіс",
       other: "Інше",
     },
+    services: {
+  pageTitle: "Знайти клінінгові послуги у Швеції",
+  pageSubtitle: "Порівнюйте клінінгові компанії, райони роботи, ціни та контакти.",
+  addService: "Додати послугу",
+  providers: "Постачальники клінінгових послуг",
+  availableProfiles: "профілів послуг доступно",
+  viewService: "Переглянути послугу",
+  fromPrice: "Від",
+  perHour: "SEK/год",
+  verified: "Перевірено",
+  serviceProvider: "Постачальник клінінгових послуг",
+  myServicesTitle: "Мої клінінгові послуги",
+  myServicesSubtitle: "Керуйте своїми публічними профілями послуг на Clean Jobs.",
+  addServiceProfile: "Додати профіль послуги",
+  noServicesYet: "Профілів послуг ще немає",
+  createFirstService: "Створити першу послугу",
+  editServiceTitle: "Редагувати профіль послуги",
+  editServiceSubtitle: "Оновіть свій публічний профіль клінінгової послуги.",
+  companyName: "Назва компанії",
+  description: "Опис",
+  city: "Місто",
+  phone: "Телефон",
+  email: "Email",
+  website: "Сайт",
+  hourlyRate: "Ціна від SEK/год",
+  minimumOrder: "Мінімальне замовлення в годинах",
+  rutAvailable: "RUT доступний",
+  languages: "Мови",
+  serviceTypes: "Типи послуг",
+  serviceAreas: "Райони роботи",
+  saveChanges: "Зберегти зміни",
+  saving: "Збереження...",
+  contactInformation: "Контактна інформація",
+  serviceDetails: "Деталі послуги",
+  minimumOrderHours: "Мінімальне замовлення",
+  yes: "Так",
+  no: "Ні",
+  allServices: "Усі послуги",
+  relatedServices: "Схожі послуги",
+},
   },
   ru: {
     header: {
@@ -568,6 +654,46 @@ const dictionaries: Record<Locale, Dictionary> = {
       office: "Офис",
       other: "Другое",
     },
+    services: {
+  pageTitle: "Найти клининговые услуги в Швеции",
+  pageSubtitle: "Сравнивайте клининговые компании, районы обслуживания, цены и контакты.",
+  addService: "Добавить услугу",
+  providers: "Поставщики клининговых услуг",
+  availableProfiles: "профилей услуг доступно",
+  viewService: "Открыть услугу",
+  fromPrice: "От",
+  perHour: "SEK/час",
+  verified: "Проверено",
+  serviceProvider: "Поставщик клининговых услуг",
+  myServicesTitle: "Мои клининговые услуги",
+  myServicesSubtitle: "Управляйте своими публичными профилями услуг в Clean Jobs.",
+  addServiceProfile: "Добавить профиль услуги",
+  noServicesYet: "Профилей услуг пока нет",
+  createFirstService: "Создать первую услугу",
+  editServiceTitle: "Редактировать профиль услуги",
+  editServiceSubtitle: "Обновите свой публичный профиль клининговой услуги.",
+  companyName: "Название компании",
+  description: "Описание",
+  city: "Город",
+  phone: "Телефон",
+  email: "Email",
+  website: "Сайт",
+  hourlyRate: "Цена от SEK/час",
+  minimumOrder: "Минимальный заказ (часы)",
+  rutAvailable: "RUT доступен",
+  languages: "Языки",
+  serviceTypes: "Типы услуг",
+  serviceAreas: "Районы обслуживания",
+  saveChanges: "Сохранить изменения",
+  saving: "Сохранение...",
+  contactInformation: "Контактная информация",
+  serviceDetails: "Детали услуги",
+  minimumOrderHours: "Минимальный заказ",
+  yes: "Да",
+  no: "Нет",
+  allServices: "Все услуги",
+  relatedServices: "Похожие услуги",
+},
   },
   en: {
     header: {
@@ -758,6 +884,54 @@ const dictionaries: Record<Locale, Dictionary> = {
       office: "Office",
       other: "Other",
     },
+    services: {
+  pageTitle: "Find Cleaning Services in Sweden",
+  pageSubtitle:
+    "Compare cleaning companies, service areas, prices and contact details.",
+  addService: "Add Service",
+  providers: "Cleaning Service Providers",
+  availableProfiles: "service profiles available",
+  viewService: "View Service",
+  fromPrice: "From",
+  perHour: "SEK/hour",
+  verified: "Verified",
+  serviceProvider: "Cleaning service provider",
+
+  myServicesTitle: "My Cleaning Services",
+  myServicesSubtitle:
+    "Manage your public cleaning service profiles on Clean Jobs.",
+  addServiceProfile: "Add Service Profile",
+  noServicesYet: "No service profiles yet",
+  createFirstService: "Create Your First Service",
+
+  editServiceTitle: "Edit Service Profile",
+  editServiceSubtitle: "Update your public cleaning service profile.",
+
+  companyName: "Company Name",
+  description: "Description",
+  city: "City",
+  phone: "Phone",
+  email: "Email",
+  website: "Website",
+  hourlyRate: "Price From SEK/Hour",
+  minimumOrder: "Minimum Order Hours",
+  rutAvailable: "RUT Available",
+  languages: "Languages",
+  serviceTypes: "Service Types",
+  serviceAreas: "Service Areas",
+
+  saveChanges: "Save Changes",
+  saving: "Saving...",
+
+  contactInformation: "Contact Information",
+  serviceDetails: "Service Details",
+  minimumOrderHours: "Minimum Order",
+  yes: "Yes",
+  no: "No",
+
+  allServices: "All Services",
+  relatedServices: "Related Services",
+},
   },
   sv: {
     header: {
@@ -948,6 +1122,46 @@ const dictionaries: Record<Locale, Dictionary> = {
       office: "Kontor",
       other: "Annat",
     },
+    services: {
+  pageTitle: "Hitta städtjänster i Sverige",
+  pageSubtitle: "Jämför städföretag, serviceområden, priser och kontaktuppgifter.",
+  addService: "Lägg till tjänst",
+  providers: "Leverantörer av städtjänster",
+  availableProfiles: "tjänsteprofiler tillgängliga",
+  viewService: "Visa tjänst",
+  fromPrice: "Från",
+  perHour: "SEK/timme",
+  verified: "Verifierad",
+  serviceProvider: "Leverantör av städtjänster",
+  myServicesTitle: "Mina städtjänster",
+  myServicesSubtitle: "Hantera dina offentliga städprofiler på Clean Jobs.",
+  addServiceProfile: "Lägg till tjänsteprofil",
+  noServicesYet: "Inga tjänsteprofiler ännu",
+  createFirstService: "Skapa din första tjänst",
+  editServiceTitle: "Redigera tjänsteprofil",
+  editServiceSubtitle: "Uppdatera din offentliga städprofil.",
+  companyName: "Företagsnamn",
+  description: "Beskrivning",
+  city: "Stad",
+  phone: "Telefon",
+  email: "E-post",
+  website: "Webbplats",
+  hourlyRate: "Pris från SEK/timme",
+  minimumOrder: "Minsta beställning i timmar",
+  rutAvailable: "RUT tillgängligt",
+  languages: "Språk",
+  serviceTypes: "Tjänstetyper",
+  serviceAreas: "Serviceområden",
+  saveChanges: "Spara ändringar",
+  saving: "Sparar...",
+  contactInformation: "Kontaktinformation",
+  serviceDetails: "Tjänstedetaljer",
+  minimumOrderHours: "Minsta beställning",
+  yes: "Ja",
+  no: "Nej",
+  allServices: "Alla tjänster",
+  relatedServices: "Relaterade tjänster",
+},
   },
   pl: {
     header: {
@@ -1139,6 +1353,46 @@ const dictionaries: Record<Locale, Dictionary> = {
       office: "Biuro",
       other: "Inne",
     },
+    services: {
+  pageTitle: "Znajdź usługi sprzątania w Szwecji",
+  pageSubtitle: "Porównuj firmy sprzątające, obszary działania, ceny i dane kontaktowe.",
+  addService: "Dodaj usługę",
+  providers: "Dostawcy usług sprzątania",
+  availableProfiles: "dostępnych profili usług",
+  viewService: "Zobacz usługę",
+  fromPrice: "Od",
+  perHour: "SEK/godz.",
+  verified: "Zweryfikowano",
+  serviceProvider: "Dostawca usług sprzątania",
+  myServicesTitle: "Moje usługi sprzątania",
+  myServicesSubtitle: "Zarządzaj publicznymi profilami usług w Clean Jobs.",
+  addServiceProfile: "Dodaj profil usługi",
+  noServicesYet: "Brak profili usług",
+  createFirstService: "Utwórz pierwszą usługę",
+  editServiceTitle: "Edytuj profil usługi",
+  editServiceSubtitle: "Zaktualizuj publiczny profil usługi sprzątania.",
+  companyName: "Nazwa firmy",
+  description: "Opis",
+  city: "Miasto",
+  phone: "Telefon",
+  email: "Email",
+  website: "Strona internetowa",
+  hourlyRate: "Cena od SEK/godz.",
+  minimumOrder: "Minimalne zamówienie (godziny)",
+  rutAvailable: "RUT dostępny",
+  languages: "Języki",
+  serviceTypes: "Rodzaje usług",
+  serviceAreas: "Obszary działania",
+  saveChanges: "Zapisz zmiany",
+  saving: "Zapisywanie...",
+  contactInformation: "Informacje kontaktowe",
+  serviceDetails: "Szczegóły usługi",
+  minimumOrderHours: "Minimalne zamówienie",
+  yes: "Tak",
+  no: "Nie",
+  allServices: "Wszystkie usługi",
+  relatedServices: "Podobne usługi",
+},
   },
 }
 
