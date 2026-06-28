@@ -272,7 +272,26 @@ visitWebsite: string
 relatedCompanies: string
 findCleaningJobs: string
 }
+common: {
+  back: string
+  backToDashboard: string
+  save: string
+  saving: string
+  delete: string
+  deleting: string
+  edit: string
+  open: string
+  view: string
+  cancel: string
+  confirm: string
+  yes: string
+  no: string
+  pending: string
+  verified: string
+  loading: string
 }
+}
+
 
 const dictionaries: Record<Locale, Dictionary> = {
   uk: {
@@ -550,6 +569,24 @@ visitWebsite: "Відкрити сайт",
 relatedCompanies: "Схожі компанії",
 findCleaningJobs: "Знайти роботу з прибирання",
 },
+common: {
+  back: "Назад",
+  backToDashboard: "До панелі",
+  save: "Зберегти",
+  saving: "Збереження...",
+  delete: "Видалити",
+  deleting: "Видалення...",
+  edit: "Редагувати",
+  open: "Відкрити",
+  view: "Переглянути",
+  cancel: "Скасувати",
+  confirm: "Підтвердити",
+  yes: "Так",
+  no: "Ні",
+  pending: "Очікує",
+  verified: "Перевірено",
+  loading: "Завантаження...",
+},
   },
   ru: {
     header: {
@@ -825,6 +862,24 @@ website: "Сайт",
 visitWebsite: "Открыть сайт",
 relatedCompanies: "Похожие компании",
 findCleaningJobs: "Найти работу по уборке",
+},
+common: {
+  back: "Назад",
+  backToDashboard: "К панели",
+  save: "Сохранить",
+  saving: "Сохранение...",
+  delete: "Удалить",
+  deleting: "Удаление...",
+  edit: "Редактировать",
+  open: "Открыть",
+  view: "Просмотреть",
+  cancel: "Отмена",
+  confirm: "Подтвердить",
+  yes: "Да",
+  no: "Нет",
+  pending: "Ожидает",
+  verified: "Проверено",
+  loading: "Загрузка...",
 },
   },
   en: {
@@ -1108,6 +1163,24 @@ visitWebsite: "Visit Website",
 relatedCompanies: "Related Companies",
 findCleaningJobs: "Find Cleaning Jobs",
 },
+common: {
+  back: "Back",
+  backToDashboard: "Back to dashboard",
+  save: "Save",
+  saving: "Saving...",
+  delete: "Delete",
+  deleting: "Deleting...",
+  edit: "Edit",
+  open: "Open",
+  view: "View",
+  cancel: "Cancel",
+  confirm: "Confirm",
+  yes: "Yes",
+  no: "No",
+  pending: "Pending",
+  verified: "Verified",
+  loading: "Loading...",
+},
   },
   sv: {
     header: {
@@ -1383,6 +1456,24 @@ visitWebsite: "Besök webbplats",
 relatedCompanies: "Relaterade företag",
 findCleaningJobs: "Hitta städjobb",
 },
+common: {
+  back: "Tillbaka",
+  backToDashboard: "Till dashboard",
+  save: "Spara",
+  saving: "Sparar...",
+  delete: "Radera",
+  deleting: "Raderar...",
+  edit: "Redigera",
+  open: "Öppna",
+  view: "Visa",
+  cancel: "Avbryt",
+  confirm: "Bekräfta",
+  yes: "Ja",
+  no: "Nej",
+  pending: "Väntar",
+  verified: "Verifierad",
+  loading: "Laddar...",
+},
   },
   pl: {
     header: {
@@ -1650,15 +1741,32 @@ companies: {
   areYouCompanyTitle: "Prowadzisz firmę sprzątającą?",
   areYouCompanyText:
     "Utwórz profil w Clean Jobs, aby klienci łatwiej mogli Cię znaleźć.",
-    companyNotFound: "Nie znaleziono firmy",
-verifiedCompany: "Zweryfikowana firma",
-phone: "Telefon",
-email: "Email",
-website: "Strona",
-visitWebsite: "Odwiedź stronę",
-relatedCompanies: "Podobne firmy",
-findCleaningJobs: "Znajdź pracę przy sprzątaniu",
-    
+  companyNotFound: "Nie znaleziono firmy",
+  verifiedCompany: "Zweryfikowana firma",
+  phone: "Telefon",
+  email: "Email",
+  website: "Strona",
+  visitWebsite: "Odwiedź stronę",
+  relatedCompanies: "Podobne firmy",
+  findCleaningJobs: "Znajdź pracę przy sprzątaniu",
+},
+common: {
+  back: "Powrót",
+  backToDashboard: "Do panelu",
+  save: "Zapisz",
+  saving: "Zapisywanie...",
+  delete: "Usuń",
+  deleting: "Usuwanie...",
+  edit: "Edytuj",
+  open: "Otwórz",
+  view: "Zobacz",
+  cancel: "Anuluj",
+  confirm: "Potwierdź",
+  yes: "Tak",
+  no: "Nie",
+  pending: "Oczekuje",
+  verified: "Zweryfikowano",
+  loading: "Ładowanie...",
 },
   },
 }
