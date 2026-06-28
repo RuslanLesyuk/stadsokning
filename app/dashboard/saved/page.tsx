@@ -89,7 +89,7 @@ export default async function SavedJobsPage() {
             </p>
 
             <h1 className="mt-2 text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
-              {t.saved_jobs}
+              {t.createdJobs}
             </h1>
 
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
@@ -102,7 +102,7 @@ export default async function SavedJobsPage() {
             prefetch={false}
             className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 active:scale-[0.98]"
           >
-            {t.browseJobs}
+            {t.createJob}
           </Link>
         </div>
 
@@ -121,7 +121,7 @@ export default async function SavedJobsPage() {
               prefetch={false}
               className="mt-6 inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 active:scale-[0.98]"
             >
-              {t.browseJobs}
+              {t.createJob}
             </Link>
           </section>
         ) : (
@@ -141,16 +141,16 @@ export default async function SavedJobsPage() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <h2 className="text-xl font-semibold tracking-tight text-slate-950 transition group-hover:text-rose-700">
-                        {job.title || jobsT.untitledJob}
+                        {job.title || t.unknown}
                       </h2>
 
                       <p className="mt-2 text-sm text-slate-500">
-                        {job.city || jobsT.notSpecified}
+                        {job.city || t.notSpecified}
                       </p>
                     </div>
 
                     <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
-                      {t.saved_jobs}
+                      {t.createdJobs}
                     </span>
                   </div>
 
@@ -162,11 +162,11 @@ export default async function SavedJobsPage() {
 
                   <div className="mt-5 flex flex-wrap items-center gap-2 text-sm text-slate-600">
                     <span className="rounded-full bg-slate-100 px-3 py-1">
-                      {job.budget ? `${job.budget} kr` : jobsT.notSpecified}
+                      {job.budget ? `${job.budget} kr` : t.notSpecified}
                     </span>
 
                     <span className="rounded-full bg-slate-100 px-3 py-1">
-                      {getJobStatusLabel(locale, job.status || "new")}
+                      {job.status || "new"}
                     </span>
                   </div>
                 </Link>
