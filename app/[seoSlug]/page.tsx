@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase-server"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
+  getDictionary,
   normalizeLocale,
 } from "@/lib/i18n"
 import {
@@ -79,7 +80,8 @@ export async function generateMetadata({
     cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
   )
   const copy = getSeoLandingCopy(page, locale)
-
+const dictionary = getDictionary(locale)
+const common = dictionary.common
   return {
     title: copy.title,
     description: copy.description,
@@ -118,7 +120,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
     .from("service_profiles")
     .select("*")
     .ilike("city", `%${page.city}%`)
-    .order("verified", { ascending: false })
+    .order("{common.verified}", { ascending: false })
     .order("company_name")
     .limit(9)
 
@@ -318,11 +320,8 @@ export default async function SeoLandingPage({ params }: PageProps) {
             </h2>
 
             <p className="mt-4 leading-8 text-slate-600">
-              Clean Jobs hjälper privatpersoner och företag att hitta
-              städtjänster i hela Sverige. Plattformen växer kontinuerligt och
-              gör det enklare att jämföra företag, tjänster och
-              kontaktuppgifter.
-            </p>
+  {copy.intro}
+</p>
           </div>
         </section>
       </main>

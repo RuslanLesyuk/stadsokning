@@ -189,11 +189,7 @@ export default async function DashboardServicesPage() {
                   {t.editServiceTitle}
                 </Link>
 
-                <DeleteServiceButton
-                  serviceId={service.id}
-                  buttonLabel={deleteText.button}
-                  confirmMessage={deleteText.confirm}
-                />
+                <DeleteServiceButton serviceId={service.id} />
               </div>
             </div>
           ))}
