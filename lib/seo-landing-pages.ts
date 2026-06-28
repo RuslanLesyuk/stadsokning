@@ -13,13 +13,35 @@ export type SeoLandingPage = {
   serviceType: SeoServiceType
 }
 
-export const seoLandingPages: SeoLandingPage[] = [
-  { slug: "stadfirma-stockholm", city: "Stockholm", serviceType: "stadfirma" },
-  { slug: "hemstadning-stockholm", city: "Stockholm", serviceType: "hemstadning" },
-  { slug: "flyttstadning-stockholm", city: "Stockholm", serviceType: "flyttstadning" },
-  { slug: "kontorsstadning-stockholm", city: "Stockholm", serviceType: "kontorsstadning" },
-  { slug: "fonsterputs-stockholm", city: "Stockholm", serviceType: "fonsterputs" },
+const cities = [
+  { name: "Stockholm", slug: "stockholm" },
+  { name: "Göteborg", slug: "goteborg" },
+  { name: "Malmö", slug: "malmo" },
+  { name: "Uppsala", slug: "uppsala" },
+  { name: "Västerås", slug: "vasteras" },
+  { name: "Örebro", slug: "orebro" },
+  { name: "Linköping", slug: "linkoping" },
+  { name: "Helsingborg", slug: "helsingborg" },
+  { name: "Jönköping", slug: "jonkoping" },
+  { name: "Lund", slug: "lund" },
+  { name: "Umeå", slug: "umea" },
 ]
+
+const serviceTypes: SeoServiceType[] = [
+  "stadfirma",
+  "hemstadning",
+  "flyttstadning",
+  "kontorsstadning",
+  "fonsterputs",
+]
+
+export const seoLandingPages: SeoLandingPage[] = cities.flatMap((city) =>
+  serviceTypes.map((serviceType) => ({
+    slug: `${serviceType}-${city.slug}`,
+    city: city.name,
+    serviceType,
+  })),
+)
 
 const serviceNames: Record<Locale, Record<SeoServiceType, string>> = {
   sv: {
