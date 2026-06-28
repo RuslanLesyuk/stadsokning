@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
+import { getLanguageAlternates } from "@/lib/seo"
 import { createClient } from "@/lib/supabase-server"
 import {
   DEFAULT_LOCALE,
@@ -9,6 +10,7 @@ import {
   getDictionary,
   normalizeLocale,
 } from "@/lib/i18n"
+
 
 type Props = {
   params: Promise<{
@@ -40,8 +42,9 @@ export async function generateMetadata({
     title: `Cleaning Services in ${cityName} | Clean Jobs`,
     description: `Find cleaning companies and private cleaners in ${cityName}. Compare prices, service areas and contact details.`,
     alternates: {
-      canonical: `https://cleansjob.com/services/city/${city}`,
-    },
+  canonical: `https://cleansjob.com/services/city/${city}`,
+  languages: getLanguageAlternates(`/services/city/${city}`),
+},
   }
 }
 

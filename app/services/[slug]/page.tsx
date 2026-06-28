@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
+import { getLanguageAlternates } from "@/lib/seo"
 import { createClient } from "@/lib/supabase-server"
 import {
   DEFAULT_LOCALE,
@@ -38,8 +39,9 @@ export async function generateMetadata({
       service.description ||
       `Professional cleaning services in ${service.city}.`,
     alternates: {
-      canonical: `https://cleansjob.com/services/${service.slug}`,
-    },
+  canonical: `https://cleansjob.com/services/${service.slug}`,
+  languages: getLanguageAlternates(`/services/${service.slug}`),
+},
   }
 }
 
