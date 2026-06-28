@@ -12,37 +12,15 @@ import DeleteServiceButton from "@/components/delete-service-button"
 
 export const dynamic = "force-dynamic"
 
-const deleteCopy = {
-  uk: {
-    button: "Видалити",
-    confirm: "Ти точно хочеш видалити цей сервіс?",
-  },
-  ru: {
-    button: "Удалить",
-    confirm: "Ты точно хочешь удалить этот сервис?",
-  },
-  en: {
-    button: "Delete",
-    confirm: "Are you sure you want to delete this service?",
-  },
-  sv: {
-    button: "Radera",
-    confirm: "Är du säker på att du vill radera den här tjänsten?",
-  },
-  pl: {
-    button: "Usuń",
-    confirm: "Czy na pewno chcesz usunąć tę usługę?",
-  },
-}
-
 export default async function DashboardServicesPage() {
   const cookieStore = await cookies()
   const locale = normalizeLocale(
     cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
   )
+
   const dictionary = getDictionary(locale)
   const t = dictionary.services
-  const deleteText = deleteCopy[locale] || deleteCopy.en
+  const common = dictionary.common
 
   const supabase = await createClient()
 
@@ -138,16 +116,18 @@ export default async function DashboardServicesPage() {
 
                     {service.verified ? (
                       <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                        {t.verified}
+                        {common.verified}
                       </span>
                     ) : (
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-                        Pending
+                        {common.pending}
                       </span>
                     )}
                   </div>
 
-                  <p className="mt-1 text-sm text-black/50">{service.city}</p>
+                  <p className="mt-1 text-sm text-black/50">
+                    {service.city}
+                  </p>
                 </div>
               </div>
 
@@ -186,7 +166,7 @@ export default async function DashboardServicesPage() {
                   prefetch={false}
                   className="inline-flex items-center justify-center rounded-2xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-black/80"
                 >
-                  {t.editServiceTitle}
+                  {common.edit}
                 </Link>
 
                 <DeleteServiceButton serviceId={service.id} />
