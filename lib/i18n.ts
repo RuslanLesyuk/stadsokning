@@ -207,6 +207,8 @@ export type Dictionary = {
   editServiceSubtitle: string
 
   companyName: string
+  companyLogo: string
+  logoHelp: string
   description: string
   city: string
   phone: string
@@ -291,7 +293,6 @@ common: {
   loading: string
 }
 }
-
 
 const dictionaries: Record<Locale, Dictionary> = {
   uk: {
@@ -502,6 +503,8 @@ const dictionaries: Record<Locale, Dictionary> = {
   editServiceTitle: "Редагувати профіль послуги",
   editServiceSubtitle: "Оновіть свій публічний профіль клінінгової послуги.",
   companyName: "Назва компанії",
+  companyLogo: "Логотип компанії",
+  logoHelp: "JPG, PNG або WEBP. Максимум 5MB.",
   description: "Опис",
   city: "Місто",
   phone: "Телефон",
@@ -797,6 +800,8 @@ common: {
   editServiceTitle: "Редактировать профиль услуги",
   editServiceSubtitle: "Обновите свой публичный профиль клининговой услуги.",
   companyName: "Название компании",
+  companyLogo: "Логотип компании",
+  logoHelp: "JPG, PNG или WEBP. Максимум 5MB.",
   description: "Описание",
   city: "Город",
   phone: "Телефон",
@@ -1095,6 +1100,8 @@ common: {
   editServiceSubtitle: "Update your public cleaning service profile.",
 
   companyName: "Company Name",
+  companyLogo: "Company logo",
+  logoHelp: "JPG, PNG or WEBP. Maximum 5MB.",
   description: "Description",
   city: "City",
   phone: "Phone",
@@ -1133,6 +1140,7 @@ hours: "hours",
 serviceAreasTitle: "Service Areas",
 languagesTitle: "Languages",
 servicesTitle: "Services",
+
 },
 companies: {
   pageTitle: "Cleaning Companies in Stockholm",
@@ -1390,6 +1398,8 @@ common: {
   editServiceTitle: "Redigera tjänsteprofil",
   editServiceSubtitle: "Uppdatera din offentliga städprofil.",
   companyName: "Företagsnamn",
+  companyLogo: "Företagslogotyp",
+  logoHelp: "JPG, PNG eller WEBP. Max 5MB.",
   description: "Beskrivning",
   city: "Stad",
   phone: "Telefon",
@@ -1684,6 +1694,8 @@ common: {
   editServiceTitle: "Edytuj profil usługi",
   editServiceSubtitle: "Zaktualizuj publiczny profil usługi sprzątania.",
   companyName: "Nazwa firmy",
+  companyLogo: "Logo firmy",
+  logoHelp: "JPG, PNG lub WEBP. Maksymalnie 5MB.",
   description: "Opis",
   city: "Miasto",
   phone: "Telefon",

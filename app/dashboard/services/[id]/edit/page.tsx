@@ -85,8 +85,8 @@ export default async function EditServicePage({ params }: PageProps) {
 
           <div className="md:col-span-2">
             <label className="mb-2 block text-sm font-medium text-black">
-              {t.companyName}
-            </label>
+  {t.companyLogo}
+</label>
 
             {service.logo_url ? (
               <div className="mb-4">
@@ -107,8 +107,8 @@ export default async function EditServicePage({ params }: PageProps) {
             />
 
             <p className="mt-2 text-xs text-black/50">
-              JPG, PNG or WEBP. Maximum 5MB.
-            </p>
+  {t.logoHelp}
+</p>
           </div>
 
           <div className="md:col-span-2">
