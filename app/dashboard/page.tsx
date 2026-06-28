@@ -55,6 +55,10 @@ type DashboardCopy = {
   free_account: string
   verified: string
   not_verified: string
+  bankid_verified: string
+  bankid_not_verified: string
+  status_unknown: string
+  currency: string
   stats_posted: string
   stats_taken: string
   stats_unread: string
@@ -102,6 +106,10 @@ const copy: Record<Locale, DashboardCopy> = {
     free_account: "Free акаунт",
     verified: "Профіль підтверджено",
     not_verified: "Профіль не підтверджено",
+    bankid_verified: "✓ BankID підтверджено",
+    bankid_not_verified: "BankID не підтверджено",
+    status_unknown: "Невідомо",
+    currency: "kr",
     stats_posted: "Мої оголошення",
     stats_taken: "Взяті роботи",
     stats_unread: "Непрочитані",
@@ -147,6 +155,10 @@ const copy: Record<Locale, DashboardCopy> = {
     free_account: "Free аккаунт",
     verified: "Профиль подтверждён",
     not_verified: "Профиль не подтверждён",
+    bankid_verified: "✓ BankID подтвержден",
+    bankid_not_verified: "BankID не подтвержден",
+    status_unknown: "Неизвестно",
+    currency: "kr",
     stats_posted: "Мои объявления",
     stats_taken: "Взятые работы",
     stats_unread: "Непрочитанные",
@@ -192,6 +204,10 @@ const copy: Record<Locale, DashboardCopy> = {
     free_account: "Free account",
     verified: "Profile verified",
     not_verified: "Profile not verified",
+    bankid_verified: "✓ BankID Verified",
+    bankid_not_verified: "BankID Not Verified",
+    status_unknown: "Unknown",
+    currency: "kr",
     stats_posted: "My listings",
     stats_taken: "Accepted jobs",
     stats_unread: "Unread",
@@ -237,6 +253,10 @@ const copy: Record<Locale, DashboardCopy> = {
     free_account: "Free konto",
     verified: "Profil verifierad",
     not_verified: "Profil ej verifierad",
+    bankid_verified: "✓ BankID verifierad",
+    bankid_not_verified: "BankID ej verifierad",
+    status_unknown: "Okänd",
+    currency: "kr",
     stats_posted: "Mina annonser",
     stats_taken: "Tagna jobb",
     stats_unread: "Olästa",
@@ -282,6 +302,10 @@ const copy: Record<Locale, DashboardCopy> = {
     free_account: "Konto Free",
     verified: "Profil zweryfikowany",
     not_verified: "Profil niezweryfikowany",
+    bankid_verified: "✓ BankID zweryfikowany",
+    bankid_not_verified: "BankID niezweryfikowany",
+    status_unknown: "Nieznany",
+    currency: "kr",
     stats_posted: "Moje ogłoszenia",
     stats_taken: "Przyjęte prace",
     stats_unread: "Nieprzeczytane",
@@ -340,7 +364,7 @@ function getStatusLabel(status: JobStatus, t: DashboardCopy) {
     case "cancelled":
       return t.status_cancelled
     default:
-      return "—"
+      return t.status_unknown
   }
 }
 
@@ -363,7 +387,7 @@ function getStatusClasses(status: JobStatus) {
 
 function formatBudget(value: number | null, t: DashboardCopy) {
   if (value == null) return t.no_budget
-  return `${value} kr`
+  return `${value} ${t.currency}`
 }
 
 function formatDate(value: string, locale: Locale) {
@@ -419,12 +443,15 @@ function EmptyState({
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-rose-50 text-xl">
         ✨
       </div>
+
       <h3 className="mt-4 text-lg font-semibold tracking-tight text-slate-950">
         {title}
       </h3>
+
       <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
         {description}
       </p>
+
       <Link
         href={primaryHref}
         prefetch={false}
@@ -477,9 +504,11 @@ function JobCard({
         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
           {job.city || t.no_city}
         </span>
+
         <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">
           {formatBudget(job.budget, t)}
         </span>
+
         {job.assigned_to ? (
           <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
             {t.assigned_worker}
@@ -497,6 +526,7 @@ function JobCard({
         <div className="text-xs font-medium uppercase tracking-wide text-slate-500">
           {t.last_message}
         </div>
+
         <div className="mt-2 text-sm leading-6 text-slate-700">
           {lastMessage?.content ? truncate(lastMessage.content, 140) : t.no_messages}
         </div>
@@ -570,6 +600,7 @@ function JobsSection({
         <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
           {title}
         </h2>
+
         <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-600">
           {jobs.length}
         </span>
@@ -619,8 +650,8 @@ export default async function DashboardPage() {
   const { data: profileRaw } = await supabase
     .from("profiles")
     .select(
-  "id, full_name, avatar_url, company_logo_url, company_name, is_premium, verified, bankid_verified, subscription_ends_at",
-)
+      "id, full_name, avatar_url, company_logo_url, company_name, is_premium, verified, bankid_verified, subscription_ends_at",
+    )
     .eq("id", user.id)
     .maybeSingle()
 
@@ -682,12 +713,14 @@ export default async function DashboardPage() {
     (sum, count) => sum + count,
     0,
   )
+
   const adminEmails = getAdminEmails()
   const isAdmin = Boolean(user.email && adminEmails.includes(user.email.toLowerCase()))
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <DashboardLiveRefresh interval={15000} />
+
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
         <section className="rounded-[36px] border border-slate-200 bg-gradient-to-br from-white via-white to-rose-50/40 p-6 shadow-[0_2px_14px_rgba(15,23,42,0.04)] md:p-8">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
@@ -699,6 +732,7 @@ export default async function DashboardPage() {
               <h1 className="mt-4 text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
                 {t.title}
               </h1>
+
               <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600 md:text-base">
                 {t.subtitle}
               </p>
@@ -747,6 +781,7 @@ export default async function DashboardPage() {
             <div className="text-sm font-semibold tracking-tight text-slate-950">
               {t.premium_status}
             </div>
+
             <div className="mt-4 flex flex-wrap gap-2">
               <span
                 className={
@@ -757,17 +792,18 @@ export default async function DashboardPage() {
               >
                 {profile?.is_premium ? t.premium_active : t.free_account}
               </span>
-             <span
-  className={
-    profile?.bankid_verified
-      ? "rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700"
-      : "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
-  }
->
-  {profile?.bankid_verified
-    ? "✓ BankID Verified"
-    : "Not BankID Verified"}
-</span>
+
+              <span
+                className={
+                  profile?.bankid_verified
+                    ? "rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700"
+                    : "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
+                }
+              >
+                {profile?.bankid_verified
+                  ? t.bankid_verified
+                  : t.bankid_not_verified}
+              </span>
             </div>
           </div>
 
@@ -775,6 +811,7 @@ export default async function DashboardPage() {
             <div className="text-sm font-semibold tracking-tight text-slate-950">
               {t.quick_actions}
             </div>
+
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               <Link
                 href="/jobs"
