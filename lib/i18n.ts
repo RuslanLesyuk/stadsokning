@@ -152,6 +152,11 @@ export type Dictionary = {
     reviews_one: string
     reviews_other: string
     noRating: string
+    bankid_success
+    bankid_failed
+    company_logo
+    logo
+    verified_on
   }
   jobForm: {
     createTitle: string

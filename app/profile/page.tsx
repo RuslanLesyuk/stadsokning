@@ -36,6 +36,10 @@ type Copy = {
   verified_yes: string
   verified_no: string
   back_to_jobs: string
+  bankid_success: string
+  bankid_failed: string
+  logo: string
+  verified_on: string
 }
 
 const copy: Record<Locale, Copy> = {
@@ -62,6 +66,10 @@ const copy: Record<Locale, Copy> = {
     verified_yes: "Профіль підтверджено",
     verified_no: "Профіль не підтверджено",
     back_to_jobs: "← Назад до робіт",
+    bankid_success: "✓ BankID успішно підтверджено.",
+    bankid_failed: "Помилка перевірки BankID",
+    logo: "Логотип",
+    verified_on: "Підтверджено",
   },
   ru: {
     title: "Профиль",
@@ -86,6 +94,10 @@ const copy: Record<Locale, Copy> = {
     verified_yes: "Профиль подтвержден",
     verified_no: "Профиль не подтвержден",
     back_to_jobs: "← Назад к работам",
+    bankid_success: "✓ BankID успешно подтвержден.",
+    bankid_failed: "Ошибка проверки BankID",
+    logo: "Логотип",
+    verified_on: "Подтверждено",
   },
   en: {
     title: "Profile",
@@ -110,6 +122,10 @@ const copy: Record<Locale, Copy> = {
     verified_yes: "Verified profile",
     verified_no: "Not verified",
     back_to_jobs: "← Back to jobs",
+    bankid_success: "✓ BankID verification completed successfully.",
+    bankid_failed: "BankID verification failed",
+    logo: "Logo",
+    verified_on: "Verified on",
   },
   sv: {
     title: "Profil",
@@ -134,6 +150,10 @@ const copy: Record<Locale, Copy> = {
     verified_yes: "Verifierad profil",
     verified_no: "Inte verifierad",
     back_to_jobs: "← Tillbaka till jobb",
+    bankid_success: "✓ BankID-verifiering slutförd.",
+    bankid_failed: "BankID-verifiering misslyckades",
+    logo: "Logotyp",
+    verified_on: "Verifierad den",
   },
   pl: {
     title: "Profil",
@@ -158,6 +178,10 @@ const copy: Record<Locale, Copy> = {
     verified_yes: "Zweryfikowany profil",
     verified_no: "Profil niezweryfikowany",
     back_to_jobs: "← Powrót do ofert",
+    bankid_success: "✓ BankID został pomyślnie zweryfikowany.",
+    bankid_failed: "Weryfikacja BankID nie powiodła się",
+    logo: "Logo",
+    verified_on: "Zweryfikowano",
   },
 }
 
@@ -219,13 +243,13 @@ const bankidError = params.bankid_error
         </div>
 {bankidVerified ? (
   <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-    ✓ BankID verification completed successfully.
+    {t.bankid_success}
   </div>
 ) : null}
 
 {bankidError ? (
   <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-700">
-    BankID verification failed: {decodeURIComponent(bankidError)}
+    {t.bankid_failed}: {decodeURIComponent(bankidError)}
   </div>
 ) : null}
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
@@ -273,11 +297,11 @@ const bankidError = params.bankid_error
                       {profile?.company_logo_url ? (
                         <img
                           src={profile.company_logo_url}
-                          alt="Company logo"
+                          alt={t.company_logo}
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        "Logo"
+                        t.logo
                       )}
                     </div>
 
@@ -412,7 +436,7 @@ const bankidError = params.bankid_error
 
   {profile?.bankid_verified_at ? (
     <p className="mt-3 text-sm text-slate-500">
-      Verified on{" "}
+      {t.verified_on}
       {new Date(profile.bankid_verified_at).toLocaleDateString()}
     </p>
   ) : null}
