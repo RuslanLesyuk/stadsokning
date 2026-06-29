@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import LanguageSwitcher from "@/components/language-switcher"
 import MobileHeaderMenu from "@/components/mobile-header-menu"
+import ProfileDropdown from "@/components/profile-dropdown"
 
 type HeaderCopy = {
   jobs: string
@@ -239,36 +240,17 @@ export default async function SiteHeader() {
 
             {user ? (
               <>
-                <Link href="/profile" prefetch={false} className={`${actionLinkClass("secondary")} gap-3 pr-5 hover:-translate-y-0.5`}>
-                  <div className="relative shrink-0">
-                    <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-rose-600 text-xs font-semibold text-white">
-                      {avatarUrl ? (
-                        <img src={avatarUrl} alt={profileLabel} className="h-full w-full object-cover" />
-                      ) : (
-                        profileInitials
-                      )}
-                    </span>
-
-                    {companyLogoUrl ? (
-                      <span className="absolute -bottom-1 -right-1 flex h-[18px] w-[18px] items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
-                        <img src={companyLogoUrl} alt={companyLabel} className="h-full w-full object-cover" />
-                      </span>
-                    ) : null}
-                  </div>
-
-                  <span className="min-w-0 text-left">
-                    <span className="block max-w-40 truncate text-sm font-medium text-slate-900">
-                      {profileLabel}
-                    </span>
-                    <span className="block max-w-40 truncate text-xs text-slate-500">
-                      {companyLabel}
-                    </span>
-                  </span>
-                </Link>
-
-                <a href="/auth/signout" className={actionLinkClass("secondary")}>
-                  {t.logout}
-                </a>
+                <ProfileDropdown
+  profileLabel={t.profile}
+  dashboardLabel={t.dashboard}
+  myServicesLabel={t.myServices}
+  logoutLabel={t.logout}
+  profileName={profileLabel}
+  companyLabel={companyLabel}
+  profileInitials={profileInitials}
+  avatarUrl={avatarUrl}
+  companyLogoUrl={companyLogoUrl}
+/>
               </>
             ) : (
               <>
