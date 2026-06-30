@@ -19,69 +19,14 @@ export const metadata: Metadata = {
   description:
     "Find cleaning jobs across Sweden or hire trusted cleaners. Browse house cleaning, office cleaning, apartment cleaning and professional cleaning work in Stockholm, Göteborg, Malmö and nearby cities.",
   applicationName: "Clean Jobs",
-  keywords: [
-    "cleaning jobs Sweden",
-    "cleaning jobs Stockholm",
-    "städjobb Stockholm",
-    "städjobb Sverige",
-    "städfirma jobb",
-    "cleaner jobs Sweden",
-    "house cleaning jobs",
-    "office cleaning jobs",
-    "apartment cleaning",
-    "hire cleaner Sweden",
-    "hire cleaner Stockholm",
-    "hemstädning jobb",
-    "kontorsstädning jobb",
-    "cleaning marketplace Sweden",
-    "Clean Jobs",
-  ],
   authors: [{ name: "Clean Jobs" }],
   creator: "Clean Jobs",
   publisher: "Clean Jobs",
-  alternates: {
-    canonical: "/",
-  },
-  openGraph: {
-    title: "Cleaning Jobs in Sweden | Clean Jobs",
-    description:
-      "Find cleaning jobs across Sweden or hire trusted cleaners for house cleaning, office cleaning and apartment cleaning.",
-    url: "/",
-    siteName: "Clean Jobs",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "Clean Jobs marketplace for cleaning jobs in Sweden",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Cleaning Jobs in Sweden | Clean Jobs",
-    description:
-      "Find cleaning jobs across Sweden or hire trusted cleaners for house cleaning, office cleaning and apartment cleaning.",
-    images: ["/og-image.png"],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
-  },
+  alternates: { canonical: "/" },
   icons: {
     icon: "/favicon.ico",
     apple: "/apple-touch-icon.png",
   },
-  category: "marketplace",
 }
 
 export const viewport: Viewport = {
@@ -95,26 +40,69 @@ type FooterCopy = {
   privacy: string
   contact: string
   copyright: string
+  popularGuides: string
+  guideWorkInSweden: string
+  guideForeigners: string
+  guideFindJob: string
+  guideJobbISverige: string
+  guideJobbUtanSvenska: string
+  guideHurManFarJobb: string
+  guideCleanerSalary: string
+  guideVadTjanar: string
+  guideIndustryStats: string
+  guideStadbranschen: string
+  guideHireCleaner: string
+  guideStadfirma: string
+  guideBestCompanies: string
+  guideBastaStadforetag: string
 }
 
 const footerCopy: Record<Locale, FooterCopy> = {
   uk: {
     title: "Clean Jobs",
-    subtitle:
-      "Платформа для пошуку клінінгової роботи та виконавців у Швеції.",
+    subtitle: "Платформа для пошуку клінінгової роботи та виконавців у Швеції.",
     terms: "Умови користування",
     privacy: "Політика конфіденційності",
     contact: "Контакти",
     copyright: "Усі права захищено.",
+    popularGuides: "Популярні гайди",
+    guideWorkInSweden: "Робота у Швеції",
+    guideForeigners: "Робота для іноземців у Швеції",
+    guideFindJob: "Як знайти роботу у Швеції",
+    guideJobbISverige: "Робота у Швеції",
+    guideJobbUtanSvenska: "Робота без шведської",
+    guideHurManFarJobb: "Як отримати роботу у Швеції",
+    guideCleanerSalary: "Зарплата прибиральника у Швеції",
+    guideVadTjanar: "Скільки заробляє прибиральник",
+    guideIndustryStats: "Статистика клінінгової галузі",
+    guideStadbranschen: "Статистика клінінгу у Швеції",
+    guideHireCleaner: "Найняти прибиральника у Стокгольмі",
+    guideStadfirma: "Клінінгова компанія у Стокгольмі",
+    guideBestCompanies: "Найкращі клінінгові компанії",
+    guideBastaStadforetag: "Найкращі клінінгові компанії",
   },
   ru: {
     title: "Clean Jobs",
-    subtitle:
-      "Платформа для поиска клининговой работы и исполнителей в Швеции.",
+    subtitle: "Платформа для поиска клининговой работы и исполнителей в Швеции.",
     terms: "Условия использования",
     privacy: "Политика конфиденциальности",
     contact: "Контакты",
     copyright: "Все права защищены.",
+    popularGuides: "Популярные гайды",
+    guideWorkInSweden: "Работа в Швеции",
+    guideForeigners: "Работа для иностранцев в Швеции",
+    guideFindJob: "Как найти работу в Швеции",
+    guideJobbISverige: "Работа в Швеции",
+    guideJobbUtanSvenska: "Работа без шведского",
+    guideHurManFarJobb: "Как получить работу в Швеции",
+    guideCleanerSalary: "Зарплата уборщика в Швеции",
+    guideVadTjanar: "Сколько зарабатывает уборщик",
+    guideIndustryStats: "Статистика клининговой отрасли",
+    guideStadbranschen: "Статистика клининга в Швеции",
+    guideHireCleaner: "Нанять уборщика в Стокгольме",
+    guideStadfirma: "Клининговая компания в Стокгольме",
+    guideBestCompanies: "Лучшие клининговые компании",
+    guideBastaStadforetag: "Лучшие клининговые компании",
   },
   en: {
     title: "Clean Jobs",
@@ -123,6 +111,21 @@ const footerCopy: Record<Locale, FooterCopy> = {
     privacy: "Privacy",
     contact: "Contact",
     copyright: "All rights reserved.",
+    popularGuides: "Popular Guides",
+    guideWorkInSweden: "Work in Sweden",
+    guideForeigners: "Jobs for Foreigners in Sweden",
+    guideFindJob: "How to Find a Job in Sweden",
+    guideJobbISverige: "Jobs in Sweden",
+    guideJobbUtanSvenska: "Jobs without Swedish",
+    guideHurManFarJobb: "How to Get a Job in Sweden",
+    guideCleanerSalary: "Cleaner Salary Sweden",
+    guideVadTjanar: "Cleaner Salary in Sweden",
+    guideIndustryStats: "Cleaning Industry Statistics",
+    guideStadbranschen: "Cleaning Industry Statistics",
+    guideHireCleaner: "Hire Cleaner Stockholm",
+    guideStadfirma: "Cleaning Company Stockholm",
+    guideBestCompanies: "Best Cleaning Companies",
+    guideBastaStadforetag: "Best Cleaning Companies",
   },
   sv: {
     title: "Clean Jobs",
@@ -131,6 +134,21 @@ const footerCopy: Record<Locale, FooterCopy> = {
     privacy: "Integritet",
     contact: "Kontakt",
     copyright: "Alla rättigheter förbehållna.",
+    popularGuides: "Populära guider",
+    guideWorkInSweden: "Jobba i Sverige",
+    guideForeigners: "Jobb för utlänningar i Sverige",
+    guideFindJob: "Hur man hittar jobb i Sverige",
+    guideJobbISverige: "Jobb i Sverige",
+    guideJobbUtanSvenska: "Jobb utan svenska",
+    guideHurManFarJobb: "Hur man får jobb i Sverige",
+    guideCleanerSalary: "Lön för städare i Sverige",
+    guideVadTjanar: "Vad tjänar en städare",
+    guideIndustryStats: "Statistik om städbranschen",
+    guideStadbranschen: "Städbranschen statistik",
+    guideHireCleaner: "Anlita städare i Stockholm",
+    guideStadfirma: "Städfirma Stockholm",
+    guideBestCompanies: "Bästa städföretag",
+    guideBastaStadforetag: "Bästa städföretag",
   },
   pl: {
     title: "Clean Jobs",
@@ -139,6 +157,21 @@ const footerCopy: Record<Locale, FooterCopy> = {
     privacy: "Prywatność",
     contact: "Kontakt",
     copyright: "Wszelkie prawa zastrzeżone.",
+    popularGuides: "Popularne poradniki",
+    guideWorkInSweden: "Praca w Szwecji",
+    guideForeigners: "Praca dla obcokrajowców w Szwecji",
+    guideFindJob: "Jak znaleźć pracę w Szwecji",
+    guideJobbISverige: "Praca w Szwecji",
+    guideJobbUtanSvenska: "Praca bez języka szwedzkiego",
+    guideHurManFarJobb: "Jak dostać pracę w Szwecji",
+    guideCleanerSalary: "Wynagrodzenie sprzątacza w Szwecji",
+    guideVadTjanar: "Ile zarabia sprzątacz",
+    guideIndustryStats: "Statystyki branży sprzątania",
+    guideStadbranschen: "Statystyki branży sprzątania",
+    guideHireCleaner: "Zatrudnij sprzątacza w Sztokholmie",
+    guideStadfirma: "Firma sprzątająca w Sztokholmie",
+    guideBestCompanies: "Najlepsze firmy sprzątające",
+    guideBastaStadforetag: "Najlepsze firmy sprzątające",
   },
 }
 
@@ -157,11 +190,8 @@ const jsonLd = {
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
       name: "Clean Jobs",
-      description:
-        "Cleaning jobs marketplace for clients and workers across Sweden.",
-      publisher: {
-        "@id": `${siteUrl}/#organization`,
-      },
+      description: "Cleaning jobs marketplace for clients and workers across Sweden.",
+      publisher: { "@id": `${siteUrl}/#organization` },
       potentialAction: {
         "@type": "SearchAction",
         target: `${siteUrl}/jobs?search={search_term_string}`,
@@ -177,12 +207,25 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
   const cookieStore = await cookies()
-
-  const locale = normalizeLocale(
-    cookieStore.get("clean_jobs_locale")?.value,
-  ) as Locale
-
+  const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
   const t = footerCopy[locale] || footerCopy.en
+
+  const guideLinks = [
+    { href: "/work-in-sweden", label: t.guideWorkInSweden },
+    { href: "/jobs-for-foreigners-in-sweden", label: t.guideForeigners },
+    { href: "/how-to-find-a-job-in-sweden", label: t.guideFindJob },
+    { href: "/jobb-i-sverige", label: t.guideJobbISverige },
+    { href: "/jobb-utan-svenska", label: t.guideJobbUtanSvenska },
+    { href: "/hur-man-far-jobb-i-sverige", label: t.guideHurManFarJobb },
+    { href: "/how-much-do-cleaners-earn-in-sweden", label: t.guideCleanerSalary },
+    { href: "/vad-tjanar-en-stadare-i-sverige", label: t.guideVadTjanar },
+    { href: "/cleaning-company-statistics-sweden", label: t.guideIndustryStats },
+    { href: "/stadbranschen-i-sverige-statistik", label: t.guideStadbranschen },
+    { href: "/hire-cleaner-stockholm", label: t.guideHireCleaner },
+    { href: "/stadfirma-stockholm", label: t.guideStadfirma },
+    { href: "/best-cleaning-companies-in-sweden", label: t.guideBestCompanies },
+    { href: "/basta-stadforetag-i-sverige", label: t.guideBastaStadforetag },
+  ]
 
   return (
     <html lang={locale}>
@@ -200,116 +243,68 @@ export default async function RootLayout({
           <main className="flex-1">{children}</main>
 
           <footer className="border-t border-slate-200 bg-white">
-  <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+            <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+              <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <div className="text-lg font-semibold tracking-tight text-slate-950">
+                    {t.title}
+                  </div>
 
-    <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-      <div>
-        <div className="text-lg font-semibold tracking-tight text-slate-950">
-          {t.title}
-        </div>
+                  <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
+                    {t.subtitle}
+                  </p>
 
-        <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-          {t.subtitle}
-        </p>
+                  <p className="mt-4 text-xs text-slate-400">
+                    © {new Date().getFullYear()} Clean Jobs. {t.copyright}
+                  </p>
+                </div>
 
-        <p className="mt-4 text-xs text-slate-400">
-          © {new Date().getFullYear()} Clean Jobs. {t.copyright}
-        </p>
-      </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  <Link
+                    href="/terms"
+                    prefetch={false}
+                    className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+                  >
+                    {t.terms}
+                  </Link>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <Link
-          href="/terms"
-          prefetch={false}
-          className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-        >
-          {t.terms}
-        </Link>
+                  <Link
+                    href="/privacy"
+                    prefetch={false}
+                    className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+                  >
+                    {t.privacy}
+                  </Link>
 
-        <Link
-          href="/privacy"
-          prefetch={false}
-          className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-        >
-          {t.privacy}
-        </Link>
+                  <Link
+                    href="/contact"
+                    prefetch={false}
+                    className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+                  >
+                    {t.contact}
+                  </Link>
+                </div>
+              </div>
 
-        <Link
-          href="/contact"
-          prefetch={false}
-          className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-        >
-          {t.contact}
-        </Link>
-      </div>
-    </div>
+              <div className="mt-8 border-t border-slate-200 pt-8">
+                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-900">
+                  {t.popularGuides}
+                </h3>
 
-    <div className="mt-8 border-t border-slate-200 pt-8">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-900">
-        Popular Guides
-      </h3>
-
-      <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-        <Link href="/work-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
-          Work in Sweden
-        </Link>
-
-        <Link href="/jobs-for-foreigners-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
-          Jobs for Foreigners in Sweden
-        </Link>
-
-        <Link href="/how-to-find-a-job-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
-          How to Find a Job in Sweden
-        </Link>
-
-        <Link href="/jobb-i-sverige" className="text-sm text-slate-600 hover:text-rose-600">
-          Jobb i Sverige
-        </Link>
-
-        <Link href="/jobb-utan-svenska" className="text-sm text-slate-600 hover:text-rose-600">
-          Jobb utan svenska
-        </Link>
-
-        <Link href="/hur-man-far-jobb-i-sverige" className="text-sm text-slate-600 hover:text-rose-600">
-          Hur man får jobb i Sverige
-        </Link>
-
-        <Link href="/how-much-do-cleaners-earn-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
-          Cleaner Salary Sweden
-        </Link>
-
-        <Link href="/vad-tjanar-en-stadare-i-sverige" className="text-sm text-slate-600 hover:text-rose-600">
-          Vad tjänar en städare
-        </Link>
-
-        <Link href="/cleaning-company-statistics-sweden" className="text-sm text-slate-600 hover:text-rose-600">
-          Cleaning Industry Statistics
-        </Link>
-
-        <Link href="/stadbranschen-i-sverige-statistik" className="text-sm text-slate-600 hover:text-rose-600">
-          Städbranschen Statistik
-        </Link>
-
-        <Link href="/hire-cleaner-stockholm" className="text-sm text-slate-600 hover:text-rose-600">
-          Hire Cleaner Stockholm
-        </Link>
-
-        <Link href="/stadfirma-stockholm" className="text-sm text-slate-600 hover:text-rose-600">
-          Städfirma Stockholm
-        </Link>
-
-        <Link href="/best-cleaning-companies-in-sweden" className="text-sm text-slate-600 hover:text-rose-600">
-          Best Cleaning Companies
-        </Link>
-
-        <Link href="/basta-stadforetag-i-sverige" className="text-sm text-slate-600 hover:text-rose-600">
-          Bästa Städföretag
-        </Link>
-      </div>
-    </div>
-
-  </div>
-</footer>
+                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                  {guideLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className="text-sm text-slate-600 hover:text-rose-600"
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </footer>
         </div>
 
         <LanguageWelcomeModal />
@@ -323,25 +318,26 @@ export default async function RootLayout({
             })(window, document, "clarity", "script", "wzu4anu3qc");
           `}
         </Script>
-              <Script
-  src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-  strategy="afterInteractive"
-/>
 
-<Script id="google-analytics" strategy="afterInteractive">
-  {`
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+          strategy="afterInteractive"
+        />
 
-    gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
-      page_path: window.location.pathname,
-    });
-  `}
-</Script>
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
+
         <Analytics />
       </body>
     </html>
   )
 }
-
