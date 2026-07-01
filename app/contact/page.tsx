@@ -35,7 +35,7 @@ const copy: Record<Locale, ContactCopy> = {
     subtitle:
       "Маєте питання щодо Clean Jobs, профілю, оголошень або роботи платформи? Зв’яжіться з нами.",
     emailLabel: "Email підтримки",
-    emailValue: "support@cleanjobs.com",
+    emailValue: "support@cleansjob.com",
     locationLabel: "Локація",
     locationValue: "Stockholm, Sweden",
     responseLabel: "Час відповіді",
@@ -55,7 +55,7 @@ const copy: Record<Locale, ContactCopy> = {
     subtitle:
       "Есть вопросы о Clean Jobs, профиле, объявлениях или работе платформы? Свяжитесь с нами.",
     emailLabel: "Email поддержки",
-    emailValue: "support@cleanjobs.com",
+    emailValue: "support@cleansjob.com",
     locationLabel: "Локация",
     locationValue: "Stockholm, Sweden",
     responseLabel: "Время ответа",
@@ -75,7 +75,7 @@ const copy: Record<Locale, ContactCopy> = {
     subtitle:
       "Have a question about Clean Jobs, your profile, job listings, or how the platform works? Contact us.",
     emailLabel: "Support email",
-    emailValue: "support@cleanjobs.com",
+    emailValue: "support@cleansjob.com",
     locationLabel: "Location",
     locationValue: "Stockholm, Sweden",
     responseLabel: "Response time",
@@ -95,7 +95,7 @@ const copy: Record<Locale, ContactCopy> = {
     subtitle:
       "Har du frågor om Clean Jobs, din profil, annonser eller hur plattformen fungerar? Kontakta oss.",
     emailLabel: "Supportmejl",
-    emailValue: "support@cleanjobs.com",
+    emailValue: "support@cleansjob.com",
     locationLabel: "Plats",
     locationValue: "Stockholm, Sweden",
     responseLabel: "Svarstid",
@@ -115,7 +115,7 @@ const copy: Record<Locale, ContactCopy> = {
     subtitle:
       "Masz pytanie dotyczące Clean Jobs, profilu, ogłoszeń lub działania platformy? Skontaktuj się z nami.",
     emailLabel: "Email wsparcia",
-    emailValue: "support@cleanjobs.com",
+    emailValue: "support@cleansjob.com",
     locationLabel: "Lokalizacja",
     locationValue: "Stockholm, Sweden",
     responseLabel: "Czas odpowiedzi",
