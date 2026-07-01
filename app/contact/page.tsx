@@ -35,7 +35,7 @@ const copy: Record<Locale, ContactCopy> = {
     subtitle:
       "Маєте питання щодо Clean Jobs, профілю, оголошень або роботи платформи? Зв’яжіться з нами.",
     emailLabel: "Email підтримки",
-    emailValue: "support@cleanjobs.app",
+    emailValue: "support@cleanjobs.com",
     locationLabel: "Локація",
     locationValue: "Stockholm, Sweden",
     responseLabel: "Час відповіді",
