@@ -1,7 +1,7 @@
 "use client"
 
-import { useEffect, useRef, useState, useTransition } from "react"
-import { useRouter } from "next/navigation"
+import { useEffect, useMemo, useRef, useState, useTransition } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import type { Locale } from "@/lib/i18n"
 
 type LanguageSwitcherProps = {
@@ -26,15 +26,70 @@ function getCurrentLanguage(locale: Locale) {
   return languages.find((item) => item.value === locale) ?? languages[2]
 }
 
-export default function LanguageSwitcher({
-  locale,
-}: LanguageSwitcherProps) {
+function getLocaleFromSeoPath(pathname: string): Locale | null {
+  const cleanPath = pathname.split("?")[0]
+
+  if (/^\/seo\/[^/]+\/[^/]+\/?$/.test(cleanPath)) {
+    return "sv"
+  }
+
+  const localizedSeoMatch = cleanPath.match(
+    /^\/(en|uk|ru|pl)\/seo\/[^/]+\/[^/]+\/?$/,
+  )
+
+  if (!localizedSeoMatch) {
+    return null
+  }
+
+  return localizedSeoMatch[1] as Locale
+}
+
+function getSeoLocalizedPath(pathname: string, nextLocale: Locale) {
+  const cleanPath = pathname.split("?")[0]
+
+  const localizedSeoMatch = cleanPath.match(
+    /^\/(en|uk|ru|pl)\/seo\/([^/]+)\/([^/]+)\/?$/,
+  )
+
+  if (localizedSeoMatch) {
+    const city = localizedSeoMatch[2]
+    const service = localizedSeoMatch[3]
+
+    if (nextLocale === "sv") {
+      return `/seo/${city}/${service}`
+    }
+
+    return `/${nextLocale}/seo/${city}/${service}`
+  }
+
+  const defaultSeoMatch = cleanPath.match(/^\/seo\/([^/]+)\/([^/]+)\/?$/)
+
+  if (defaultSeoMatch) {
+    const city = defaultSeoMatch[1]
+    const service = defaultSeoMatch[2]
+
+    if (nextLocale === "sv") {
+      return `/seo/${city}/${service}`
+    }
+
+    return `/${nextLocale}/seo/${city}/${service}`
+  }
+
+  return null
+}
+
+export default function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const containerRef = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
 
-  const current = getCurrentLanguage(locale)
+  const activeLocale = useMemo(() => {
+    return getLocaleFromSeoPath(pathname) ?? locale
+  }, [pathname, locale])
+
+  const current = getCurrentLanguage(activeLocale)
 
   useEffect(() => {
     function handlePointerDown(event: MouseEvent | TouchEvent) {
@@ -70,7 +125,7 @@ export default function LanguageSwitcher({
   }
 
   function changeLocale(nextLocale: Locale) {
-    if (nextLocale === locale) {
+    if (nextLocale === activeLocale) {
       closeMenu()
       return
     }
@@ -78,7 +133,14 @@ export default function LanguageSwitcher({
     document.cookie = `clean_jobs_locale=${nextLocale}; path=/; max-age=31536000; samesite=lax`
     closeMenu()
 
+    const seoPath = getSeoLocalizedPath(pathname, nextLocale)
+
     startTransition(() => {
+      if (seoPath) {
+        window.location.href = seoPath
+        return
+      }
+
       router.refresh()
     })
   }
@@ -117,7 +179,7 @@ export default function LanguageSwitcher({
           >
             <div className="flex flex-col gap-1">
               {languages.map((item) => {
-                const isActive = item.value === locale
+                const isActive = item.value === activeLocale
 
                 return (
                   <button
@@ -137,7 +199,9 @@ export default function LanguageSwitcher({
                     </span>
 
                     {isActive ? (
-                      <span className="text-xs font-semibold text-rose-600">✓</span>
+                      <span className="text-xs font-semibold text-rose-600">
+                        ✓
+                      </span>
                     ) : null}
                   </button>
                 )

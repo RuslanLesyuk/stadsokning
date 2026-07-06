@@ -1,13 +1,30 @@
-import { SUPPORTED_LOCALES } from "@/lib/i18n"
+import { SEO_SITE_URL, SEO_SUPPORTED_LOCALES } from "@/lib/seo/constants"
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cleansjob.com"
+function normalizePath(pathname: string) {
+  if (!pathname.startsWith("/")) {
+    return `/${pathname}`
+  }
+
+  return pathname
+}
 
 export function getLanguageAlternates(pathname: string) {
-  return SUPPORTED_LOCALES.reduce(
+  const normalizedPath = normalizePath(pathname)
+
+  const languages = SEO_SUPPORTED_LOCALES.reduce(
     (acc, locale) => {
-      acc[locale] = `${siteUrl}${pathname}?lang=${locale}`
+      const localizedPath =
+        locale === "sv" ? normalizedPath : `/${locale}${normalizedPath}`
+
+      acc[locale] = `${SEO_SITE_URL}${localizedPath}`
+
       return acc
     },
     {} as Record<string, string>,
   )
+
+  return {
+    ...languages,
+    "x-default": `${SEO_SITE_URL}${normalizedPath}`,
+  }
 }

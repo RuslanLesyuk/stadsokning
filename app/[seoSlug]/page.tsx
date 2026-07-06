@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
+
 import { createClient } from "@/lib/supabase-server"
 import {
   DEFAULT_LOCALE,
@@ -15,14 +16,13 @@ import {
   seoLandingPages,
 } from "@/lib/seo-landing-pages"
 import { getLanguageAlternates } from "@/lib/seo"
+import { SEO_SITE_URL } from "@/lib/seo/constants"
 
 type PageProps = {
   params: Promise<{
     seoSlug: string
   }>
 }
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cleansjob.com"
 
 function cityToSlug(city: string) {
   return city
@@ -80,19 +80,20 @@ export async function generateMetadata({
     cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
   )
   const copy = getSeoLandingCopy(page, locale)
-const dictionary = getDictionary(locale)
-const common = dictionary.common
+  const dictionary = getDictionary(locale)
+  const common = dictionary.common
+
   return {
     title: copy.title,
     description: copy.description,
     alternates: {
-      canonical: `${siteUrl}/${page.slug}`,
+      canonical: `${SEO_SITE_URL}/${page.slug}`,
       languages: getLanguageAlternates(`/${page.slug}`),
     },
     openGraph: {
       title: copy.title,
       description: copy.description,
-      url: `${siteUrl}/${page.slug}`,
+      url: `${SEO_SITE_URL}/${page.slug}`,
       siteName: "Clean Jobs",
       type: "website",
     },
@@ -120,7 +121,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
     .from("service_profiles")
     .select("*")
     .ilike("city", `%${page.city}%`)
-    .order("{common.verified}", { ascending: false })
+    .order("verified", { ascending: false })
     .order("company_name")
     .limit(9)
 
@@ -145,13 +146,13 @@ export default async function SeoLandingPage({ params }: PageProps) {
         "@type": "ListItem",
         position: 1,
         name: "Clean Jobs",
-        item: siteUrl,
+        item: SEO_SITE_URL,
       },
       {
         "@type": "ListItem",
         position: 2,
         name: copy.h1,
-        item: `${siteUrl}/${page.slug}`,
+        item: `${SEO_SITE_URL}/${page.slug}`,
       },
     ],
   }
@@ -202,7 +203,8 @@ export default async function SeoLandingPage({ params }: PageProps) {
             </Link>
           </div>
         </section>
-                <section className="mt-10">
+
+        <section className="mt-10">
           <div className="mb-5">
             <h2 className="text-2xl font-bold text-slate-950">
               {copy.providersTitle}
@@ -229,9 +231,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
                   )}
                 </div>
 
-                <p className="mt-3 text-sm text-slate-500">
-                  {service.city}
-                </p>
+                <p className="mt-3 text-sm text-slate-500">{service.city}</p>
 
                 {service.hourly_rate && (
                   <p className="mt-4 text-sm font-semibold text-slate-950">
@@ -269,9 +269,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
         </section>
 
         <section className="mt-12 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-          <h2 className="text-2xl font-bold text-slate-950">
-            {copy.faqTitle}
-          </h2>
+          <h2 className="text-2xl font-bold text-slate-950">{copy.faqTitle}</h2>
 
           <div className="mt-6 space-y-6">
             {copy.faq.map((item) => (
@@ -280,9 +278,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
                   {item.question}
                 </h3>
 
-                <p className="mt-2 leading-7 text-slate-600">
-                  {item.answer}
-                </p>
+                <p className="mt-2 leading-7 text-slate-600">{item.answer}</p>
               </div>
             ))}
           </div>
@@ -315,13 +311,9 @@ export default async function SeoLandingPage({ params }: PageProps) {
 
         <section className="mt-12 rounded-[2rem] border border-slate-200 bg-gradient-to-r from-rose-50 to-white p-8 shadow-sm">
           <div className="max-w-3xl">
-            <h2 className="text-3xl font-bold text-slate-950">
-              Clean Jobs
-            </h2>
+            <h2 className="text-3xl font-bold text-slate-950">Clean Jobs</h2>
 
-            <p className="mt-4 leading-8 text-slate-600">
-  {copy.intro}
-</p>
+            <p className="mt-4 leading-8 text-slate-600">{copy.intro}</p>
           </div>
         </section>
       </main>

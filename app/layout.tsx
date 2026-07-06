@@ -184,18 +184,53 @@ const jsonLd = {
       name: "Clean Jobs",
       url: siteUrl,
       logo: `${siteUrl}/og-image.png`,
+      email: "support@cleansjob.com",
+      contactPoint: [
+        {
+          "@type": "ContactPoint",
+          contactType: "customer support",
+          email: "support@cleansjob.com",
+          availableLanguage: ["Ukrainian", "Russian", "English", "Swedish", "Polish"],
+        },
+      ],
     },
     {
       "@type": "WebSite",
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
       name: "Clean Jobs",
-      description: "Cleaning jobs marketplace for clients and workers across Sweden.",
-      publisher: { "@id": `${siteUrl}/#organization` },
+      description:
+        "Marketplace for cleaning jobs, cleaners and cleaning companies in Sweden.",
+      publisher: {
+        "@id": `${siteUrl}/#organization`,
+      },
+      inLanguage: ["uk", "ru", "en", "sv", "pl"],
       potentialAction: {
         "@type": "SearchAction",
         target: `${siteUrl}/jobs?search={search_term_string}`,
         "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "LocalBusiness",
+      "@id": `${siteUrl}/#localbusiness`,
+      name: "Clean Jobs",
+      url: siteUrl,
+      image: `${siteUrl}/og-image.png`,
+      email: "support@cleansjob.com",
+      areaServed: {
+        "@type": "Country",
+        name: "Sweden",
+      },
+      serviceType: [
+        "Cleaning jobs",
+        "Home cleaning",
+        "Office cleaning",
+        "Move-out cleaning",
+        "Cleaning companies",
+      ],
+      parentOrganization: {
+        "@id": `${siteUrl}/#organization`,
       },
     },
   ],
