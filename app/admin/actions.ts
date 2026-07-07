@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+
+import { createAdminClient } from "@/lib/supabase-admin"
 import { createClient } from "@/lib/supabase-server"
 
 function getAdminEmails() {
@@ -22,62 +24,74 @@ async function requireAdmin() {
     redirect("/login?next=/admin")
   }
 
-  const adminEmails = getAdminEmails()
-  const isAdmin = adminEmails.includes(user.email.toLowerCase())
+  const isAdmin = getAdminEmails().includes(user.email.toLowerCase())
 
   if (!isAdmin) {
     redirect("/dashboard")
   }
 
-  return supabase
+  return createAdminClient()
+}
+
+function getFormId(formData: FormData, key: string) {
+  return String(formData.get(key) || "").trim()
+}
+
+function refreshAdminPaths() {
+  revalidatePath("/admin")
+  revalidatePath("/jobs")
+  revalidatePath("/dashboard")
+  revalidatePath("/services")
 }
 
 export async function verifyUserAction(formData: FormData) {
   const supabase = await requireAdmin()
-  const userId = String(formData.get("userId") || "").trim()
+  const userId = getFormId(formData, "userId")
 
-  if (!userId) {
-    redirect("/admin")
+  if (!userId) redirect("/admin")
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ verified: true })
+    .eq("id", userId)
+
+  if (error) {
+    console.error("verifyUserAction error:", error.message)
   }
 
-  await supabase.from("profiles").update({ verified: true }).eq("id", userId)
-
-  revalidatePath("/admin")
-  revalidatePath("/jobs")
-  revalidatePath("/dashboard")
-
+  refreshAdminPaths()
   redirect("/admin")
 }
 
 export async function unverifyUserAction(formData: FormData) {
   const supabase = await requireAdmin()
-  const userId = String(formData.get("userId") || "").trim()
+  const userId = getFormId(formData, "userId")
 
-  if (!userId) {
-    redirect("/admin")
+  if (!userId) redirect("/admin")
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ verified: false })
+    .eq("id", userId)
+
+  if (error) {
+    console.error("unverifyUserAction error:", error.message)
   }
 
-  await supabase.from("profiles").update({ verified: false }).eq("id", userId)
-
-  revalidatePath("/admin")
-  revalidatePath("/jobs")
-  revalidatePath("/dashboard")
-
+  refreshAdminPaths()
   redirect("/admin")
 }
 
 export async function setPremiumUserAction(formData: FormData) {
   const supabase = await requireAdmin()
-  const userId = String(formData.get("userId") || "").trim()
+  const userId = getFormId(formData, "userId")
 
-  if (!userId) {
-    redirect("/admin")
-  }
+  if (!userId) redirect("/admin")
 
   const subscriptionEndsAt = new Date()
   subscriptionEndsAt.setMonth(subscriptionEndsAt.getMonth() + 1)
 
-  await supabase
+  const { error } = await supabase
     .from("profiles")
     .update({
       is_premium: true,
@@ -85,22 +99,21 @@ export async function setPremiumUserAction(formData: FormData) {
     })
     .eq("id", userId)
 
-  revalidatePath("/admin")
-  revalidatePath("/jobs")
-  revalidatePath("/dashboard")
+  if (error) {
+    console.error("setPremiumUserAction error:", error.message)
+  }
 
+  refreshAdminPaths()
   redirect("/admin")
 }
 
 export async function removePremiumUserAction(formData: FormData) {
   const supabase = await requireAdmin()
-  const userId = String(formData.get("userId") || "").trim()
+  const userId = getFormId(formData, "userId")
 
-  if (!userId) {
-    redirect("/admin")
-  }
+  if (!userId) redirect("/admin")
 
-  await supabase
+  const { error } = await supabase
     .from("profiles")
     .update({
       is_premium: false,
@@ -108,47 +121,52 @@ export async function removePremiumUserAction(formData: FormData) {
     })
     .eq("id", userId)
 
-  revalidatePath("/admin")
-  revalidatePath("/jobs")
-  revalidatePath("/dashboard")
+  if (error) {
+    console.error("removePremiumUserAction error:", error.message)
+  }
 
+  refreshAdminPaths()
   redirect("/admin")
 }
 
 export async function cancelJobAction(formData: FormData) {
   const supabase = await requireAdmin()
-  const jobId = String(formData.get("jobId") || "").trim()
+  const jobId = getFormId(formData, "jobId")
 
-  if (!jobId) {
-    redirect("/admin")
+  if (!jobId) redirect("/admin")
+
+  const { error } = await supabase
+    .from("jobs")
+    .update({ status: "cancelled" })
+    .eq("id", jobId)
+
+  if (error) {
+    console.error("cancelJobAction error:", error.message)
   }
 
-  await supabase.from("jobs").update({ status: "cancelled" }).eq("id", jobId)
-
-  revalidatePath("/admin")
-  revalidatePath("/jobs")
-  revalidatePath("/dashboard")
+  refreshAdminPaths()
   revalidatePath(`/jobs/${jobId}`)
-
   redirect("/admin")
 }
 
 export async function resolveReportAction(formData: FormData) {
   const supabase = await requireAdmin()
-  const reportId = String(formData.get("reportId") || "").trim()
-  const jobId = String(formData.get("jobId") || "").trim()
+  const reportId = getFormId(formData, "reportId")
+  const jobId = getFormId(formData, "jobId")
 
-  if (!reportId) {
-    redirect("/admin")
-  }
+  if (!reportId) redirect("/admin")
 
-  await supabase
+  const { error } = await supabase
     .from("job_reports")
     .update({
       status: "resolved",
       updated_at: new Date().toISOString(),
     })
     .eq("id", reportId)
+
+  if (error) {
+    console.error("resolveReportAction error:", error.message)
+  }
 
   revalidatePath("/admin")
 
@@ -161,13 +179,11 @@ export async function resolveReportAction(formData: FormData) {
 
 export async function dismissReportAction(formData: FormData) {
   const supabase = await requireAdmin()
-  const reportId = String(formData.get("reportId") || "").trim()
+  const reportId = getFormId(formData, "reportId")
 
-  if (!reportId) {
-    redirect("/admin")
-  }
+  if (!reportId) redirect("/admin")
 
-  await supabase
+  const { error } = await supabase
     .from("job_reports")
     .update({
       status: "dismissed",
@@ -175,7 +191,10 @@ export async function dismissReportAction(formData: FormData) {
     })
     .eq("id", reportId)
 
-  revalidatePath("/admin")
+  if (error) {
+    console.error("dismissReportAction error:", error.message)
+  }
 
+  revalidatePath("/admin")
   redirect("/admin")
 }
