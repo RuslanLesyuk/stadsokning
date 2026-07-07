@@ -3,7 +3,6 @@ import Link from "next/link"
 import type { createSeoEngine } from "./index"
 
 import {
-  SEO_DEFAULT_LOCALE,
   SEO_PRIMARY_JOB_URL,
   SEO_SERVICES_URL,
   SEO_SIGNUP_URL,
@@ -22,20 +21,12 @@ type SafeRelatedLink = {
   title?: string
 }
 
-function getLocalizedPath(locale: string, path: string) {
-  if (locale === SEO_DEFAULT_LOCALE) {
-    return path
-  }
-
-  return `/${locale}${path}`
-}
-
 function getRelatedLabel(item: SafeRelatedLink) {
   return item.label ?? item.name ?? item.title ?? item.href
 }
 
 export function SeoPage({ seo }: SeoPageProps) {
-  const { content, schema, breadcrumbs, related, locale } = seo
+  const { content, schema, breadcrumbs, related } = seo
 
   return (
     <>
@@ -79,14 +70,14 @@ export function SeoPage({ seo }: SeoPageProps) {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              href={getLocalizedPath(locale, SEO_SIGNUP_URL)}
+              href={SEO_PRIMARY_JOB_URL}
               className="rounded-full bg-white px-5 py-3 text-sm font-semibold text-gray-950 hover:bg-gray-100"
             >
               {content.hero.primaryCta}
             </Link>
 
             <Link
-              href={getLocalizedPath(locale, SEO_SERVICES_URL)}
+              href={SEO_SIGNUP_URL}
               className="rounded-full border border-white/30 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
             >
               {content.hero.secondaryCta}
@@ -135,7 +126,7 @@ export function SeoPage({ seo }: SeoPageProps) {
           <p className="mt-3 max-w-3xl text-gray-700">{content.cta.text}</p>
 
           <Link
-            href={getLocalizedPath(locale, SEO_PRIMARY_JOB_URL)}
+            href={SEO_SERVICES_URL}
             className="mt-6 inline-flex rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white hover:bg-emerald-700"
           >
             {content.cta.primaryCta}
