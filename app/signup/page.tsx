@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
@@ -10,6 +10,8 @@ type Copy = {
   email: string
   password: string
   signup: string
+  google_signup: string
+  divider: string
   login_prompt: string
   login_link: string
   email_placeholder: string
@@ -30,6 +32,8 @@ const copy: Record<Locale, Copy> = {
     email: "Email",
     password: "Пароль",
     signup: "Створити акаунт",
+    google_signup: "Зареєструватися через Google",
+    divider: "або",
     login_prompt: "Вже є акаунт?",
     login_link: "Увійти",
     email_placeholder: "Введіть email",
@@ -48,6 +52,8 @@ const copy: Record<Locale, Copy> = {
     email: "Email",
     password: "Пароль",
     signup: "Создать аккаунт",
+    google_signup: "Зарегистрироваться через Google",
+    divider: "или",
     login_prompt: "Уже есть аккаунт?",
     login_link: "Войти",
     email_placeholder: "Введите email",
@@ -66,6 +72,8 @@ const copy: Record<Locale, Copy> = {
     email: "Email",
     password: "Password",
     signup: "Create account",
+    google_signup: "Sign up with Google",
+    divider: "or",
     login_prompt: "Already have an account?",
     login_link: "Login",
     email_placeholder: "Enter your email",
@@ -84,6 +92,8 @@ const copy: Record<Locale, Copy> = {
     email: "E-post",
     password: "Lösenord",
     signup: "Skapa konto",
+    google_signup: "Registrera dig med Google",
+    divider: "eller",
     login_prompt: "Har du redan ett konto?",
     login_link: "Logga in",
     email_placeholder: "Ange din e-post",
@@ -102,6 +112,8 @@ const copy: Record<Locale, Copy> = {
     email: "Email",
     password: "Hasło",
     signup: "Utwórz konto",
+    google_signup: "Zarejestruj się przez Google",
+    divider: "lub",
     login_prompt: "Masz już konto?",
     login_link: "Zaloguj się",
     email_placeholder: "Wpisz email",
@@ -128,6 +140,27 @@ export default async function SignupPage() {
 
   if (user) {
     redirect("/dashboard")
+  }
+
+  async function googleSignupAction() {
+    "use server"
+
+    const supabase = await createClient()
+    const headerStore = await headers()
+    const origin = headerStore.get("origin") ?? "https://cleansjob.com"
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${origin}/auth/callback?next=/dashboard`,
+      },
+    })
+
+    if (error || !data.url) {
+      redirect("/signup")
+    }
+
+    redirect(data.url)
   }
 
   async function signupAction(formData: FormData) {
@@ -167,12 +200,24 @@ export default async function SignupPage() {
               {t.subtitle}
             </p>
 
-            <form action={signupAction} className="mt-6 space-y-4 sm:mt-8">
+            <form action={googleSignupAction} className="mt-6 sm:mt-8">
+              <button
+                type="submit"
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
+              >
+                {t.google_signup}
+              </button>
+            </form>
+
+            <div className="my-5 flex items-center gap-3">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span className="text-xs font-medium text-slate-400">{t.divider}</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <form action={signupAction} className="space-y-4">
               <div>
-                <label
-                  htmlFor="email"
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-700">
                   {t.email}
                 </label>
                 <input
@@ -187,10 +232,7 @@ export default async function SignupPage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="password"
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700">
                   {t.password}
                 </label>
                 <input

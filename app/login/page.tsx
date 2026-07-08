@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
@@ -10,6 +10,8 @@ type Copy = {
   email: string
   password: string
   login: string
+  google_login: string
+  divider: string
   signup_prompt: string
   signup_link: string
   email_placeholder: string
@@ -30,6 +32,8 @@ const copy: Record<Locale, Copy> = {
     email: "Email",
     password: "Пароль",
     login: "Увійти",
+    google_login: "Продовжити з Google",
+    divider: "або",
     signup_prompt: "Ще немає акаунта?",
     signup_link: "Зареєструватися",
     email_placeholder: "Введіть email",
@@ -48,6 +52,8 @@ const copy: Record<Locale, Copy> = {
     email: "Email",
     password: "Пароль",
     login: "Войти",
+    google_login: "Продолжить с Google",
+    divider: "или",
     signup_prompt: "Ещё нет аккаунта?",
     signup_link: "Зарегистрироваться",
     email_placeholder: "Введите email",
@@ -66,6 +72,8 @@ const copy: Record<Locale, Copy> = {
     email: "Email",
     password: "Password",
     login: "Login",
+    google_login: "Continue with Google",
+    divider: "or",
     signup_prompt: "Do not have an account yet?",
     signup_link: "Sign up",
     email_placeholder: "Enter your email",
@@ -84,6 +92,8 @@ const copy: Record<Locale, Copy> = {
     email: "E-post",
     password: "Lösenord",
     login: "Logga in",
+    google_login: "Fortsätt med Google",
+    divider: "eller",
     signup_prompt: "Har du inget konto än?",
     signup_link: "Registrera dig",
     email_placeholder: "Ange din e-post",
@@ -102,6 +112,8 @@ const copy: Record<Locale, Copy> = {
     email: "Email",
     password: "Hasło",
     login: "Zaloguj się",
+    google_login: "Kontynuuj z Google",
+    divider: "lub",
     signup_prompt: "Nie masz jeszcze konta?",
     signup_link: "Zarejestruj się",
     email_placeholder: "Wpisz email",
@@ -128,6 +140,27 @@ export default async function LoginPage() {
 
   if (user) {
     redirect("/dashboard")
+  }
+
+  async function googleLoginAction() {
+    "use server"
+
+    const supabase = await createClient()
+    const headerStore = await headers()
+    const origin = headerStore.get("origin") ?? "https://cleansjob.com"
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${origin}/auth/callback?next=/dashboard`,
+      },
+    })
+
+    if (error || !data.url) {
+      redirect("/login")
+    }
+
+    redirect(data.url)
   }
 
   async function loginAction(formData: FormData) {
@@ -167,12 +200,24 @@ export default async function LoginPage() {
               {t.subtitle}
             </p>
 
-            <form action={loginAction} className="mt-6 space-y-4 sm:mt-8">
+            <form action={googleLoginAction} className="mt-6 sm:mt-8">
+              <button
+                type="submit"
+                className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
+              >
+                {t.google_login}
+              </button>
+            </form>
+
+            <div className="my-5 flex items-center gap-3">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span className="text-xs font-medium text-slate-400">{t.divider}</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <form action={loginAction} className="space-y-4">
               <div>
-                <label
-                  htmlFor="email"
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="email" className="mb-2 block text-sm font-medium text-slate-700">
                   {t.email}
                 </label>
                 <input
@@ -187,10 +232,7 @@ export default async function LoginPage() {
               </div>
 
               <div>
-                <label
-                  htmlFor="password"
-                  className="mb-2 block text-sm font-medium text-slate-700"
-                >
+                <label htmlFor="password" className="mb-2 block text-sm font-medium text-slate-700">
                   {t.password}
                 </label>
                 <input
