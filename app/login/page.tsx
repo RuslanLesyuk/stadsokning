@@ -3,6 +3,7 @@ import { cookies, headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
+import { OAuthSubmitButton } from "@/components/auth/oauth-submit-button"
 
 type Copy = {
   title: string
@@ -201,13 +202,8 @@ export default async function LoginPage() {
             </p>
 
             <form action={googleLoginAction} className="mt-6 sm:mt-8">
-              <button
-                type="submit"
-                className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-900 transition hover:bg-slate-50"
-              >
-                {t.google_login}
-              </button>
-            </form>
+  <OAuthSubmitButton label={t.google_login} loadingLabel="Connecting..." />
+</form>
 
             <div className="my-5 flex items-center gap-3">
               <div className="h-px flex-1 bg-slate-200" />
