@@ -11,6 +11,7 @@ import {
   unverifyUserAction,
   verifyUserAction,
 } from "@/app/admin/actions"
+import { CompanyClaimsSection } from "@/components/admin/company-claims-section"
 
 export const dynamic = "force-dynamic"
 
@@ -97,8 +98,16 @@ function getReportStatusClasses(status: string) {
       return "bg-slate-100 text-slate-700 border-slate-200"
   }
 }
-
-export default async function AdminPage() {
+type AdminPageProps = {
+  searchParams: Promise<{
+    claimSuccess?: string
+    claimError?: string
+  }>
+}
+export default async function AdminPage({
+  searchParams,
+}: AdminPageProps) {
+  const { claimSuccess, claimError } = await searchParams
   const supabase = await createClient()
 
   const {
@@ -349,7 +358,10 @@ export default async function AdminPage() {
             )}
           </div>
         </section>
-
+<CompanyClaimsSection
+  success={claimSuccess}
+  error={claimError}
+/>
         <section className="mt-8 grid gap-6 xl:grid-cols-2">
           <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm md:p-6">
             <h2 className="text-xl font-semibold tracking-tight text-slate-950">

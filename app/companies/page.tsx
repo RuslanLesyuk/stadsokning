@@ -1,203 +1,338 @@
 import type { Metadata } from "next"
-import Link from "next/link"
 import { cookies } from "next/headers"
-import { createClient } from "@/lib/supabase-server"
+
 import {
-  DEFAULT_LOCALE,
-  LOCALE_COOKIE_NAME,
-  getDictionary,
-  normalizeLocale,
-} from "@/lib/i18n"
-import { getLanguageAlternates } from "@/lib/seo"
+  CompaniesDirectory,
+  type CompanyDirectoryItem,
+} from "@/components/companies/companies-directory"
+import { createClient } from "@/lib/supabase-server"
 
-export async function generateMetadata(): Promise<Metadata> {
-  const cookieStore = await cookies()
+type Locale = "sv" | "en" | "uk" | "ru" | "pl"
 
-  const locale = normalizeLocale(
-    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE
-  )
+type PageDictionary = {
+  metadataTitle: string
+  metadataDescription: string
+  eyebrow: string
+  title: string
+  description: string
+  companiesLabel: string
+  verifiedLabel: string
+  citiesLabel: string
+  loadErrorTitle: string
+  loadErrorDescription: string
+  emptyTitle: string
+  emptyDescription: string
+}
 
-  const dictionary = getDictionary(locale)
-  const t = dictionary.companies
+const supportedLocales: Locale[] = ["sv", "en", "uk", "ru", "pl"]
 
-  return {
-  title: `${t.pageTitle} | Clean Jobs`,
-  description: t.pageSubtitle,
-  alternates: {
-    canonical: "https://cleansjob.com/companies",
-    languages: getLanguageAlternates("/companies"),
+const dictionaries: Record<Locale, PageDictionary> = {
+  sv: {
+    metadataTitle: "Städföretag i Sverige | Clean Jobs",
+    metadataDescription:
+      "Hitta och jämför städföretag i Sverige. Se företagsinformation, kontaktuppgifter, webbplatser och verifierade företag.",
+    eyebrow: "Företagskatalog",
+    title: "Hitta städföretag i Sverige",
+    description:
+      "Sök bland städföretag, jämför företagsinformation och hitta en passande leverantör av städtjänster.",
+    companiesLabel: "Företag",
+    verifiedLabel: "Verifierade",
+    citiesLabel: "Städer",
+    loadErrorTitle: "Företagen kunde inte hämtas",
+    loadErrorDescription:
+      "Ett tekniskt fel uppstod när företagskatalogen skulle laddas.",
+    emptyTitle: "Inga företag har lagts till ännu",
+    emptyDescription:
+      "Företagskatalogen kommer att visa städföretag när de har publicerats.",
+  },
+
+  en: {
+    metadataTitle: "Cleaning Companies in Sweden | Clean Jobs",
+    metadataDescription:
+      "Find and compare cleaning companies in Sweden. View company information, contact details, websites and verified businesses.",
+    eyebrow: "Company directory",
+    title: "Find cleaning companies in Sweden",
+    description:
+      "Search cleaning companies, compare business information and find a suitable cleaning service provider.",
+    companiesLabel: "Companies",
+    verifiedLabel: "Verified",
+    citiesLabel: "Cities",
+    loadErrorTitle: "Companies could not be loaded",
+    loadErrorDescription:
+      "A technical error occurred while loading the company directory.",
+    emptyTitle: "No companies have been added yet",
+    emptyDescription:
+      "The directory will display cleaning companies after they are published.",
+  },
+
+  uk: {
+    metadataTitle: "Клінінгові компанії у Швеції | Clean Jobs",
+    metadataDescription:
+      "Знаходьте та порівнюйте клінінгові компанії у Швеції. Переглядайте інформацію, контакти, вебсайти та перевірені компанії.",
+    eyebrow: "Каталог компаній",
+    title: "Знайдіть клінінгову компанію у Швеції",
+    description:
+      "Шукайте клінінгові компанії, порівнюйте інформацію та знаходьте відповідного постачальника послуг прибирання.",
+    companiesLabel: "Компанії",
+    verifiedLabel: "Перевірені",
+    citiesLabel: "Міста",
+    loadErrorTitle: "Не вдалося завантажити компанії",
+    loadErrorDescription:
+      "Під час завантаження каталогу компаній сталася технічна помилка.",
+    emptyTitle: "Компаній поки немає",
+    emptyDescription:
+      "У каталозі з’являться клінінгові компанії після їх публікації.",
+  },
+
+  ru: {
+    metadataTitle: "Клининговые компании в Швеции | Clean Jobs",
+    metadataDescription:
+      "Находите и сравнивайте клининговые компании в Швеции. Просматривайте информацию, контакты, сайты и проверенные компании.",
+    eyebrow: "Каталог компаний",
+    title: "Найдите клининговую компанию в Швеции",
+    description:
+      "Ищите клининговые компании, сравнивайте информацию и находите подходящего поставщика услуг уборки.",
+    companiesLabel: "Компании",
+    verifiedLabel: "Проверенные",
+    citiesLabel: "Города",
+    loadErrorTitle: "Не удалось загрузить компании",
+    loadErrorDescription:
+      "При загрузке каталога компаний произошла техническая ошибка.",
+    emptyTitle: "Компании пока не добавлены",
+    emptyDescription:
+      "В каталоге появятся клининговые компании после их публикации.",
+  },
+
+  pl: {
+    metadataTitle: "Firmy sprzątające w Szwecji | Clean Jobs",
+    metadataDescription:
+      "Znajdź i porównaj firmy sprzątające w Szwecji. Zobacz informacje, dane kontaktowe, strony internetowe i zweryfikowane firmy.",
+    eyebrow: "Katalog firm",
+    title: "Znajdź firmę sprzątającą w Szwecji",
+    description:
+      "Wyszukuj firmy sprzątające, porównuj informacje i znajdź odpowiedniego usługodawcę.",
+    companiesLabel: "Firmy",
+    verifiedLabel: "Zweryfikowane",
+    citiesLabel: "Miasta",
+    loadErrorTitle: "Nie udało się załadować firm",
+    loadErrorDescription:
+      "Podczas ładowania katalogu firm wystąpił błąd techniczny.",
+    emptyTitle: "Nie dodano jeszcze żadnych firm",
+    emptyDescription:
+      "Katalog wyświetli firmy sprzątające po ich opublikowaniu.",
   },
 }
+
+function isSupportedLocale(value: string | undefined): value is Locale {
+  return supportedLocales.includes(value as Locale)
 }
 
-const cityLinks = [
-  { name: "Stockholm", href: "/companies/city/stockholm" },
-  { name: "Sollentuna", href: "/companies/city/sollentuna" },
-  { name: "Täby", href: "/companies/city/taby" },
-  { name: "Järfälla", href: "/companies/city/jarfalla" },
-  { name: "Nacka", href: "/companies/city/nacka" },
-  { name: "Huddinge", href: "/companies/city/huddinge" },
-  { name: "Botkyrka", href: "/companies/city/botkyrka" },
-  { name: "Solna", href: "/companies/city/solna" },
-  { name: "Sundbyberg", href: "/companies/city/sundbyberg" },
-]
+async function getLocale(): Promise<Locale> {
+  const cookieStore = await cookies()
+  const localeCookie = cookieStore.get("clean_jobs_locale")?.value
+
+  return isSupportedLocale(localeCookie) ? localeCookie : "sv"
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale()
+  const dictionary = dictionaries[locale]
+
+  return {
+    title: dictionary.metadataTitle,
+    description: dictionary.metadataDescription,
+    alternates: {
+      canonical: "https://cleansjob.com/companies",
+      languages: {
+        sv: "https://cleansjob.com/companies",
+        en: "https://cleansjob.com/companies",
+        uk: "https://cleansjob.com/companies",
+        ru: "https://cleansjob.com/companies",
+        pl: "https://cleansjob.com/companies",
+        "x-default": "https://cleansjob.com/companies",
+      },
+    },
+    openGraph: {
+      type: "website",
+      url: "https://cleansjob.com/companies",
+      siteName: "Clean Jobs",
+      title: dictionary.metadataTitle,
+      description: dictionary.metadataDescription,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: dictionary.metadataTitle,
+      description: dictionary.metadataDescription,
+    },
+  }
+}
 
 export default async function CompaniesPage() {
-  const cookieStore = await cookies()
-  const locale = normalizeLocale(
-    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
-  )
-
-  const dictionary = getDictionary(locale)
-  const t = dictionary.companies
+  const locale = await getLocale()
+  const dictionary = dictionaries[locale]
 
   const supabase = await createClient()
 
-  const { data: companies } = await supabase
+  const { data, error } = await supabase
     .from("companies")
-    .select("*")
+    .select(
+      `
+        id,
+        name,
+        slug,
+        city,
+        website,
+        phone,
+        email,
+        description,
+        logo_url,
+        verified
+      `,
+    )
     .order("verified", { ascending: false })
-    .order("name")
+    .order("name", { ascending: true })
+
+  const companies = (data ?? []) as CompanyDirectoryItem[]
+
+  const verifiedCompaniesCount = companies.filter(
+    (company) => company.verified,
+  ).length
+
+  const cityCount = new Set(
+    companies
+      .map((company) => company.city?.trim())
+      .filter((city): city is string => Boolean(city)),
+  ).size
 
   return (
-    <div className="min-h-screen bg-[#fafafa]">
-      <main className="mx-auto max-w-7xl px-4 py-10">
-        <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-10">
-          <div className="max-w-4xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.2em] text-rose-600">
-              {t.badge}
+    <main className="min-h-screen bg-slate-50">
+      <section className="relative overflow-hidden border-b border-slate-200 bg-white">
+        <div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-emerald-50 via-teal-50/50 to-transparent"
+        />
+
+        <div
+          aria-hidden="true"
+          className="absolute -right-24 top-10 h-72 w-72 rounded-full bg-emerald-100/50 blur-3xl"
+        />
+
+        <div
+          aria-hidden="true"
+          className="absolute -left-24 top-24 h-72 w-72 rounded-full bg-cyan-100/50 blur-3xl"
+        />
+
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+          <div className="max-w-3xl">
+            <p className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800">
+              {dictionary.eyebrow}
             </p>
 
-            <h1 className="mt-4 text-4xl font-bold tracking-tight text-slate-950 md:text-6xl">
-              {t.pageTitle}
+            <h1 className="mt-6 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">
+              {dictionary.title}
             </h1>
 
-            <p className="mt-5 text-lg leading-8 text-slate-600">
-              {t.pageSubtitle}
+            <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">
+              {dictionary.description}
             </p>
-
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link
-                href="/jobs"
-                prefetch={false}
-                className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
-              >
-                {t.findJobs}
-              </Link>
-
-              <Link
-                href="/signup"
-                prefetch={false}
-                className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-900 transition hover:bg-slate-50"
-              >
-                {t.addCompany}
-              </Link>
-            </div>
           </div>
-        </section>
 
-        <section className="mt-10 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
-          <h2 className="text-2xl font-bold text-slate-950">
-            {t.browseByCity}
-          </h2>
-
-          <p className="mt-3 text-sm leading-7 text-slate-600">
-            {t.browseByCityText}
-          </p>
-
-          <div className="mt-6 flex flex-wrap gap-2">
-            {cityLinks.map((city) => (
-              <Link
-                key={city.href}
-                href={city.href}
-                prefetch={false}
-                className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium transition hover:bg-rose-50"
-              >
-                {city.name}
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-10">
-          <div className="mb-5 flex items-end justify-between gap-4">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-950">
-                {t.listedCompanies}
-              </h2>
-
-              <p className="mt-1 text-sm text-slate-500">
-                {companies?.length ?? 0} {t.availableCompanies}
+          <div className="mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm backdrop-blur">
+              <p className="text-3xl font-black text-slate-950">
+                {companies.length}
               </p>
-            </div>
-          </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {companies?.map((company) => (
-              <Link
-                key={company.id}
-                href={`/companies/${company.slug}`}
-                prefetch={false}
-                className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-xl font-bold text-slate-950">
-                    {company.name}
-                  </h3>
-
-                  {company.verified ? (
-                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                      {t.verified}
-                    </span>
-                  ) : null}
-                </div>
-
-                <p className="mt-3 text-sm text-slate-500">
-                  {company.city || "Sweden"}
-                </p>
-
-                <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
-                  {company.description || t.fallbackDescription}
-                </p>
-
-                <div className="mt-6 flex items-center justify-between">
-                  <span className="text-sm font-semibold text-rose-600">
-                    {t.viewCompany}
-                  </span>
-
-                  <span className="text-slate-400 transition-transform group-hover:translate-x-1">
-                    →
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="mt-14 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-10">
-          <div className="grid gap-8 md:grid-cols-2">
-            <div>
-              <h2 className="text-2xl font-bold text-slate-950">
-                {t.findServicesTitle}
-              </h2>
-
-              <p className="mt-4 leading-7 text-slate-600">
-                {t.findServicesText}
+              <p className="mt-1 text-sm font-semibold text-slate-500">
+                {dictionary.companiesLabel}
               </p>
             </div>
 
-            <div>
-              <h2 className="text-2xl font-bold text-slate-950">
-                {t.areYouCompanyTitle}
-              </h2>
+            <div className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm backdrop-blur">
+              <p className="text-3xl font-black text-emerald-600">
+                {verifiedCompaniesCount}
+              </p>
 
-              <p className="mt-4 leading-7 text-slate-600">
-                {t.areYouCompanyText}
+              <p className="mt-1 text-sm font-semibold text-slate-500">
+                {dictionary.verifiedLabel}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white/90 p-5 shadow-sm backdrop-blur">
+              <p className="text-3xl font-black text-slate-950">
+                {cityCount}
+              </p>
+
+              <p className="mt-1 text-sm font-semibold text-slate-500">
+                {dictionary.citiesLabel}
               </p>
             </div>
           </div>
-        </section>
-      </main>
-    </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14 lg:px-8">
+        {error ? (
+          <div className="rounded-3xl border border-red-200 bg-red-50 p-8 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-red-100 text-red-700">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-6 w-6"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 8v4" />
+                <path d="M12 16h.01" />
+              </svg>
+            </div>
+
+            <h2 className="mt-4 text-xl font-bold text-red-950">
+              {dictionary.loadErrorTitle}
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-red-800">
+              {dictionary.loadErrorDescription}
+            </p>
+          </div>
+        ) : companies.length > 0 ? (
+          <CompaniesDirectory
+            companies={companies}
+            locale={locale}
+          />
+        ) : (
+          <div className="rounded-3xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-100 text-slate-600">
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="h-7 w-7"
+              >
+                <path d="M3 21h18" />
+                <path d="M6 21V7l6-4 6 4v14" />
+                <path d="M9 9h1" />
+                <path d="M14 9h1" />
+                <path d="M9 13h1" />
+                <path d="M14 13h1" />
+                <path d="M9 17h6" />
+              </svg>
+            </div>
+
+            <h2 className="mt-5 text-xl font-bold text-slate-950">
+              {dictionary.emptyTitle}
+            </h2>
+
+            <p className="mx-auto mt-2 max-w-lg text-sm leading-6 text-slate-600">
+              {dictionary.emptyDescription}
+            </p>
+          </div>
+        )}
+      </section>
+    </main>
   )
 }
