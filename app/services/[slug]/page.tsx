@@ -6,6 +6,9 @@ import { notFound } from "next/navigation"
 import ReviewsSection from "@/components/reviews/review-section"
 import ContactCard from "@/components/services/contact-card"
 import Gallery from "@/components/services/gallery"
+import RelatedCompanies, {
+  type RelatedCompanyItem,
+} from "@/components/services/related-companies"
 import RelatedServices, {
   type RelatedServiceItem,
 } from "@/components/services/related-services"
@@ -68,6 +71,10 @@ type ServiceReview = {
   created_at: string
 }
 
+type RelatedCompanyQueryItem = RelatedCompanyItem & {
+  owner_id: string | null
+}
+
 const serviceSelect = `
   id,
   user_id,
@@ -100,6 +107,19 @@ const relatedServiceSelect = `
   service_types,
   logo_url,
   verified
+`
+
+const relatedCompanySelect = `
+  id,
+  name,
+  slug,
+  city,
+  description,
+  logo_url,
+  verified,
+  rating,
+  services,
+  owner_id
 `
 
 const workingHoursLabels = {
@@ -260,6 +280,54 @@ const reviewsLabels = {
     loginRequired: "Zaloguj się, aby dodać opinię.",
     loginButton: "Zaloguj się",
     deleteReview: "Usuń opinię",
+  },
+} as const
+
+const relatedCompaniesLabels = {
+  sv: {
+    title: "Fler städföretag",
+    subtitle: "Upptäck fler städföretag i",
+    verified: "Verifierad",
+    rating: "betyg",
+    viewCompany: "Visa företag",
+    fallbackDescription:
+      "Se företagets profil, tjänster och kontaktinformation på Clean Jobs.",
+  },
+  en: {
+    title: "More cleaning companies",
+    subtitle: "Discover more cleaning companies in",
+    verified: "Verified",
+    rating: "rating",
+    viewCompany: "View company",
+    fallbackDescription:
+      "View the company profile, services and contact information on Clean Jobs.",
+  },
+  uk: {
+    title: "Інші клінінгові компанії",
+    subtitle: "Перегляньте інші клінінгові компанії у",
+    verified: "Перевірено",
+    rating: "рейтинг",
+    viewCompany: "Переглянути компанію",
+    fallbackDescription:
+      "Перегляньте профіль компанії, послуги та контактну інформацію на Clean Jobs.",
+  },
+  ru: {
+    title: "Другие клининговые компании",
+    subtitle: "Посмотрите другие клининговые компании в",
+    verified: "Проверено",
+    rating: "рейтинг",
+    viewCompany: "Посмотреть компанию",
+    fallbackDescription:
+      "Посмотрите профиль компании, услуги и контактную информацию на Clean Jobs.",
+  },
+  pl: {
+    title: "Inne firmy sprzątające",
+    subtitle: "Zobacz inne firmy sprzątające w",
+    verified: "Zweryfikowana",
+    rating: "ocena",
+    viewCompany: "Zobacz firmę",
+    fallbackDescription:
+      "Zobacz profil firmy, usługi i dane kontaktowe w Clean Jobs.",
   },
 } as const
 
@@ -500,6 +568,7 @@ export default async function ServicePage({ params }: PageProps) {
   const t = dictionary.services
   const hoursLabels = workingHoursLabels[locale]
   const serviceReviewLabels = reviewsLabels[locale]
+  const companyLabels = relatedCompaniesLabels[locale]
 
   const supabase = await createClient()
 
@@ -515,7 +584,7 @@ export default async function ServicePage({ params }: PageProps) {
 
   const service = serviceData as ServiceProfile
 
-  let relatedQuery = supabase
+  let relatedServicesQuery = supabase
     .from("service_profiles")
     .select(relatedServiceSelect)
     .neq("id", service.id)
@@ -524,14 +593,34 @@ export default async function ServicePage({ params }: PageProps) {
     .limit(3)
 
   if (service.city) {
-    relatedQuery = relatedQuery.eq("city", service.city)
+    relatedServicesQuery = relatedServicesQuery.eq("city", service.city)
+  }
+
+  let relatedCompaniesQuery = supabase
+    .from("companies")
+    .select(relatedCompanySelect)
+    .order("verified", { ascending: false })
+    .order("rating", { ascending: false, nullsFirst: false })
+    .order("name", { ascending: true })
+    .limit(10)
+
+  if (service.city) {
+    relatedCompaniesQuery = relatedCompaniesQuery.eq(
+      "city",
+      service.city,
+    )
   }
 
   const [
     { data: relatedData, error: relatedError },
+    {
+      data: relatedCompaniesData,
+      error: relatedCompaniesError,
+    },
     { data: reviewsData, error: reviewsError },
   ] = await Promise.all([
-    relatedQuery,
+    relatedServicesQuery,
+    relatedCompaniesQuery,
     supabase
       .from("reviews")
       .select(
@@ -553,11 +642,30 @@ export default async function ServicePage({ params }: PageProps) {
     console.error("Load related services error:", relatedError)
   }
 
+  if (relatedCompaniesError) {
+    console.error(
+      "Load related companies error:",
+      relatedCompaniesError,
+    )
+  }
+
   if (reviewsError) {
     console.error("Load service reviews error:", reviewsError)
   }
 
   const relatedServices = (relatedData || []) as RelatedServiceItem[]
+
+  const relatedCompanies = (
+    (relatedCompaniesData || []) as RelatedCompanyQueryItem[]
+  )
+    .filter(
+      (company) =>
+        company.owner_id !== service.user_id &&
+        typeof company.slug === "string" &&
+        company.slug.trim().length > 0,
+    )
+    .slice(0, 3)
+
   const serviceReviews = (reviewsData || []) as ServiceReview[]
 
   const { reviewsCount, averageRating } =
@@ -842,7 +950,8 @@ export default async function ServicePage({ params }: PageProps) {
                       </span>
 
                       <span className="text-sm text-slate-500">
-                        ({reviewsCount} {serviceReviewLabels.summaryReviews})
+                        ({reviewsCount}{" "}
+                        {serviceReviewLabels.summaryReviews})
                       </span>
                     </div>
                   ) : null}
@@ -1026,6 +1135,12 @@ export default async function ServicePage({ params }: PageProps) {
             serviceProvider: t.serviceProvider,
             viewService: t.viewService,
           }}
+        />
+
+        <RelatedCompanies
+          companies={relatedCompanies}
+          city={service.city}
+          labels={companyLabels}
         />
       </main>
     </div>
