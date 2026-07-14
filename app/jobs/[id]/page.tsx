@@ -2,23 +2,336 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { notFound, redirect } from "next/navigation"
-import { createClient } from "@/lib/supabase-server"
-import { normalizeLocale, type Locale } from "@/lib/i18n"
-import TakeJobForm from "@/components/take-job-form"
-import SaveJobButton from "@/components/save-job-button"
-import ReportJobForm from "@/components/report-job-form"
+
 import DeleteJobButton from "@/components/delete-job-button"
+import JobStatusActions from "@/components/job-status-actions"
+import JobReviewsSection from "@/components/reviews/job-reviews-section"
+import ReportJobForm from "@/components/report-job-form"
+import SaveJobButton from "@/components/save-job-button"
+import TakeJobForm from "@/components/take-job-form"
+import { normalizeLocale, type Locale } from "@/lib/i18n"
+import { createClient } from "@/lib/supabase-server"
 
 export const dynamic = "force-dynamic"
 
+type PageProps = {
+  params: Promise<{
+    id: string
+  }>
+}
+
+type JobStatus =
+  | "new"
+  | "assigned"
+  | "in_progress"
+  | "done"
+  | "cancelled"
+  | null
+
+type Job = {
+  id: string
+  title: string
+  description: string | null
+  city: string | null
+  address: string | null
+  budget: number | null
+  job_type: string | null
+  property_type: string | null
+  scheduled_date: string | null
+  scheduled_time: string | null
+  status: JobStatus
+  created_at: string
+  created_by: string
+  assigned_to: string | null
+}
+
+type Profile = {
+  id: string
+  full_name: string | null
+  city: string | null
+  avatar_url: string | null
+  company_logo_url: string | null
+  company_name: string | null
+  bankid_verified: boolean | null
+}
+
+type Activity = {
+  id: string
+  type: string
+  actor_id: string | null
+  created_at: string
+}
+
+type Copy = {
+  back: string
+  cityMissing: string
+  budgetMissing: string
+  addressMissing: string
+  scheduleMissing: string
+  typeMissing: string
+  propertyMissing: string
+  author: string
+  worker: string
+  unknownUser: string
+  status: string
+  created: string
+  city: string
+  address: string
+  budget: string
+  jobType: string
+  propertyType: string
+  schedule: string
+  description: string
+  noDescription: string
+  chat: string
+  edit: string
+  delete: string
+  activity: string
+  noActivity: string
+  yourJob: string
+  workerAssigned: string
+  historyState: string
+  completedHint: string
+  cancelledHint: string
+  noCompany: string
+  statusNew: string
+  statusAssigned: string
+  statusInProgress: string
+  statusDone: string
+  statusCancelled: string
+  activityJobCreated: string
+  activityJobAssigned: string
+  activityStatusChanged: string
+  activityReviewLeft: string
+}
+
+const copy: Record<Locale, Copy> = {
+  uk: {
+    back: "Назад",
+    cityMissing: "Місто не вказано",
+    budgetMissing: "Бюджет не вказано",
+    addressMissing: "Адресу не вказано",
+    scheduleMissing: "Не вказано",
+    typeMissing: "Не вказано",
+    propertyMissing: "Не вказано",
+    author: "Автор",
+    worker: "Виконавець",
+    unknownUser: "Користувач",
+    status: "Статус",
+    created: "Створено",
+    city: "Місто",
+    address: "Адреса",
+    budget: "Бюджет",
+    jobType: "Тип роботи",
+    propertyType: "Тип об’єкта",
+    schedule: "Дата і час",
+    description: "Опис",
+    noDescription: "Опис не додано.",
+    chat: "Відкрити чат",
+    edit: "Редагувати",
+    delete: "Видалити",
+    activity: "Історія активності",
+    noActivity: "Ще немає подій.",
+    yourJob: "Ваше замовлення",
+    workerAssigned: "Є виконавець",
+    historyState: "Історія",
+    completedHint:
+      "Це замовлення завершене і збережене в історії.",
+    cancelledHint:
+      "Це замовлення скасоване і збережене в історії.",
+    noCompany: "Без компанії",
+    statusNew: "Нове",
+    statusAssigned: "Призначено",
+    statusInProgress: "В процесі",
+    statusDone: "Завершено",
+    statusCancelled: "Скасовано",
+    activityJobCreated: "Замовлення створено",
+    activityJobAssigned: "Виконавця призначено",
+    activityStatusChanged: "Статус змінено",
+    activityReviewLeft: "Залишено відгук",
+  },
+  ru: {
+    back: "Назад",
+    cityMissing: "Город не указан",
+    budgetMissing: "Бюджет не указан",
+    addressMissing: "Адрес не указан",
+    scheduleMissing: "Не указано",
+    typeMissing: "Не указано",
+    propertyMissing: "Не указано",
+    author: "Автор",
+    worker: "Исполнитель",
+    unknownUser: "Пользователь",
+    status: "Статус",
+    created: "Создано",
+    city: "Город",
+    address: "Адрес",
+    budget: "Бюджет",
+    jobType: "Тип работы",
+    propertyType: "Тип объекта",
+    schedule: "Дата и время",
+    description: "Описание",
+    noDescription: "Описание не добавлено.",
+    chat: "Открыть чат",
+    edit: "Редактировать",
+    delete: "Удалить",
+    activity: "История активности",
+    noActivity: "Событий пока нет.",
+    yourJob: "Ваш заказ",
+    workerAssigned: "Есть исполнитель",
+    historyState: "История",
+    completedHint:
+      "Этот заказ завершён и сохранён в истории.",
+    cancelledHint:
+      "Этот заказ отменён и сохранён в истории.",
+    noCompany: "Без компании",
+    statusNew: "Новый",
+    statusAssigned: "Назначено",
+    statusInProgress: "В процессе",
+    statusDone: "Завершено",
+    statusCancelled: "Отменено",
+    activityJobCreated: "Заказ создан",
+    activityJobAssigned: "Исполнитель назначен",
+    activityStatusChanged: "Статус изменён",
+    activityReviewLeft: "Оставлен отзыв",
+  },
+  en: {
+    back: "Back",
+    cityMissing: "City not specified",
+    budgetMissing: "Budget not specified",
+    addressMissing: "Address not specified",
+    scheduleMissing: "Not specified",
+    typeMissing: "Not specified",
+    propertyMissing: "Not specified",
+    author: "Author",
+    worker: "Worker",
+    unknownUser: "User",
+    status: "Status",
+    created: "Created",
+    city: "City",
+    address: "Address",
+    budget: "Budget",
+    jobType: "Job type",
+    propertyType: "Property type",
+    schedule: "Date and time",
+    description: "Description",
+    noDescription: "No description added.",
+    chat: "Open chat",
+    edit: "Edit",
+    delete: "Delete",
+    activity: "Activity timeline",
+    noActivity: "No activity yet.",
+    yourJob: "Your job",
+    workerAssigned: "Worker assigned",
+    historyState: "History",
+    completedHint:
+      "This job is completed and kept in history.",
+    cancelledHint:
+      "This job is cancelled and kept in history.",
+    noCompany: "No company",
+    statusNew: "New",
+    statusAssigned: "Assigned",
+    statusInProgress: "In progress",
+    statusDone: "Done",
+    statusCancelled: "Cancelled",
+    activityJobCreated: "Job created",
+    activityJobAssigned: "Worker assigned",
+    activityStatusChanged: "Status changed",
+    activityReviewLeft: "Review left",
+  },
+  sv: {
+    back: "Tillbaka",
+    cityMissing: "Ingen stad angiven",
+    budgetMissing: "Ingen budget angiven",
+    addressMissing: "Ingen adress angiven",
+    scheduleMissing: "Inte angivet",
+    typeMissing: "Inte angivet",
+    propertyMissing: "Inte angivet",
+    author: "Skapad av",
+    worker: "Arbetare",
+    unknownUser: "Användare",
+    status: "Status",
+    created: "Skapad",
+    city: "Stad",
+    address: "Adress",
+    budget: "Budget",
+    jobType: "Jobbtyp",
+    propertyType: "Typ av objekt",
+    schedule: "Datum och tid",
+    description: "Beskrivning",
+    noDescription: "Ingen beskrivning tillagd.",
+    chat: "Öppna chatt",
+    edit: "Redigera",
+    delete: "Ta bort",
+    activity: "Aktivitetshistorik",
+    noActivity: "Inga händelser ännu.",
+    yourJob: "Ditt jobb",
+    workerAssigned: "Arbetare tilldelad",
+    historyState: "Historik",
+    completedHint:
+      "Det här jobbet är slutfört och sparat i historiken.",
+    cancelledHint:
+      "Det här jobbet är avbrutet och sparat i historiken.",
+    noCompany: "Inget företag",
+    statusNew: "Ny",
+    statusAssigned: "Tilldelad",
+    statusInProgress: "Pågår",
+    statusDone: "Klar",
+    statusCancelled: "Avbruten",
+    activityJobCreated: "Jobb skapat",
+    activityJobAssigned: "Arbetare tilldelad",
+    activityStatusChanged: "Status ändrad",
+    activityReviewLeft: "Recension lämnad",
+  },
+  pl: {
+    back: "Wróć",
+    cityMissing: "Nie podano miasta",
+    budgetMissing: "Nie podano budżetu",
+    addressMissing: "Nie podano adresu",
+    scheduleMissing: "Nie podano",
+    typeMissing: "Nie podano",
+    propertyMissing: "Nie podano",
+    author: "Autor",
+    worker: "Wykonawca",
+    unknownUser: "Użytkownik",
+    status: "Status",
+    created: "Utworzono",
+    city: "Miasto",
+    address: "Adres",
+    budget: "Budżet",
+    jobType: "Typ pracy",
+    propertyType: "Typ obiektu",
+    schedule: "Data i godzina",
+    description: "Opis",
+    noDescription: "Brak opisu.",
+    chat: "Otwórz czat",
+    edit: "Edytuj",
+    delete: "Usuń",
+    activity: "Historia aktywności",
+    noActivity: "Brak zdarzeń.",
+    yourJob: "Twoje zlecenie",
+    workerAssigned: "Pracownik przypisany",
+    historyState: "Historia",
+    completedHint:
+      "To zlecenie jest zakończone i zapisane w historii.",
+    cancelledHint:
+      "To zlecenie jest anulowane i zapisane w historii.",
+    noCompany: "Bez firmy",
+    statusNew: "Nowe",
+    statusAssigned: "Przypisane",
+    statusInProgress: "W trakcie",
+    statusDone: "Zakończone",
+    statusCancelled: "Anulowane",
+    activityJobCreated: "Zlecenie utworzone",
+    activityJobAssigned: "Przypisano wykonawcę",
+    activityStatusChanged: "Zmieniono status",
+    activityReviewLeft: "Dodano opinię",
+  },
+}
 
 export async function generateMetadata({
   params,
-}: {
-  params: { id: string } | Promise<{ id: string }>
-}): Promise<Metadata> {
-  const resolvedParams = await params
-  const id = resolvedParams.id
+}: PageProps): Promise<Metadata> {
+  const { id } = await params
 
   const supabase = await createClient()
 
@@ -39,22 +352,29 @@ export async function generateMetadata({
     }
   }
 
-  const city = typeof job.city === "string" && job.city.trim() ? job.city.trim() : "Sweden"
+  const city =
+    typeof job.city === "string" && job.city.trim()
+      ? job.city.trim()
+      : "Sweden"
+
   const cleanTitle =
     typeof job.title === "string" && job.title.trim()
       ? job.title.trim()
       : "Cleaning Job"
 
   const budgetLabel =
-    typeof job.budget === "number" && Number.isFinite(job.budget)
+    typeof job.budget === "number" &&
+    Number.isFinite(job.budget)
       ? ` | ${job.budget} kr`
       : ""
 
   const title = `${cleanTitle} in ${city}${budgetLabel} | Clean Jobs`
 
   const fallbackDescription = `Find cleaning jobs in ${city}. Browse house cleaning, office cleaning and apartment cleaning work on Clean Jobs.`
+
   const description =
-    typeof job.description === "string" && job.description.trim()
+    typeof job.description === "string" &&
+    job.description.trim()
       ? job.description.trim().slice(0, 155)
       : fallbackDescription
 
@@ -88,340 +408,16 @@ export async function generateMetadata({
   }
 }
 
-
-
-type JobStatus = "new" | "assigned" | "in_progress" | "done" | "cancelled" | null
-
-type Job = {
-  id: string
-  title: string
-  description: string | null
-  city: string | null
-  address: string | null
-  budget: number | null
-  job_type: string | null
-  property_type: string | null
-  scheduled_date: string | null
-  scheduled_time: string | null
-  status: JobStatus
-  created_at: string
-  created_by: string
-  assigned_to: string | null
-}
-
-type Profile = {
-  id: string
-  full_name: string | null
-  city: string | null
-  avatar_url: string | null
-  company_logo_url: string | null
-  company_name: string | null
-  bankid_verified: boolean | null
-}
-
-type Review = {
-  id: string
-  reviewer_id: string
-  review_target_id: string
-  rating: number
-  comment: string | null
-  created_at: string
-}
-
-type Activity = {
-  id: string
-  type: string
-  actor_id: string | null
-  created_at: string
-}
-
-type Copy = {
-  back: string
-  city_missing: string
-  budget_missing: string
-  address_missing: string
-  schedule_missing: string
-  type_missing: string
-  property_missing: string
-  author: string
-  worker: string
-  unknown_user: string
-  status: string
-  created: string
-  city: string
-  address: string
-  budget: string
-  job_type: string
-  property_type: string
-  schedule: string
-  description: string
-  no_description: string
-  chat: string
-  edit: string
-  delete: string
-  reviews: string
-  no_reviews: string
-  activity: string
-  no_activity: string
-  rating: string
-  take_job: string
-  your_job: string
-  worker_assigned: string
-  history_state: string
-  completed_hint: string
-  cancelled_hint: string
-  no_company: string
-  status_new: string
-  status_assigned: string
-  status_in_progress: string
-  status_done: string
-  status_cancelled: string
-  activity_job_created: string
-  activity_job_assigned: string
-  activity_status_changed: string
-  activity_review_left: string
-}
-
-const copy: Record<Locale, Copy> = {
-  uk: {
-    back: "Назад",
-    city_missing: "Місто не вказано",
-    budget_missing: "Бюджет не вказано",
-    address_missing: "Адресу не вказано",
-    schedule_missing: "Не вказано",
-    type_missing: "Не вказано",
-    property_missing: "Не вказано",
-    author: "Автор",
-    worker: "Виконавець",
-    unknown_user: "Користувач",
-    status: "Статус",
-    created: "Створено",
-    city: "Місто",
-    address: "Адреса",
-    budget: "Бюджет",
-    job_type: "Тип роботи",
-    property_type: "Тип об'єкта",
-    schedule: "Дата і час",
-    description: "Опис",
-    no_description: "Опис не додано.",
-    chat: "Відкрити чат",
-    edit: "Редагувати",
-    delete: "Видалити",
-    reviews: "Відгуки",
-    no_reviews: "Ще немає відгуків.",
-    activity: "Історія активності",
-    no_activity: "Ще немає подій.",
-    rating: "Оцінка",
-    take_job: "Взяти замовлення",
-    your_job: "Ваше замовлення",
-    worker_assigned: "Є виконавець",
-    history_state: "Історія",
-    completed_hint: "Це замовлення завершене і збережене в історії.",
-    cancelled_hint: "Це замовлення скасоване і збережене в історії.",
-    no_company: "Без компанії",
-    status_new: "Нове",
-    status_assigned: "Призначено",
-    status_in_progress: "В процесі",
-    status_done: "Завершено",
-    status_cancelled: "Скасовано",
-    activity_job_created: "Замовлення створено",
-    activity_job_assigned: "Виконавця призначено",
-    activity_status_changed: "Статус змінено",
-    activity_review_left: "Залишено відгук",
-  },
-  ru: {
-    back: "Назад",
-    city_missing: "Город не указан",
-    budget_missing: "Бюджет не указан",
-    address_missing: "Адрес не указан",
-    schedule_missing: "Не указано",
-    type_missing: "Не указано",
-    property_missing: "Не указано",
-    author: "Автор",
-    worker: "Исполнитель",
-    unknown_user: "Пользователь",
-    status: "Статус",
-    created: "Создано",
-    city: "Город",
-    address: "Адрес",
-    budget: "Бюджет",
-    job_type: "Тип работы",
-    property_type: "Тип объекта",
-    schedule: "Дата и время",
-    description: "Описание",
-    no_description: "Описание не добавлено.",
-    chat: "Открыть чат",
-    edit: "Редактировать",
-    delete: "Удалить",
-    reviews: "Отзывы",
-    no_reviews: "Отзывов пока нет.",
-    activity: "История активности",
-    no_activity: "Событий пока нет.",
-    rating: "Оценка",
-    take_job: "Взять заказ",
-    your_job: "Ваш заказ",
-    worker_assigned: "Есть исполнитель",
-    history_state: "История",
-    completed_hint: "Этот заказ завершён и сохранён в истории.",
-    cancelled_hint: "Этот заказ отменён и сохранён в истории.",
-    no_company: "Без компании",
-    status_new: "Новый",
-    status_assigned: "Назначено",
-    status_in_progress: "В процессе",
-    status_done: "Завершено",
-    status_cancelled: "Отменено",
-    activity_job_created: "Заказ создан",
-    activity_job_assigned: "Исполнитель назначен",
-    activity_status_changed: "Статус изменён",
-    activity_review_left: "Оставлен отзыв",
-  },
-  en: {
-    back: "Back",
-    city_missing: "City not specified",
-    budget_missing: "Budget not specified",
-    address_missing: "Address not specified",
-    schedule_missing: "Not specified",
-    type_missing: "Not specified",
-    property_missing: "Not specified",
-    author: "Author",
-    worker: "Worker",
-    unknown_user: "User",
-    status: "Status",
-    created: "Created",
-    city: "City",
-    address: "Address",
-    budget: "Budget",
-    job_type: "Job type",
-    property_type: "Property type",
-    schedule: "Date and time",
-    description: "Description",
-    no_description: "No description added.",
-    chat: "Open chat",
-    edit: "Edit",
-    delete: "Delete",
-    reviews: "Reviews",
-    no_reviews: "No reviews yet.",
-    activity: "Activity timeline",
-    no_activity: "No activity yet.",
-    rating: "Rating",
-    take_job: "Take job",
-    your_job: "Your job",
-    worker_assigned: "Worker assigned",
-    history_state: "History",
-    completed_hint: "This job is completed and kept in history.",
-    cancelled_hint: "This job is cancelled and kept in history.",
-    no_company: "No company",
-    status_new: "New",
-    status_assigned: "Assigned",
-    status_in_progress: "In progress",
-    status_done: "Done",
-    status_cancelled: "Cancelled",
-    activity_job_created: "Job created",
-    activity_job_assigned: "Worker assigned",
-    activity_status_changed: "Status changed",
-    activity_review_left: "Review left",
-  },
-  sv: {
-    back: "Tillbaka",
-    city_missing: "Ingen stad angiven",
-    budget_missing: "Ingen budget angiven",
-    address_missing: "Ingen adress angiven",
-    schedule_missing: "Inte angivet",
-    type_missing: "Inte angivet",
-    property_missing: "Inte angivet",
-    author: "Skapad av",
-    worker: "Arbetare",
-    unknown_user: "Användare",
-    status: "Status",
-    created: "Skapad",
-    city: "Stad",
-    address: "Adress",
-    budget: "Budget",
-    job_type: "Jobbtyp",
-    property_type: "Typ av objekt",
-    schedule: "Datum och tid",
-    description: "Beskrivning",
-    no_description: "Ingen beskrivning tillagd.",
-    chat: "Öppna chatt",
-    edit: "Redigera",
-    delete: "Ta bort",
-    reviews: "Recensioner",
-    no_reviews: "Inga recensioner ännu.",
-    activity: "Aktivitetshistorik",
-    no_activity: "Inga händelser ännu.",
-    rating: "Betyg",
-    take_job: "Ta jobbet",
-    your_job: "Ditt jobb",
-    worker_assigned: "Arbetare tilldelad",
-    history_state: "Historik",
-    completed_hint: "Det här jobbet är slutfört och sparat i historiken.",
-    cancelled_hint: "Det här jobbet är avbrutet och sparat i historiken.",
-    no_company: "Inget företag",
-    status_new: "Ny",
-    status_assigned: "Tilldelad",
-    status_in_progress: "Pågår",
-    status_done: "Klar",
-    status_cancelled: "Avbruten",
-    activity_job_created: "Jobb skapat",
-    activity_job_assigned: "Arbetare tilldelad",
-    activity_status_changed: "Status ändrad",
-    activity_review_left: "Recension lämnad",
-  },
-  pl: {
-    back: "Wróć",
-    city_missing: "Nie podano miasta",
-    budget_missing: "Nie podano budżetu",
-    address_missing: "Nie podano adresu",
-    schedule_missing: "Nie podano",
-    type_missing: "Nie podano",
-    property_missing: "Nie podano",
-    author: "Autor",
-    worker: "Wykonawca",
-    unknown_user: "Użytkownik",
-    status: "Status",
-    created: "Utworzono",
-    city: "Miasto",
-    address: "Adres",
-    budget: "Budżet",
-    job_type: "Typ pracy",
-    property_type: "Typ obiektu",
-    schedule: "Data i godzina",
-    description: "Opis",
-    no_description: "Brak opisu.",
-    chat: "Otwórz czat",
-    edit: "Edytuj",
-    delete: "Usuń",
-    reviews: "Opinie",
-    no_reviews: "Brak opinii.",
-    activity: "Historia aktywności",
-    no_activity: "Brak zdarzeń.",
-    rating: "Ocena",
-    take_job: "Przyjmij zlecenie",
-    your_job: "Twoje zlecenie",
-    worker_assigned: "Pracownik przypisany",
-    history_state: "Historia",
-    completed_hint: "To zlecenie jest zakończone i zapisane w historii.",
-    cancelled_hint: "To zlecenie jest anulowane i zapisane w historii.",
-    no_company: "Bez firmy",
-    status_new: "Nowe",
-    status_assigned: "Przypisane",
-    status_in_progress: "W trakcie",
-    status_done: "Zakończone",
-    status_cancelled: "Anulowane",
-    activity_job_created: "Zlecenie utworzone",
-    activity_job_assigned: "Przypisano wykonawcę",
-    activity_status_changed: "Zmieniono status",
-    activity_review_left: "Dodano opinię",
-  },
-}
-
 function formatBudget(value: number | null, t: Copy) {
-  if (value == null) return t.budget_missing
+  if (value === null) {
+    return t.budgetMissing
+  }
+
   return `${value} kr`
 }
 
 function formatDate(value: string, locale: Locale) {
-  const map: Record<Locale, string> = {
+  const localeMap: Record<Locale, string> = {
     uk: "uk-UA",
     ru: "ru-RU",
     en: "en-US",
@@ -430,7 +426,7 @@ function formatDate(value: string, locale: Locale) {
   }
 
   try {
-    return new Intl.DateTimeFormat(map[locale], {
+    return new Intl.DateTimeFormat(localeMap[locale], {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -441,7 +437,7 @@ function formatDate(value: string, locale: Locale) {
 }
 
 function formatDateTime(value: string, locale: Locale) {
-  const map: Record<Locale, string> = {
+  const localeMap: Record<Locale, string> = {
     uk: "uk-UA",
     ru: "ru-RU",
     en: "en-US",
@@ -450,7 +446,7 @@ function formatDateTime(value: string, locale: Locale) {
   }
 
   try {
-    return new Intl.DateTimeFormat(map[locale], {
+    return new Intl.DateTimeFormat(localeMap[locale], {
       year: "numeric",
       month: "short",
       day: "numeric",
@@ -462,24 +458,34 @@ function formatDateTime(value: string, locale: Locale) {
   }
 }
 
-function formatSchedule(date: string | null, time: string | null, t: Copy) {
-  if (!date && !time) return t.schedule_missing
-  if (date && time) return `${date} • ${time}`
-  return date || time || t.schedule_missing
+function formatSchedule(
+  date: string | null,
+  time: string | null,
+  t: Copy,
+) {
+  if (!date && !time) {
+    return t.scheduleMissing
+  }
+
+  if (date && time) {
+    return `${date} • ${time}`
+  }
+
+  return date || time || t.scheduleMissing
 }
 
 function getStatusLabel(status: JobStatus, t: Copy) {
   switch (status) {
     case "new":
-      return t.status_new
+      return t.statusNew
     case "assigned":
-      return t.status_assigned
+      return t.statusAssigned
     case "in_progress":
-      return t.status_in_progress
+      return t.statusInProgress
     case "done":
-      return t.status_done
+      return t.statusDone
     case "cancelled":
-      return t.status_cancelled
+      return t.statusCancelled
     default:
       return "—"
   }
@@ -504,22 +510,26 @@ function getStatusClasses(status: JobStatus) {
 
 function getInitials(name: string) {
   const parts = name.trim().split(/\s+/).slice(0, 2)
-  const initials = parts.map((part) => part.charAt(0).toUpperCase()).join("")
+
+  const initials = parts
+    .map((part) => part.charAt(0).toUpperCase())
+    .join("")
+
   return initials || "U"
 }
 
 function getActivityLabel(type: string, t: Copy) {
   switch (type) {
     case "job_created":
-      return t.activity_job_created
+      return t.activityJobCreated
     case "job_assigned":
-      return t.activity_job_assigned
+      return t.activityJobAssigned
     case "status_changed":
-      return t.activity_status_changed
+      return t.activityStatusChanged
     case "review_left":
-      return t.activity_review_left
+      return t.activityReviewLeft
     default:
-      return type.replace(/ /g, "_")
+      return type.replaceAll("_", " ")
   }
 }
 
@@ -541,7 +551,8 @@ function PersonCard({
   noCompanyLabel: string
 }) {
   const name = profile?.full_name?.trim() || fallbackName
-  const companyName = profile?.company_name?.trim() || noCompanyLabel
+  const companyName =
+    profile?.company_name?.trim() || noCompanyLabel
 
   return (
     <div
@@ -561,7 +572,11 @@ function PersonCard({
             }
           >
             {profile?.avatar_url ? (
-              <img src={profile.avatar_url} alt={name} className="h-full w-full object-cover" />
+              <img
+                src={profile.avatar_url}
+                alt={name}
+                className="h-full w-full object-cover"
+              />
             ) : (
               getInitials(name)
             )}
@@ -582,19 +597,28 @@ function PersonCard({
           <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 md:text-xs">
             {label}
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-  <div className="truncate text-base font-semibold tracking-tight text-slate-900 md:text-lg">
-    {name}
-  </div>
 
-  {profile?.bankid_verified ? (
-    <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
-      ✓ BankID
-    </span>
-  ) : null}
-</div>
-          <div className="mt-0.5 truncate text-sm text-slate-500">{companyName}</div>
-          {profile?.city ? <div className="mt-0.5 text-sm text-slate-500">{profile.city}</div> : null}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="truncate text-base font-semibold tracking-tight text-slate-900 md:text-lg">
+              {name}
+            </div>
+
+            {profile?.bankid_verified ? (
+              <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-700">
+                ✓ BankID
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-0.5 truncate text-sm text-slate-500">
+            {companyName}
+          </div>
+
+          {profile?.city ? (
+            <div className="mt-0.5 text-sm text-slate-500">
+              {profile.city}
+            </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -621,6 +645,7 @@ function InfoCard({
       <div className="text-[11px] font-medium uppercase tracking-wide text-slate-500 md:text-xs">
         {label}
       </div>
+
       <div className="mt-2 break-words text-sm font-medium text-slate-900 md:text-[15px]">
         {value}
       </div>
@@ -636,17 +661,17 @@ function EmptyPanel({ text }: { text: string }) {
   )
 }
 
-const siteUrl = "https://cleansjob.com"
-
 export default async function JobDetailsPage({
   params,
-}: {
-  params: Promise<{ id: string }>
-}) {
+}: PageProps) {
   const { id } = await params
 
   const cookieStore = await cookies()
-  const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
+
+  const locale = normalizeLocale(
+    cookieStore.get("clean_jobs_locale")?.value,
+  ) as Locale
+
   const t = copy[locale] || copy.en
 
   async function deleteJobAction() {
@@ -666,7 +691,7 @@ export default async function JobDetailsPage({
       .from("jobs")
       .select("id, created_by, status")
       .eq("id", id)
-      .single()
+      .maybeSingle()
 
     if (!existingJob) {
       notFound()
@@ -676,11 +701,18 @@ export default async function JobDetailsPage({
       redirect(`/jobs/${id}`)
     }
 
-    if (existingJob.status === "done" || existingJob.status === "cancelled") {
+    if (
+      existingJob.status === "done" ||
+      existingJob.status === "cancelled"
+    ) {
       redirect(`/jobs/${id}`)
     }
 
-    const { error } = await supabase.from("jobs").delete().eq("id", id).eq("created_by", user.id)
+    const { error } = await supabase
+      .from("jobs")
+      .delete()
+      .eq("id", id)
+      .eq("created_by", user.id)
 
     if (error) {
       redirect(`/jobs/${id}`)
@@ -701,107 +733,149 @@ export default async function JobDetailsPage({
 
   const { data: jobRaw, error: jobError } = await supabase
     .from("jobs")
-    .select(`
-      id,
-      title,
-      description,
-      city,
-      address,
-      budget,
-      job_type,
-      property_type,
-      scheduled_date,
-      scheduled_time,
-      status,
-      created_at,
-      created_by,
-      assigned_to
-    `)
+    .select(
+      `
+        id,
+        title,
+        description,
+        city,
+        address,
+        budget,
+        job_type,
+        property_type,
+        scheduled_date,
+        scheduled_time,
+        status,
+        created_at,
+        created_by,
+        assigned_to
+      `,
+    )
     .eq("id", id)
-    .single()
+    .maybeSingle()
 
   if (jobError || !jobRaw) {
     notFound()
   }
 
   const job = jobRaw as Job
+
   const isOwner = job.created_by === user.id
+  const isAssignedWorker =
+    Boolean(job.assigned_to) &&
+    job.assigned_to === user.id
+
+  const isParticipant = isOwner || isAssignedWorker
   const isHistory = isHistoryStatus(job.status)
 
+  const canLeaveReview =
+    job.status === "done" &&
+    Boolean(job.assigned_to) &&
+    isParticipant
+
+  const revieweeId = isOwner
+    ? job.assigned_to || job.created_by
+    : job.created_by
+
   const profileIds = Array.from(
-    new Set([job.created_by, job.assigned_to].filter(Boolean) as string[]),
+    new Set(
+      [job.created_by, job.assigned_to].filter(
+        (value): value is string => Boolean(value),
+      ),
+    ),
   )
 
   let profiles: Profile[] = []
 
   if (profileIds.length > 0) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("profiles")
       .select(
-  "id, full_name, city, avatar_url, company_logo_url, company_name, bankid_verified"
-)
+        "id, full_name, city, avatar_url, company_logo_url, company_name, bankid_verified",
+      )
       .in("id", profileIds)
 
-    profiles = (data ?? []) as Profile[]
+    if (error) {
+      console.error("Load job profiles error:", error)
+    }
+
+    profiles = (data || []) as Profile[]
   }
 
   const profileById = new Map<string, Profile>()
+
   for (const profile of profiles) {
     profileById.set(profile.id, profile)
   }
 
   const author = profileById.get(job.created_by)
-  const worker = job.assigned_to ? profileById.get(job.assigned_to) : null
 
-  const authorName = author?.full_name?.trim() || t.unknown_user
-  const workerName = worker?.full_name?.trim() || t.unknown_user
+  const worker = job.assigned_to
+    ? profileById.get(job.assigned_to)
+    : null
 
-  const { data: reviewsRaw } = await supabase
-    .from("reviews")
-    .select("id, reviewer_id, review_target_id, rating, comment, created_at")
-    .eq("job_id", job.id)
-    .order("created_at", { ascending: false })
+  const authorName =
+    author?.full_name?.trim() || t.unknownUser
 
-  const reviews = (reviewsRaw ?? []) as Review[]
+  const workerName =
+    worker?.full_name?.trim() || t.unknownUser
 
-  const reviewUserIds = Array.from(
-    new Set(reviews.flatMap((review) => [review.reviewer_id, review.review_target_id])),
-  )
+  const [
+    { data: activityRaw, error: activityError },
+    { data: savedJobRaw, error: savedJobError },
+  ] = await Promise.all([
+    supabase
+      .from("job_activity")
+      .select("id, type, actor_id, created_at")
+      .eq("job_id", job.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("saved_jobs")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("job_id", job.id)
+      .maybeSingle(),
+  ])
 
-  if (reviewUserIds.length > 0) {
-    const missingIds = reviewUserIds.filter((profileId) => !profileById.has(profileId))
-
-    if (missingIds.length > 0) {
-      const { data } = await supabase
-        .from("profiles")
-        .select(
-  "id, full_name, city, avatar_url, company_logo_url, company_name, bankid_verified"
-)
-        .in("id", missingIds)
-
-      for (const profile of (data ?? []) as Profile[]) {
-        profileById.set(profile.id, profile)
-      }
-    }
+  if (activityError) {
+    console.error("Load job activity error:", activityError)
   }
 
-  const { data: activityRaw } = await supabase
-    .from("job_activity")
-    .select("id, type, actor_id, created_at")
-    .eq("job_id", job.id)
-    .order("created_at", { ascending: false })
+  if (savedJobError) {
+    console.error("Load saved job error:", savedJobError)
+  }
 
-  const activity = (activityRaw ?? []) as Activity[]
-
-  const { data: savedJobRaw } = await supabase
-    .from("saved_jobs")
-    .select("id")
-    .eq("user_id", user.id)
-    .eq("job_id", job.id)
-    .maybeSingle()
-
+  const activity = (activityRaw || []) as Activity[]
   const isSaved = Boolean(savedJobRaw)
 
+  const activityActorIds = Array.from(
+    new Set(
+      activity
+        .map((item) => item.actor_id)
+        .filter((value): value is string => Boolean(value))
+        .filter((actorId) => !profileById.has(actorId)),
+    ),
+  )
+
+  if (activityActorIds.length > 0) {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select(
+        "id, full_name, city, avatar_url, company_logo_url, company_name, bankid_verified",
+      )
+      .in("id", activityActorIds)
+
+    if (error) {
+      console.error(
+        "Load activity profiles error:",
+        error,
+      )
+    }
+
+    for (const profile of (data || []) as Profile[]) {
+      profileById.set(profile.id, profile)
+    }
+  }
 
   const canTakeJob =
     job.status === "new" &&
@@ -810,17 +884,29 @@ export default async function JobDetailsPage({
 
   const canOpenChat =
     job.assigned_to !== null &&
-    (job.created_by === user.id || job.assigned_to === user.id)
+    (job.created_by === user.id ||
+      job.assigned_to === user.id)
 
   const canEdit = isOwner && !isHistory
   const canDelete = isOwner && !isHistory
 
   const heroHint =
     job.status === "done"
-      ? t.completed_hint
+      ? t.completedHint
       : job.status === "cancelled"
-        ? t.cancelled_hint
+        ? t.cancelledHint
         : null
+
+  const deleteConfirmText =
+    locale === "uk"
+      ? "Ти точно хочеш видалити цю роботу?"
+      : locale === "ru"
+        ? "Ты точно хочешь удалить эту работу?"
+        : locale === "sv"
+          ? "Är du säker på att du vill radera det här jobbet?"
+          : locale === "pl"
+            ? "Czy na pewno chcesz usunąć tę pracę?"
+            : "Are you sure you want to delete this job?"
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -846,26 +932,28 @@ export default async function JobDetailsPage({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <span
-                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
+                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(
+                    job.status,
+                  )}`}
                 >
                   {getStatusLabel(job.status, t)}
                 </span>
 
                 {isOwner ? (
                   <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
-                    {t.your_job}
+                    {t.yourJob}
                   </span>
                 ) : null}
 
                 {job.assigned_to ? (
                   <span className="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600">
-                    {t.worker_assigned}
+                    {t.workerAssigned}
                   </span>
                 ) : null}
 
                 {isHistory ? (
                   <span className="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600">
-                    {t.history_state}
+                    {t.historyState}
                   </span>
                 ) : null}
               </div>
@@ -876,13 +964,16 @@ export default async function JobDetailsPage({
 
               <div className="mt-3 flex flex-wrap gap-2">
                 <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
-                  {t.city}: {job.city || t.city_missing}
+                  {t.city}: {job.city || t.cityMissing}
                 </span>
+
                 <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
                   {t.budget}: {formatBudget(job.budget, t)}
                 </span>
+
                 <span className="inline-flex rounded-full bg-white px-3 py-1 text-xs font-medium text-slate-700 shadow-[0_1px_3px_rgba(15,23,42,0.03)]">
-                  {t.created}: {formatDate(job.created_at, locale)}
+                  {t.created}:{" "}
+                  {formatDate(job.created_at, locale)}
                 </span>
               </div>
 
@@ -913,7 +1004,10 @@ export default async function JobDetailsPage({
                   <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-sm">
                     <img
                       src={author.company_logo_url}
-                      alt={author.company_name?.trim() || t.no_company}
+                      alt={
+                        author.company_name?.trim() ||
+                        t.noCompany
+                      }
                       className="h-full w-full object-cover"
                     />
                   </div>
@@ -927,8 +1021,8 @@ export default async function JobDetailsPage({
                     prefetch={false}
                     className={
                       isHistory
-                        ? "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
-                        : "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-700"
+                        ? "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97]"
+                        : "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97]"
                     }
                   >
                     {t.chat}
@@ -939,7 +1033,7 @@ export default async function JobDetailsPage({
                   <Link
                     href={`/jobs/${job.id}/edit`}
                     prefetch={false}
-                    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97] active:bg-slate-100"
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97]"
                   >
                     {t.edit}
                   </Link>
@@ -947,70 +1041,110 @@ export default async function JobDetailsPage({
 
                 {canDelete ? (
                   <form action={deleteJobAction}>
-  <DeleteJobButton
-    label={t.delete}
-    confirmText={
-      locale === "uk"
-        ? "Ти точно хочеш видалити цю роботу?"
-        : locale === "ru"
-        ? "Ты точно хочешь удалить эту работу?"
-        : locale === "sv"
-        ? "Är du säker på att du vill radera det här jobbet?"
-        : locale === "pl"
-        ? "Czy na pewno chcesz usunąć tę pracę?"
-        : "Are you sure you want to delete this job?"
-    }
-  />
-</form>
+                    <DeleteJobButton
+                      label={t.delete}
+                      confirmText={deleteConfirmText}
+                    />
+                  </form>
                 ) : null}
 
                 <SaveJobButton
-  jobId={job.id}
-  initialSaved={isSaved}
-  locale={locale}
-/>
+                  jobId={job.id}
+                  initialSaved={isSaved}
+                  locale={locale}
+                />
 
-<ReportJobForm jobId={job.id} locale={locale} />
+                <ReportJobForm
+                  jobId={job.id}
+                  locale={locale}
+                />
 
-{canTakeJob ? <TakeJobForm jobId={job.id} /> : null}
+                {canTakeJob ? (
+                  <TakeJobForm
+                    jobId={job.id}
+                    locale={locale}
+                  />
+                ) : null}
+
+                <JobStatusActions
+                  jobId={job.id}
+                  status={job.status}
+                  currentUserId={user.id}
+                  createdBy={job.created_by}
+                  assignedTo={job.assigned_to}
+                  locale={locale}
+                />
               </div>
             </div>
           </div>
         </section>
 
-        <section className="mt-6 grid gap-4 lg:grid-cols-2 md:mt-8">
+        <section className="mt-6 grid gap-4 md:mt-8 lg:grid-cols-2">
           <PersonCard
             label={t.author}
             profile={author}
             fallbackName={authorName}
             subdued={isHistory}
-            noCompanyLabel={t.no_company}
+            noCompanyLabel={t.noCompany}
           />
+
           {worker ? (
             <PersonCard
               label={t.worker}
               profile={worker}
               fallbackName={workerName}
               subdued={isHistory}
-              noCompanyLabel={t.no_company}
+              noCompanyLabel={t.noCompany}
             />
           ) : null}
         </section>
 
-        <section className="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 md:mt-8">
-          <InfoCard label={t.status} value={getStatusLabel(job.status, t)} subdued={isHistory} />
-          <InfoCard label={t.city} value={job.city || t.city_missing} subdued={isHistory} />
-          <InfoCard label={t.address} value={job.address || t.address_missing} subdued={isHistory} />
-          <InfoCard label={t.budget} value={formatBudget(job.budget, t)} subdued={isHistory} />
-          <InfoCard label={t.job_type} value={job.job_type || t.type_missing} subdued={isHistory} />
+        <section className="mt-6 grid gap-4 sm:grid-cols-2 md:mt-8 xl:grid-cols-3">
           <InfoCard
-            label={t.property_type}
-            value={job.property_type || t.property_missing}
+            label={t.status}
+            value={getStatusLabel(job.status, t)}
             subdued={isHistory}
           />
+
+          <InfoCard
+            label={t.city}
+            value={job.city || t.cityMissing}
+            subdued={isHistory}
+          />
+
+          <InfoCard
+            label={t.address}
+            value={job.address || t.addressMissing}
+            subdued={isHistory}
+          />
+
+          <InfoCard
+            label={t.budget}
+            value={formatBudget(job.budget, t)}
+            subdued={isHistory}
+          />
+
+          <InfoCard
+            label={t.jobType}
+            value={job.job_type || t.typeMissing}
+            subdued={isHistory}
+          />
+
+          <InfoCard
+            label={t.propertyType}
+            value={
+              job.property_type || t.propertyMissing
+            }
+            subdued={isHistory}
+          />
+
           <InfoCard
             label={t.schedule}
-            value={formatSchedule(job.scheduled_date, job.scheduled_time, t)}
+            value={formatSchedule(
+              job.scheduled_date,
+              job.scheduled_time,
+              t,
+            )}
             subdued={isHistory}
           />
         </section>
@@ -1027,78 +1161,19 @@ export default async function JobDetailsPage({
           </h2>
 
           <div className="mt-4 break-words text-sm leading-7 text-slate-700">
-            {job.description?.trim() ? job.description : t.no_description}
+            {job.description?.trim()
+              ? job.description
+              : t.noDescription}
           </div>
         </section>
 
-        <section className="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr] md:mt-8 md:gap-8">
-          <div
-            className={
-              isHistory
-                ? "rounded-3xl border border-slate-200 bg-white/90 p-5 opacity-90 shadow-[0_2px_10px_rgba(15,23,42,0.03)] md:p-6"
-                : "rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:p-6"
-            }
-          >
-            <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
-              {t.reviews}
-            </h2>
-
-            <div className="mt-5 space-y-4">
-              {reviews.length === 0 ? (
-                <EmptyPanel text={t.no_reviews} />
-              ) : (
-                reviews.map((review) => {
-                  const reviewer = profileById.get(review.reviewer_id)
-                  const target = profileById.get(review.review_target_id)
-
-                  const reviewerName = reviewer?.full_name?.trim() || t.unknown_user
-                  const targetName = target?.full_name?.trim() || t.unknown_user
-
-                  return (
-                    <article
-                      key={review.id}
-                      className="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm md:p-5"
-                    >
-                      <div className="flex flex-col gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-slate-900 text-sm font-semibold text-white">
-                            {reviewer?.avatar_url ? (
-                              <img
-                                src={reviewer.avatar_url}
-                                alt={reviewerName}
-                                className="h-full w-full object-cover"
-                              />
-                            ) : (
-                              getInitials(reviewerName)
-                            )}
-                          </div>
-
-                          <div className="min-w-0">
-                            <div className="break-words text-sm font-semibold text-slate-900">
-                              {reviewerName} → {targetName}
-                            </div>
-                            <div className="mt-1 text-xs text-slate-500">
-                              {formatDateTime(review.created_at, locale)}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="inline-flex w-fit items-center rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-sm font-medium text-amber-700">
-                          {t.rating}: {review.rating}/5
-                        </div>
-                      </div>
-
-                      {review.comment?.trim() ? (
-                        <p className="mt-4 break-words text-sm leading-6 text-slate-700">
-                          {review.comment}
-                        </p>
-                      ) : null}
-                    </article>
-                  )
-                })
-              )}
-            </div>
-          </div>
+        <section className="mt-6 grid gap-6 md:mt-8 md:gap-8 xl:grid-cols-[1.1fr_0.9fr]">
+          <JobReviewsSection
+            jobId={job.id}
+            revieweeId={revieweeId}
+            locale={locale}
+            allowReview={canLeaveReview}
+          />
 
           <div
             className={
@@ -1113,14 +1188,22 @@ export default async function JobDetailsPage({
 
             <div className="mt-5 space-y-4">
               {activity.length === 0 ? (
-                <EmptyPanel text={t.no_activity} />
+                <EmptyPanel text={t.noActivity} />
               ) : (
                 activity.map((item, index) => {
-                  const actor = item.actor_id ? profileById.get(item.actor_id) : null
-                  const actorName = actor?.full_name?.trim() || t.unknown_user
+                  const actor = item.actor_id
+                    ? profileById.get(item.actor_id)
+                    : null
+
+                  const actorName =
+                    actor?.full_name?.trim() ||
+                    t.unknownUser
 
                   return (
-                    <div key={item.id} className="relative pl-8">
+                    <div
+                      key={item.id}
+                      className="relative pl-8"
+                    >
                       {index !== activity.length - 1 ? (
                         <span className="absolute left-[11px] top-6 h-[calc(100%+16px)] w-px bg-slate-200" />
                       ) : null}
@@ -1153,12 +1236,20 @@ export default async function JobDetailsPage({
 
                           <div className="min-w-0">
                             <div className="break-words text-sm font-semibold text-slate-900">
-                              {getActivityLabel(item.type, t)}
+                              {getActivityLabel(
+                                item.type,
+                                t,
+                              )}
                             </div>
 
                             <div className="mt-1 break-words text-xs text-slate-500">
-                              {item.actor_id ? `${actorName} • ` : ""}
-                              {formatDateTime(item.created_at, locale)}
+                              {item.actor_id
+                                ? `${actorName} • `
+                                : ""}
+                              {formatDateTime(
+                                item.created_at,
+                                locale,
+                              )}
                             </div>
                           </div>
                         </div>
