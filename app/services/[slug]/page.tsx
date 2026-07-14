@@ -3,6 +3,7 @@ import Link from "next/link"
 import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 
+import ReviewsSection from "@/components/reviews/review-section"
 import ContactCard from "@/components/services/contact-card"
 import Gallery from "@/components/services/gallery"
 import RelatedServices, {
@@ -56,6 +57,15 @@ type ServiceProfile = {
   gallery_urls: string[] | null
   working_hours: WorkingHoursData | null
   verified: boolean | null
+}
+
+type ServiceReview = {
+  id: string
+  reviewer_id: string
+  reviewee_id: string
+  rating: number
+  comment: string | null
+  created_at: string
 }
 
 const serviceSelect = `
@@ -147,6 +157,109 @@ const workingHoursLabels = {
     saturday: "Sobota",
     sunday: "Niedziela",
     closed: "Zamknięte",
+  },
+} as const
+
+const reviewsLabels = {
+  sv: {
+    title: "Recensioner",
+    summaryReviews: "recensioner",
+    noReviews: "Det finns inga recensioner ännu.",
+    anonymousUser: "Användare",
+    leaveReview: "Lämna en recension",
+    leaveReviewSubtitle:
+      "Dela din upplevelse av företagets tjänster.",
+    rating: "Betyg",
+    comment: "Kommentar",
+    commentPlaceholder: "Beskriv din upplevelse...",
+    submit: "Publicera recension",
+    submitting: "Publicerar...",
+    success: "Recensionen har publicerats.",
+    alreadyReviewed: "Du har redan recenserat den här tjänsten.",
+    ownEntity: "Du kan inte recensera din egen tjänst.",
+    loginRequired: "Logga in för att lämna en recension.",
+    loginButton: "Logga in",
+    deleteReview: "Ta bort recension",
+  },
+  en: {
+    title: "Reviews",
+    summaryReviews: "reviews",
+    noReviews: "There are no reviews yet.",
+    anonymousUser: "User",
+    leaveReview: "Leave a review",
+    leaveReviewSubtitle:
+      "Share your experience with this company’s services.",
+    rating: "Rating",
+    comment: "Comment",
+    commentPlaceholder: "Describe your experience...",
+    submit: "Publish review",
+    submitting: "Publishing...",
+    success: "Your review has been published.",
+    alreadyReviewed: "You have already reviewed this service.",
+    ownEntity: "You cannot review your own service.",
+    loginRequired: "Log in to leave a review.",
+    loginButton: "Log in",
+    deleteReview: "Delete review",
+  },
+  uk: {
+    title: "Відгуки",
+    summaryReviews: "відгуків",
+    noReviews: "Відгуків поки немає.",
+    anonymousUser: "Користувач",
+    leaveReview: "Залишити відгук",
+    leaveReviewSubtitle:
+      "Поділіться своїм досвідом користування послугами компанії.",
+    rating: "Оцінка",
+    comment: "Коментар",
+    commentPlaceholder: "Опишіть свій досвід...",
+    submit: "Опублікувати відгук",
+    submitting: "Публікуємо...",
+    success: "Ваш відгук опубліковано.",
+    alreadyReviewed: "Ви вже залишили відгук про цю послугу.",
+    ownEntity: "Не можна оцінювати власну послугу.",
+    loginRequired: "Увійдіть, щоб залишити відгук.",
+    loginButton: "Увійти",
+    deleteReview: "Видалити відгук",
+  },
+  ru: {
+    title: "Отзывы",
+    summaryReviews: "отзывов",
+    noReviews: "Отзывов пока нет.",
+    anonymousUser: "Пользователь",
+    leaveReview: "Оставить отзыв",
+    leaveReviewSubtitle:
+      "Поделитесь своим опытом использования услуг компании.",
+    rating: "Оценка",
+    comment: "Комментарий",
+    commentPlaceholder: "Опишите свой опыт...",
+    submit: "Опубликовать отзыв",
+    submitting: "Публикуем...",
+    success: "Ваш отзыв опубликован.",
+    alreadyReviewed: "Вы уже оставили отзыв об этой услуге.",
+    ownEntity: "Нельзя оценивать собственную услугу.",
+    loginRequired: "Войдите, чтобы оставить отзыв.",
+    loginButton: "Войти",
+    deleteReview: "Удалить отзыв",
+  },
+  pl: {
+    title: "Opinie",
+    summaryReviews: "opinii",
+    noReviews: "Nie ma jeszcze żadnych opinii.",
+    anonymousUser: "Użytkownik",
+    leaveReview: "Dodaj opinię",
+    leaveReviewSubtitle:
+      "Podziel się swoim doświadczeniem z usługami firmy.",
+    rating: "Ocena",
+    comment: "Komentarz",
+    commentPlaceholder: "Opisz swoje doświadczenie...",
+    submit: "Opublikuj opinię",
+    submitting: "Publikowanie...",
+    success: "Twoja opinia została opublikowana.",
+    alreadyReviewed: "Ta usługa została już przez Ciebie oceniona.",
+    ownEntity: "Nie możesz ocenić własnej usługi.",
+    loginRequired: "Zaloguj się, aby dodać opinię.",
+    loginButton: "Zaloguj się",
+    deleteReview: "Usuń opinię",
   },
 } as const
 
@@ -283,6 +396,36 @@ function createOpeningHoursSpecification(hours: WorkingHoursData) {
     )
 }
 
+function calculateRatingStats(reviews: ServiceReview[]) {
+  const validRatings = reviews
+    .map((review) => Number(review.rating))
+    .filter(
+      (rating) =>
+        Number.isFinite(rating) &&
+        rating >= 1 &&
+        rating <= 5,
+    )
+
+  if (validRatings.length === 0) {
+    return {
+      reviewsCount: 0,
+      averageRating: null as number | null,
+    }
+  }
+
+  const ratingTotal = validRatings.reduce(
+    (total, rating) => total + rating,
+    0,
+  )
+
+  return {
+    reviewsCount: validRatings.length,
+    averageRating: Number(
+      (ratingTotal / validRatings.length).toFixed(1),
+    ),
+  }
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -356,6 +499,7 @@ export default async function ServicePage({ params }: PageProps) {
   const dictionary = getDictionary(locale)
   const t = dictionary.services
   const hoursLabels = workingHoursLabels[locale]
+  const serviceReviewLabels = reviewsLabels[locale]
 
   const supabase = await createClient()
 
@@ -383,17 +527,81 @@ export default async function ServicePage({ params }: PageProps) {
     relatedQuery = relatedQuery.eq("city", service.city)
   }
 
-  const { data: relatedData } = await relatedQuery
+  const [
+    { data: relatedData, error: relatedError },
+    { data: reviewsData, error: reviewsError },
+  ] = await Promise.all([
+    relatedQuery,
+    supabase
+      .from("reviews")
+      .select(
+        `
+          id,
+          reviewer_id,
+          reviewee_id,
+          rating,
+          comment,
+          created_at
+        `,
+      )
+      .eq("entity_type", "service")
+      .eq("entity_id", service.id)
+      .order("created_at", { ascending: false }),
+  ])
+
+  if (relatedError) {
+    console.error("Load related services error:", relatedError)
+  }
+
+  if (reviewsError) {
+    console.error("Load service reviews error:", reviewsError)
+  }
 
   const relatedServices = (relatedData || []) as RelatedServiceItem[]
+  const serviceReviews = (reviewsData || []) as ServiceReview[]
+
+  const { reviewsCount, averageRating } =
+    calculateRatingStats(serviceReviews)
+
   const galleryUrls = normalizeGalleryUrls(service.gallery_urls)
   const workingHours = normalizeWorkingHours(service.working_hours)
   const openingHoursSpecification =
     createOpeningHoursSpecification(workingHours)
 
   const websiteUrl = normalizeWebsiteUrl(service.website)
-  const canonicalUrl = `https://cleansjob.com/services/${service.slug}`
+  const pathname = `/services/${service.slug}`
+  const canonicalUrl = `https://cleansjob.com${pathname}`
   const fullDescription = getServiceDescription(service)
+
+  const schemaReviews = serviceReviews
+    .filter((review) => {
+      const rating = Number(review.rating)
+
+      return (
+        Number.isFinite(rating) &&
+        rating >= 1 &&
+        rating <= 5
+      )
+    })
+    .slice(0, 20)
+    .map((review) => ({
+      "@type": "Review",
+      author: {
+        "@type": "Person",
+        name: "Clean Jobs user",
+      },
+      datePublished: review.created_at,
+      reviewBody: review.comment?.trim() || undefined,
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: Number(review.rating),
+        bestRating: 5,
+        worstRating: 1,
+      },
+      itemReviewed: {
+        "@id": `${canonicalUrl}#business`,
+      },
+    }))
 
   const localBusinessJsonLd = {
     "@context": "https://schema.org",
@@ -429,6 +637,17 @@ export default async function ServicePage({ params }: PageProps) {
       openingHoursSpecification.length > 0
         ? openingHoursSpecification
         : undefined,
+    aggregateRating:
+      averageRating !== null && reviewsCount > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: averageRating,
+            reviewCount: reviewsCount,
+            bestRating: 5,
+            worstRating: 1,
+          }
+        : undefined,
+    review: schemaReviews.length > 0 ? schemaReviews : undefined,
   }
 
   const serviceJsonLd = {
@@ -463,6 +682,16 @@ export default async function ServicePage({ params }: PageProps) {
           url: canonicalUrl,
         }
       : undefined,
+    aggregateRating:
+      averageRating !== null && reviewsCount > 0
+        ? {
+            "@type": "AggregateRating",
+            ratingValue: averageRating,
+            reviewCount: reviewsCount,
+            bestRating: 5,
+            worstRating: 1,
+          }
+        : undefined,
   }
 
   const breadcrumbJsonLd = {
@@ -495,21 +724,30 @@ export default async function ServicePage({ params }: PageProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(localBusinessJsonLd),
+          __html: JSON.stringify(localBusinessJsonLd).replace(
+            /</g,
+            "\\u003c",
+          ),
         }}
       />
 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(serviceJsonLd),
+          __html: JSON.stringify(serviceJsonLd).replace(
+            /</g,
+            "\\u003c",
+          ),
         }}
       />
 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbJsonLd),
+          __html: JSON.stringify(breadcrumbJsonLd).replace(
+            /</g,
+            "\\u003c",
+          ),
         }}
       />
 
@@ -557,7 +795,9 @@ export default async function ServicePage({ params }: PageProps) {
                   </div>
                 ) : (
                   <div className="flex h-28 w-28 shrink-0 items-center justify-center rounded-3xl border border-rose-100 bg-rose-50 text-4xl font-bold text-rose-600 shadow-sm">
-                    {service.company_name?.charAt(0)?.toUpperCase() || "C"}
+                    {service.company_name
+                      ?.charAt(0)
+                      ?.toUpperCase() || "C"}
                   </div>
                 )}
 
@@ -588,6 +828,25 @@ export default async function ServicePage({ params }: PageProps) {
                     </p>
                   ) : null}
 
+                  {averageRating !== null && reviewsCount > 0 ? (
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className="text-lg tracking-wide text-amber-400"
+                      >
+                        ★★★★★
+                      </span>
+
+                      <span className="text-sm font-bold text-slate-900">
+                        {averageRating.toFixed(1)}
+                      </span>
+
+                      <span className="text-sm text-slate-500">
+                        ({reviewsCount} {serviceReviewLabels.summaryReviews})
+                      </span>
+                    </div>
+                  ) : null}
+
                   <div className="mt-5 flex flex-wrap gap-2">
                     {service.rut_available ? (
                       <span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700">
@@ -601,14 +860,16 @@ export default async function ServicePage({ params }: PageProps) {
                       </span>
                     ) : null}
 
-                    {service.service_types?.slice(0, 4).map((serviceType) => (
-                      <span
-                        key={serviceType}
-                        className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700"
-                      >
-                        {serviceType}
-                      </span>
-                    ))}
+                    {service.service_types
+                      ?.slice(0, 4)
+                      .map((serviceType) => (
+                        <span
+                          key={serviceType}
+                          className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700"
+                        >
+                          {serviceType}
+                        </span>
+                      ))}
                   </div>
                 </div>
               </div>
@@ -623,7 +884,9 @@ export default async function ServicePage({ params }: PageProps) {
                     {service.hourly_rate} SEK
                   </p>
 
-                  <p className="mt-1 text-sm text-slate-500">/ {t.hours}</p>
+                  <p className="mt-1 text-sm text-slate-500">
+                    / {t.hours}
+                  </p>
                 </div>
               ) : null}
             </div>
@@ -647,7 +910,8 @@ export default async function ServicePage({ params }: PageProps) {
               </p>
             </section>
 
-            {service.service_types && service.service_types.length > 0 ? (
+            {service.service_types &&
+            service.service_types.length > 0 ? (
               <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
                 <h2 className="text-2xl font-bold text-slate-950">
                   {t.servicesTitle}
@@ -672,7 +936,8 @@ export default async function ServicePage({ params }: PageProps) {
               </section>
             ) : null}
 
-            {service.service_areas && service.service_areas.length > 0 ? (
+            {service.service_areas &&
+            service.service_areas.length > 0 ? (
               <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
                 <h2 className="text-2xl font-bold text-slate-950">
                   {t.serviceAreasTitle}
@@ -713,6 +978,15 @@ export default async function ServicePage({ params }: PageProps) {
             <WorkingHours
               hours={workingHours}
               labels={hoursLabels}
+            />
+
+            <ReviewsSection
+              entityType="service"
+              entityId={service.id}
+              revieweeId={service.user_id}
+              pathname={pathname}
+              locale={locale}
+              labels={serviceReviewLabels}
             />
           </div>
 
