@@ -5,10 +5,15 @@ import { notFound, redirect } from "next/navigation"
 
 import DeleteJobButton from "@/components/delete-job-button"
 import JobStatusActions from "@/components/job-status-actions"
+import JobApplicationsSection, {
+  type JobApplicationItem,
+} from "@/components/job-applications-section"
 import JobReviewsSection from "@/components/reviews/job-reviews-section"
 import ReportJobForm from "@/components/report-job-form"
 import SaveJobButton from "@/components/save-job-button"
-import TakeJobForm from "@/components/take-job-form"
+import TakeJobForm, {
+  type CurrentJobApplication,
+} from "@/components/take-job-form"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { createClient } from "@/lib/supabase-server"
 
@@ -60,6 +65,11 @@ type Activity = {
   type: string
   actor_id: string | null
   created_at: string
+}
+
+type RatingReview = {
+  reviewee_id: string
+  rating: number
 }
 
 type Copy = {
@@ -823,6 +833,14 @@ export default async function JobDetailsPage({
   const [
     { data: activityRaw, error: activityError },
     { data: savedJobRaw, error: savedJobError },
+    {
+      data: currentApplicationRaw,
+      error: currentApplicationError,
+    },
+    {
+      data: ownerApplicationsRaw,
+      error: ownerApplicationsError,
+    },
   ] = await Promise.all([
     supabase
       .from("job_activity")
@@ -835,6 +853,40 @@ export default async function JobDetailsPage({
       .eq("user_id", user.id)
       .eq("job_id", job.id)
       .maybeSingle(),
+    supabase
+      .from("job_applications")
+      .select(
+        `
+          id,
+          hourly_rate,
+          fixed_price,
+          message,
+          available_from,
+          estimated_hours,
+          status
+        `,
+      )
+      .eq("job_id", job.id)
+      .eq("applicant_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("job_applications")
+      .select(
+        `
+          id,
+          job_id,
+          applicant_id,
+          hourly_rate,
+          fixed_price,
+          message,
+          available_from,
+          estimated_hours,
+          status,
+          created_at
+        `,
+      )
+      .eq("job_id", job.id)
+      .order("created_at", { ascending: false }),
   ])
 
   if (activityError) {
@@ -845,8 +897,187 @@ export default async function JobDetailsPage({
     console.error("Load saved job error:", savedJobError)
   }
 
+  if (currentApplicationError) {
+    console.error(
+      "Load current job application error:",
+      currentApplicationError,
+    )
+  }
+
+  if (ownerApplicationsError) {
+    console.error(
+      "Load owner job applications error:",
+      ownerApplicationsError,
+    )
+  }
+
   const activity = (activityRaw || []) as Activity[]
   const isSaved = Boolean(savedJobRaw)
+
+  const currentApplication =
+    (currentApplicationRaw as CurrentJobApplication | null) ||
+    null
+
+  const ownerApplicationsBase = isOwner
+    ? ((ownerApplicationsRaw || []) as Array<{
+        id: string
+        job_id: string
+        applicant_id: string
+        hourly_rate: number | null
+        fixed_price: number | null
+        message: string | null
+        available_from: string | null
+        estimated_hours: number | null
+        status:
+          | "pending"
+          | "accepted"
+          | "rejected"
+          | "withdrawn"
+        created_at: string
+      }>)
+    : []
+
+  const applicantIds = Array.from(
+    new Set(
+      ownerApplicationsBase.map(
+        (application) => application.applicant_id,
+      ),
+    ),
+  )
+
+  let applicantProfiles: Profile[] = []
+  let applicantReviews: RatingReview[] = []
+
+  if (isOwner && applicantIds.length > 0) {
+    const [
+      {
+        data: applicantProfilesRaw,
+        error: applicantProfilesError,
+      },
+      {
+        data: applicantReviewsRaw,
+        error: applicantReviewsError,
+      },
+    ] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select(
+          "id, full_name, city, avatar_url, company_logo_url, company_name, bankid_verified",
+        )
+        .in("id", applicantIds),
+      supabase
+        .from("reviews")
+        .select("reviewee_id, rating")
+        .in("reviewee_id", applicantIds),
+    ])
+
+    if (applicantProfilesError) {
+      console.error(
+        "Load applicant profiles error:",
+        applicantProfilesError,
+      )
+    }
+
+    if (applicantReviewsError) {
+      console.error(
+        "Load applicant ratings error:",
+        applicantReviewsError,
+      )
+    }
+
+    applicantProfiles =
+      (applicantProfilesRaw || []) as Profile[]
+
+    applicantReviews =
+      (applicantReviewsRaw || []) as RatingReview[]
+  }
+
+  const applicantProfileById = new Map(
+    applicantProfiles.map((profile) => [
+      profile.id,
+      profile,
+    ]),
+  )
+
+  const applicantRatings = new Map<
+    string,
+    {
+      total: number
+      count: number
+    }
+  >()
+
+  for (const review of applicantReviews) {
+    const current =
+      applicantRatings.get(review.reviewee_id) || {
+        total: 0,
+        count: 0,
+      }
+
+    current.total += Number(review.rating) || 0
+    current.count += 1
+
+    applicantRatings.set(
+      review.reviewee_id,
+      current,
+    )
+  }
+
+  const ownerApplications: JobApplicationItem[] =
+    ownerApplicationsBase
+      .map((application) => {
+        const ratingData = applicantRatings.get(
+          application.applicant_id,
+        )
+
+        return {
+          ...application,
+          profile:
+            applicantProfileById.get(
+              application.applicant_id,
+            ) || null,
+          rating: {
+            average:
+              ratingData && ratingData.count > 0
+                ? ratingData.total / ratingData.count
+                : 0,
+            count: ratingData?.count || 0,
+          },
+        }
+      })
+      .sort((a, b) => {
+        const statusWeight = {
+          accepted: 0,
+          pending: 1,
+          rejected: 2,
+          withdrawn: 3,
+        } as const
+
+        const statusDifference =
+          statusWeight[a.status] -
+          statusWeight[b.status]
+
+        if (statusDifference !== 0) {
+          return statusDifference
+        }
+
+        if (b.rating.average !== a.rating.average) {
+          return b.rating.average - a.rating.average
+        }
+
+        const verifiedDifference =
+          Number(Boolean(b.profile?.bankid_verified)) -
+          Number(Boolean(a.profile?.bankid_verified))
+
+        if (verifiedDifference !== 0) {
+          return verifiedDifference
+        }
+
+        return (
+          new Date(b.created_at).getTime() -
+          new Date(a.created_at).getTime()
+        )
+      })
 
   const activityActorIds = Array.from(
     new Set(
@@ -877,10 +1108,11 @@ export default async function JobDetailsPage({
     }
   }
 
-  const canTakeJob =
-    job.status === "new" &&
-    job.assigned_to === null &&
-    job.created_by !== user.id
+  const canApplyToJob =
+    job.created_by !== user.id &&
+    ((job.status === "new" &&
+      job.assigned_to === null) ||
+      currentApplication !== null)
 
   const canOpenChat =
     job.assigned_to !== null &&
@@ -928,8 +1160,8 @@ export default async function JobDetailsPage({
               : "rounded-[32px] border border-slate-200 bg-gradient-to-b from-white to-rose-50/40 p-5 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-8"
           }
         >
-          <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0 flex-1">
+          <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
+            <div className="min-w-0 flex-1 xl:pr-6">
               <div className="flex flex-wrap items-center gap-2">
                 <span
                   className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(
@@ -1059,12 +1291,7 @@ export default async function JobDetailsPage({
                   locale={locale}
                 />
 
-                {canTakeJob ? (
-                  <TakeJobForm
-                    jobId={job.id}
-                    locale={locale}
-                  />
-                ) : null}
+               
 
                 <JobStatusActions
                   jobId={job.id}
@@ -1078,6 +1305,24 @@ export default async function JobDetailsPage({
             </div>
           </div>
         </section>
+        {canApplyToJob ? (
+          <section className="mt-6 md:mt-8">
+            <TakeJobForm
+              jobId={job.id}
+              locale={locale}
+              application={currentApplication}
+            />
+          </section>
+        ) : null}
+
+        {isOwner ? (
+          <JobApplicationsSection
+            jobId={job.id}
+            locale={locale}
+            applications={ownerApplications}
+            jobStatus={job.status}
+          />
+        ) : null}
 
         <section className="mt-6 grid gap-4 md:mt-8 lg:grid-cols-2">
           <PersonCard
