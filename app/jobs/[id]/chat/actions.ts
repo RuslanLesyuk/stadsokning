@@ -1,6 +1,8 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+
+import { createAdminClient } from "@/lib/supabase-admin"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeUserText } from "@/lib/text"
 
@@ -16,6 +18,7 @@ const MESSAGE_COOLDOWN_MS = 3000
 
 type JobRow = {
   id: string
+  title: string | null
   created_by: string | null
   assigned_to: string | null
   status: string | null
@@ -24,6 +27,53 @@ type JobRow = {
 type MessageRow = {
   id: string
   created_at: string
+}
+
+function getMessagePreview(body: string, maxLength = 140) {
+  if (body.length <= maxLength) {
+    return body
+  }
+
+  return `${body.slice(0, maxLength).trim()}…`
+}
+
+async function createNewMessageNotification({
+  recipientId,
+  actorId,
+  jobId,
+  jobTitle,
+  messageBody,
+}: {
+  recipientId: string
+  actorId: string
+  jobId: string
+  jobTitle: string | null
+  messageBody: string
+}) {
+  try {
+    const admin = createAdminClient()
+
+    const title = jobTitle?.trim()
+      ? `New message: ${jobTitle.trim()}`
+      : "New chat message"
+
+    const { error } = await admin.from("notifications").insert({
+      user_id: recipientId,
+      actor_id: actorId,
+      job_id: jobId,
+      application_id: null,
+      type: "new_message",
+      title,
+      message: getMessagePreview(messageBody),
+      is_read: false,
+    })
+
+    if (error) {
+      console.error("Failed to create new_message notification:", error)
+    }
+  } catch (error) {
+    console.error("Failed to create new_message notification:", error)
+  }
 }
 
 export async function sendMessageAction(
@@ -45,7 +95,7 @@ export async function sendMessageAction(
     }
   }
 
-  const jobId = String(formData.get("jobId") || "")
+  const jobId = String(formData.get("jobId") || "").trim()
   const rawBody = String(formData.get("body") || "")
   const body = normalizeUserText(rawBody)
 
@@ -78,7 +128,7 @@ export async function sendMessageAction(
 
   const { data: job, error: jobError } = await supabase
     .from("jobs")
-    .select("id, created_by, assigned_to, status")
+    .select("id, title, created_by, assigned_to, status")
     .eq("id", jobId)
     .single()
 
@@ -93,18 +143,32 @@ export async function sendMessageAction(
     }
   }
 
-  const isParticipant =
-    typedJob.created_by === user.id || typedJob.assigned_to === user.id
+  const isOwner = typedJob.created_by === user.id
+  const isAssignedWorker = typedJob.assigned_to === user.id
+  const isParticipant = isOwner || isAssignedWorker
 
   const canUseChat =
-    !!typedJob.created_by &&
-    !!typedJob.assigned_to &&
-    ["assigned", "in_progress", "done"].includes(typedJob.status || "")
+    Boolean(typedJob.created_by) &&
+    Boolean(typedJob.assigned_to) &&
+    ["assigned", "in_progress"].includes(typedJob.status || "")
 
   if (!isParticipant || !canUseChat) {
     return {
       ok: false,
       error: "You do not have access to this chat.",
+      success: null,
+      resetToken: 0,
+    }
+  }
+
+  const recipientId = isOwner
+    ? typedJob.assigned_to
+    : typedJob.created_by
+
+  if (!recipientId || recipientId === user.id) {
+    return {
+      ok: false,
+      error: "Chat recipient not found.",
       success: null,
       resetToken: 0,
     }
@@ -122,25 +186,35 @@ export async function sendMessageAction(
   const typedLastOwnMessage = lastOwnMessage as MessageRow | null
 
   if (typedLastOwnMessage?.created_at) {
-    const diffMs = Date.now() - new Date(typedLastOwnMessage.created_at).getTime()
+    const lastMessageTime = new Date(
+      typedLastOwnMessage.created_at,
+    ).getTime()
 
-    if (diffMs < MESSAGE_COOLDOWN_MS) {
-      const secondsLeft = Math.ceil((MESSAGE_COOLDOWN_MS - diffMs) / 1000)
+    if (!Number.isNaN(lastMessageTime)) {
+      const diffMs = Date.now() - lastMessageTime
 
-      return {
-        ok: false,
-        error: `Too fast. Try again in ${secondsLeft}s.`,
-        success: null,
-        resetToken: 0,
+      if (diffMs < MESSAGE_COOLDOWN_MS) {
+        const secondsLeft = Math.ceil(
+          (MESSAGE_COOLDOWN_MS - diffMs) / 1000,
+        )
+
+        return {
+          ok: false,
+          error: `Too fast. Try again in ${secondsLeft}s.`,
+          success: null,
+          resetToken: 0,
+        }
       }
     }
   }
 
-  const { error: insertError } = await supabase.from("messages").insert({
-    job_id: jobId,
-    sender_id: user.id,
-    body,
-  })
+  const { error: insertError } = await supabase
+    .from("messages")
+    .insert({
+      job_id: jobId,
+      sender_id: user.id,
+      body,
+    })
 
   if (insertError) {
     return {
@@ -151,9 +225,19 @@ export async function sendMessageAction(
     }
   }
 
+  await createNewMessageNotification({
+    recipientId,
+    actorId: user.id,
+    jobId,
+    jobTitle: typedJob.title,
+    messageBody: body,
+  })
+
   revalidatePath(`/jobs/${jobId}/chat`)
   revalidatePath(`/jobs/${jobId}`)
   revalidatePath("/dashboard")
+  revalidatePath("/notifications")
+  revalidatePath("/", "layout")
 
   return {
     ok: true,

@@ -528,16 +528,32 @@ function getInitials(name: string) {
   return initials || "U"
 }
 
-function getActivityLabel(type: string, t: Copy) {
+function getActivityLabel(
+  type: string | null,
+  labels: {
+    activityJobCreated: string
+    activityJobAssigned: string
+    activityStatusChanged: string
+    activityReviewLeft: string
+  },
+) {
+  if (!type) {
+    return labels.activityStatusChanged
+  }
+
   switch (type) {
     case "job_created":
-      return t.activityJobCreated
+      return labels.activityJobCreated
+
     case "job_assigned":
-      return t.activityJobAssigned
+      return labels.activityJobAssigned
+
     case "status_changed":
-      return t.activityStatusChanged
+      return labels.activityStatusChanged
+
     case "review_left":
-      return t.activityReviewLeft
+      return labels.activityReviewLeft
+
     default:
       return type.replaceAll("_", " ")
   }
@@ -1481,10 +1497,7 @@ export default async function JobDetailsPage({
 
                           <div className="min-w-0">
                             <div className="break-words text-sm font-semibold text-slate-900">
-                              {getActivityLabel(
-                                item.type,
-                                t,
-                              )}
+                              {getActivityLabel(item.type, t)}
                             </div>
 
                             <div className="mt-1 break-words text-xs text-slate-500">

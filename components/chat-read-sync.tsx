@@ -1,32 +1,73 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useRef } from "react"
+import { useRouter } from "next/navigation"
 
 type ChatReadSyncProps = {
   jobId: string
 }
 
-export default function ChatReadSync({ jobId }: ChatReadSyncProps) {
-  useEffect(() => {
-    let cancelled = false
+export default function ChatReadSync({
+  jobId,
+}: ChatReadSyncProps) {
+  const router = useRouter()
+  const syncedRef = useRef(false)
 
-    async function markAsRead() {
+  useEffect(() => {
+    if (syncedRef.current) {
+      return
+    }
+
+    syncedRef.current = true
+
+    const controller = new AbortController()
+
+    async function markChatAsRead() {
       try {
-        await fetch(`/api/jobs/${jobId}/chat/read`, {
-          method: "POST",
-          cache: "no-store",
-        })
-      } catch {
-        if (cancelled) return
+        const response = await fetch(
+          `/jobs/${jobId}/chat/read`,
+          {
+            method: "POST",
+            cache: "no-store",
+            signal: controller.signal,
+          },
+        )
+
+        if (!response.ok) {
+          const result = await response
+            .json()
+            .catch(() => null)
+
+          console.error(
+            "Failed to mark chat as read:",
+            result?.error || response.statusText,
+          )
+
+          return
+        }
+
+        router.refresh()
+      } catch (error) {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
+          return
+        }
+
+        console.error(
+          "Failed to synchronize chat read state:",
+          error,
+        )
       }
     }
 
-    markAsRead()
+    void markChatAsRead()
 
     return () => {
-      cancelled = true
+      controller.abort()
     }
-  }, [jobId])
+  }, [jobId, router])
 
   return null
 }

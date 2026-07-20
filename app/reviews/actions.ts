@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 
+import { createAdminClient } from "@/lib/supabase-admin"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeUserText } from "@/lib/text"
 
@@ -32,14 +33,27 @@ type CompanyEntity = {
   slug: string
 }
 
+type ResolvedReviewee = {
+  error: string | null
+  revieweeId: string | null
+  pathname: string | null
+  jobId: string | null
+}
+
 const MAX_COMMENT_LENGTH = 1000
 
 function getText(formData: FormData, key: string) {
   return String(formData.get(key) || "").trim()
 }
 
-function isReviewEntityType(value: string): value is ReviewEntityType {
-  return value === "job" || value === "service" || value === "company"
+function isReviewEntityType(
+  value: string,
+): value is ReviewEntityType {
+  return (
+    value === "job" ||
+    value === "service" ||
+    value === "company"
+  )
 }
 
 function parseRating(value: string) {
@@ -60,15 +74,19 @@ async function resolveReviewee({
   entityType: ReviewEntityType
   entityId: string
   currentUserId: string
-}) {
+}): Promise<ResolvedReviewee> {
   const supabase = await createClient()
 
   if (entityType === "service") {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("service_profiles")
       .select("id, user_id, slug")
       .eq("id", entityId)
       .maybeSingle()
+
+    if (error) {
+      console.error("Resolve review service error:", error)
+    }
 
     const service = data as ServiceEntity | null
 
@@ -99,11 +117,15 @@ async function resolveReviewee({
   }
 
   if (entityType === "company") {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("companies")
       .select("id, owner_id, slug")
       .eq("id", entityId)
       .maybeSingle()
+
+    if (error) {
+      console.error("Resolve review company error:", error)
+    }
 
     const company = data as CompanyEntity | null
 
@@ -142,11 +164,15 @@ async function resolveReviewee({
     }
   }
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("jobs")
     .select("id, created_by, assigned_to, status")
     .eq("id", entityId)
     .maybeSingle()
+
+  if (error) {
+    console.error("Resolve review job error:", error)
+  }
 
   const job = data as JobEntity | null
 
@@ -177,10 +203,10 @@ async function resolveReviewee({
     }
   }
 
-  if (
-    currentUserId !== job.created_by &&
-    currentUserId !== job.assigned_to
-  ) {
+  const isOwner = currentUserId === job.created_by
+  const isWorker = currentUserId === job.assigned_to
+
+  if (!isOwner && !isWorker) {
     return {
       error: "Only job participants can leave a review.",
       revieweeId: null,
@@ -189,10 +215,18 @@ async function resolveReviewee({
     }
   }
 
-  const revieweeId =
-    currentUserId === job.created_by
-      ? job.assigned_to
-      : job.created_by
+  const revieweeId = isOwner
+    ? job.assigned_to
+    : job.created_by
+
+  if (!revieweeId || revieweeId === currentUserId) {
+    return {
+      error: "Review recipient not found.",
+      revieweeId: null,
+      pathname: null,
+      jobId: null,
+    }
+  }
 
   return {
     error: null,
@@ -202,104 +236,175 @@ async function resolveReviewee({
   }
 }
 
+async function createReviewNotification({
+  recipientId,
+  actorId,
+  jobId,
+  rating,
+}: {
+  recipientId: string
+  actorId: string
+  jobId: string
+  rating: number
+}) {
+  console.log("REVIEW NOTIFICATION START", {
+    recipientId,
+    actorId,
+    jobId,
+    rating,
+  })
+
+  try {
+    const admin = createAdminClient()
+
+    const { data, error } = await admin
+      .from("notifications")
+      .insert({
+        user_id: recipientId,
+        actor_id: actorId,
+        job_id: jobId,
+        application_id: null,
+        type: "review_received",
+        title: "New review received",
+        message: `You received a ${rating}-star review.`,
+        is_read: false,
+      })
+      .select(
+        "id, user_id, actor_id, job_id, type, is_read, created_at",
+      )
+      .single()
+
+    if (error) {
+      console.error("REVIEW NOTIFICATION INSERT ERROR:", {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+      })
+
+      return
+    }
+
+    console.log("REVIEW NOTIFICATION CREATED:", data)
+  } catch (error) {
+    console.error(
+      "REVIEW NOTIFICATION UNEXPECTED ERROR:",
+      error,
+    )
+  }
+}
+
 export async function createReviewAction(
   _previousState: ReviewActionState,
   formData: FormData,
 ): Promise<ReviewActionState> {
-  const supabase = await createClient()
+  try {
+    const supabase = await createClient()
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
 
-  if (userError || !user) {
-    return {
-      ok: false,
-      error: "You need to log in first.",
-      success: null,
+    if (userError || !user) {
+      return {
+        ok: false,
+        error: "You need to log in first.",
+        success: null,
+      }
     }
-  }
 
-  const entityTypeValue = getText(formData, "entity_type")
-  const entityId = getText(formData, "entity_id")
-  const rating = parseRating(getText(formData, "rating"))
-  const comment = normalizeUserText(getText(formData, "comment"))
+    const entityTypeValue = getText(
+      formData,
+      "entity_type",
+    )
 
-  if (!isReviewEntityType(entityTypeValue)) {
-    return {
-      ok: false,
-      error: "Invalid review type.",
-      success: null,
+    const entityId = getText(
+      formData,
+      "entity_id",
+    )
+
+    const rating = parseRating(
+      getText(formData, "rating"),
+    )
+
+    const comment = normalizeUserText(
+      getText(formData, "comment"),
+    )
+
+    if (!isReviewEntityType(entityTypeValue)) {
+      return {
+        ok: false,
+        error: "Invalid review type.",
+        success: null,
+      }
     }
-  }
 
-  if (!entityId) {
-    return {
-      ok: false,
-      error: "Review target not found.",
-      success: null,
+    if (!entityId) {
+      return {
+        ok: false,
+        error: "Review target not found.",
+        success: null,
+      }
     }
-  }
 
-  if (!rating) {
-    return {
-      ok: false,
-      error: "Select a rating from 1 to 5.",
-      success: null,
+    if (!rating) {
+      return {
+        ok: false,
+        error: "Select a rating from 1 to 5.",
+        success: null,
+      }
     }
-  }
 
-  if (comment.length > MAX_COMMENT_LENGTH) {
-    return {
-      ok: false,
-      error: `Comment is too long. Maximum ${MAX_COMMENT_LENGTH} characters.`,
-      success: null,
+    if (comment.length > MAX_COMMENT_LENGTH) {
+      return {
+        ok: false,
+        error: `Comment is too long. Maximum ${MAX_COMMENT_LENGTH} characters.`,
+        success: null,
+      }
     }
-  }
 
-  const resolved = await resolveReviewee({
-    entityType: entityTypeValue,
-    entityId,
-    currentUserId: user.id,
-  })
+    const resolved = await resolveReviewee({
+      entityType: entityTypeValue,
+      entityId,
+      currentUserId: user.id,
+    })
 
-  if (resolved.error || !resolved.revieweeId) {
-    return {
-      ok: false,
-      error: resolved.error || "Review recipient not found.",
-      success: null,
+    if (resolved.error || !resolved.revieweeId) {
+      return {
+        ok: false,
+        error:
+          resolved.error ||
+          "Review recipient not found.",
+        success: null,
+      }
     }
-  }
 
-  const { data: existingReview } = await supabase
-    .from("reviews")
-    .select("id")
-    .eq("reviewer_id", user.id)
-    .eq("entity_type", entityTypeValue)
-    .eq("entity_id", entityId)
-    .maybeSingle()
+    const {
+      data: existingReview,
+      error: existingReviewError,
+    } = await supabase
+      .from("reviews")
+      .select("id")
+      .eq("reviewer_id", user.id)
+      .eq("entity_type", entityTypeValue)
+      .eq("entity_id", entityId)
+      .maybeSingle()
 
-  if (existingReview) {
-    return {
-      ok: false,
-      error: "You have already reviewed this item.",
-      success: null,
+    if (existingReviewError) {
+      console.error(
+        "Check existing review error:",
+        existingReviewError,
+      )
+
+      return {
+        ok: false,
+        error: "Failed to check the existing review.",
+        success: null,
+      }
     }
-  }
 
-  const { error: insertError } = await supabase.from("reviews").insert({
-    job_id: resolved.jobId,
-    entity_type: entityTypeValue,
-    entity_id: entityId,
-    reviewer_id: user.id,
-    reviewee_id: resolved.revieweeId,
-    rating,
-    comment: comment || null,
-  })
-
-  if (insertError) {
-    if (insertError.code === "23505") {
+    if (existingReview) {
       return {
         ok: false,
         error: "You have already reviewed this item.",
@@ -307,46 +412,95 @@ export async function createReviewAction(
       }
     }
 
-    console.error("Create review error:", insertError)
+    const { error: insertError } = await supabase
+      .from("reviews")
+      .insert({
+        job_id: resolved.jobId,
+        entity_type: entityTypeValue,
+        entity_id: entityId,
+        reviewer_id: user.id,
+        reviewee_id: resolved.revieweeId,
+        rating,
+        comment: comment || null,
+      })
+
+    if (insertError) {
+      if (insertError.code === "23505") {
+        return {
+          ok: false,
+          error: "You have already reviewed this item.",
+          success: null,
+        }
+      }
+
+      console.error("Create review error:", insertError)
+
+      return {
+        ok: false,
+        error: "Failed to publish the review.",
+        success: null,
+      }
+    }
+
+    if (entityTypeValue === "job" && resolved.jobId) {
+      const { error: activityError } = await supabase
+        .from("job_activity")
+        .insert({
+          job_id: resolved.jobId,
+          type: "review_left",
+          actor_id: user.id,
+        })
+
+      if (activityError) {
+        console.error(
+          "Create review activity error:",
+          activityError,
+        )
+      }
+
+      await createReviewNotification({
+        recipientId: resolved.revieweeId,
+        actorId: user.id,
+        jobId: resolved.jobId,
+        rating,
+      })
+    }
+
+    if (resolved.pathname) {
+      revalidatePath(resolved.pathname)
+    }
+
+    revalidatePath("/jobs")
+    revalidatePath("/services")
+    revalidatePath("/companies")
+    revalidatePath("/dashboard")
+    revalidatePath("/notifications")
+    revalidatePath("/profile")
+    revalidatePath("/", "layout")
+
+    return {
+      ok: true,
+      error: null,
+      success: "Review published.",
+    }
+  } catch (error) {
+    console.error(
+      "Unexpected create review error:",
+      error,
+    )
 
     return {
       ok: false,
-      error: "Failed to publish the review.",
+      error:
+        "Something went wrong while publishing the review.",
       success: null,
     }
   }
-
-  if (entityTypeValue === "job" && resolved.jobId) {
-    const { error: activityError } = await supabase
-      .from("job_activity")
-      .insert({
-        job_id: resolved.jobId,
-        type: "review_left",
-        actor_id: user.id,
-      })
-
-    if (activityError) {
-      console.error("Create review activity error:", activityError)
-    }
-  }
-
-  if (resolved.pathname) {
-    revalidatePath(resolved.pathname)
-  }
-
-  revalidatePath("/jobs")
-  revalidatePath("/services")
-  revalidatePath("/companies")
-  revalidatePath("/dashboard")
-
-  return {
-    ok: true,
-    error: null,
-    success: "Review published.",
-  }
 }
 
-export async function deleteReviewAction(formData: FormData) {
+export async function deleteReviewAction(
+  formData: FormData,
+) {
   const supabase = await createClient()
 
   const {
@@ -357,8 +511,15 @@ export async function deleteReviewAction(formData: FormData) {
     return
   }
 
-  const reviewId = getText(formData, "review_id")
-  const pathname = getText(formData, "pathname")
+  const reviewId = getText(
+    formData,
+    "review_id",
+  )
+
+  const pathname = getText(
+    formData,
+    "pathname",
+  )
 
   if (!reviewId) {
     return
@@ -383,4 +544,7 @@ export async function deleteReviewAction(formData: FormData) {
   revalidatePath("/services")
   revalidatePath("/companies")
   revalidatePath("/dashboard")
+  revalidatePath("/notifications")
+  revalidatePath("/profile")
+  revalidatePath("/", "layout")
 }

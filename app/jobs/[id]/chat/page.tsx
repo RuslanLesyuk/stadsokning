@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import ChatMessageForm from "@/components/chat-message-form"
 import ChatLiveRefresh from "@/components/chat-live-refresh"
+import ChatReadSync from "@/components/chat-read-sync"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
@@ -472,6 +473,7 @@ export default async function JobChatPage({ params }: PageProps) {
     <div className="min-h-screen bg-[#fafafa]">
       <div className="mx-auto max-w-4xl px-4 py-6 md:py-8">
         <ChatLiveRefresh interval={30000} />
+        <ChatReadSync jobId={id} />
 
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
