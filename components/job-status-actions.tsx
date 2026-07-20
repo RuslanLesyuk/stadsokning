@@ -1,8 +1,10 @@
 "use client"
 
-import { useActionState, useEffect } from "react"
+import {
+  useState,
+  useTransition,
+} from "react"
 import { useRouter } from "next/navigation"
-import { useFormStatus } from "react-dom"
 import { toast } from "sonner"
 
 import {
@@ -29,11 +31,23 @@ type JobStatusActionsProps = {
 }
 
 type StatusActionConfig = {
-  actionType: "start" | "mark_done" | "cancel" | "reopen"
-  nextStatus: "assigned" | "in_progress" | "done" | "cancelled"
+  actionType:
+    | "start"
+    | "mark_done"
+    | "cancel"
+    | "reopen"
+  nextStatus:
+    | "assigned"
+    | "in_progress"
+    | "done"
+    | "cancelled"
   label: string
   pendingLabel: string
-  variant: "primary" | "success" | "danger" | "secondary"
+  variant:
+    | "primary"
+    | "success"
+    | "danger"
+    | "secondary"
   confirmText?: string
 }
 
@@ -55,6 +69,7 @@ const labels: Record<
     reopening: string
     cancelConfirm: string
     reopenConfirm: string
+    genericError: string
   }
 > = {
   uk: {
@@ -66,9 +81,14 @@ const labels: Record<
     cancelling: "Скасовуємо...",
     reopen: "Відкрити знову",
     reopening: "Відкриваємо...",
-    cancelConfirm: "Ти точно хочеш скасувати це замовлення?",
-    reopenConfirm: "Ти точно хочеш знову відкрити це замовлення?",
+    cancelConfirm:
+      "Ти точно хочеш скасувати це замовлення?",
+    reopenConfirm:
+      "Ти точно хочеш знову відкрити це замовлення?",
+    genericError:
+      "Сталася помилка. Спробуй ще раз.",
   },
+
   ru: {
     start: "Начать работу",
     starting: "Начинаем...",
@@ -78,9 +98,14 @@ const labels: Record<
     cancelling: "Отменяем...",
     reopen: "Открыть снова",
     reopening: "Открываем...",
-    cancelConfirm: "Ты точно хочешь отменить этот заказ?",
-    reopenConfirm: "Ты точно хочешь снова открыть этот заказ?",
+    cancelConfirm:
+      "Ты точно хочешь отменить этот заказ?",
+    reopenConfirm:
+      "Ты точно хочешь снова открыть этот заказ?",
+    genericError:
+      "Произошла ошибка. Попробуй ещё раз.",
   },
+
   en: {
     start: "Start job",
     starting: "Starting...",
@@ -90,9 +115,14 @@ const labels: Record<
     cancelling: "Cancelling...",
     reopen: "Reopen job",
     reopening: "Reopening...",
-    cancelConfirm: "Are you sure you want to cancel this job?",
-    reopenConfirm: "Are you sure you want to reopen this job?",
+    cancelConfirm:
+      "Are you sure you want to cancel this job?",
+    reopenConfirm:
+      "Are you sure you want to reopen this job?",
+    genericError:
+      "Something went wrong. Please try again.",
   },
+
   sv: {
     start: "Starta jobbet",
     starting: "Startar...",
@@ -102,9 +132,14 @@ const labels: Record<
     cancelling: "Avbryter...",
     reopen: "Öppna jobbet igen",
     reopening: "Öppnar igen...",
-    cancelConfirm: "Är du säker på att du vill avbryta jobbet?",
-    reopenConfirm: "Är du säker på att du vill öppna jobbet igen?",
+    cancelConfirm:
+      "Är du säker på att du vill avbryta jobbet?",
+    reopenConfirm:
+      "Är du säker på att du vill öppna jobbet igen?",
+    genericError:
+      "Något gick fel. Försök igen.",
   },
+
   pl: {
     start: "Rozpocznij pracę",
     starting: "Rozpoczynanie...",
@@ -114,12 +149,18 @@ const labels: Record<
     cancelling: "Anulowanie...",
     reopen: "Otwórz ponownie",
     reopening: "Ponowne otwieranie...",
-    cancelConfirm: "Czy na pewno chcesz anulować to zlecenie?",
-    reopenConfirm: "Czy na pewno chcesz ponownie otworzyć to zlecenie?",
+    cancelConfirm:
+      "Czy na pewno chcesz anulować to zlecenie?",
+    reopenConfirm:
+      "Czy na pewno chcesz ponownie otworzyć to zlecenie?",
+    genericError:
+      "Wystąpił błąd. Spróbuj ponownie.",
   },
 }
 
-function getButtonClasses(variant: StatusActionConfig["variant"]) {
+function getButtonClasses(
+  variant: StatusActionConfig["variant"],
+) {
   const base =
     "inline-flex min-h-11 w-full items-center justify-center rounded-2xl px-5 py-3 text-sm font-semibold transition focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
 
@@ -138,84 +179,112 @@ function getButtonClasses(variant: StatusActionConfig["variant"]) {
   }
 }
 
-function StatusSubmitButton({
-  config,
-}: {
-  config: StatusActionConfig
-}) {
-  const { pending } = useFormStatus()
-
-  return (
-    <button
-      type="submit"
-      disabled={pending}
-      className={getButtonClasses(config.variant)}
-    >
-      {pending ? config.pendingLabel : config.label}
-    </button>
-  )
-}
-
-function StatusActionForm({
+function StatusActionButton({
   jobId,
   config,
+  errorMessage,
 }: {
   jobId: string
   config: StatusActionConfig
+  errorMessage: string
 }) {
   const router = useRouter()
 
-  const [state, formAction] = useActionState(
-    updateJobStatusAction,
-    initialState,
-  )
+  const [isLoading, setIsLoading] =
+    useState(false)
 
-  useEffect(() => {
-    if (!state.message) {
+  const [
+    isTransitionPending,
+    startTransition,
+  ] = useTransition()
+
+  const isPending =
+    isLoading || isTransitionPending
+
+  function handleClick() {
+    if (isPending) {
       return
     }
 
-    if (state.success) {
-      toast.success(state.message)
-      router.refresh()
+    if (
+      config.confirmText &&
+      !window.confirm(config.confirmText)
+    ) {
       return
     }
 
-    toast.error(state.message)
-  }, [router, state])
+    setIsLoading(true)
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    if (!config.confirmText) {
-      return
-    }
+    const formData = new FormData()
 
-    const confirmed = window.confirm(config.confirmText)
+    formData.set("jobId", jobId)
+    formData.set(
+      "status",
+      config.nextStatus,
+    )
+    formData.set(
+      "actionType",
+      config.actionType,
+    )
 
-    if (!confirmed) {
-      event.preventDefault()
-    }
+    startTransition(async () => {
+      try {
+        const result =
+          await updateJobStatusAction(
+            initialState,
+            formData,
+          )
+
+        if (!result.success) {
+          toast.error(result.message)
+          setIsLoading(false)
+          return
+        }
+
+        toast.success(result.message)
+
+        /*
+         * Спочатку оновлюємо серверні компоненти
+         * через Next.js router.
+         */
+        router.refresh()
+
+        /*
+         * Потім примусово перезавантажуємо документ.
+         * requestAnimationFrame гарантує, що браузер
+         * виконає навігацію без додаткового кліку.
+         */
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            window.location.reload()
+          })
+        })
+      } catch (error) {
+        console.error(
+          "Update job status error:",
+          error,
+        )
+
+        toast.error(errorMessage)
+        setIsLoading(false)
+      }
+    })
   }
 
   return (
-    <form
-      action={formAction}
-      onSubmit={handleSubmit}
-      className="w-full sm:w-auto"
+    <button
+      type="button"
+      onClick={handleClick}
+      disabled={isPending}
+      aria-disabled={isPending}
+      className={getButtonClasses(
+        config.variant,
+      )}
     >
-      <input type="hidden" name="jobId" value={jobId} />
-      <input
-        type="hidden"
-        name="status"
-        value={config.nextStatus}
-      />
-      <input
-        type="hidden"
-        name="actionType"
-        value={config.actionType}
-      />
-
-      <StatusSubmitButton config={config} />
-    </form>
+      {isPending
+        ? config.pendingLabel
+        : config.label}
+    </button>
   )
 }
 
@@ -229,10 +298,15 @@ export default function JobStatusActions({
 }: JobStatusActionsProps) {
   const t = labels[locale]
 
-  const isAuthor = currentUserId === createdBy
+  const isAuthor =
+    currentUserId === createdBy
+
   const isAssignedWorker =
-    Boolean(assignedTo) && currentUserId === assignedTo
-  const isParticipant = isAuthor || isAssignedWorker
+    Boolean(assignedTo) &&
+    currentUserId === assignedTo
+
+  const isParticipant =
+    isAuthor || isAssignedWorker
 
   if (!assignedTo || !isParticipant) {
     return null
@@ -240,7 +314,10 @@ export default function JobStatusActions({
 
   const actions: StatusActionConfig[] = []
 
-  if (status === "assigned" && isAssignedWorker) {
+  if (
+    status === "assigned" &&
+    isAssignedWorker
+  ) {
     actions.push({
       actionType: "start",
       nextStatus: "in_progress",
@@ -250,7 +327,10 @@ export default function JobStatusActions({
     })
   }
 
-  if (status === "in_progress" && isAssignedWorker) {
+  if (
+    status === "in_progress" &&
+    isAssignedWorker
+  ) {
     actions.push({
       actionType: "mark_done",
       nextStatus: "done",
@@ -261,8 +341,9 @@ export default function JobStatusActions({
   }
 
   if (
-    (status === "assigned" || status === "in_progress") &&
-    isParticipant
+    (status === "assigned" ||
+      status === "in_progress") &&
+    isAuthor
   ) {
     actions.push({
       actionType: "cancel",
@@ -275,8 +356,9 @@ export default function JobStatusActions({
   }
 
   if (
-    (status === "done" || status === "cancelled") &&
-    isParticipant
+    (status === "done" ||
+      status === "cancelled") &&
+    isAuthor
   ) {
     actions.push({
       actionType: "reopen",
@@ -295,10 +377,11 @@ export default function JobStatusActions({
   return (
     <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
       {actions.map((config) => (
-        <StatusActionForm
+        <StatusActionButton
           key={config.actionType}
           jobId={jobId}
           config={config}
+          errorMessage={t.genericError}
         />
       ))}
     </div>
