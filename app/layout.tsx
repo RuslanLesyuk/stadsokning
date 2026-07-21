@@ -39,6 +39,7 @@ type FooterCopy = {
   terms: string
   privacy: string
   contact: string
+  faq: string
   copyright: string
   popularGuides: string
   guideWorkInSweden: string
@@ -64,6 +65,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     terms: "Умови користування",
     privacy: "Політика конфіденційності",
     contact: "Контакти",
+    faq: "Допомога",
     copyright: "Усі права захищено.",
     popularGuides: "Популярні гайди",
     guideWorkInSweden: "Робота у Швеції",
@@ -87,6 +89,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     terms: "Условия использования",
     privacy: "Политика конфиденциальности",
     contact: "Контакты",
+    faq: "Помощь",
     copyright: "Все права защищены.",
     popularGuides: "Популярные гайды",
     guideWorkInSweden: "Работа в Швеции",
@@ -110,6 +113,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     terms: "Terms",
     privacy: "Privacy",
     contact: "Contact",
+    faq: "Help Center",
     copyright: "All rights reserved.",
     popularGuides: "Popular Guides",
     guideWorkInSweden: "Work in Sweden",
@@ -133,6 +137,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     terms: "Villkor",
     privacy: "Integritet",
     contact: "Kontakt",
+    faq: "Hjälp",
     copyright: "Alla rättigheter förbehållna.",
     popularGuides: "Populära guider",
     guideWorkInSweden: "Jobba i Sverige",
@@ -156,6 +161,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     terms: "Regulamin",
     privacy: "Prywatność",
     contact: "Kontakt",
+    faq: "Pomoc",
     copyright: "Wszelkie prawa zastrzeżone.",
     popularGuides: "Popularne poradniki",
     guideWorkInSweden: "Praca w Szwecji",
@@ -310,7 +316,13 @@ export default async function RootLayout({
                   >
                     {t.privacy}
                   </Link>
-
+                  <Link
+                    href="/faq"
+                    prefetch={false}
+                    className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
+                  >
+                    {t.faq}
+                  </Link>
                   <Link
                     href="/contact"
                     prefetch={false}

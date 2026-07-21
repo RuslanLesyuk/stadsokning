@@ -1,7 +1,17 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react"
-import { usePathname, useRouter } from "next/navigation"
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useTransition,
+} from "react"
+import {
+  usePathname,
+  useRouter,
+} from "next/navigation"
+
 import type { Locale } from "@/lib/i18n"
 
 type LanguageSwitcherProps = {
@@ -15,21 +25,51 @@ type LanguageOption = {
 }
 
 const languages: LanguageOption[] = [
-  { value: "uk", label: "Українська", flag: "🇺🇦" },
-  { value: "ru", label: "Русский", flag: "🇷🇺" },
-  { value: "en", label: "English", flag: "🇬🇧" },
-  { value: "sv", label: "Svenska", flag: "🇸🇪" },
-  { value: "pl", label: "Polski", flag: "🇵🇱" },
+  {
+    value: "uk",
+    label: "Українська",
+    flag: "🇺🇦",
+  },
+  {
+    value: "ru",
+    label: "Русский",
+    flag: "🇷🇺",
+  },
+  {
+    value: "en",
+    label: "English",
+    flag: "🇬🇧",
+  },
+  {
+    value: "sv",
+    label: "Svenska",
+    flag: "🇸🇪",
+  },
+  {
+    value: "pl",
+    label: "Polski",
+    flag: "🇵🇱",
+  },
 ]
 
 function getCurrentLanguage(locale: Locale) {
-  return languages.find((item) => item.value === locale) ?? languages[2]
+  return (
+    languages.find(
+      (item) => item.value === locale,
+    ) ?? languages[2]
+  )
 }
 
-function getLocaleFromSeoPath(pathname: string): Locale | null {
+function getLocaleFromSeoPath(
+  pathname: string,
+): Locale | null {
   const cleanPath = pathname.split("?")[0]
 
-  if (/^\/seo\/[^/]+\/[^/]+\/?$/.test(cleanPath)) {
+  if (
+    /^\/seo\/[^/]+\/[^/]+\/?$/.test(
+      cleanPath,
+    )
+  ) {
     return "sv"
   }
 
@@ -44,7 +84,10 @@ function getLocaleFromSeoPath(pathname: string): Locale | null {
   return localizedSeoMatch[1] as Locale
 }
 
-function getSeoLocalizedPath(pathname: string, nextLocale: Locale) {
+function getSeoLocalizedPath(
+  pathname: string,
+  nextLocale: Locale,
+) {
   const cleanPath = pathname.split("?")[0]
 
   const localizedSeoMatch = cleanPath.match(
@@ -62,7 +105,9 @@ function getSeoLocalizedPath(pathname: string, nextLocale: Locale) {
     return `/${nextLocale}/seo/${city}/${service}`
   }
 
-  const defaultSeoMatch = cleanPath.match(/^\/seo\/([^/]+)\/([^/]+)\/?$/)
+  const defaultSeoMatch = cleanPath.match(
+    /^\/seo\/([^/]+)\/([^/]+)\/?$/,
+  )
 
   if (defaultSeoMatch) {
     const city = defaultSeoMatch[1]
@@ -78,45 +123,93 @@ function getSeoLocalizedPath(pathname: string, nextLocale: Locale) {
   return null
 }
 
-export default function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
+export default function LanguageSwitcher({
+  locale,
+}: LanguageSwitcherProps) {
   const router = useRouter()
   const pathname = usePathname()
-  const containerRef = useRef<HTMLDivElement | null>(null)
-  const [isOpen, setIsOpen] = useState(false)
-  const [isPending, startTransition] = useTransition()
+
+  const containerRef =
+    useRef<HTMLDivElement | null>(null)
+
+  const [isOpen, setIsOpen] =
+    useState(false)
+
+  const [isPending, startTransition] =
+    useTransition()
 
   const activeLocale = useMemo(() => {
-    return getLocaleFromSeoPath(pathname) ?? locale
+    return (
+      getLocaleFromSeoPath(pathname) ??
+      locale
+    )
   }, [pathname, locale])
 
-  const current = getCurrentLanguage(activeLocale)
+  const current =
+    getCurrentLanguage(activeLocale)
 
   useEffect(() => {
-    function handlePointerDown(event: MouseEvent | TouchEvent) {
-      if (!containerRef.current) return
+    function handlePointerDown(
+      event: MouseEvent | TouchEvent,
+    ) {
+      if (!containerRef.current) {
+        return
+      }
 
       const target = event.target
-      if (!(target instanceof Node)) return
 
-      if (!containerRef.current.contains(target)) {
+      if (!(target instanceof Node)) {
+        return
+      }
+
+      if (
+        !containerRef.current.contains(target)
+      ) {
         setIsOpen(false)
       }
     }
 
-    function handleEscape(event: KeyboardEvent) {
+    function handleEscape(
+      event: KeyboardEvent,
+    ) {
       if (event.key === "Escape") {
         setIsOpen(false)
       }
     }
 
-    document.addEventListener("mousedown", handlePointerDown)
-    document.addEventListener("touchstart", handlePointerDown, { passive: true })
-    document.addEventListener("keydown", handleEscape)
+    document.addEventListener(
+      "mousedown",
+      handlePointerDown,
+    )
+
+    document.addEventListener(
+      "touchstart",
+      handlePointerDown,
+      {
+        passive: true,
+      },
+    )
+
+    document.addEventListener(
+      "keydown",
+      handleEscape,
+    )
 
     return () => {
-      document.removeEventListener("mousedown", handlePointerDown)
-      document.removeEventListener("touchstart", handlePointerDown)
-      document.removeEventListener("keydown", handleEscape)
+      document.removeEventListener(
+        "mousedown",
+        handlePointerDown,
+      )
+
+      document.removeEventListener(
+        "touchstart",
+        handlePointerDown,
+      )
+
+      document.removeEventListener(
+        "keydown",
+        handleEscape,
+      )
     }
   }, [])
 
@@ -124,16 +217,28 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
     setIsOpen(false)
   }
 
-  function changeLocale(nextLocale: Locale) {
+  function changeLocale(
+    nextLocale: Locale,
+  ) {
     if (nextLocale === activeLocale) {
       closeMenu()
       return
     }
 
-    document.cookie = `clean_jobs_locale=${nextLocale}; path=/; max-age=31536000; samesite=lax`
+    document.cookie =
+      `clean_jobs_locale=${nextLocale}; ` +
+      "path=/; max-age=31536000; samesite=lax"
+
+    document.cookie =
+      "clean_jobs_language_selected=true; " +
+      "path=/; max-age=31536000; samesite=lax"
+
     closeMenu()
 
-    const seoPath = getSeoLocalizedPath(pathname, nextLocale)
+    const seoPath = getSeoLocalizedPath(
+      pathname,
+      nextLocale,
+    )
 
     startTransition(() => {
       if (seoPath) {
@@ -146,13 +251,18 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    <div
+      ref={containerRef}
+      className="relative"
+    >
       <button
         type="button"
         aria-label="Change language"
         aria-expanded={isOpen}
         aria-haspopup="menu"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() =>
+          setIsOpen((previous) => !previous)
+        }
         disabled={isPending}
         className={`inline-flex h-11 items-center gap-2 rounded-2xl border px-3 text-sm font-medium text-slate-800 transition focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] disabled:opacity-60 ${
           isOpen
@@ -160,8 +270,13 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
             : "border-slate-200 bg-white hover:bg-rose-50 active:bg-rose-100"
         }`}
       >
-        <span className="text-base leading-none">{current.flag}</span>
-        <span className="hidden sm:inline">{current.label}</span>
+        <span className="text-base leading-none">
+          {current.flag}
+        </span>
+
+        <span className="hidden sm:inline">
+          {current.label}
+        </span>
       </button>
 
       {isOpen ? (
@@ -179,13 +294,16 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
           >
             <div className="flex flex-col gap-1">
               {languages.map((item) => {
-                const isActive = item.value === activeLocale
+                const isActive =
+                  item.value === activeLocale
 
                 return (
                   <button
                     key={item.value}
                     type="button"
-                    onClick={() => changeLocale(item.value)}
+                    onClick={() =>
+                      changeLocale(item.value)
+                    }
                     disabled={isPending}
                     className={`flex min-h-11 items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98] ${
                       isActive
@@ -194,7 +312,10 @@ export default function LanguageSwitcher({ locale }: LanguageSwitcherProps) {
                     } disabled:opacity-60`}
                   >
                     <span className="flex items-center gap-3">
-                      <span className="text-base leading-none">{item.flag}</span>
+                      <span className="text-base leading-none">
+                        {item.flag}
+                      </span>
+
                       <span>{item.label}</span>
                     </span>
 
