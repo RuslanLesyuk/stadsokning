@@ -275,25 +275,32 @@ export default async function AdminLeadsPage({
               registrations.
             </p>
           </div>
-
+            </div>
           <div className="flex flex-wrap gap-3">
-            <Link
-              href="/admin"
-              prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 active:scale-[0.97]"
-            >
-              Back to admin
-            </Link>
+  <Link
+    href="/admin"
+    prefetch={false}
+    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-100 active:scale-[0.97]"
+  >
+    Back to admin
+  </Link>
 
-            <Link
-              href="/admin/leads/new"
-              prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 active:scale-[0.97]"
-            >
-              Add company
-            </Link>
-          </div>
-        </div>
+  <Link
+    href="/admin/leads/import"
+    prefetch={false}
+    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-[0.97]"
+  >
+    Import Excel
+  </Link>
+
+  <Link
+    href="/admin/leads/new"
+    prefetch={false}
+    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 active:scale-[0.97]"
+  >
+    Add company
+  </Link>
+</div>
 
         {success === "company-added" ? (
           <div className="mt-6 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm font-medium text-emerald-700">
