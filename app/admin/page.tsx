@@ -194,15 +194,21 @@ export default async function AdminPage({
               Review recent jobs, user profiles and reports before public launch.
             </p>
           </div>
-
-          <Link
-            href="/dashboard"
-            prefetch={false}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 active:scale-[0.97]"
-          >
-            Back to dashboard
-          </Link>
-        </div>
+<Link
+  href="/admin/leads"
+  prefetch={false}
+  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 active:scale-[0.97]"
+>
+  Company leads
+</Link>
+           <Link
+    href="/dashboard"
+    prefetch={false}
+    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 active:scale-[0.97]"
+  >
+    Back to dashboard
+  </Link>
+</div>
 
         <section className="mt-8 grid gap-4 md:grid-cols-4">
           <div className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
