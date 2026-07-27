@@ -286,6 +286,14 @@ export default async function AdminLeadsPage({
   </Link>
 
   <Link
+    href="/admin/leads/enrich"
+    prefetch={false}
+    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-blue-300 bg-blue-50 px-5 py-3 text-sm font-semibold text-blue-700 transition hover:bg-blue-100 active:scale-[0.97]"
+  >
+    Email scanner
+  </Link>
+
+  <Link
     href="/admin/leads/import"
     prefetch={false}
     className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-100 active:scale-[0.97]"
