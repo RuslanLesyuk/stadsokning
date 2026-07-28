@@ -2,13 +2,15 @@ import type { Metadata, Viewport } from "next"
 import Link from "next/link"
 import Script from "next/script"
 import { cookies } from "next/headers"
-import { Analytics } from "@vercel/analytics/react"
+import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import SiteHeader from "@/components/site-header"
 import LanguageWelcomeModal from "@/components/language-welcome-modal"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 
+
 const siteUrl = "https://cleansjob.com"
+const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -366,22 +368,26 @@ export default async function RootLayout({
           `}
         </Script>
 
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-          strategy="afterInteractive"
-        />
+        {googleAnalyticsId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
+              strategy="afterInteractive"
+            />
 
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
 
-            gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}', {
-              page_path: window.location.pathname,
-            });
-          `}
-        </Script>
+                gtag('config', '${googleAnalyticsId}', {
+                  page_path: window.location.pathname,
+                });
+              `}
+            </Script>
+          </>
+        ) : null}
 
         <Analytics />
       </body>
