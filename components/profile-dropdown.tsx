@@ -7,24 +7,30 @@ type Props = {
   profileLabel: string
   dashboardLabel: string
   myServicesLabel: string
+  companyLeadsLabel?: string
   logoutLabel: string
   profileName: string
   companyLabel: string
   profileInitials: string
   avatarUrl: string | null
   companyLogoUrl: string | null
+  showCompanyLeads?: boolean
+  companyLeadsCount?: number
 }
 
 export default function ProfileDropdown({
   profileLabel,
   dashboardLabel,
   myServicesLabel,
+  companyLeadsLabel = "Company requests",
   logoutLabel,
   profileName,
   companyLabel,
   profileInitials,
   avatarUrl,
   companyLogoUrl,
+  showCompanyLeads = false,
+  companyLeadsCount = 0,
 }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement | null>(null)
@@ -49,7 +55,11 @@ export default function ProfileDropdown({
         <span className="relative shrink-0">
           <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-rose-600 text-xs font-semibold text-white">
             {avatarUrl ? (
-              <img src={avatarUrl} alt={profileName} className="h-full w-full object-cover" />
+              <img
+                src={avatarUrl}
+                alt={profileName}
+                className="h-full w-full object-cover"
+              />
             ) : (
               profileInitials
             )}
@@ -57,7 +67,11 @@ export default function ProfileDropdown({
 
           {companyLogoUrl ? (
             <span className="absolute -bottom-1 -right-1 flex h-[18px] w-[18px] items-center justify-center overflow-hidden rounded-md border border-white bg-white shadow-sm">
-              <img src={companyLogoUrl} alt={companyLabel} className="h-full w-full object-cover" />
+              <img
+                src={companyLogoUrl}
+                alt={companyLabel}
+                className="h-full w-full object-cover"
+              />
             </span>
           ) : null}
         </span>
@@ -73,17 +87,46 @@ export default function ProfileDropdown({
       </button>
 
       {open ? (
-        <div className="absolute right-0 z-50 mt-2 w-56 rounded-3xl border border-slate-200 bg-white p-2 shadow-xl">
-          <Link href="/profile" className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50">
+        <div className="absolute right-0 z-50 mt-2 w-64 rounded-3xl border border-slate-200 bg-white p-2 shadow-xl">
+          <Link
+            href="/profile"
+            className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
+          >
             {profileLabel}
           </Link>
-          <Link href="/dashboard" className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50">
+
+          <Link
+            href="/dashboard"
+            className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
+          >
             {dashboardLabel}
           </Link>
-          <Link href="/dashboard/services" className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50">
+
+          {showCompanyLeads ? (
+            <Link
+              href="/dashboard/company-leads"
+              className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
+            >
+              <span>{companyLeadsLabel}</span>
+              {companyLeadsCount > 0 ? (
+                <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  {companyLeadsCount > 99 ? "99+" : companyLeadsCount}
+                </span>
+              ) : null}
+            </Link>
+          ) : null}
+
+          <Link
+            href="/dashboard/services"
+            className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
+          >
             {myServicesLabel}
           </Link>
-          <a href="/auth/signout" className="block rounded-2xl px-4 py-3 text-sm text-rose-700 hover:bg-rose-50">
+
+          <a
+            href="/auth/signout"
+            className="block rounded-2xl px-4 py-3 text-sm text-rose-700 hover:bg-rose-50"
+          >
             {logoutLabel}
           </a>
         </div>

@@ -23,6 +23,9 @@ export type NotificationItem = {
   is_read: boolean
   job_id: string | null
   application_id: string | null
+  href: string | null
+  entity_type: string | null
+  entity_id: string | null
   created_at: string
 }
 
@@ -32,6 +35,7 @@ type NotificationsCopy = {
   markRead: string
   opening: string
   openJob: string
+  openCompanyLead: string
   read: string
   unread: string
   emptyTitle: string
@@ -50,10 +54,7 @@ const initialState: DashboardActionState = {
   message: "",
 }
 
-function formatNotificationDate(
-  value: string,
-  locale: string,
-) {
+function formatNotificationDate(value: string, locale: string) {
   const localeMap: Record<string, string> = {
     uk: "uk-UA",
     ru: "ru-RU",
@@ -68,38 +69,24 @@ function formatNotificationDate(
     return ""
   }
 
-  return new Intl.DateTimeFormat(
-    localeMap[locale] || "en-GB",
-    {
-      dateStyle: "medium",
-      timeStyle: "short",
-    },
-  ).format(date)
+  return new Intl.DateTimeFormat(localeMap[locale] || "en-GB", {
+    dateStyle: "medium",
+    timeStyle: "short",
+  }).format(date)
 }
 
 function getNotificationIcon(type: string) {
   switch (type) {
     case "application_received":
       return (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-          className="h-5 w-5"
-        >
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
           <path
             d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
             stroke="currentColor"
             strokeWidth="1.8"
             strokeLinecap="round"
           />
-          <circle
-            cx="9"
-            cy="7"
-            r="4"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          />
+          <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.8" />
           <path
             d="M19 8v6M22 11h-6"
             stroke="currentColor"
@@ -111,19 +98,8 @@ function getNotificationIcon(type: string) {
 
     case "application_accepted":
       return (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-          className="h-5 w-5"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="9"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          />
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
           <path
             d="m8 12 2.5 2.5L16 9"
             stroke="currentColor"
@@ -136,19 +112,8 @@ function getNotificationIcon(type: string) {
 
     case "application_rejected":
       return (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-          className="h-5 w-5"
-        >
-          <circle
-            cx="12"
-            cy="12"
-            r="9"
-            stroke="currentColor"
-            strokeWidth="1.8"
-          />
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
+          <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="1.8" />
           <path
             d="m9 9 6 6M15 9l-6 6"
             stroke="currentColor"
@@ -160,12 +125,7 @@ function getNotificationIcon(type: string) {
 
     case "new_message":
       return (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-          className="h-5 w-5"
-        >
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
           <path
             d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4v8Z"
             stroke="currentColor"
@@ -178,12 +138,7 @@ function getNotificationIcon(type: string) {
 
     case "review_received":
       return (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-          className="h-5 w-5"
-        >
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
           <path
             d="m12 2 3 6 6.5 1-4.75 4.5L18 20l-6-3.25L6 20l1.25-6.5L2.5 9 9 8l3-6Z"
             stroke="currentColor"
@@ -193,14 +148,33 @@ function getNotificationIcon(type: string) {
         </svg>
       )
 
+    case "company_quote_request":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
+          <path
+            d="M4 6.5A2.5 2.5 0 0 1 6.5 4h11A2.5 2.5 0 0 1 20 6.5v11a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5v-11Z"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <path
+            d="m5 7 7 5 7-5"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8 16h5"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+          />
+        </svg>
+      )
+
     default:
       return (
-        <svg
-          viewBox="0 0 24 24"
-          fill="none"
-          aria-hidden="true"
-          className="h-5 w-5"
-        >
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
           <path
             d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"
             stroke="currentColor"
@@ -208,15 +182,24 @@ function getNotificationIcon(type: string) {
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <path
-            d="M10 21h4"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinecap="round"
-          />
+          <path d="M10 21h4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
       )
   }
+}
+
+function getNotificationHref(notification: NotificationItem) {
+  const explicitHref = notification.href?.trim()
+
+  if (explicitHref) {
+    return explicitHref
+  }
+
+  if (notification.job_id) {
+    return `/jobs/${notification.job_id}`
+  }
+
+  return "/dashboard"
 }
 
 function NotificationCard({
@@ -235,12 +218,12 @@ function NotificationCard({
     initialState,
   )
 
-  const [targetHref, setTargetHref] =
-    useState<string | null>(null)
-
-  const href = notification.job_id
-    ? `/jobs/${notification.job_id}`
-    : "/dashboard"
+  const [targetHref, setTargetHref] = useState<string | null>(null)
+  const href = getNotificationHref(notification)
+  const openLabel =
+    notification.type === "company_quote_request"
+      ? copy.openCompanyLead
+      : copy.openJob
 
   useEffect(() => {
     if (state.success && targetHref) {
@@ -303,9 +286,7 @@ function NotificationCard({
                       : "bg-rose-100 text-rose-700"
                   }`}
                 >
-                  {notification.is_read
-                    ? copy.read
-                    : copy.unread}
+                  {notification.is_read ? copy.read : copy.unread}
                 </span>
               </div>
 
@@ -320,10 +301,7 @@ function NotificationCard({
               dateTime={notification.created_at}
               className="shrink-0 text-xs font-medium text-slate-500"
             >
-              {formatNotificationDate(
-                notification.created_at,
-                locale,
-              )}
+              {formatNotificationDate(notification.created_at, locale)}
             </time>
           </div>
 
@@ -334,16 +312,12 @@ function NotificationCard({
               disabled={isPending}
               className="inline-flex min-h-10 items-center justify-center rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isPending ? copy.opening : copy.openJob}
+              {isPending ? copy.opening : openLabel}
             </button>
 
             {!notification.is_read ? (
               <form action={action}>
-                <input
-                  type="hidden"
-                  name="notificationId"
-                  value={notification.id}
-                />
+                <input type="hidden" name="notificationId" value={notification.id} />
 
                 <button
                   type="submit"
@@ -359,15 +333,13 @@ function NotificationCard({
                 prefetch={false}
                 className="text-sm font-medium text-slate-500 transition hover:text-rose-700"
               >
-                {copy.openJob}
+                {openLabel}
               </Link>
             )}
           </div>
 
           {!state.success && state.message ? (
-            <p className="mt-3 text-sm font-medium text-red-600">
-              {state.message}
-            </p>
+            <p className="mt-3 text-sm font-medium text-red-600">{state.message}</p>
           ) : null}
         </div>
       </div>
@@ -375,11 +347,7 @@ function NotificationCard({
   )
 }
 
-function MarkAllReadButton({
-  copy,
-}: {
-  copy: NotificationsCopy
-}) {
+function MarkAllReadButton({ copy }: { copy: NotificationsCopy }) {
   const router = useRouter()
 
   const [state, action, isPending] = useActionState(
@@ -400,9 +368,7 @@ function MarkAllReadButton({
         disabled={isPending}
         className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {isPending
-          ? copy.markingAll
-          : copy.markAllRead}
+        {isPending ? copy.markingAll : copy.markAllRead}
       </button>
     </form>
   )
@@ -424,9 +390,7 @@ export default function NotificationsCenter({
           {getNotificationIcon("default")}
         </div>
 
-        <h2 className="mt-5 text-xl font-semibold text-slate-950">
-          {copy.emptyTitle}
-        </h2>
+        <h2 className="mt-5 text-xl font-semibold text-slate-950">{copy.emptyTitle}</h2>
 
         <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-600">
           {copy.emptyText}

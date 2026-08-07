@@ -234,7 +234,6 @@ export default async function EditServicePage({ params }: PageProps) {
 
         <form
           action={updateServiceProfile}
-          encType="multipart/form-data"
           className="mt-8 grid gap-5 md:grid-cols-2"
         >
           <input type="hidden" name="service_id" value={service.id} />

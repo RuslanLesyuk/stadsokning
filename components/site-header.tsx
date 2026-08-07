@@ -12,6 +12,7 @@ type HeaderCopy = {
   services: string
   companies: string
   myServices: string
+  companyLeads: string
   dashboard: string
   createJob: string
   login: string
@@ -30,6 +31,7 @@ const copy: Record<Locale, HeaderCopy> = {
     services: "Послуги",
     companies: "Компанії",
     myServices: "Мої послуги",
+    companyLeads: "Заявки компанії",
     dashboard: "Кабінет",
     createJob: "Створити роботу",
     login: "Увійти",
@@ -46,6 +48,7 @@ const copy: Record<Locale, HeaderCopy> = {
     services: "Услуги",
     companies: "Компании",
     myServices: "Мои услуги",
+    companyLeads: "Заявки компании",
     dashboard: "Кабинет",
     createJob: "Создать работу",
     login: "Войти",
@@ -62,6 +65,7 @@ const copy: Record<Locale, HeaderCopy> = {
     services: "Services",
     companies: "Companies",
     myServices: "My services",
+    companyLeads: "Company requests",
     dashboard: "Dashboard",
     createJob: "Post job",
     login: "Login",
@@ -78,6 +82,7 @@ const copy: Record<Locale, HeaderCopy> = {
     services: "Tjänster",
     companies: "Företag",
     myServices: "Mina tjänster",
+    companyLeads: "Offertförfrågningar",
     dashboard: "Dashboard",
     createJob: "Skapa jobb",
     login: "Logga in",
@@ -94,6 +99,7 @@ const copy: Record<Locale, HeaderCopy> = {
     services: "Usługi",
     companies: "Firmy",
     myServices: "Moje usługi",
+    companyLeads: "Zapytania firmowe",
     dashboard: "Panel",
     createJob: "Dodaj zlecenie",
     login: "Zaloguj się",
@@ -112,6 +118,12 @@ type ProfileRow = {
   avatar_url: string | null
   company_logo_url: string | null
   company_name: string | null
+}
+
+type OwnedCompanyRow = {
+  id: string
+  name: string
+  logo_url: string | null
 }
 
 function getInitials(name: string) {
@@ -198,7 +210,6 @@ export default async function SiteHeader() {
   ) as Locale
 
   const t = copy[locale] || copy.en
-
   const supabase = await createClient()
 
   const {
@@ -209,7 +220,8 @@ export default async function SiteHeader() {
   let companyName: string | null = null
   let avatarUrl: string | null = null
   let companyLogoUrl: string | null = null
-
+  let showCompanyLeads = false
+  let companyLeadsCount = 0
   let unreadMessagesCount = 0
   let unreadNotificationsCount = 0
 
@@ -221,12 +233,11 @@ export default async function SiteHeader() {
         error: notificationsError,
       },
       { data: jobs, error: jobsError },
+      { data: ownedCompaniesData, error: ownedCompaniesError },
     ] = await Promise.all([
       supabase
         .from("profiles")
-        .select(
-          "full_name, avatar_url, company_logo_url, company_name",
-        )
+        .select("full_name, avatar_url, company_logo_url, company_name")
         .eq("id", user.id)
         .maybeSingle(),
       supabase
@@ -240,9 +251,13 @@ export default async function SiteHeader() {
       supabase
         .from("jobs")
         .select("id")
-        .or(
-          `created_by.eq.${user.id},assigned_to.eq.${user.id}`,
-        ),
+        .or(`created_by.eq.${user.id},assigned_to.eq.${user.id}`),
+      supabase
+        .from("companies")
+        .select("id, name, logo_url")
+        .eq("owner_id", user.id)
+        .order("name", { ascending: true })
+        .limit(20),
     ])
 
     if (profileError) {
@@ -250,53 +265,66 @@ export default async function SiteHeader() {
     }
 
     if (notificationsError) {
-      console.error(
-        "Load unread notifications error:",
-        notificationsError,
-      )
+      console.error("Load unread notifications error:", notificationsError)
     }
 
     if (jobsError) {
       console.error("Load header jobs error:", jobsError)
     }
 
+    if (ownedCompaniesError) {
+      console.error("Load header owned companies error:", ownedCompaniesError)
+    }
+
     const profileRow = profile as ProfileRow | null
+    const ownedCompanies = (ownedCompaniesData ?? []) as OwnedCompanyRow[]
+    const primaryOwnedCompany = ownedCompanies[0] ?? null
 
-    fullName =
-      profileRow?.full_name?.trim() ||
-      user.email ||
-      null
-
+    fullName = profileRow?.full_name?.trim() || user.email || null
     companyName =
-      profileRow?.company_name?.trim() || null
-
+      primaryOwnedCompany?.name?.trim() ||
+      profileRow?.company_name?.trim() ||
+      null
     avatarUrl = profileRow?.avatar_url || null
-
     companyLogoUrl =
-      profileRow?.company_logo_url || null
+      primaryOwnedCompany?.logo_url || profileRow?.company_logo_url || null
+    unreadNotificationsCount = notificationsCount ?? 0
+    showCompanyLeads = ownedCompanies.length > 0
 
-    unreadNotificationsCount =
-      notificationsCount ?? 0
+    const companyIds = ownedCompanies.map((company) => company.id)
+
+    if (companyIds.length > 0) {
+      const { count, error: companyLeadsError } = await supabase
+        .from("company_quote_requests")
+        .select("id", {
+          count: "exact",
+          head: true,
+        })
+        .in("company_id", companyIds)
+        .eq("status", "new")
+
+      if (companyLeadsError) {
+        console.error("Load new company leads error:", companyLeadsError)
+      }
+
+      companyLeadsCount = count ?? 0
+    }
 
     const jobIds = (jobs ?? []).map((job) => job.id)
 
     if (jobIds.length > 0) {
-      const { count, error: messagesError } =
-        await supabase
-          .from("messages")
-          .select("id", {
-            count: "exact",
-            head: true,
-          })
-          .in("job_id", jobIds)
-          .neq("sender_id", user.id)
-          .is("read_at", null)
+      const { count, error: messagesError } = await supabase
+        .from("messages")
+        .select("id", {
+          count: "exact",
+          head: true,
+        })
+        .in("job_id", jobIds)
+        .neq("sender_id", user.id)
+        .is("read_at", null)
 
       if (messagesError) {
-        console.error(
-          "Load unread messages error:",
-          messagesError,
-        )
+        console.error("Load unread messages error:", messagesError)
       }
 
       unreadMessagesCount = count ?? 0
@@ -317,36 +345,20 @@ export default async function SiteHeader() {
               prefetch={false}
               className="shrink-0 rounded-xl text-[26px] font-semibold leading-none tracking-[-0.03em] transition duration-200 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98]"
             >
-              <span className="text-rose-600">
-                Clean
-              </span>{" "}
-              <span className="text-slate-950">
-                Jobs
-              </span>
+              <span className="text-rose-600">Clean</span>{" "}
+              <span className="text-slate-950">Jobs</span>
             </Link>
 
             <nav className="hidden items-center gap-1 md:flex">
-              <Link
-                href="/jobs"
-                prefetch={false}
-                className={navLinkClass()}
-              >
+              <Link href="/jobs" prefetch={false} className={navLinkClass()}>
                 {t.jobs}
               </Link>
 
-              <Link
-                href="/services"
-                prefetch={false}
-                className={navLinkClass()}
-              >
+              <Link href="/services" prefetch={false} className={navLinkClass()}>
                 {t.services}
               </Link>
 
-              <Link
-                href="/companies"
-                prefetch={false}
-                className={navLinkClass()}
-              >
+              <Link href="/companies" prefetch={false} className={navLinkClass()}>
                 {t.companies}
               </Link>
 
@@ -360,20 +372,14 @@ export default async function SiteHeader() {
 
                   {unreadMessagesCount > 0 ? (
                     <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white shadow-sm">
-                      {unreadMessagesCount > 99
-                        ? "99+"
-                        : unreadMessagesCount}
+                      {unreadMessagesCount > 99 ? "99+" : unreadMessagesCount}
                     </span>
                   ) : null}
                 </Link>
               ) : null}
 
               {user ? (
-                <Link
-                  href="/jobs/create"
-                  prefetch={false}
-                  className={navLinkClass()}
-                >
+                <Link href="/jobs/create" prefetch={false} className={navLinkClass()}>
                   {t.createJob}
                 </Link>
               ) : null}
@@ -397,21 +403,22 @@ export default async function SiteHeader() {
               <>
                 <NotificationBell
                   label={t.notifications}
-                  unreadCount={
-                    unreadNotificationsCount
-                  }
+                  unreadCount={unreadNotificationsCount}
                 />
 
                 <ProfileDropdown
                   profileLabel={t.profile}
                   dashboardLabel={t.dashboard}
                   myServicesLabel={t.myServices}
+                  companyLeadsLabel={t.companyLeads}
                   logoutLabel={t.logout}
                   profileName={profileLabel}
                   companyLabel={companyLabel}
                   profileInitials={profileInitials}
                   avatarUrl={avatarUrl}
                   companyLogoUrl={companyLogoUrl}
+                  showCompanyLeads={showCompanyLeads}
+                  companyLeadsCount={companyLeadsCount}
                 />
               </>
             ) : (
@@ -419,9 +426,7 @@ export default async function SiteHeader() {
                 <Link
                   href="/login"
                   prefetch={false}
-                  className={actionLinkClass(
-                    "secondary",
-                  )}
+                  className={actionLinkClass("secondary")}
                 >
                   {t.login}
                 </Link>
@@ -429,9 +434,7 @@ export default async function SiteHeader() {
                 <Link
                   href="/signup"
                   prefetch={false}
-                  className={actionLinkClass(
-                    "primary",
-                  )}
+                  className={actionLinkClass("primary")}
                 >
                   {t.signup}
                 </Link>
@@ -445,9 +448,7 @@ export default async function SiteHeader() {
             {user ? (
               <NotificationBell
                 label={t.notifications}
-                unreadCount={
-                  unreadNotificationsCount
-                }
+                unreadCount={unreadNotificationsCount}
               />
             ) : null}
 
@@ -456,6 +457,7 @@ export default async function SiteHeader() {
               servicesLabel={t.services}
               companiesLabel={t.companies}
               myServicesLabel={t.myServices}
+              companyLeadsLabel={t.companyLeads}
               dashboardLabel={t.dashboard}
               createJobLabel={t.createJob}
               loginLabel={t.login}
@@ -471,6 +473,8 @@ export default async function SiteHeader() {
               avatarUrl={avatarUrl}
               companyLogoUrl={companyLogoUrl}
               companyName={companyName}
+              showCompanyLeads={showCompanyLeads}
+              companyLeadsCount={companyLeadsCount}
             />
           </div>
         </div>

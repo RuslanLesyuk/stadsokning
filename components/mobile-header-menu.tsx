@@ -24,6 +24,9 @@ type MobileHeaderMenuProps = {
   servicesLabel: string
   companiesLabel: string
   myServicesLabel: string
+  companyLeadsLabel?: string
+  showCompanyLeads?: boolean
+  companyLeadsCount?: number
 }
 
 function itemClass(primary = false) {
@@ -39,6 +42,7 @@ export default function MobileHeaderMenu({
   servicesLabel,
   companiesLabel,
   myServicesLabel,
+  companyLeadsLabel = "Company requests",
   dashboardLabel,
   createJobLabel,
   loginLabel,
@@ -54,6 +58,8 @@ export default function MobileHeaderMenu({
   avatarUrl,
   companyLogoUrl,
   companyName,
+  showCompanyLeads = false,
+  companyLeadsCount = 0,
 }: MobileHeaderMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -137,8 +143,8 @@ export default function MobileHeaderMenu({
                 prefetch={false}
                 className={itemClass()}
               >
-  {servicesLabel}
-</Link>
+                {servicesLabel}
+              </Link>
 
               <Link
                 href="/companies"
@@ -146,8 +152,8 @@ export default function MobileHeaderMenu({
                 prefetch={false}
                 className={itemClass()}
               >
-  {companiesLabel}
-</Link>
+                {companiesLabel}
+              </Link>
 
               {isAuthenticated ? (
                 <Link
@@ -159,7 +165,23 @@ export default function MobileHeaderMenu({
                   <span>{dashboardLabel}</span>
                   {unreadCount > 0 ? (
                     <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                      {unreadCount}
+                      {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  ) : null}
+                </Link>
+              ) : null}
+
+              {isAuthenticated && showCompanyLeads ? (
+                <Link
+                  href="/dashboard/company-leads"
+                  onClick={closeMenu}
+                  prefetch={false}
+                  className={`${itemClass()} justify-between`}
+                >
+                  <span>{companyLeadsLabel}</span>
+                  {companyLeadsCount > 0 ? (
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      {companyLeadsCount > 99 ? "99+" : companyLeadsCount}
                     </span>
                   ) : null}
                 </Link>
@@ -183,8 +205,8 @@ export default function MobileHeaderMenu({
                   prefetch={false}
                   className={itemClass()}
                 >
-  {myServicesLabel}
-</Link>
+                  {myServicesLabel}
+                </Link>
               ) : null}
 
               <div className="my-1 h-px bg-slate-200" />

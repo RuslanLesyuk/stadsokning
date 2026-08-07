@@ -5,10 +5,7 @@ import { redirect } from "next/navigation"
 import NotificationsCenter, {
   type NotificationItem,
 } from "@/components/notifications-center"
-import {
-  normalizeLocale,
-  type Locale,
-} from "@/lib/i18n"
+import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { createClient } from "@/lib/supabase-server"
 
 type NotificationsPageCopy = {
@@ -24,6 +21,7 @@ type NotificationsPageCopy = {
   markRead: string
   opening: string
   openJob: string
+  openCompanyLead: string
   read: string
   unread: string
   emptyTitle: string
@@ -47,6 +45,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     markRead: "Позначити прочитаним",
     opening: "Відкриваємо...",
     openJob: "Відкрити роботу",
+    openCompanyLead: "Відкрити заявку компанії",
     read: "Прочитано",
     unread: "Нове",
     emptyTitle: "Повідомлень поки немає",
@@ -69,6 +68,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     markRead: "Отметить прочитанным",
     opening: "Открываем...",
     openJob: "Открыть работу",
+    openCompanyLead: "Открыть заявку компании",
     read: "Прочитано",
     unread: "Новое",
     emptyTitle: "Уведомлений пока нет",
@@ -91,6 +91,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     markRead: "Mark as read",
     opening: "Opening...",
     openJob: "Open job",
+    openCompanyLead: "Open company request",
     read: "Read",
     unread: "New",
     emptyTitle: "No notifications yet",
@@ -113,11 +114,12 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     markRead: "Markera som läst",
     opening: "Öppnar...",
     openJob: "Öppna jobbet",
+    openCompanyLead: "Öppna offertförfrågan",
     read: "Läst",
     unread: "Ny",
     emptyTitle: "Inga aviseringar ännu",
     emptyText:
-      "Nya ansökningar, beslut och andra viktiga uppdateringar kommer att visas här.",
+      "Nya ansökningar, offertförfrågningar och andra viktiga uppdateringar kommer att visas här.",
     browseJobs: "Visa jobb",
   },
   pl: {
@@ -135,11 +137,12 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     markRead: "Oznacz jako przeczytane",
     opening: "Otwieranie...",
     openJob: "Otwórz zlecenie",
+    openCompanyLead: "Otwórz zapytanie firmy",
     read: "Przeczytane",
     unread: "Nowe",
     emptyTitle: "Brak powiadomień",
     emptyText:
-      "Nowe zgłoszenia, decyzje dotyczące zleceń i inne ważne aktualizacje pojawią się tutaj.",
+      "Nowe zgłoszenia, zapytania ofertowe i inne ważne aktualizacje pojawią się tutaj.",
     browseJobs: "Przeglądaj zlecenia",
   },
 }
@@ -174,7 +177,6 @@ export default async function NotificationsPage() {
   ) as Locale
 
   const t = copy[locale] || copy.en
-
   const supabase = await createClient()
 
   const {
@@ -195,6 +197,9 @@ export default async function NotificationsPage() {
       is_read,
       job_id,
       application_id,
+      href,
+      entity_type,
+      entity_id,
       created_at
     `)
     .eq("user_id", user.id)
@@ -208,7 +213,6 @@ export default async function NotificationsPage() {
   }
 
   const notifications = (data ?? []) as NotificationItem[]
-
   const unreadCount = notifications.filter(
     (notification) => !notification.is_read,
   ).length
@@ -234,10 +238,7 @@ export default async function NotificationsPage() {
 
             <div className="flex shrink-0 items-center gap-3">
               <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                <p className="text-xs font-medium text-slate-500">
-                  {t.total}
-                </p>
-
+                <p className="text-xs font-medium text-slate-500">{t.total}</p>
                 <p className="mt-0.5 text-xl font-bold text-slate-950">
                   {notifications.length}
                 </p>
@@ -247,7 +248,6 @@ export default async function NotificationsPage() {
                 <p className="text-xs font-medium text-rose-700">
                   {t.unreadCount}
                 </p>
-
                 <p className="mt-0.5 text-xl font-bold text-rose-700">
                   {unreadCount}
                 </p>
@@ -267,6 +267,7 @@ export default async function NotificationsPage() {
             markRead: t.markRead,
             opening: t.opening,
             openJob: t.openJob,
+            openCompanyLead: t.openCompanyLead,
             read: t.read,
             unread: t.unread,
             emptyTitle: t.emptyTitle,
