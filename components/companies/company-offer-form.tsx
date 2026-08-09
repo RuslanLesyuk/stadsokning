@@ -1,6 +1,7 @@
 "use client"
 
 import { useActionState } from "react"
+import { usePathname } from "next/navigation"
 import { useFormStatus } from "react-dom"
 
 import {
@@ -192,6 +193,7 @@ export function CompanyOfferForm({
   defaultEmail = "",
 }: Props) {
   const t = copy[locale]
+  const pathname = usePathname()
   const options = serviceTypes.length > 0 ? serviceTypes : t.fallbackServices
   const [state, formAction] = useActionState(
     submitCompanyLead,
@@ -236,6 +238,7 @@ export function CompanyOfferForm({
         <input type="hidden" name="companyId" value={companyId} />
         <input type="hidden" name="companySlug" value={companySlug} />
         <input type="hidden" name="locale" value={locale} />
+        <input type="hidden" name="sourcePath" value={pathname || `/companies/${companySlug}`} />
 
         <div className="absolute -left-[10000px] top-auto h-px w-px overflow-hidden" aria-hidden="true">
           <label htmlFor="website">Website</label>

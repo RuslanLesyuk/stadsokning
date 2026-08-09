@@ -1,202 +1,72 @@
-# Clean Jobs — Website-as-a-Service MVP (Block 3/10)
+# Clean Jobs — Lead Generation 2.0 (Block 4/10)
 
-This package adds a standalone company website system without duplicating company profile data.
+This package upgrades customer quote requests (`company_quote_requests`).
+It does **not** merge or replace the separate outreach CRM table `company_leads`.
 
-## What is included
-
-- `company_sites` database model + RLS
-- draft / preview / published lifecycle
-- public `/site/[slug]` website
-- 3 templates: Modern / Minimal / Elegant
-- primary + secondary brand colors
-- 5-language website content
-- selectable sections
-- social links
-- SEO title/description per language
-- custom-domain fields and domain status foundation
-- quote form reuses the existing `company_quote_requests` pipeline
-- owner website dashboard `/dashboard/websites`
-- owner editor `/dashboard/companies/[id]/website`
-- owner preview `/dashboard/companies/[id]/website/preview`
-- published website link from the marketplace company page
-- Website link in desktop/mobile profile navigation
-- standalone company sites do not show the Clean Jobs marketplace header/footer
-
-## Important architecture
-
-Company facts stay in `companies`:
-
-- logo / cover / gallery
-- phone / email / address
-- services / prices / RUT
-- service areas / languages
-- working hours / FAQ
-- reviews
-
-`company_sites` stores only website-specific configuration:
-
-- template / colors
-- marketing copy
-- visible sections
-- SEO
-- social links
-- publication state
-- future custom domain
-
-This prevents profile data and website data from going out of sync.
-
----
-
-## 1. Backup current work
+## 1. Backup
 
 ```bash
 cd /home/owico/stadsokning2
 git add .
-git commit -m "Before Website-as-a-Service MVP"
+git commit -m "Before Lead Generation 2.0"
 ```
 
-## 2. Unzip into project root
+## 2. Extract the ZIP into the project root
 
 ```bash
-unzip -o ~/Downloads/clean-jobs-website-as-a-service-mvp.zip -d /home/owico/stadsokning2
-cd /home/owico/stadsokning2
+unzip -o ~/Downloads/clean-jobs-lead-generation-2-FLAT.zip -d /home/owico/stadsokning2
 ```
 
-## 3. Run SQL migration
+## 3. Run SQL
 
-Open Supabase SQL Editor and run the full file:
+Open and run the complete migration in Supabase SQL Editor:
 
 ```text
-supabase/migrations/20260809_company_sites.sql
+supabase/migrations/20260809_lead_generation_2.sql
 ```
 
-Verification:
-
-```sql
-select
-  column_name,
-  data_type,
-  is_nullable
-from information_schema.columns
-where table_schema = 'public'
-  and table_name = 'company_sites'
-order by ordinal_position;
-```
-
-Then:
-
-```sql
-select
-  policyname,
-  cmd,
-  roles
-from pg_policies
-where schemaname = 'public'
-  and tablename = 'company_sites'
-order by policyname;
-```
-
-Expected policies:
-
-- Public can read published company sites
-- Company owners can create company sites
-- Company owners can update company sites
-- Company owners can delete company sites
+Run the whole file from `begin;` through `commit;`.
 
 ## 4. Build
 
 ```bash
+cd /home/owico/stadsokning2
 rm -rf .next
 npm run build
 ```
 
-If green:
+## 5. Test
 
-```bash
-npm run dev
-```
+1. Submit a quote request from `/companies/[slug]`.
+2. Submit a quote request from `/site/[slug]`.
+3. Verify source is `company_profile` vs `company_site`.
+4. Verify notification links directly to `/dashboard/company-leads/[id]`.
+5. Open the lead and verify `new -> viewed` automatically.
+6. Change status through: viewed/contacted/qualified/quoted/won/lost/archived.
+7. Save priority, score, estimated value, quoted value, follow-up, notes, and lost reason.
+8. Verify activity timeline receives events.
+9. Verify header new-lead counter drops after opening the lead.
+10. Verify `/admin/customer-leads` shows all customer leads to admins.
+11. Run `npm run build` again after testing if any local edits were made.
 
-## 5. Functional test
+## Added functionality
 
-Log in with the owner account of your test company.
+- 8-stage customer lead pipeline.
+- Priority: low / normal / high / urgent.
+- Source tracking: company profile / company website / marketplace / manual / admin / SEO / Google / other.
+- Lead type: direct / marketplace / distributed.
+- First-view timestamp and viewer.
+- Internal notes.
+- Lead score 0–100.
+- Estimated value and quoted value.
+- Lost reason.
+- Follow-up datetime.
+- Activity timeline.
+- Customer lead dashboard filters/search/sorting/stats.
+- Admin cross-company customer lead view.
+- Commercial foundation: lead access, paid flag, lead price, unlock time.
+- Existing `company_leads` outreach CRM remains untouched.
 
-Open:
+## Important
 
-```text
-http://localhost:3000/dashboard/websites
-```
-
-Choose the company → Create website.
-
-Test:
-
-1. Set site slug, e.g. `hemfrid`.
-2. Choose `Modern`.
-3. Set brand colors.
-4. Keep Swedish enabled/default.
-5. Fill Swedish hero title/subtitle.
-6. Keep all sections enabled.
-7. Click **Save and preview**.
-8. Verify preview has no Clean Jobs marketplace header/footer.
-9. Return to editor.
-10. Click **Publish website**.
-11. Open:
-
-```text
-http://localhost:3000/site/hemfrid
-```
-
-12. Submit the quote form from another account or incognito.
-13. Verify the lead appears in:
-
-```text
-/dashboard/company-leads
-```
-
-14. Verify owner notification/email still works.
-15. Open the marketplace profile `/companies/hemfrid-stockholm` and verify the new company website button appears.
-
-## 6. Template test
-
-Switch and preview all three:
-
-- `modern`
-- `minimal`
-- `elegant`
-
-## 7. Language test
-
-Enable `sv`, `en`, `uk`, then test:
-
-```text
-/site/hemfrid?lang=sv
-/site/hemfrid?lang=en
-/site/hemfrid?lang=uk
-```
-
-## 8. Draft protection
-
-Click **Unpublish**.
-
-Public URL should no longer render the website, while owner preview must still work.
-
-## 9. Custom domain foundation
-
-Entering e.g.:
-
-```text
-example.se
-```
-
-stores the domain and sets `domain_status = pending`.
-
-This block does NOT yet call Vercel Domain APIs or validate DNS. That is deliberately left for the custom-domain production extension so the MVP does not depend on external DNS automation.
-
-## Notes
-
-The package replaces `app/layout.tsx` to suppress the Clean Jobs marketplace chrome only for:
-
-- `/site/*`
-- `/dashboard/companies/*/website/preview`
-
-The current middleware must continue setting `x-current-path`; the version you shared already does this.
+The package intentionally does not yet charge for or lock customer leads. It only introduces the data model needed for the later Premium / monetization block.

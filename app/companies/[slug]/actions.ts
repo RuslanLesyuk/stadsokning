@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 
 import { createAdminClient } from "@/lib/supabase-admin"
 import { createClient } from "@/lib/supabase-server"
+import { inferCompanyLeadSource, sanitizeCompanyLeadSourcePath } from "@/lib/company-leads/utils"
 
 type Locale = "sv" | "en" | "uk" | "ru" | "pl"
 
@@ -208,7 +209,7 @@ async function createOwnerNotification({
     return
   }
 
-  const href = `/dashboard/company-leads?lead=${quoteRequest.id}#lead-${quoteRequest.id}`
+  const href = `/dashboard/company-leads/${quoteRequest.id}`
   const admin = createAdminClient()
 
   const { error } = await admin.from("notifications").upsert(
@@ -274,7 +275,7 @@ async function sendOwnerEmail({
   }
 
   const siteUrl = getSiteUrl()
-  const leadUrl = `${siteUrl}/dashboard/company-leads?lead=${quoteRequest.id}#lead-${quoteRequest.id}`
+  const leadUrl = `${siteUrl}/dashboard/company-leads/${quoteRequest.id}`
   const from =
     process.env.RESEND_FROM_EMAIL ||
     process.env.RESEND_FROM ||
@@ -374,6 +375,11 @@ export async function submitCompanyLead(
   const preferredDate = getString(formData, "preferredDate")
   const message = getString(formData, "message")
   const website = getString(formData, "website")
+  const sourcePath = sanitizeCompanyLeadSourcePath(
+    getString(formData, "sourcePath"),
+    companySlug,
+  )
+  const source = inferCompanyLeadSource(sourcePath)
 
   if (website) {
     return {
@@ -470,6 +476,12 @@ export async function submitCompanyLead(
       preferred_date: preferredDate || null,
       message,
       status: "new",
+      priority: "normal",
+      lead_type: "direct",
+      source,
+      source_url: sourcePath,
+      lead_access: "included",
+      is_paid: false,
     })
     .select("id, created_at")
     .single()
