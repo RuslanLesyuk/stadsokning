@@ -1,0 +1,14 @@
+app/admin/company-claim-actions.ts
+app/companies/[slug]/claim/actions.ts
+app/companies/[slug]/claim/page.tsx
+app/dashboard/company-claims/page.tsx
+app/dashboard/companies/[id]/onboarding/page.tsx
+app/notifications/page.tsx
+components/admin/company-claims-client.tsx
+components/admin/company-claims-section.tsx
+components/companies/company-claim-form.tsx
+components/mobile-header-menu.tsx
+components/notifications-center.tsx
+components/profile-dropdown.tsx
+components/site-header.tsx
+supabase/migrations/20260807_claim_company_2.sql

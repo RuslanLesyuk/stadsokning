@@ -36,6 +36,7 @@ type NotificationsCopy = {
   opening: string
   openJob: string
   openCompanyLead: string
+  openCompanyClaim: string
   read: string
   unread: string
   emptyTitle: string
@@ -172,6 +173,20 @@ function getNotificationIcon(type: string) {
         </svg>
       )
 
+    case "company_claim_approved":
+    case "company_claim_rejected":
+    case "company_claim_needs_info":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
+          <path
+            d="M7 3h10a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          />
+          <path d="M9 8h6M9 12h6M9 16h3" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      )
+
     default:
       return (
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
@@ -221,9 +236,12 @@ function NotificationCard({
   const [targetHref, setTargetHref] = useState<string | null>(null)
   const href = getNotificationHref(notification)
   const openLabel =
-    notification.type === "company_quote_request"
-      ? copy.openCompanyLead
-      : copy.openJob
+    notification.entity_type === "company_claim" ||
+    notification.type.startsWith("company_claim_")
+      ? copy.openCompanyClaim
+      : notification.type === "company_quote_request"
+        ? copy.openCompanyLead
+        : copy.openJob
 
   useEffect(() => {
     if (state.success && targetHref) {

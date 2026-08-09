@@ -22,6 +22,7 @@ type NotificationsPageCopy = {
   opening: string
   openJob: string
   openCompanyLead: string
+  openCompanyClaim: string
   read: string
   unread: string
   emptyTitle: string
@@ -46,6 +47,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     opening: "Відкриваємо...",
     openJob: "Відкрити роботу",
     openCompanyLead: "Відкрити заявку компанії",
+    openCompanyClaim: "Відкрити заявку на компанію",
     read: "Прочитано",
     unread: "Нове",
     emptyTitle: "Повідомлень поки немає",
@@ -69,6 +71,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     opening: "Открываем...",
     openJob: "Открыть работу",
     openCompanyLead: "Открыть заявку компании",
+    openCompanyClaim: "Открыть заявку на компанию",
     read: "Прочитано",
     unread: "Новое",
     emptyTitle: "Уведомлений пока нет",
@@ -92,6 +95,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     opening: "Opening...",
     openJob: "Open job",
     openCompanyLead: "Open company request",
+    openCompanyClaim: "Open company claim",
     read: "Read",
     unread: "New",
     emptyTitle: "No notifications yet",
@@ -115,6 +119,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     opening: "Öppnar...",
     openJob: "Öppna jobbet",
     openCompanyLead: "Öppna offertförfrågan",
+    openCompanyClaim: "Öppna företagsanspråk",
     read: "Läst",
     unread: "Ny",
     emptyTitle: "Inga aviseringar ännu",
@@ -138,6 +143,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     opening: "Otwieranie...",
     openJob: "Otwórz zlecenie",
     openCompanyLead: "Otwórz zapytanie firmy",
+    openCompanyClaim: "Otwórz zgłoszenie firmy",
     read: "Przeczytane",
     unread: "Nowe",
     emptyTitle: "Brak powiadomień",
@@ -268,6 +274,7 @@ export default async function NotificationsPage() {
             opening: t.opening,
             openJob: t.openJob,
             openCompanyLead: t.openCompanyLead,
+            openCompanyClaim: t.openCompanyClaim,
             read: t.read,
             unread: t.unread,
             emptyTitle: t.emptyTitle,

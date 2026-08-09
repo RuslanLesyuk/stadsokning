@@ -1,54 +1,85 @@
-# Clean Jobs — Company Quote Notifications
+# Clean Jobs — Claim Company 2.0
 
-## Included
+## What this pack adds
 
-- Creates an in-app notification when a new `Begär offert` request is submitted.
-- Adds a notification link to the exact company request.
-- Marks the notification as read when it is opened or when the lead status changes.
-- Shows unread notification count on the bell.
-- Shows a `Company requests` / `Offertförfrågningar` link for company owners in desktop and mobile menus.
-- Shows a badge with the number of new company requests.
-- Highlights the exact request opened from the notification.
-- Sends an optional Resend email to the company owner's account email.
-- Prevents duplicate notifications with `dedupe_key`.
+- claim statuses: `pending`, `needs_info`, `approved`, `rejected`, `cancelled`
+- private verification evidence uploads (PDF/JPG/PNG/WebP, max 5 files, 8 MB each)
+- automatic company-domain vs business-email-domain signal
+- claimant cancellation
+- resubmission after `needs_info`
+- new claims after `rejected` or `cancelled`
+- admin search + status filters
+- Approve / Request more information / Reject
+- atomic ownership assignment via RPC
+- automatic `companies.verified = true` on approval
+- competing active claims automatically rejected when one claim is approved
+- audit trail in `company_claim_audit`
+- notification + email after admin decisions
+- dedicated onboarding page after approval
+- links to company claims in desktop and mobile account menus
+- 5-language claimant UI (sv/en/uk/ru/pl)
 
 ## Install
 
-1. Copy the package contents into the project root, preserving paths and replacing files.
-2. Run this migration in Supabase SQL Editor:
+From the project root:
 
-   `supabase/migrations/20260806_company_quote_notifications.sql`
+```bash
+unzip -o ~/Downloads/clean-jobs-claim-company-2.0-complete.zip
+```
 
-3. Optional email environment variables:
+Then run this SQL file in Supabase SQL Editor:
+
+```text
+supabase/migrations/20260807_claim_company_2.sql
+```
+
+Required environment variables for admin/email behavior:
 
 ```env
-RESEND_API_KEY=your_existing_key
-RESEND_FROM_EMAIL=Clean Jobs <support@cleansjob.com>
+ADMIN_EMAILS=your-admin@email.com
+RESEND_API_KEY=...
 NEXT_PUBLIC_SITE_URL=https://cleansjob.com
 ```
 
-The in-app notification works without Resend. If `RESEND_API_KEY` is absent, email delivery is skipped without blocking the quote request.
+`RESEND_API_KEY` is optional for the core claim flow. If it is missing, decisions still work and in-app notifications still work; email delivery is skipped.
 
-4. Clear the Next.js cache and build:
+Then:
 
 ```bash
 rm -rf .next
 npm run build
+```
+
+If the build is green:
+
+```bash
 npm run dev
 ```
 
-## Test
+## Main verification flow
 
-1. Sign in with a customer account that is not the company owner.
-2. Open a claimed company profile.
-3. Submit a new `Begär offert` request.
-4. Sign in as the company owner.
-5. Confirm:
-   - the bell has a new unread badge;
-   - `/notifications` contains `Ny offertförfrågan...`;
-   - clicking it opens `/dashboard/company-leads?lead=...#lead-...`;
-   - the exact request is highlighted;
-   - the profile/mobile menu contains the company requests link and new-request badge;
-   - changing the lead status from `new` marks the related notification read.
+1. Use an unclaimed company.
+2. Sign in as a normal user.
+3. Open `/companies/COMPANY_SLUG/claim`.
+4. Submit business email, phone, message and optionally 1 verification file.
+5. Confirm the claim appears in `/dashboard/company-claims`.
+6. Open `/admin` as an admin.
+7. Search for the company in Company Claims 2.0.
+8. Test **Request information**.
+9. Confirm the claimant receives a bell notification and email (if Resend is configured).
+10. As claimant, open the claim and resubmit additional information.
+11. In admin, approve the resubmitted claim.
+12. Confirm:
+    - `companies.owner_id` equals the claimant user ID
+    - `companies.verified = true`
+    - claim status is `approved`
+    - claimant gets a notification
+    - notification opens `/dashboard/companies/COMPANY_ID/onboarding`
+13. Complete onboarding and open the company editor.
+14. Test a second claim and reject it with a reason.
+15. Confirm the claimant can submit a new claim after rejection.
+16. Test cancellation of a `pending` claim.
 
-Existing quote requests are not backfilled. Submit a new test request after installing this package.
+## Important
+
+The proof-document bucket is private. Evidence links shown in the user dashboard and admin are short-lived signed URLs.

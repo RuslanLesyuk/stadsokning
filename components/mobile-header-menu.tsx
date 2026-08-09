@@ -25,8 +25,10 @@ type MobileHeaderMenuProps = {
   companiesLabel: string
   myServicesLabel: string
   companyLeadsLabel?: string
+  companyClaimsLabel?: string
   showCompanyLeads?: boolean
   companyLeadsCount?: number
+  companyClaimsCount?: number
 }
 
 function itemClass(primary = false) {
@@ -43,6 +45,7 @@ export default function MobileHeaderMenu({
   companiesLabel,
   myServicesLabel,
   companyLeadsLabel = "Company requests",
+  companyClaimsLabel = "My company claims",
   dashboardLabel,
   createJobLabel,
   loginLabel,
@@ -60,6 +63,7 @@ export default function MobileHeaderMenu({
   companyName,
   showCompanyLeads = false,
   companyLeadsCount = 0,
+  companyClaimsCount = 0,
 }: MobileHeaderMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -166,6 +170,22 @@ export default function MobileHeaderMenu({
                   {unreadCount > 0 ? (
                     <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
                       {unreadCount > 99 ? "99+" : unreadCount}
+                    </span>
+                  ) : null}
+                </Link>
+              ) : null}
+
+              {isAuthenticated ? (
+                <Link
+                  href="/dashboard/company-claims"
+                  onClick={closeMenu}
+                  prefetch={false}
+                  className={`${itemClass()} justify-between`}
+                >
+                  <span>{companyClaimsLabel}</span>
+                  {companyClaimsCount > 0 ? (
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      {companyClaimsCount > 99 ? "99+" : companyClaimsCount}
                     </span>
                   ) : null}
                 </Link>

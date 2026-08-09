@@ -8,6 +8,7 @@ type Props = {
   dashboardLabel: string
   myServicesLabel: string
   companyLeadsLabel?: string
+  companyClaimsLabel?: string
   logoutLabel: string
   profileName: string
   companyLabel: string
@@ -16,6 +17,7 @@ type Props = {
   companyLogoUrl: string | null
   showCompanyLeads?: boolean
   companyLeadsCount?: number
+  companyClaimsCount?: number
 }
 
 export default function ProfileDropdown({
@@ -23,6 +25,7 @@ export default function ProfileDropdown({
   dashboardLabel,
   myServicesLabel,
   companyLeadsLabel = "Company requests",
+  companyClaimsLabel = "My company claims",
   logoutLabel,
   profileName,
   companyLabel,
@@ -31,6 +34,7 @@ export default function ProfileDropdown({
   companyLogoUrl,
   showCompanyLeads = false,
   companyLeadsCount = 0,
+  companyClaimsCount = 0,
 }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement | null>(null)
@@ -100,6 +104,18 @@ export default function ProfileDropdown({
             className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
           >
             {dashboardLabel}
+          </Link>
+
+          <Link
+            href="/dashboard/company-claims"
+            className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
+          >
+            <span>{companyClaimsLabel}</span>
+            {companyClaimsCount > 0 ? (
+              <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                {companyClaimsCount > 99 ? "99+" : companyClaimsCount}
+              </span>
+            ) : null}
           </Link>
 
           {showCompanyLeads ? (
