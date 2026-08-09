@@ -111,6 +111,7 @@ type Copy = {
   organizationNumber: string
   foundedYear: string
   requestQuote: string
+  companyWebsite: string
   relatedCompanies: string
   relatedCompaniesText: string
   viewCompany: string
@@ -184,6 +185,7 @@ const copy: Record<Locale, Copy> = {
     organizationNumber: "Organisationsnummer",
     foundedYear: "Grundat",
     requestQuote: "Begär offert",
+    companyWebsite: "Företagets webbplats",
     relatedCompanies: "Liknande städföretag",
     relatedCompaniesText: "Utforska andra städföretag på Clean Jobs.",
     viewCompany: "Visa företag",
@@ -248,6 +250,7 @@ const copy: Record<Locale, Copy> = {
     organizationNumber: "Organisation number",
     foundedYear: "Founded",
     requestQuote: "Request a quote",
+    companyWebsite: "Company website",
     relatedCompanies: "Similar cleaning companies",
     relatedCompaniesText: "Explore other cleaning companies on Clean Jobs.",
     viewCompany: "View company",
@@ -312,6 +315,7 @@ const copy: Record<Locale, Copy> = {
     organizationNumber: "Організаційний номер",
     foundedYear: "Засновано",
     requestQuote: "Отримати пропозицію",
+    companyWebsite: "Сайт компанії",
     relatedCompanies: "Схожі клінінгові компанії",
     relatedCompaniesText: "Перегляньте інші клінінгові компанії у Clean Jobs.",
     viewCompany: "Переглянути компанію",
@@ -375,6 +379,7 @@ const copy: Record<Locale, Copy> = {
     organizationNumber: "Организационный номер",
     foundedYear: "Основано",
     requestQuote: "Получить предложение",
+    companyWebsite: "Сайт компании",
     relatedCompanies: "Похожие клининговые компании",
     relatedCompaniesText: "Посмотрите другие клининговые компании в Clean Jobs.",
     viewCompany: "Посмотреть компанию",
@@ -438,6 +443,7 @@ const copy: Record<Locale, Copy> = {
     organizationNumber: "Numer organizacyjny",
     foundedYear: "Założono",
     requestQuote: "Poproś o wycenę",
+    companyWebsite: "Strona firmy",
     relatedCompanies: "Podobne firmy sprzątające",
     relatedCompaniesText: "Zobacz inne firmy sprzątające w Clean Jobs.",
     viewCompany: "Zobacz firmę",
@@ -674,6 +680,13 @@ export default async function CompanyPage({ params }: PageProps) {
   }
 
   const isCompanyOwner = Boolean(user && company.owner_id === user.id)
+
+  const { data: publishedSite } = await supabase
+    .from("company_sites")
+    .select("site_slug")
+    .eq("company_id", company.id)
+    .eq("status", "published")
+    .maybeSingle()
 
   const { data: reviewData } = await supabase
     .from("reviews")
@@ -973,6 +986,16 @@ export default async function CompanyPage({ params }: PageProps) {
                     <PhoneIcon />
                     {t.callCompany}
                   </a>
+                ) : null}
+
+                {publishedSite?.site_slug ? (
+                  <Link
+                    href={`/site/${publishedSite.site_slug}`}
+                    prefetch={false}
+                    className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:bg-white/20"
+                  >
+                    {t.companyWebsite}
+                  </Link>
                 ) : null}
               </div>
             </div>

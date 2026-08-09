@@ -14,6 +14,7 @@ type HeaderCopy = {
   myServices: string
   companyLeads: string
   companyClaims: string
+  companyWebsites: string
   dashboard: string
   createJob: string
   login: string
@@ -34,6 +35,7 @@ const copy: Record<Locale, HeaderCopy> = {
     myServices: "Мої послуги",
     companyLeads: "Заявки компанії",
     companyClaims: "Мої заявки на компанії",
+    companyWebsites: "Сайти компаній",
     dashboard: "Кабінет",
     createJob: "Створити роботу",
     login: "Увійти",
@@ -52,6 +54,7 @@ const copy: Record<Locale, HeaderCopy> = {
     myServices: "Мои услуги",
     companyLeads: "Заявки компании",
     companyClaims: "Мои заявки на компании",
+    companyWebsites: "Сайты компаний",
     dashboard: "Кабинет",
     createJob: "Создать работу",
     login: "Войти",
@@ -70,6 +73,7 @@ const copy: Record<Locale, HeaderCopy> = {
     myServices: "My services",
     companyLeads: "Company requests",
     companyClaims: "My company claims",
+    companyWebsites: "Company websites",
     dashboard: "Dashboard",
     createJob: "Post job",
     login: "Login",
@@ -88,6 +92,7 @@ const copy: Record<Locale, HeaderCopy> = {
     myServices: "Mina tjänster",
     companyLeads: "Offertförfrågningar",
     companyClaims: "Mina företagsanspråk",
+    companyWebsites: "Företagswebbplatser",
     dashboard: "Dashboard",
     createJob: "Skapa jobb",
     login: "Logga in",
@@ -106,6 +111,7 @@ const copy: Record<Locale, HeaderCopy> = {
     myServices: "Moje usługi",
     companyLeads: "Zapytania firmowe",
     companyClaims: "Moje zgłoszenia firm",
+    companyWebsites: "Strony firm",
     dashboard: "Panel",
     createJob: "Dodaj zlecenie",
     login: "Zaloguj się",
@@ -430,6 +436,7 @@ export default async function SiteHeader() {
                   myServicesLabel={t.myServices}
                   companyLeadsLabel={t.companyLeads}
                   companyClaimsLabel={t.companyClaims}
+                  companyWebsitesLabel={t.companyWebsites}
                   logoutLabel={t.logout}
                   profileName={profileLabel}
                   companyLabel={companyLabel}
@@ -479,6 +486,7 @@ export default async function SiteHeader() {
               myServicesLabel={t.myServices}
               companyLeadsLabel={t.companyLeads}
               companyClaimsLabel={t.companyClaims}
+              companyWebsitesLabel={t.companyWebsites}
               dashboardLabel={t.dashboard}
               createJobLabel={t.createJob}
               loginLabel={t.login}

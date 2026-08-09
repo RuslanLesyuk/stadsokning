@@ -1,13 +1,13 @@
 import type { Metadata, Viewport } from "next"
 import Link from "next/link"
 import Script from "next/script"
-import { cookies } from "next/headers"
+import { cookies, headers } from "next/headers"
 import { Analytics } from "@vercel/analytics/next"
+
 import "./globals.css"
 import SiteHeader from "@/components/site-header"
 import LanguageWelcomeModal from "@/components/language-welcome-modal"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
-
 
 const siteUrl = "https://cleansjob.com"
 const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID
@@ -207,11 +207,8 @@ const jsonLd = {
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
       name: "Clean Jobs",
-      description:
-        "Marketplace for cleaning jobs, cleaners and cleaning companies in Sweden.",
-      publisher: {
-        "@id": `${siteUrl}/#organization`,
-      },
+      description: "Marketplace for cleaning jobs, cleaners and cleaning companies in Sweden.",
+      publisher: { "@id": `${siteUrl}/#organization` },
       inLanguage: ["uk", "ru", "en", "sv", "pl"],
       potentialAction: {
         "@type": "SearchAction",
@@ -219,39 +216,25 @@ const jsonLd = {
         "query-input": "required name=search_term_string",
       },
     },
-    {
-      "@type": "LocalBusiness",
-      "@id": `${siteUrl}/#localbusiness`,
-      name: "Clean Jobs",
-      url: siteUrl,
-      image: `${siteUrl}/og-image.png`,
-      email: "support@cleansjob.com",
-      areaServed: {
-        "@type": "Country",
-        name: "Sweden",
-      },
-      serviceType: [
-        "Cleaning jobs",
-        "Home cleaning",
-        "Office cleaning",
-        "Move-out cleaning",
-        "Cleaning companies",
-      ],
-      parentOrganization: {
-        "@id": `${siteUrl}/#organization`,
-      },
-    },
   ],
 }
 
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const cookieStore = await cookies()
+function isStandaloneCompanySite(pathname: string) {
+  const cleanPath = pathname.split("?")[0]
+
+  if (cleanPath === "/site" || cleanPath.startsWith("/site/")) {
+    return true
+  }
+
+  return /^\/dashboard\/companies\/[^/]+\/website\/preview$/.test(cleanPath)
+}
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const [cookieStore, headerStore] = await Promise.all([cookies(), headers()])
   const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
   const t = footerCopy[locale] || footerCopy.en
+  const currentPath = headerStore.get("x-current-path") || ""
+  const standalone = isStandaloneCompanySite(currentPath)
 
   const guideLinks = [
     { href: "/work-in-sweden", label: t.guideWorkInSweden },
@@ -273,90 +256,55 @@ export default async function RootLayout({
   return (
     <html lang={locale}>
       <body className="min-h-screen bg-[#fafafa] text-slate-900">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
-          }}
-        />
+        {!standalone ? (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+            }}
+          />
+        ) : null}
 
         <div className="flex min-h-screen flex-col">
-          <SiteHeader />
-
+          {!standalone ? <SiteHeader /> : null}
           <main className="flex-1">{children}</main>
 
-          <footer className="border-t border-slate-200 bg-white">
-            <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
-              <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <div className="text-lg font-semibold tracking-tight text-slate-950">
-                    {t.title}
+          {!standalone ? (
+            <footer className="border-t border-slate-200 bg-white">
+              <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
+                <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                  <div>
+                    <div className="text-lg font-semibold tracking-tight text-slate-950">{t.title}</div>
+                    <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">{t.subtitle}</p>
+                    <p className="mt-4 text-xs text-slate-400">
+                      © {new Date().getFullYear()} Clean Jobs. {t.copyright}
+                    </p>
                   </div>
 
-                  <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">
-                    {t.subtitle}
-                  </p>
-
-                  <p className="mt-4 text-xs text-slate-400">
-                    © {new Date().getFullYear()} Clean Jobs. {t.copyright}
-                  </p>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <Link href="/terms" prefetch={false} className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">{t.terms}</Link>
+                    <Link href="/privacy" prefetch={false} className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">{t.privacy}</Link>
+                    <Link href="/faq" prefetch={false} className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">{t.faq}</Link>
+                    <Link href="/contact" prefetch={false} className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">{t.contact}</Link>
+                  </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-3">
-                  <Link
-                    href="/terms"
-                    prefetch={false}
-                    className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-                  >
-                    {t.terms}
-                  </Link>
-
-                  <Link
-                    href="/privacy"
-                    prefetch={false}
-                    className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-                  >
-                    {t.privacy}
-                  </Link>
-                  <Link
-                    href="/faq"
-                    prefetch={false}
-                    className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-                  >
-                    {t.faq}
-                  </Link>
-                  <Link
-                    href="/contact"
-                    prefetch={false}
-                    className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700"
-                  >
-                    {t.contact}
-                  </Link>
+                <div className="mt-8 border-t border-slate-200 pt-8">
+                  <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-900">{t.popularGuides}</h3>
+                  <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {guideLinks.map((link) => (
+                      <Link key={link.href} href={link.href} className="text-sm text-slate-600 hover:text-rose-600">
+                        {link.label}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
-
-              <div className="mt-8 border-t border-slate-200 pt-8">
-                <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-900">
-                  {t.popularGuides}
-                </h3>
-
-                <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-                  {guideLinks.map((link) => (
-                    <Link
-                      key={link.href}
-                      href={link.href}
-                      className="text-sm text-slate-600 hover:text-rose-600"
-                    >
-                      {link.label}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </footer>
+            </footer>
+          ) : null}
         </div>
 
-        <LanguageWelcomeModal />
+        {!standalone ? <LanguageWelcomeModal /> : null}
 
         <Script id="microsoft-clarity" strategy="afterInteractive">
           {`
@@ -370,20 +318,13 @@ export default async function RootLayout({
 
         {googleAnalyticsId ? (
           <>
-            <Script
-              src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`}
-              strategy="afterInteractive"
-            />
-
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`} strategy="afterInteractive" />
             <Script id="google-analytics" strategy="afterInteractive">
               {`
                 window.dataLayer = window.dataLayer || [];
                 function gtag(){dataLayer.push(arguments);}
                 gtag('js', new Date());
-
-                gtag('config', '${googleAnalyticsId}', {
-                  page_path: window.location.pathname,
-                });
+                gtag('config', '${googleAnalyticsId}', { page_path: window.location.pathname });
               `}
             </Script>
           </>

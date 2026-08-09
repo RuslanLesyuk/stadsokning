@@ -73,6 +73,7 @@ type Labels = {
   subtitle: string
   back: string
   viewProfile: string
+  manageWebsite: string
   saved: string
   error: string
   verified: string
@@ -144,6 +145,7 @@ const labels: Record<Locale, Labels> = {
       "Komplettera profilen så att den fungerar som företagets professionella minisajt på Clean Jobs.",
     back: "Mina företagsanspråk",
     viewProfile: "Visa offentlig profil",
+    manageWebsite: "Hantera webbplats",
     saved: "Ändringarna har sparats.",
     error:
       "Profilen kunde inte sparas. Kontrollera obligatoriska fält, bilder och numeriska värden.",
@@ -207,6 +209,7 @@ const labels: Record<Locale, Labels> = {
       "Complete the profile so it works as the company’s professional mini-site on Clean Jobs.",
     back: "My company claims",
     viewProfile: "View public profile",
+    manageWebsite: "Manage website",
     saved: "Changes have been saved.",
     error:
       "The profile could not be saved. Check required fields, images and numeric values.",
@@ -269,6 +272,7 @@ const labels: Record<Locale, Labels> = {
       "Заповніть профіль, щоб він працював як професійний мінісайт компанії у Clean Jobs.",
     back: "Мої заявки на компанії",
     viewProfile: "Переглянути публічний профіль",
+    manageWebsite: "Керувати сайтом",
     saved: "Зміни збережено.",
     error:
       "Не вдалося зберегти профіль. Перевірте обов’язкові поля, зображення та числові значення.",
@@ -331,6 +335,7 @@ const labels: Record<Locale, Labels> = {
       "Заполните профиль, чтобы он работал как профессиональный мини-сайт компании в Clean Jobs.",
     back: "Мои заявки на компании",
     viewProfile: "Открыть публичный профиль",
+    manageWebsite: "Управлять сайтом",
     saved: "Изменения сохранены.",
     error:
       "Не удалось сохранить профиль. Проверьте обязательные поля, изображения и числовые значения.",
@@ -393,6 +398,7 @@ const labels: Record<Locale, Labels> = {
       "Uzupełnij profil, aby działał jako profesjonalna mini-strona firmy w Clean Jobs.",
     back: "Moje zgłoszenia firm",
     viewProfile: "Zobacz profil publiczny",
+    manageWebsite: "Zarządzaj stroną",
     saved: "Zmiany zostały zapisane.",
     error:
       "Nie udało się zapisać profilu. Sprawdź wymagane pola, zdjęcia i wartości liczbowe.",
@@ -564,13 +570,22 @@ export default async function EditCompanyPage({
               </p>
             </div>
 
-            <Link
-              href={`/companies/${company.slug}`}
-              prefetch={false}
-              className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700"
-            >
-              {t.viewProfile}
-            </Link>
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href={`/companies/${company.slug}`}
+                prefetch={false}
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-bold text-slate-800 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700"
+              >
+                {t.viewProfile}
+              </Link>
+              <Link
+                href={`/dashboard/companies/${company.id}/website`}
+                prefetch={false}
+                className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-slate-950 px-5 py-3 text-sm font-bold text-white transition hover:bg-rose-600"
+              >
+                {t.manageWebsite}
+              </Link>
+            </div>
           </div>
         </div>
       </section>
@@ -640,9 +655,9 @@ export default async function EditCompanyPage({
         </section>
 
         <form
-          action={updateCompanyProfile}
-          className="space-y-8"
-        >
+  action={updateCompanyProfile}
+  className="space-y-8"
+>
           <input type="hidden" name="company_id" value={company.id} />
 
           <Section title={t.mediaTitle} description={t.mediaText}>

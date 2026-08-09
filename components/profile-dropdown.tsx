@@ -9,6 +9,7 @@ type Props = {
   myServicesLabel: string
   companyLeadsLabel?: string
   companyClaimsLabel?: string
+  companyWebsitesLabel?: string
   logoutLabel: string
   profileName: string
   companyLabel: string
@@ -26,6 +27,7 @@ export default function ProfileDropdown({
   myServicesLabel,
   companyLeadsLabel = "Company requests",
   companyClaimsLabel = "My company claims",
+  companyWebsitesLabel = "Company websites",
   logoutLabel,
   profileName,
   companyLabel,
@@ -59,11 +61,7 @@ export default function ProfileDropdown({
         <span className="relative shrink-0">
           <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-rose-600 text-xs font-semibold text-white">
             {avatarUrl ? (
-              <img
-                src={avatarUrl}
-                alt={profileName}
-                className="h-full w-full object-cover"
-              />
+              <img src={avatarUrl} alt={profileName} className="h-full w-full object-cover" />
             ) : (
               profileInitials
             )}
@@ -92,17 +90,11 @@ export default function ProfileDropdown({
 
       {open ? (
         <div className="absolute right-0 z-50 mt-2 w-64 rounded-3xl border border-slate-200 bg-white p-2 shadow-xl">
-          <Link
-            href="/profile"
-            className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
-          >
+          <Link href="/profile" className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50">
             {profileLabel}
           </Link>
 
-          <Link
-            href="/dashboard"
-            className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
-          >
+          <Link href="/dashboard" className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50">
             {dashboardLabel}
           </Link>
 
@@ -119,17 +111,26 @@ export default function ProfileDropdown({
           </Link>
 
           {showCompanyLeads ? (
-            <Link
-              href="/dashboard/company-leads"
-              className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
-            >
-              <span>{companyLeadsLabel}</span>
-              {companyLeadsCount > 0 ? (
-                <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                  {companyLeadsCount > 99 ? "99+" : companyLeadsCount}
-                </span>
-              ) : null}
-            </Link>
+            <>
+              <Link
+                href="/dashboard/company-leads"
+                className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
+              >
+                <span>{companyLeadsLabel}</span>
+                {companyLeadsCount > 0 ? (
+                  <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    {companyLeadsCount > 99 ? "99+" : companyLeadsCount}
+                  </span>
+                ) : null}
+              </Link>
+
+              <Link
+                href="/dashboard/websites"
+                className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
+              >
+                {companyWebsitesLabel}
+              </Link>
+            </>
           ) : null}
 
           <Link

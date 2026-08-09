@@ -26,6 +26,7 @@ type MobileHeaderMenuProps = {
   myServicesLabel: string
   companyLeadsLabel?: string
   companyClaimsLabel?: string
+  companyWebsitesLabel?: string
   showCompanyLeads?: boolean
   companyLeadsCount?: number
   companyClaimsCount?: number
@@ -46,6 +47,7 @@ export default function MobileHeaderMenu({
   myServicesLabel,
   companyLeadsLabel = "Company requests",
   companyClaimsLabel = "My company claims",
+  companyWebsitesLabel = "Company websites",
   dashboardLabel,
   createJobLabel,
   loginLabel,
@@ -204,6 +206,17 @@ export default function MobileHeaderMenu({
                       {companyLeadsCount > 99 ? "99+" : companyLeadsCount}
                     </span>
                   ) : null}
+                </Link>
+              ) : null}
+
+              {isAuthenticated && showCompanyLeads ? (
+                <Link
+                  href="/dashboard/websites"
+                  onClick={closeMenu}
+                  prefetch={false}
+                  className={itemClass()}
+                >
+                  {companyWebsitesLabel}
                 </Link>
               ) : null}
 
