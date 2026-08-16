@@ -1,6 +1,8 @@
 import Link from "next/link"
 
+import { CompanyBookingForm } from "@/components/bookings/company-booking-form"
 import { CompanyOfferForm } from "@/components/companies/company-offer-form"
+import { bookingCopy } from "@/lib/bookings/copy"
 import { companySitePublicCopy } from "@/lib/company-sites/copy"
 import {
   getLocalizedContent,
@@ -127,6 +129,10 @@ export function CompanySiteRenderer({
   preview = false,
   editorHref,
   defaultEmail = "",
+  bookingEnabled = false,
+  bookingRecurringEnabled = true,
+  bookingDefaultDurationMinutes = 180,
+  isAuthenticated = false,
 }: {
   site: CompanySiteRow
   company: CompanySiteCompany
@@ -135,8 +141,13 @@ export function CompanySiteRenderer({
   preview?: boolean
   editorHref?: string
   defaultEmail?: string
+  bookingEnabled?: boolean
+  bookingRecurringEnabled?: boolean
+  bookingDefaultDurationMinutes?: number
+  isAuthenticated?: boolean
 }) {
   const t = companySitePublicCopy[locale]
+  const bookingT = bookingCopy[locale]
   const theme = getTemplateClasses(site.template)
   const content = normalizeContent(site.content)
   const localized = getLocalizedContent(content, locale, site.default_locale)
@@ -197,7 +208,7 @@ export function CompanySiteRenderer({
         </div>
       ) : null}
 
-      <header className={`sticky ${preview ? "top-10" : "top-0"} z-50 backdrop-blur ${theme.nav}`}>
+      <header className={`sticky ${preview ? "top-10" : "top-0"} z-40 backdrop-blur ${theme.nav}`}>
         <div className="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           <a href="#top" className="flex min-w-0 items-center gap-3">
             {company.logo_url ? (
@@ -258,6 +269,14 @@ export function CompanySiteRenderer({
               </div>
             ) : null}
 
+            {bookingEnabled ? (
+              <a
+                href="#booking"
+                className="hidden min-h-11 items-center justify-center rounded-xl border border-current/15 px-4 py-2 text-sm font-black sm:inline-flex"
+              >
+                {bookingT.bookCleaning}
+              </a>
+            ) : null}
             <a
               href="#quote"
               className="inline-flex min-h-11 items-center justify-center rounded-xl px-4 py-2 text-sm font-black text-white shadow-sm transition hover:brightness-110"
@@ -327,6 +346,15 @@ export function CompanySiteRenderer({
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
+                {bookingEnabled ? (
+                  <a
+                    href="#booking"
+                    className="inline-flex min-h-12 items-center justify-center rounded-2xl px-6 py-3 text-sm font-black text-white shadow-lg transition hover:brightness-110"
+                    style={{ backgroundColor: accent }}
+                  >
+                    {bookingT.bookCleaning}
+                  </a>
+                ) : null}
                 <a
                   href="#quote"
                   className="inline-flex min-h-12 items-center justify-center rounded-2xl px-6 py-3 text-sm font-black text-white shadow-lg transition hover:brightness-110"
@@ -615,6 +643,26 @@ export function CompanySiteRenderer({
             </div>
           </div>
         </section>
+
+        {bookingEnabled ? (
+          <section id="booking" className="border-t border-slate-200 bg-emerald-50/40 px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+            <div className={`mx-auto max-w-4xl border border-emerald-200 bg-white p-6 shadow-sm sm:p-8 lg:p-10 ${theme.rounded}`}>
+              <CompanyBookingForm
+                companyId={company.id}
+                companySlug={company.slug}
+                companyName={company.name}
+                locale={locale}
+                serviceTypes={serviceTypes}
+                defaultCity={company.city || ""}
+                defaultEmail={defaultEmail}
+                defaultDurationMinutes={bookingDefaultDurationMinutes}
+                recurringEnabled={bookingRecurringEnabled}
+                rutAvailable={Boolean(company.rut_available)}
+                isAuthenticated={isAuthenticated}
+              />
+            </div>
+          </section>
+        ) : null}
       </main>
 
       <footer className="border-t border-slate-200 bg-white">

@@ -15,6 +15,8 @@ type HeaderCopy = {
   companyLeads: string
   companyClaims: string
   companyWebsites: string
+  myBookings: string
+  companyBookings: string
   dashboard: string
   createJob: string
   login: string
@@ -36,6 +38,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyLeads: "Заявки компанії",
     companyClaims: "Мої заявки на компанії",
     companyWebsites: "Сайти компаній",
+    myBookings: "Мої бронювання",
+    companyBookings: "Бронювання компанії",
     dashboard: "Кабінет",
     createJob: "Створити роботу",
     login: "Увійти",
@@ -55,6 +59,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyLeads: "Заявки компании",
     companyClaims: "Мои заявки на компании",
     companyWebsites: "Сайты компаний",
+    myBookings: "Мои бронирования",
+    companyBookings: "Бронирования компании",
     dashboard: "Кабинет",
     createJob: "Создать работу",
     login: "Войти",
@@ -74,6 +80,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyLeads: "Company requests",
     companyClaims: "My company claims",
     companyWebsites: "Company websites",
+    myBookings: "My bookings",
+    companyBookings: "Company bookings",
     dashboard: "Dashboard",
     createJob: "Post job",
     login: "Login",
@@ -93,6 +101,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyLeads: "Offertförfrågningar",
     companyClaims: "Mina företagsanspråk",
     companyWebsites: "Företagswebbplatser",
+    myBookings: "Mina bokningar",
+    companyBookings: "Företagsbokningar",
     dashboard: "Dashboard",
     createJob: "Skapa jobb",
     login: "Logga in",
@@ -112,6 +122,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyLeads: "Zapytania firmowe",
     companyClaims: "Moje zgłoszenia firm",
     companyWebsites: "Strony firm",
+    myBookings: "Moje rezerwacje",
+    companyBookings: "Rezerwacje firmy",
     dashboard: "Panel",
     createJob: "Dodaj zlecenie",
     login: "Zaloguj się",
@@ -234,6 +246,7 @@ export default async function SiteHeader() {
   let companyLogoUrl: string | null = null
   let showCompanyLeads = false
   let companyLeadsCount = 0
+  let companyBookingsCount = 0
   let companyClaimsCount = 0
   let unreadMessagesCount = 0
   let unreadNotificationsCount = 0
@@ -332,6 +345,18 @@ export default async function SiteHeader() {
       }
 
       companyLeadsCount = count ?? 0
+
+      const { count: bookingCount, error: bookingCountError } = await supabase
+        .from("company_bookings")
+        .select("id", { count: "exact", head: true })
+        .in("company_id", companyIds)
+        .eq("status", "pending")
+
+      if (bookingCountError) {
+        console.error("Load pending company bookings error:", bookingCountError)
+      }
+
+      companyBookingsCount = bookingCount ?? 0
     }
 
     const jobIds = (jobs ?? []).map((job) => job.id)
@@ -360,7 +385,7 @@ export default async function SiteHeader() {
   const companyLabel = companyName || t.noCompany
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
+    <header className="sticky top-0 z-[100] border-b border-slate-200/70 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex min-h-[76px] items-center justify-between gap-3 py-3">
           <div className="flex min-w-0 items-center gap-4 md:gap-6">
@@ -437,6 +462,8 @@ export default async function SiteHeader() {
                   companyLeadsLabel={t.companyLeads}
                   companyClaimsLabel={t.companyClaims}
                   companyWebsitesLabel={t.companyWebsites}
+                  myBookingsLabel={t.myBookings}
+                  companyBookingsLabel={t.companyBookings}
                   logoutLabel={t.logout}
                   profileName={profileLabel}
                   companyLabel={companyLabel}
@@ -446,6 +473,7 @@ export default async function SiteHeader() {
                   showCompanyLeads={showCompanyLeads}
                   companyLeadsCount={companyLeadsCount}
                   companyClaimsCount={companyClaimsCount}
+                  companyBookingsCount={companyBookingsCount}
                 />
               </>
             ) : (
@@ -487,6 +515,8 @@ export default async function SiteHeader() {
               companyLeadsLabel={t.companyLeads}
               companyClaimsLabel={t.companyClaims}
               companyWebsitesLabel={t.companyWebsites}
+              myBookingsLabel={t.myBookings}
+              companyBookingsLabel={t.companyBookings}
               dashboardLabel={t.dashboard}
               createJobLabel={t.createJob}
               loginLabel={t.login}
@@ -505,6 +535,7 @@ export default async function SiteHeader() {
               showCompanyLeads={showCompanyLeads}
               companyLeadsCount={companyLeadsCount}
               companyClaimsCount={companyClaimsCount}
+              companyBookingsCount={companyBookingsCount}
             />
           </div>
         </div>

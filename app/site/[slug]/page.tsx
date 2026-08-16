@@ -160,7 +160,7 @@ export default async function CompanyWebsitePage({
   })
 
   const supabase = await createClient()
-  const [{ data: reviewData }, { data: userData }] = await Promise.all([
+  const [{ data: reviewData }, { data: userData }, { data: bookingSettings }] = await Promise.all([
     supabase
       .from("reviews")
       .select("id, reviewer_id, rating, comment, created_at")
@@ -169,6 +169,11 @@ export default async function CompanyWebsitePage({
       .order("created_at", { ascending: false })
       .limit(12),
     supabase.auth.getUser(),
+    supabase
+      .from("company_booking_settings")
+      .select("booking_enabled, recurring_enabled, default_duration_minutes")
+      .eq("company_id", loaded.company.id)
+      .maybeSingle(),
   ])
 
   const rawReviews = (reviewData ?? []) as Array<{
@@ -250,6 +255,10 @@ export default async function CompanyWebsitePage({
         reviews={reviews}
         locale={locale}
         defaultEmail={userData.user?.email || ""}
+        bookingEnabled={Boolean(loaded.company.owner_id && bookingSettings?.booking_enabled)}
+        bookingRecurringEnabled={bookingSettings?.recurring_enabled !== false}
+        bookingDefaultDurationMinutes={bookingSettings?.default_duration_minutes || 180}
+        isAuthenticated={Boolean(userData.user)}
       />
     </>
   )

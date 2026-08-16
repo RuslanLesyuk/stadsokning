@@ -23,6 +23,7 @@ type NotificationsPageCopy = {
   openJob: string
   openCompanyLead: string
   openCompanyClaim: string
+  openBooking: string
   read: string
   unread: string
   emptyTitle: string
@@ -48,6 +49,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     openJob: "Відкрити роботу",
     openCompanyLead: "Відкрити заявку компанії",
     openCompanyClaim: "Відкрити заявку на компанію",
+    openBooking: "Відкрити бронювання",
     read: "Прочитано",
     unread: "Нове",
     emptyTitle: "Повідомлень поки немає",
@@ -72,6 +74,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     openJob: "Открыть работу",
     openCompanyLead: "Открыть заявку компании",
     openCompanyClaim: "Открыть заявку на компанию",
+    openBooking: "Открыть бронирование",
     read: "Прочитано",
     unread: "Новое",
     emptyTitle: "Уведомлений пока нет",
@@ -96,6 +99,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     openJob: "Open job",
     openCompanyLead: "Open company request",
     openCompanyClaim: "Open company claim",
+    openBooking: "Open booking",
     read: "Read",
     unread: "New",
     emptyTitle: "No notifications yet",
@@ -120,6 +124,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     openJob: "Öppna jobbet",
     openCompanyLead: "Öppna offertförfrågan",
     openCompanyClaim: "Öppna företagsanspråk",
+    openBooking: "Öppna bokning",
     read: "Läst",
     unread: "Ny",
     emptyTitle: "Inga aviseringar ännu",
@@ -144,6 +149,7 @@ const copy: Record<Locale, NotificationsPageCopy> = {
     openJob: "Otwórz zlecenie",
     openCompanyLead: "Otwórz zapytanie firmy",
     openCompanyClaim: "Otwórz zgłoszenie firmy",
+    openBooking: "Otwórz rezerwację",
     read: "Przeczytane",
     unread: "Nowe",
     emptyTitle: "Brak powiadomień",
@@ -275,6 +281,7 @@ export default async function NotificationsPage() {
             openJob: t.openJob,
             openCompanyLead: t.openCompanyLead,
             openCompanyClaim: t.openCompanyClaim,
+            openBooking: t.openBooking,
             read: t.read,
             unread: t.unread,
             emptyTitle: t.emptyTitle,

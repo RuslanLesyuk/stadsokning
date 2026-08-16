@@ -10,6 +10,8 @@ type Props = {
   companyLeadsLabel?: string
   companyClaimsLabel?: string
   companyWebsitesLabel?: string
+  myBookingsLabel?: string
+  companyBookingsLabel?: string
   logoutLabel: string
   profileName: string
   companyLabel: string
@@ -19,6 +21,7 @@ type Props = {
   showCompanyLeads?: boolean
   companyLeadsCount?: number
   companyClaimsCount?: number
+  companyBookingsCount?: number
 }
 
 export default function ProfileDropdown({
@@ -28,6 +31,8 @@ export default function ProfileDropdown({
   companyLeadsLabel = "Company requests",
   companyClaimsLabel = "My company claims",
   companyWebsitesLabel = "Company websites",
+  myBookingsLabel = "My bookings",
+  companyBookingsLabel = "Company bookings",
   logoutLabel,
   profileName,
   companyLabel,
@@ -37,6 +42,7 @@ export default function ProfileDropdown({
   showCompanyLeads = false,
   companyLeadsCount = 0,
   companyClaimsCount = 0,
+  companyBookingsCount = 0,
 }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement | null>(null)
@@ -98,6 +104,10 @@ export default function ProfileDropdown({
             {dashboardLabel}
           </Link>
 
+          <Link href="/dashboard/bookings" className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50">
+            {myBookingsLabel}
+          </Link>
+
           <Link
             href="/dashboard/company-claims"
             className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
@@ -129,6 +139,18 @@ export default function ProfileDropdown({
                 className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
               >
                 {companyWebsitesLabel}
+              </Link>
+
+              <Link
+                href="/dashboard/company-bookings"
+                className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
+              >
+                <span>{companyBookingsLabel}</span>
+                {companyBookingsCount > 0 ? (
+                  <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                    {companyBookingsCount > 99 ? "99+" : companyBookingsCount}
+                  </span>
+                ) : null}
               </Link>
             </>
           ) : null}

@@ -37,6 +37,7 @@ type NotificationsCopy = {
   openJob: string
   openCompanyLead: string
   openCompanyClaim: string
+  openBooking: string
   read: string
   unread: string
   emptyTitle: string
@@ -149,6 +150,16 @@ function getNotificationIcon(type: string) {
         </svg>
       )
 
+    case "company_booking_request":
+    case "company_booking_cancelled":
+    case "booking_status_changed":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
+          <rect x="4" y="5" width="16" height="15" rx="2" stroke="currentColor" strokeWidth="1.8" />
+          <path d="M8 3v4M16 3v4M4 9h16M8 13h3M8 16h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+        </svg>
+      )
+
     case "company_quote_request":
       return (
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
@@ -239,9 +250,13 @@ function NotificationCard({
     notification.entity_type === "company_claim" ||
     notification.type.startsWith("company_claim_")
       ? copy.openCompanyClaim
-      : notification.type === "company_quote_request"
-        ? copy.openCompanyLead
-        : copy.openJob
+      : notification.entity_type === "company_booking" ||
+          notification.type.startsWith("company_booking_") ||
+          notification.type === "booking_status_changed"
+        ? copy.openBooking
+        : notification.type === "company_quote_request"
+          ? copy.openCompanyLead
+          : copy.openJob
 
   useEffect(() => {
     if (state.success && targetHref) {

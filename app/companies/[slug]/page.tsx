@@ -3,7 +3,9 @@ import Link from "next/link"
 import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 
+import { CompanyBookingForm } from "@/components/bookings/company-booking-form"
 import { CompanyOfferForm } from "@/components/companies/company-offer-form"
+import { bookingCopy } from "@/lib/bookings/copy"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
@@ -649,6 +651,7 @@ export default async function CompanyPage({ params }: PageProps) {
   const { slug } = await params
   const locale = await getLocale()
   const t = copy[locale]
+  const bookingT = bookingCopy[locale]
   const company = await getCompany(slug)
 
   if (!company) notFound()
@@ -687,6 +690,14 @@ export default async function CompanyPage({ params }: PageProps) {
     .eq("company_id", company.id)
     .eq("status", "published")
     .maybeSingle()
+
+  const { data: bookingSettings } = await supabase
+    .from("company_booking_settings")
+    .select("booking_enabled, recurring_enabled, default_duration_minutes")
+    .eq("company_id", company.id)
+    .maybeSingle()
+
+  const bookingEnabled = Boolean(company.owner_id && bookingSettings?.booking_enabled)
 
   const { data: reviewData } = await supabase
     .from("reviews")
@@ -971,6 +982,15 @@ export default async function CompanyPage({ params }: PageProps) {
               </div>
 
               <div className="flex shrink-0 flex-wrap gap-3">
+                {bookingEnabled ? (
+                  <a
+                    href="#booking"
+                    className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-black text-white shadow-lg shadow-emerald-950/20 transition hover:bg-emerald-400"
+                  >
+                    {bookingT.bookCleaning}
+                  </a>
+                ) : null}
+
                 <a
                   href="#offer"
                   className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-black text-white shadow-lg shadow-rose-950/25 transition hover:bg-rose-500"
@@ -1249,6 +1269,27 @@ export default async function CompanyPage({ params }: PageProps) {
                 defaultEmail={user?.email || ""}
               />
             </section>
+
+            {bookingEnabled ? (
+              <section
+                id="booking"
+                className="scroll-mt-24 rounded-[2rem] border border-emerald-200 bg-white p-6 shadow-sm sm:p-8"
+              >
+                <CompanyBookingForm
+                  companyId={company.id}
+                  companySlug={company.slug}
+                  companyName={company.name}
+                  locale={locale}
+                  serviceTypes={serviceTypes}
+                  defaultCity={company.city || ""}
+                  defaultEmail={user?.email || ""}
+                  defaultDurationMinutes={bookingSettings?.default_duration_minutes || 180}
+                  recurringEnabled={bookingSettings?.recurring_enabled !== false}
+                  rutAvailable={Boolean(company.rut_available)}
+                  isAuthenticated={Boolean(user)}
+                />
+              </section>
+            ) : null}
           </div>
 
           <aside className="space-y-6 lg:sticky lg:top-24 lg:h-fit">
@@ -1293,9 +1334,18 @@ export default async function CompanyPage({ params }: PageProps) {
                 </p>
               )}
 
+              {bookingEnabled ? (
+                <a
+                  href="#booking"
+                  className="mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-emerald-600 px-5 py-3 text-center text-sm font-black text-white transition hover:bg-emerald-700"
+                >
+                  {bookingT.bookCleaning}
+                </a>
+              ) : null}
+
               <a
                 href="#offer"
-                className="mt-7 inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-center text-sm font-black text-white transition hover:bg-rose-700"
+                className={`${bookingEnabled ? "mt-3" : "mt-7"} inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-center text-sm font-black text-white transition hover:bg-rose-700`}
               >
                 {t.requestQuote}
               </a>

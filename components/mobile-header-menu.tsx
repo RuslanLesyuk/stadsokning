@@ -27,9 +27,12 @@ type MobileHeaderMenuProps = {
   companyLeadsLabel?: string
   companyClaimsLabel?: string
   companyWebsitesLabel?: string
+  myBookingsLabel?: string
+  companyBookingsLabel?: string
   showCompanyLeads?: boolean
   companyLeadsCount?: number
   companyClaimsCount?: number
+  companyBookingsCount?: number
 }
 
 function itemClass(primary = false) {
@@ -48,6 +51,8 @@ export default function MobileHeaderMenu({
   companyLeadsLabel = "Company requests",
   companyClaimsLabel = "My company claims",
   companyWebsitesLabel = "Company websites",
+  myBookingsLabel = "My bookings",
+  companyBookingsLabel = "Company bookings",
   dashboardLabel,
   createJobLabel,
   loginLabel,
@@ -66,6 +71,7 @@ export default function MobileHeaderMenu({
   showCompanyLeads = false,
   companyLeadsCount = 0,
   companyClaimsCount = 0,
+  companyBookingsCount = 0,
 }: MobileHeaderMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -179,6 +185,17 @@ export default function MobileHeaderMenu({
 
               {isAuthenticated ? (
                 <Link
+                  href="/dashboard/bookings"
+                  onClick={closeMenu}
+                  prefetch={false}
+                  className={itemClass()}
+                >
+                  {myBookingsLabel}
+                </Link>
+              ) : null}
+
+              {isAuthenticated ? (
+                <Link
                   href="/dashboard/company-claims"
                   onClick={closeMenu}
                   prefetch={false}
@@ -217,6 +234,22 @@ export default function MobileHeaderMenu({
                   className={itemClass()}
                 >
                   {companyWebsitesLabel}
+                </Link>
+              ) : null}
+
+              {isAuthenticated && showCompanyLeads ? (
+                <Link
+                  href="/dashboard/company-bookings"
+                  onClick={closeMenu}
+                  prefetch={false}
+                  className={`${itemClass()} justify-between`}
+                >
+                  <span>{companyBookingsLabel}</span>
+                  {companyBookingsCount > 0 ? (
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                      {companyBookingsCount > 99 ? "99+" : companyBookingsCount}
+                    </span>
+                  ) : null}
                 </Link>
               ) : null}
 

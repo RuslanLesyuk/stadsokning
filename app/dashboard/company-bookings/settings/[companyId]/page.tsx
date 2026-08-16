@@ -1,0 +1,26 @@
+import Link from "next/link"
+import { cookies } from "next/headers"
+import { notFound, redirect } from "next/navigation"
+
+import { bookingCopy } from "@/lib/bookings/copy"
+import type { BookingLocale } from "@/lib/bookings/types"
+import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/i18n"
+import { createClient } from "@/lib/supabase-server"
+import { updateBookingSettingsAction } from "../actions"
+
+export const dynamic = "force-dynamic"
+
+type PageProps = { params: Promise<{ companyId: string }>; searchParams: Promise<{ saved?: string; error?: string }> }
+
+export default async function BookingSettingsPage({ params, searchParams }: PageProps) {
+  const { companyId } = await params; const query = await searchParams
+  const cookieStore = await cookies(); const locale = normalizeLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE) as BookingLocale; const t = bookingCopy[locale]
+  const supabase = await createClient(); const { data: { user } } = await supabase.auth.getUser(); if (!user) redirect(`/login?next=/dashboard/company-bookings/settings/${companyId}`)
+  const { data: company } = await supabase.from("companies").select("id, name, slug, working_hours").eq("id", companyId).eq("owner_id", user.id).maybeSingle(); if (!company) notFound()
+  const { data: settingsData } = await supabase.from("company_booking_settings").select("booking_enabled, recurring_enabled, min_notice_hours, max_days_ahead, default_duration_minutes, buffer_minutes, auto_confirm, timezone").eq("company_id", companyId).maybeSingle()
+  const settings = settingsData || { booking_enabled: false, recurring_enabled: true, min_notice_hours: 24, max_days_ahead: 90, default_duration_minutes: 180, buffer_minutes: 30, auto_confirm: false, timezone: "Europe/Stockholm" }
+
+  return <main className="min-h-screen bg-slate-50"><section className="border-b border-slate-200 bg-white"><div className="mx-auto max-w-4xl px-4 py-9 sm:px-6"><Link href="/dashboard/company-bookings" className="text-sm font-bold text-slate-500">← {t.back}</Link><p className="mt-5 text-sm font-black uppercase tracking-[0.18em] text-rose-600">{company.name}</p><h1 className="mt-2 text-4xl font-black text-slate-950">{t.bookingSettings}</h1></div></section><section className="mx-auto max-w-4xl px-4 py-8 sm:px-6">{query.saved ? <div className="mb-5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 font-bold text-emerald-800">{t.settingsSaved}</div> : null}{query.error ? <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 font-bold text-red-800">Could not save settings.</div> : null}<form action={updateBookingSettingsAction} className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"><input type="hidden" name="company_id" value={company.id} /><div className="space-y-4"><Checkbox name="booking_enabled" label={t.settingsEnabled} defaultChecked={Boolean(settings.booking_enabled)} /><Checkbox name="recurring_enabled" label={t.settingsRecurring} defaultChecked={Boolean(settings.recurring_enabled)} /><Checkbox name="auto_confirm" label={t.settingsAutoConfirm} defaultChecked={Boolean(settings.auto_confirm)} /></div><div className="mt-6 grid gap-5 sm:grid-cols-2"><Field name="min_notice_hours" label={t.settingsMinNotice} type="number" min="0" max="720" defaultValue={String(settings.min_notice_hours)} /><Field name="max_days_ahead" label={t.settingsMaxDays} type="number" min="1" max="365" defaultValue={String(settings.max_days_ahead)} /><Field name="default_duration_minutes" label={t.settingsDuration} type="number" min="30" max="1440" step="30" defaultValue={String(settings.default_duration_minutes)} /><Field name="buffer_minutes" label={t.settingsBuffer} type="number" min="0" max="240" step="5" defaultValue={String(settings.buffer_minutes)} /><div className="sm:col-span-2"><Field name="timezone" label={t.settingsTimezone} defaultValue={String(settings.timezone || "Europe/Stockholm")} /></div></div><div className="mt-6 rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">Public booking availability also follows the opening hours stored in the company profile. Confirmed bookings plus the configured buffer block overlapping time slots.</div><button className="mt-6 min-h-12 rounded-2xl bg-rose-600 px-6 text-sm font-black text-white hover:bg-rose-700">{t.saveSettings}</button></form></section></main>
+}
+function Checkbox({ name, label, defaultChecked }: { name: string; label: string; defaultChecked: boolean }) { return <label className="flex items-center gap-3 rounded-2xl border border-slate-200 p-4"><input type="checkbox" name={name} defaultChecked={defaultChecked} className="h-4 w-4 rounded border-slate-300" /><span className="font-bold text-slate-900">{label}</span></label> }
+function Field({ name, label, type = "text", min, max, step, defaultValue }: { name: string; label: string; type?: string; min?: string; max?: string; step?: string; defaultValue: string }) { return <label><span className="text-sm font-black text-slate-900">{label}</span><input name={name} type={type} min={min} max={max} step={step} defaultValue={defaultValue} required className="mt-2 min-h-12 w-full rounded-2xl border border-slate-300 px-4 text-sm outline-none focus:border-rose-500 focus:ring-4 focus:ring-rose-100" /></label> }

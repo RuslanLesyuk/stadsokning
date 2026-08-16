@@ -5,6 +5,7 @@ import { notFound, redirect } from "next/navigation"
 
 import LeadStatusSelect from "@/components/company-leads/lead-status-select"
 import LeadViewTracker from "@/components/company-leads/lead-view-tracker"
+import { bookingCopy } from "@/lib/bookings/copy"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
@@ -200,6 +201,7 @@ export default async function CompanyLeadDetailPage({ params, searchParams }: Pa
   const cookieStore = await cookies()
   const locale = normalizeLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE)
   const t = copy[locale]
+  const bookingT = bookingCopy[locale]
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -284,6 +286,11 @@ export default async function CompanyLeadDetailPage({ params, searchParams }: Pa
               <a href={`mailto:${lead.customer_email}`} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700">{t.email}</a>
               {company ? <Link href={`/companies/${company.slug}`} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700">{t.openCompany}</Link> : null}
               {href ? <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noreferrer" : undefined} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-5 text-sm font-black text-rose-700">{t.openSource}</a> : null}
+              {company && ["quoted", "won"].includes(status) ? (
+                <Link href={`/dashboard/company-bookings/new?lead=${lead.id}`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-black text-white hover:bg-emerald-700">
+                  {bookingT.convertLead}
+                </Link>
+              ) : null}
             </div>
           </section>
 
