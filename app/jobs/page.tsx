@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { cookies } from "next/headers"
+import { hasStripePremiumEntitlement, isBillingDateInFuture } from "@/lib/billing/types"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 
@@ -31,6 +32,11 @@ type Profile = {
   company_logo_url: string | null
   company_name: string | null
   is_premium: boolean | null
+  premium_source: string | null
+  premium_override_until: string | null
+  stripe_subscription_status: string | null
+  billing_grace_until: string | null
+  subscription_ends_at: string | null
   verified: boolean | null
   bankid_verified: boolean | null
 }
@@ -645,6 +651,23 @@ function PersonMiniCard({
   )
 }
 
+function isEffectivePremiumProfile(profile: Profile | null | undefined) {
+  if (!profile?.is_premium) return false
+  if (profile.premium_source === "admin") {
+    return isBillingDateInFuture(profile.premium_override_until)
+  }
+  if (profile.premium_source === "stripe") {
+    return hasStripePremiumEntitlement(
+      profile.stripe_subscription_status,
+      profile.billing_grace_until,
+    )
+  }
+  if (profile.premium_source === "legacy") {
+    return !profile.subscription_ends_at || isBillingDateInFuture(profile.subscription_ends_at)
+  }
+  return Boolean(profile.is_premium)
+}
+
 export default async function JobsPage({
   searchParams,
 }: {
@@ -738,7 +761,7 @@ export default async function JobsPage({
     const { data: profilesRaw, error: profilesError } = await supabase
       .from("profiles")
       .select(
-  "id, full_name, avatar_url, company_logo_url, company_name, is_premium, verified, bankid_verified"
+  "id, full_name, avatar_url, company_logo_url, company_name, is_premium, premium_source, premium_override_until, stripe_subscription_status, billing_grace_until, subscription_ends_at, verified, bankid_verified"
 )
       .in("id", profileIds)
 
@@ -1029,7 +1052,7 @@ export default async function JobsPage({
                 const authorName = authorProfile?.full_name?.trim() || t.unknown_user
                 const workerName = workerProfile?.full_name?.trim() || t.unknown_user
                 const isFeatured = isActiveFeatured(job)
-                const isPremiumAuthor = Boolean(authorProfile?.is_premium)
+                const isPremiumAuthor = isEffectivePremiumProfile(authorProfile)
                 const isVerifiedAuthor =
   Boolean(authorProfile?.verified) ||
   Boolean(authorProfile?.bankid_verified)

@@ -19,6 +19,7 @@ import {
   normalizeTemplate,
   slugifySite,
 } from "@/lib/company-sites/utils"
+import { getBillingAccessForUser } from "@/lib/billing/server"
 import { createClient } from "@/lib/supabase-server"
 
 function text(formData: FormData, key: string) {
@@ -157,9 +158,39 @@ export async function saveCompanyWebsiteAction(formData: FormData) {
 
   const { data: existingSite } = await supabase
     .from("company_sites")
-    .select("id, custom_domain, domain_status, status")
+    .select("id, custom_domain, domain_status, status, template, enabled_locales, remove_clean_jobs_branding")
     .eq("company_id", companyId)
     .maybeSingle()
+
+  const template = normalizeTemplate(text(formData, "template"))
+  const removeCleanJobsBranding = checkbox(formData, "remove_clean_jobs_branding")
+  const billing = await getBillingAccessForUser(user.id)
+
+  if (!billing.isPremium) {
+    const changedToAdvancedTemplate =
+      template !== "modern" &&
+      (!existingSite || template !== existingSite.template)
+    const changedToMultipleLanguages =
+      enabledLocales.length > 1 &&
+      (!existingSite ||
+        JSON.stringify(enabledLocales) !==
+          JSON.stringify(existingSite.enabled_locales || []))
+    const changedCustomDomain =
+      Boolean(customDomain) &&
+      (!existingSite || customDomain !== existingSite.custom_domain)
+    const enabledBrandingRemoval =
+      removeCleanJobsBranding &&
+      !existingSite?.remove_clean_jobs_branding
+
+    if (
+      changedToAdvancedTemplate ||
+      changedToMultipleLanguages ||
+      changedCustomDomain ||
+      enabledBrandingRemoval
+    ) {
+      redirect(getEditorPath(companyId, "error=premium-required"))
+    }
+  }
 
   let nextStatus = existingSite?.status || "draft"
   if (intent === "publish") nextStatus = "published"
@@ -173,7 +204,7 @@ export async function saveCompanyWebsiteAction(formData: FormData) {
     company_id: companyId,
     site_slug: siteSlug,
     status: nextStatus,
-    template: normalizeTemplate(text(formData, "template")),
+    template,
     primary_color: normalizeHexColor(
       text(formData, "primary_color"),
       "#e11d48",
@@ -193,6 +224,7 @@ export async function saveCompanyWebsiteAction(formData: FormData) {
     seo_settings: parseSeo(formData),
     custom_domain: customDomain,
     domain_status: domainStatus,
+    remove_clean_jobs_branding: removeCleanJobsBranding,
     published_at:
       nextStatus === "published"
         ? existingSite?.status === "published"
@@ -230,6 +262,10 @@ export async function saveCompanyWebsiteAction(formData: FormData) {
 
     if (error.code === "23505") {
       redirect(getEditorPath(companyId, "error=slug-or-domain-taken"))
+    }
+
+    if (error.message?.includes("premium_required")) {
+      redirect(getEditorPath(companyId, "error=premium-required"))
     }
 
     redirect(getEditorPath(companyId, "error=save-failed"))

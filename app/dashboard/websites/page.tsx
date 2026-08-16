@@ -2,6 +2,7 @@ import Link from "next/link"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
+import { getBillingAccessForUser } from "@/lib/billing/server"
 import { normalizeLocale } from "@/lib/i18n"
 import type { CompanySiteLocale, CompanySiteRow } from "@/lib/company-sites/types"
 import { createClient } from "@/lib/supabase-server"
@@ -23,6 +24,10 @@ type Copy = {
   manage: string
   open: string
   domain: string
+  premium: string
+  free: string
+  billing: string
+  premiumHint: string
 }
 
 const copy: Record<CompanySiteLocale, Copy> = {
@@ -41,6 +46,7 @@ const copy: Record<CompanySiteLocale, Copy> = {
     manage: "Hantera webbplats",
     open: "Öppna",
     domain: "Domän",
+    premium: "Premium aktiv", free: "Gratis plan", billing: "Premium & fakturering", premiumHint: "Premium låser upp avancerade mallar, flera språk, egen domän och borttagen branding.",
   },
   en: {
     eyebrow: "Website-as-a-Service",
@@ -57,6 +63,7 @@ const copy: Record<CompanySiteLocale, Copy> = {
     manage: "Manage website",
     open: "Open",
     domain: "Domain",
+    premium: "Premium active", free: "Free plan", billing: "Premium & billing", premiumHint: "Premium unlocks advanced templates, multiple languages, custom domain and branding removal.",
   },
   uk: {
     eyebrow: "Website-as-a-Service",
@@ -73,6 +80,7 @@ const copy: Record<CompanySiteLocale, Copy> = {
     manage: "Керувати сайтом",
     open: "Відкрити",
     domain: "Домен",
+    premium: "Premium активний", free: "Безкоштовний план", billing: "Premium та оплата", premiumHint: "Premium відкриває розширені шаблони, кілька мов, власний домен і видалення branding.",
   },
   ru: {
     eyebrow: "Website-as-a-Service",
@@ -89,6 +97,7 @@ const copy: Record<CompanySiteLocale, Copy> = {
     manage: "Управлять сайтом",
     open: "Открыть",
     domain: "Домен",
+    premium: "Premium активен", free: "Бесплатный план", billing: "Premium и оплата", premiumHint: "Premium открывает расширенные шаблоны, несколько языков, свой домен и удаление branding.",
   },
   pl: {
     eyebrow: "Website-as-a-Service",
@@ -105,6 +114,7 @@ const copy: Record<CompanySiteLocale, Copy> = {
     manage: "Zarządzaj stroną",
     open: "Otwórz",
     domain: "Domena",
+    premium: "Premium aktywny", free: "Plan darmowy", billing: "Premium i rozliczenia", premiumHint: "Premium odblokowuje zaawansowane szablony, wiele języków, własną domenę i usunięcie brandingu.",
   },
 }
 
@@ -130,6 +140,8 @@ export default async function WebsitesDashboardPage() {
   } = await supabase.auth.getUser()
 
   if (!user) redirect("/login?next=/dashboard/websites")
+
+  const billing = await getBillingAccessForUser(user.id)
 
   const { data: companiesData } = await supabase
     .from("companies")
@@ -167,6 +179,12 @@ export default async function WebsitesDashboardPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className={`mb-6 rounded-3xl border p-5 ${billing.isPremium ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div><p className="font-black text-slate-950">{billing.isPremium ? t.premium : t.free}</p><p className="mt-1 text-sm leading-6 text-slate-600">{t.premiumHint}</p></div>
+            <Link href="/billing" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-rose-600">{t.billing}</Link>
+          </div>
+        </div>
         {companies.length === 0 ? (
           <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center">
             <h2 className="text-2xl font-black text-slate-950">{t.noCompanies}</h2>

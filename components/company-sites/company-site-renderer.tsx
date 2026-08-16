@@ -671,9 +671,11 @@ export function CompanySiteRenderer({
             <p className="font-black text-slate-900">{company.name}</p>
             {company.city ? <p className="mt-1">{company.city}, Sweden</p> : null}
           </div>
-          <a href="https://cleansjob.com" className="font-semibold hover:text-slate-900">
-            {t.poweredBy}
-          </a>
+          {!site.remove_clean_jobs_branding ? (
+            <a href="https://cleansjob.com" className="font-semibold hover:text-slate-900">
+              {t.poweredBy}
+            </a>
+          ) : null}
         </div>
       </footer>
     </div>

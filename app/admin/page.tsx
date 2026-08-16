@@ -208,6 +208,13 @@ export default async function AdminPage({
 >
   Customer leads
 </Link>
+<Link
+  href="/admin/billing"
+  prefetch={false}
+  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-amber-300 bg-amber-50 px-5 py-3 text-sm font-semibold text-amber-800 transition hover:bg-amber-100 active:scale-[0.97]"
+>
+  Billing
+</Link>
            <Link
     href="/dashboard"
     prefetch={false}

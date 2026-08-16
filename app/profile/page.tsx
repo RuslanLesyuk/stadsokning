@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { cookies } from "next/headers"
+import { getBillingAccessForUser } from "@/lib/billing/server"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { updateProfile } from "@/app/profile/actions"
@@ -31,6 +32,7 @@ type Copy = {
   premium_free: string
   premium_description: string
   upgrade_now: string
+  manage_billing: string
   subscription_until: string
   verified_title: string
   verified_yes: string
@@ -61,6 +63,7 @@ const copy: Record<Locale, Copy> = {
     premium_description:
       "Premium профілі отримують вищу видимість та пріоритет у списках.",
     upgrade_now: "Перейти на Premium",
+    manage_billing: "Керувати Premium та оплатою",
     subscription_until: "Підписка активна до",
     verified_title: "Верифікація",
     verified_yes: "Профіль підтверджено",
@@ -89,6 +92,7 @@ const copy: Record<Locale, Copy> = {
     premium_description:
       "Premium профили получают лучшую видимость и приоритет.",
     upgrade_now: "Перейти на Premium",
+    manage_billing: "Управлять Premium и оплатой",
     subscription_until: "Подписка активна до",
     verified_title: "Верификация",
     verified_yes: "Профиль подтвержден",
@@ -117,6 +121,7 @@ const copy: Record<Locale, Copy> = {
     premium_description:
       "Premium profiles receive better visibility and priority ranking.",
     upgrade_now: "Upgrade to Premium",
+    manage_billing: "Manage Premium & billing",
     subscription_until: "Subscription active until",
     verified_title: "Verification",
     verified_yes: "Verified profile",
@@ -145,6 +150,7 @@ const copy: Record<Locale, Copy> = {
     premium_description:
       "Premium-profiler får bättre synlighet och högre prioritet.",
     upgrade_now: "Uppgradera till Premium",
+    manage_billing: "Hantera Premium och fakturering",
     subscription_until: "Prenumerationen aktiv till",
     verified_title: "Verifiering",
     verified_yes: "Verifierad profil",
@@ -173,6 +179,7 @@ const copy: Record<Locale, Copy> = {
     premium_description:
       "Profile Premium mają większą widoczność i priorytet.",
     upgrade_now: "Przejdź na Premium",
+    manage_billing: "Zarządzaj Premium i rozliczeniami",
     subscription_until: "Subskrypcja aktywna do",
     verified_title: "Weryfikacja",
     verified_yes: "Zweryfikowany profil",
@@ -218,7 +225,7 @@ const bankidError = params.bankid_error
     .eq("id", user.id)
     .single()
 
-    
+  const billing = await getBillingAccessForUser(user.id)
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -396,31 +403,26 @@ const bankidError = params.bankid_error
               </div>
 
               <div className="mt-3 text-2xl font-semibold text-slate-950">
-                {profile?.is_premium ? t.premium_active : t.premium_free}
+                {billing.isPremium ? t.premium_active : t.premium_free}
               </div>
 
               <p className="mt-3 text-sm leading-6 text-slate-600">
                 {t.premium_description}
               </p>
 
-              {profile?.subscription_ends_at ? (
+              {billing.currentPeriodEnd || billing.overrideUntil ? (
                 <p className="mt-4 text-sm text-slate-500">
                   {t.subscription_until}:{" "}
-                  {new Date(profile.subscription_ends_at).toLocaleDateString()}
+                  {new Date(billing.currentPeriodEnd || billing.overrideUntil || "").toLocaleDateString()}
                 </p>
               ) : null}
 
-              {!profile?.is_premium ? (
-                <form action="/api/stripe/checkout" method="POST" className="mt-6">
-                  <input type="hidden" name="type" value="premium" />
-                  <button
-                    type="submit"
-                    className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-600 active:scale-[0.98]"
-                  >
-                    {t.upgrade_now}
-                  </button>
-                </form>
-              ) : null}
+              <Link
+                href="/billing"
+                className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold text-white transition hover:bg-amber-600 active:scale-[0.98]"
+              >
+                {billing.isPremium ? t.manage_billing : t.upgrade_now}
+              </Link>
             </section>
 
             <section className="rounded-[28px] border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-[0_2px_12px_rgba(15,23,42,0.04)]">

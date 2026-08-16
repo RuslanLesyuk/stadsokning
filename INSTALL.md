@@ -1,50 +1,94 @@
-# Clean Jobs — Bookings / Recurring Orders (Block 5/10)
+# Clean Jobs — Premium / Monetization 2.0 (Roadmap 6/10)
+
+This is a flat replacement/addition package. Extract it into the project root.
 
 ## What this package adds
 
-- One-time, weekly, biweekly and monthly bookings.
-- Company booking settings: enable/disable, recurring, minimum notice, booking horizon, default duration, buffer, auto-confirm, timezone.
-- Public booking form on company profiles and published Website-as-a-Service sites.
-- Working-hours validation and confirmed-slot conflict detection.
-- Database-level overlap guard with a per-company advisory transaction lock.
-- `pending -> confirmed -> in_progress -> completed` plus `declined / cancelled`.
-- Recurring occurrence generation inside the company's booking horizon.
-- Company booking dashboard and detail page.
-- Customer booking dashboard and detail page.
-- Customer cancellation flow.
-- Notifications and Resend emails for new bookings, status changes and customer cancellations.
-- Convert a `quoted` or `won` customer lead into a confirmed booking.
-- Source tracking: company profile, company site, lead conversion, manual/admin foundation.
-- RUT request field.
-- Price fields and Stripe-ready `payment_status` / `stripe_payment_intent_id` foundation.
-- 5-language public/dashboard copy.
+- hardened Premium security on `profiles` (users cannot self-assign Premium/Stripe/admin fields)
+- canonical `billing_subscriptions`
+- `billing_transactions` history foundation
+- idempotent `billing_webhook_events`
+- monthly + yearly Premium Checkout
+- reuse of an existing Stripe Customer
+- Checkout Session + Subscription metadata linking to the Clean Jobs user
+- Stripe Customer Portal
+- subscription lifecycle sync for create/update/delete
+- `invoice.paid` recovery and `invoice.payment_failed` grace-period handling
+- admin Premium override that does not destroy a valid Stripe subscription
+- `/billing` customer billing dashboard in sv/en/uk/ru/pl
+- `/admin/billing` billing visibility
+- Premium company-site gates enforced both server-side and in PostgreSQL
+- Premium site features: Minimal/Elegant templates, multiple languages, custom-domain foundation, remove Clean Jobs branding
+- payment schema foundation for future paid leads and booking payments (no premature checkout is enabled for them)
+- Lead Generation 2.0 correctness fix: `first_viewed_at` is no longer overwritten on every later status change
 
-## Install
-
-1. Back up the current working tree:
+## 1. Backup
 
 ```bash
 cd /home/owico/stadsokning2
 git add .
-git commit -m "Before Bookings Recurring Orders 5"
+git commit -m "Before Premium Monetization 2.0"
 ```
 
-2. Extract the flat ZIP into the project root:
+## 2. Extract
 
 ```bash
-unzip -o ~/Downloads/clean-jobs-bookings-recurring-orders-5-FLAT.zip \
+unzip -o ~/Downloads/clean-jobs-premium-monetization-6-FLAT.zip \
   -d /home/owico/stadsokning2
 ```
 
-3. In Supabase SQL Editor, run the entire migration:
+## 3. Run migration
 
-```text
-supabase/migrations/20260809_bookings_recurring_orders.sql
+In Supabase SQL Editor run the complete file:
+
+`supabase/migrations/20260816_premium_monetization_2.sql`
+
+Run it from `begin;` through `commit;`.
+
+The migration intentionally hardens `profiles` INSERT/UPDATE privileges. Authenticated users can write only normal profile fields. Premium, Stripe, verification and admin-controlled columns remain server-only.
+
+## 4. Environment variables
+
+Existing monthly price remains backward compatible:
+
+```env
+STRIPE_SECRET_KEY=sk_...
+STRIPE_PREMIUM_PRICE_ID=price_... # accepted as monthly fallback
 ```
 
-Run it from `begin;` through `commit;`. The migration ends with a PostgREST schema reload.
+Recommended explicit setup:
 
-4. Build:
+```env
+STRIPE_PREMIUM_MONTHLY_PRICE_ID=price_...
+STRIPE_PREMIUM_YEARLY_PRICE_ID=price_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+BILLING_GRACE_DAYS=3
+```
+
+`STRIPE_PREMIUM_MONTHLY_PRICE_ID` takes precedence over the old `STRIPE_PREMIUM_PRICE_ID`.
+
+`STRIPE_FEATURED_JOB_PRICE_ID` is not changed by this package.
+
+## 5. Stripe Dashboard
+
+Configure/enable the Customer Portal for the same Stripe mode (test/live) that you are using.
+
+Webhook endpoint:
+
+`https://cleansjob.com/api/stripe/webhook`
+
+Subscribe to:
+
+- `checkout.session.completed`
+- `customer.subscription.created`
+- `customer.subscription.updated`
+- `customer.subscription.deleted`
+- `invoice.paid`
+- `invoice.payment_failed`
+
+For local Stripe CLI testing, use the `whsec_...` secret printed by `stripe listen` as `STRIPE_WEBHOOK_SECRET` in `.env.local`.
+
+## 6. Build
 
 ```bash
 cd /home/owico/stadsokning2
@@ -52,92 +96,28 @@ rm -rf .next
 npm run build
 ```
 
-5. If green, run locally:
+## 7. Runtime test
 
 ```bash
 npm run dev
 ```
 
-## First runtime setup
+Test in this order:
 
-Open:
+1. `/billing` opens for an authenticated user.
+2. Monthly checkout creates a subscription.
+3. Stripe webhook changes Premium to active.
+4. `/profile`, `/dashboard` and `/jobs` show effective Premium.
+5. Customer Portal opens from `/billing`.
+6. Company website editor blocks Premium-only changes for Free users.
+7. Premium user can choose Minimal/Elegant, enable multiple languages, set a custom domain and remove Clean Jobs branding.
+8. Failed subscription payment produces `past_due` + grace period instead of immediately removing Premium.
+9. Successful invoice payment clears grace and restores/keeps Premium.
+10. Configure `STRIPE_PREMIUM_YEARLY_PRICE_ID` and test annual checkout.
+11. `/admin/billing` shows the subscription record.
 
-```text
-/dashboard/company-bookings
-```
+## Important
 
-For the test company, open **Booking settings** and enable online booking. Defaults are intentionally safe:
+The public `/billing/success` redirect does **not** grant Premium by itself. The signed Stripe webhook synchronizes entitlement.
 
-- booking disabled until owner enables it;
-- recurring enabled;
-- minimum notice 24 hours;
-- horizon 90 days;
-- default duration 180 minutes;
-- buffer 30 minutes;
-- auto-confirm disabled;
-- timezone Europe/Stockholm.
-
-The public availability validator also follows the `working_hours` saved on the company profile.
-
-## End-to-end test
-
-### A. Direct booking from marketplace profile
-
-1. Enable booking for Hemfrid.
-2. Open `/companies/hemfrid-stockholm`.
-3. Confirm the **Book cleaning / Boka städning** CTA is visible.
-4. Submit a one-time booking for a future time inside company working hours.
-5. Owner should receive a notification/email.
-6. Open `/dashboard/company-bookings` and confirm the booking.
-7. Logged-in customer should receive notification/email and see `/dashboard/bookings`.
-8. Start and complete the occurrence from the company booking detail page.
-
-### B. Website-as-a-Service source
-
-1. Open the published `/site/<site-slug>`.
-2. Submit a booking.
-3. Confirm `source = company_site` in the company booking detail page.
-
-### C. Recurring booking
-
-1. Submit weekly or biweekly cleaning.
-2. Open company booking detail.
-3. Verify multiple occurrences were generated up to the configured booking horizon.
-4. Confirm the booking and verify occurrences become confirmed.
-5. Complete one occurrence and verify future occurrences remain available.
-
-### D. Conflict protection
-
-1. Confirm a booking at a specific time.
-2. Submit/confirm another booking for overlapping time.
-3. It must be rejected as unavailable/conflicting.
-4. The configured buffer is included in conflict detection.
-
-### E. Lead conversion
-
-1. Open a `quoted` or `won` lead in `/dashboard/company-leads/[id]`.
-2. Click **Create booking**.
-3. Add address/time/duration.
-4. Save.
-5. The booking is created as confirmed and linked through `quote_request_id`.
-6. The lead is marked `won`.
-
-## MVP boundary
-
-Guest customers can submit a booking and receive email updates, but a booking only appears in **My bookings** when it has a `customer_id` (for example, when the customer was logged in at submission or the original converted lead had a logged-in user). Account-by-email claiming can be added later without changing the booking schema.
-
-## Tables
-
-- `company_booking_settings`
-- `company_bookings`
-- `company_booking_occurrences`
-- `company_booking_activity`
-
-## Main routes
-
-- `/dashboard/bookings`
-- `/dashboard/bookings/[id]`
-- `/dashboard/company-bookings`
-- `/dashboard/company-bookings/[id]`
-- `/dashboard/company-bookings/settings/[companyId]`
-- `/dashboard/company-bookings/new?lead=<leadId>`
+Paid lead purchase and booking payment collection are deliberately not activated yet. The migration only adds the schema foundation for those later monetization flows so no customer contact data is accidentally exposed through a half-finished paywall.

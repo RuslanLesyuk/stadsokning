@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import { getBillingAccessForUser } from "@/lib/billing/server"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import DashboardLiveRefresh from "@/components/dashboard-live-refresh"
@@ -647,6 +648,8 @@ export default async function DashboardPage() {
     redirect("/login?next=/dashboard")
   }
 
+  const billing = await getBillingAccessForUser(user.id)
+
   const { data: profileRaw } = await supabase
     .from("profiles")
     .select(
@@ -785,12 +788,12 @@ export default async function DashboardPage() {
             <div className="mt-4 flex flex-wrap gap-2">
               <span
                 className={
-                  profile?.is_premium
+                  billing.isPremium
                     ? "rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700"
                     : "rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700"
                 }
               >
-                {profile?.is_premium ? t.premium_active : t.free_account}
+                {billing.isPremium ? t.premium_active : t.free_account}
               </span>
 
               <span

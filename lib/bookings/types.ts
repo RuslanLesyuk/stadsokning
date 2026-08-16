@@ -79,6 +79,13 @@ export type CompanyBooking = {
   timezone: string
   payment_status: "unpaid" | "pending" | "paid" | "refunded" | "failed"
   stripe_payment_intent_id: string | null
+  payment_required: boolean
+  payment_amount: number | string | null
+  platform_fee_amount: number | string | null
+  platform_fee_percent: number | string | null
+  paid_at: string | null
+  refunded_at: string | null
+  stripe_checkout_session_id: string | null
   confirmed_at: string | null
   declined_at: string | null
   completed_at: string | null

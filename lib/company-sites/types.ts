@@ -68,6 +68,7 @@ export type CompanySiteRow = {
   seo_settings: unknown
   custom_domain: string | null
   domain_status: CompanyDomainStatus
+  remove_clean_jobs_branding?: boolean
   published_at: string | null
   created_at: string
   updated_at: string

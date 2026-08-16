@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
+import { hasStripePremiumEntitlement, isBillingDateInFuture } from "@/lib/billing/types"
 import { createAdminClient } from "@/lib/supabase-admin"
 import { createClient } from "@/lib/supabase-server"
 
@@ -39,6 +40,9 @@ function getFormId(formData: FormData, key: string) {
 
 function refreshAdminPaths() {
   revalidatePath("/admin")
+  revalidatePath("/admin/billing")
+  revalidatePath("/billing")
+  revalidatePath("/profile")
   revalidatePath("/jobs")
   revalidatePath("/dashboard")
   revalidatePath("/services")
@@ -88,14 +92,16 @@ export async function setPremiumUserAction(formData: FormData) {
 
   if (!userId) redirect("/admin")
 
-  const subscriptionEndsAt = new Date()
-  subscriptionEndsAt.setMonth(subscriptionEndsAt.getMonth() + 1)
+  const premiumOverrideUntil = new Date()
+  premiumOverrideUntil.setMonth(premiumOverrideUntil.getMonth() + 1)
 
   const { error } = await supabase
     .from("profiles")
     .update({
       is_premium: true,
-      subscription_ends_at: subscriptionEndsAt.toISOString(),
+      premium_source: "admin",
+      premium_override_until: premiumOverrideUntil.toISOString(),
+      premium_updated_at: new Date().toISOString(),
     })
     .eq("id", userId)
 
@@ -104,6 +110,7 @@ export async function setPremiumUserAction(formData: FormData) {
   }
 
   refreshAdminPaths()
+  revalidatePath("/billing")
   redirect("/admin")
 }
 
@@ -113,11 +120,30 @@ export async function removePremiumUserAction(formData: FormData) {
 
   if (!userId) redirect("/admin")
 
+  const { data: billing } = await supabase
+    .from("billing_subscriptions")
+    .select("status, grace_until, current_period_end")
+    .eq("user_id", userId)
+    .maybeSingle()
+
+  const stripeEntitled = hasStripePremiumEntitlement(
+    billing?.status || null,
+    billing?.grace_until || null,
+  )
+  const legacyEntitled =
+    billing?.status === "legacy" &&
+    (!billing.current_period_end || isBillingDateInFuture(billing.current_period_end))
+
+  const nextPremium = stripeEntitled || legacyEntitled
+  const nextSource = stripeEntitled ? "stripe" : legacyEntitled ? "legacy" : "none"
+
   const { error } = await supabase
     .from("profiles")
     .update({
-      is_premium: false,
-      subscription_ends_at: null,
+      is_premium: nextPremium,
+      premium_source: nextSource,
+      premium_override_until: null,
+      premium_updated_at: new Date().toISOString(),
     })
     .eq("id", userId)
 
@@ -126,6 +152,7 @@ export async function removePremiumUserAction(formData: FormData) {
   }
 
   refreshAdminPaths()
+  revalidatePath("/billing")
   redirect("/admin")
 }
 

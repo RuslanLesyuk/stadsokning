@@ -112,9 +112,20 @@ export async function setCompanyLeadStatusAction(
 
   const { supabase, user } = await getAuthenticatedClient()
 
+  const { data: lead, error: loadError } = await supabase
+    .from("company_quote_requests")
+    .select("id, first_viewed_at")
+    .eq("id", leadId)
+    .maybeSingle()
+
+  if (loadError || !lead) {
+    console.error("Load company lead before status update error:", loadError)
+    return { ok: false, message: "Could not update lead status." }
+  }
+
   const payload: Record<string, unknown> = { status }
 
-  if (status !== "new") {
+  if (status !== "new" && !lead.first_viewed_at) {
     payload.first_viewed_at = new Date().toISOString()
     payload.viewed_by = user.id
   }

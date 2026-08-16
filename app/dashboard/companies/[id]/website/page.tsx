@@ -19,6 +19,7 @@ import {
   slugifySite,
 } from "@/lib/company-sites/utils"
 import { normalizeLocale } from "@/lib/i18n"
+import { getBillingAccessForUser } from "@/lib/billing/server"
 import { createClient } from "@/lib/supabase-server"
 import { saveCompanyWebsiteAction } from "./actions"
 
@@ -92,6 +93,14 @@ type EditorCopy = {
   customDomain: string
   domainHelp: string
   domainStatus: string
+  premiumTitle: string
+  premiumActive: string
+  premiumFree: string
+  premiumHelp: string
+  premiumRequired: string
+  removeBranding: string
+  removeBrandingHelp: string
+  upgrade: string
   save: string
   savePreview: string
   publish: string
@@ -157,6 +166,14 @@ const editorCopy: Record<CompanySiteLocale, EditorCopy> = {
     customDomain: "Domän",
     domainHelp: "MVP sparar domänen och förbereder DNS-flödet. Automatisk Vercel/DNS-verifiering kommer senare.",
     domainStatus: "Domänstatus",
+    premiumTitle: "Premium-funktioner",
+    premiumActive: "Premium aktiv",
+    premiumFree: "Gratis plan",
+    premiumHelp: "Minimal/Elegant, flera språk, egen domän och borttagen Clean Jobs-branding kräver Premium.",
+    premiumRequired: "Den här ändringen kräver Premium. Uppgradera eller behåll nuvarande Premium-inställning oförändrad.",
+    removeBranding: "Ta bort Clean Jobs-branding",
+    removeBrandingHelp: "Premium: dölj Powered by Clean Jobs i sidfoten.",
+    upgrade: "Hantera Premium",
     save: "Spara",
     savePreview: "Spara och förhandsvisa",
     publish: "Publicera webbplats",
@@ -220,6 +237,14 @@ const editorCopy: Record<CompanySiteLocale, EditorCopy> = {
     customDomain: "Domain",
     domainHelp: "The MVP stores the domain and prepares the DNS flow. Automated Vercel/DNS verification comes later.",
     domainStatus: "Domain status",
+    premiumTitle: "Premium features",
+    premiumActive: "Premium active",
+    premiumFree: "Free plan",
+    premiumHelp: "Minimal/Elegant, multiple languages, custom domain and removing Clean Jobs branding require Premium.",
+    premiumRequired: "This change requires Premium. Upgrade or keep the existing Premium setting unchanged.",
+    removeBranding: "Remove Clean Jobs branding",
+    removeBrandingHelp: "Premium: hide Powered by Clean Jobs in the footer.",
+    upgrade: "Manage Premium",
     save: "Save",
     savePreview: "Save and preview",
     publish: "Publish website",
@@ -283,6 +308,14 @@ const editorCopy: Record<CompanySiteLocale, EditorCopy> = {
     customDomain: "Домен",
     domainHelp: "MVP зберігає домен і готує DNS-процес. Автоматична перевірка Vercel/DNS буде наступним розширенням.",
     domainStatus: "Статус домену",
+    premiumTitle: "Premium-функції",
+    premiumActive: "Premium активний",
+    premiumFree: "Безкоштовний план",
+    premiumHelp: "Minimal/Elegant, кілька мов, власний домен і видалення branding Clean Jobs потребують Premium.",
+    premiumRequired: "Ця зміна потребує Premium. Оновіть план або залиште наявне Premium-налаштування без змін.",
+    removeBranding: "Прибрати branding Clean Jobs",
+    removeBrandingHelp: "Premium: приховати Powered by Clean Jobs у footer.",
+    upgrade: "Керувати Premium",
     save: "Зберегти",
     savePreview: "Зберегти й переглянути",
     publish: "Опублікувати сайт",
@@ -346,6 +379,14 @@ const editorCopy: Record<CompanySiteLocale, EditorCopy> = {
     customDomain: "Домен",
     domainHelp: "MVP сохраняет домен и готовит DNS-процесс. Автоматическая проверка Vercel/DNS будет позже.",
     domainStatus: "Статус домена",
+    premiumTitle: "Premium-функции",
+    premiumActive: "Premium активен",
+    premiumFree: "Бесплатный план",
+    premiumHelp: "Minimal/Elegant, несколько языков, свой домен и удаление branding Clean Jobs требуют Premium.",
+    premiumRequired: "Это изменение требует Premium. Обновите план или оставьте существующую Premium-настройку без изменений.",
+    removeBranding: "Убрать branding Clean Jobs",
+    removeBrandingHelp: "Premium: скрыть Powered by Clean Jobs в footer.",
+    upgrade: "Управлять Premium",
     save: "Сохранить",
     savePreview: "Сохранить и посмотреть",
     publish: "Опубликовать сайт",
@@ -409,6 +450,14 @@ const editorCopy: Record<CompanySiteLocale, EditorCopy> = {
     customDomain: "Domena",
     domainHelp: "MVP zapisuje domenę i przygotowuje proces DNS. Automatyczna weryfikacja Vercel/DNS będzie później.",
     domainStatus: "Status domeny",
+    premiumTitle: "Funkcje Premium",
+    premiumActive: "Premium aktywny",
+    premiumFree: "Plan darmowy",
+    premiumHelp: "Minimal/Elegant, wiele języków, własna domena i usunięcie brandingu Clean Jobs wymagają Premium.",
+    premiumRequired: "Ta zmiana wymaga Premium. Ulepsz plan albo pozostaw istniejące ustawienie Premium bez zmian.",
+    removeBranding: "Usuń branding Clean Jobs",
+    removeBrandingHelp: "Premium: ukryj Powered by Clean Jobs w stopce.",
+    upgrade: "Zarządzaj Premium",
     save: "Zapisz",
     savePreview: "Zapisz i podejrzyj",
     publish: "Opublikuj stronę",
@@ -470,6 +519,7 @@ export default async function CompanyWebsiteEditorPage({
   const company = companyData as CompanySiteCompany | null
   if (!company) redirect("/dashboard/company-claims")
 
+  const billing = await getBillingAccessForUser(user.id)
   const site = siteData as CompanySiteRow | null
   const defaultLocale = site?.default_locale || "sv"
   const enabledLocales = normalizeEnabledLocales(
@@ -551,9 +601,21 @@ export default async function CompanyWebsiteEditorPage({
         ) : null}
         {query.error ? (
           <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-sm font-bold text-red-800">
-            {errorMessage(query.error, t.error)}
+            {query.error === "premium-required" ? t.premiumRequired : errorMessage(query.error, t.error)}
           </div>
         ) : null}
+
+        <div className={`mb-6 rounded-3xl border p-5 ${billing.isPremium ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-black text-slate-950">{t.premiumTitle}: {billing.isPremium ? t.premiumActive : t.premiumFree}</p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">{t.premiumHelp}</p>
+            </div>
+            <Link href="/billing" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-rose-600">
+              {t.upgrade}
+            </Link>
+          </div>
+        </div>
 
         <form action={saveCompanyWebsiteAction} className="space-y-8">
           <input type="hidden" name="company_id" value={company.id} />
@@ -580,8 +642,8 @@ export default async function CompanyWebsiteEditorPage({
                 defaultValue={site?.template || "modern"}
               >
                 <option value="modern">{t.modern}</option>
-                <option value="minimal">{t.minimal}</option>
-                <option value="elegant">{t.elegant}</option>
+                <option value="minimal">{t.minimal} · Premium</option>
+                <option value="elegant">{t.elegant} · Premium</option>
               </Select>
 
               <div />
@@ -789,6 +851,18 @@ export default async function CompanyWebsiteEditorPage({
                 </div>
               </div>
             </div>
+          </EditorSection>
+
+          <EditorSection title={t.removeBranding} description={t.removeBrandingHelp}>
+            <label className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4 text-sm font-bold text-slate-800">
+              <input
+                type="checkbox"
+                name="remove_clean_jobs_branding"
+                defaultChecked={Boolean(site?.remove_clean_jobs_branding)}
+                className="h-4 w-4"
+              />
+              {t.removeBranding}
+            </label>
           </EditorSection>
 
           <div className="sticky bottom-4 z-30 flex flex-wrap gap-3 rounded-3xl border border-slate-200 bg-white/95 p-4 shadow-xl backdrop-blur">
