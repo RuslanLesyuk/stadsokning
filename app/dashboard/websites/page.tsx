@@ -2,6 +2,7 @@ import Link from "next/link"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
+import CompanyWorkspaceNav from "@/components/company-dashboard/company-workspace-nav"
 import { getBillingAccessForUser } from "@/lib/billing/server"
 import { normalizeLocale } from "@/lib/i18n"
 import type { CompanySiteLocale, CompanySiteRow } from "@/lib/company-sites/types"
@@ -179,7 +180,13 @@ export default async function WebsitesDashboardPage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className={`mb-6 rounded-3xl border p-5 ${billing.isPremium ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
+        <CompanyWorkspaceNav
+          locale={locale}
+          active="websites"
+          companyId={companies[0]?.id || null}
+        />
+
+        <div className={`mb-6 mt-5 rounded-3xl border p-5 ${billing.isPremium ? "border-emerald-200 bg-emerald-50" : "border-amber-200 bg-amber-50"}`}>
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div><p className="font-black text-slate-950">{billing.isPremium ? t.premium : t.free}</p><p className="mt-1 text-sm leading-6 text-slate-600">{t.premiumHint}</p></div>
             <Link href="/billing" className="inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-rose-600">{t.billing}</Link>

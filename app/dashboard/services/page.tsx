@@ -1,6 +1,7 @@
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
+import CompanyWorkspaceNav from "@/components/company-dashboard/company-workspace-nav"
 import { createClient } from "@/lib/supabase-server"
 import {
   DEFAULT_LOCALE,
@@ -40,7 +41,9 @@ export default async function DashboardServicesPage() {
 
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 md:py-10">
-      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+      <CompanyWorkspaceNav locale={locale} active="services" />
+
+      <div className="mb-8 mt-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <Link
             href="/dashboard"

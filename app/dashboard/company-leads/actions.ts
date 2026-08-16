@@ -42,6 +42,7 @@ async function getAuthenticatedClient() {
 }
 
 function refreshLeadPaths(leadId?: string) {
+  revalidatePath("/dashboard/company")
   revalidatePath("/dashboard/company-leads")
   if (leadId) revalidatePath(`/dashboard/company-leads/${leadId}`)
   revalidatePath("/notifications")

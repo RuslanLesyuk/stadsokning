@@ -17,6 +17,7 @@ type HeaderCopy = {
   companyWebsites: string
   myBookings: string
   companyBookings: string
+  companyDashboard: string
   dashboard: string
   createJob: string
   login: string
@@ -40,6 +41,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Сайти компаній",
     myBookings: "Мої бронювання",
     companyBookings: "Бронювання компанії",
+    companyDashboard: "Кабінет компанії",
     dashboard: "Кабінет",
     createJob: "Створити роботу",
     login: "Увійти",
@@ -61,6 +63,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Сайты компаний",
     myBookings: "Мои бронирования",
     companyBookings: "Бронирования компании",
+    companyDashboard: "Кабинет компании",
     dashboard: "Кабинет",
     createJob: "Создать работу",
     login: "Войти",
@@ -82,6 +85,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Company websites",
     myBookings: "My bookings",
     companyBookings: "Company bookings",
+    companyDashboard: "Company dashboard",
     dashboard: "Dashboard",
     createJob: "Post job",
     login: "Login",
@@ -103,6 +107,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Företagswebbplatser",
     myBookings: "Mina bokningar",
     companyBookings: "Företagsbokningar",
+    companyDashboard: "Företagsdashboard",
     dashboard: "Dashboard",
     createJob: "Skapa jobb",
     login: "Logga in",
@@ -124,6 +129,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Strony firm",
     myBookings: "Moje rezerwacje",
     companyBookings: "Rezerwacje firmy",
+    companyDashboard: "Panel firmy",
     dashboard: "Panel",
     createJob: "Dodaj zlecenie",
     login: "Zaloguj się",
@@ -464,6 +470,7 @@ export default async function SiteHeader() {
                   companyWebsitesLabel={t.companyWebsites}
                   myBookingsLabel={t.myBookings}
                   companyBookingsLabel={t.companyBookings}
+                  companyDashboardLabel={t.companyDashboard}
                   logoutLabel={t.logout}
                   profileName={profileLabel}
                   companyLabel={companyLabel}
@@ -517,6 +524,7 @@ export default async function SiteHeader() {
               companyWebsitesLabel={t.companyWebsites}
               myBookingsLabel={t.myBookings}
               companyBookingsLabel={t.companyBookings}
+              companyDashboardLabel={t.companyDashboard}
               dashboardLabel={t.dashboard}
               createJobLabel={t.createJob}
               loginLabel={t.login}

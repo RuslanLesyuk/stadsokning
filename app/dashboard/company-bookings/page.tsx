@@ -2,6 +2,7 @@ import Link from "next/link"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
+import CompanyWorkspaceNav from "@/components/company-dashboard/company-workspace-nav"
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge"
 import { bookingCopy } from "@/lib/bookings/copy"
 import type { BookingLocale } from "@/lib/bookings/types"
@@ -101,7 +102,14 @@ export default async function CompanyBookingsPage({ searchParams }: PageProps) {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <form method="get" className="grid gap-3 rounded-3xl border border-slate-200 bg-white p-5 sm:grid-cols-3">
+        <CompanyWorkspaceNav
+          locale={locale}
+          active="bookings"
+          companyId={selectedCompany || companies[0]?.id || null}
+          pendingBookingsCount={pending}
+        />
+
+        <form method="get" className="mt-5 grid gap-3 rounded-3xl border border-slate-200 bg-white p-5 sm:grid-cols-3">
           <select name="status" defaultValue={selectedStatus} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3"><option value="">{t.status}: —</option>{allowedStatuses.map((status) => <option key={status} value={status}>{t[status as keyof typeof t]}</option>)}</select>
           <select name="company" defaultValue={selectedCompany} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3"><option value="">{t.company}: —</option>{companies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}</select>
           <button className="min-h-11 rounded-xl bg-slate-950 px-4 font-black text-white">Filter</button>

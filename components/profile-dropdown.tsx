@@ -12,6 +12,7 @@ type Props = {
   companyWebsitesLabel?: string
   myBookingsLabel?: string
   companyBookingsLabel?: string
+  companyDashboardLabel?: string
   logoutLabel: string
   profileName: string
   companyLabel: string
@@ -33,6 +34,7 @@ export default function ProfileDropdown({
   companyWebsitesLabel = "Company websites",
   myBookingsLabel = "My bookings",
   companyBookingsLabel = "Company bookings",
+  companyDashboardLabel = "Company dashboard",
   logoutLabel,
   profileName,
   companyLabel,
@@ -122,6 +124,13 @@ export default function ProfileDropdown({
 
           {showCompanyLeads ? (
             <>
+              <Link
+                href="/dashboard/company"
+                className="block rounded-2xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+              >
+                {companyDashboardLabel}
+              </Link>
+
               <Link
                 href="/dashboard/company-leads"
                 className="flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"

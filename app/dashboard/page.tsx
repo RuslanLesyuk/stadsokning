@@ -43,6 +43,12 @@ type Profile = {
   subscription_ends_at: string | null
 }
 
+type OwnedCompany = {
+  id: string
+  name: string
+  slug: string
+}
+
 type DashboardCopy = {
   title: string
   subtitle: string
@@ -65,6 +71,10 @@ type DashboardCopy = {
   stats_unread: string
   stats_done: string
   quick_actions: string
+  company_workspace: string
+  company_workspace_description: string
+  open_company_dashboard: string
+  managed_companies: string
   posted_jobs: string
   taken_jobs: string
   history: string
@@ -116,6 +126,10 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_unread: "Непрочитані",
     stats_done: "В історії",
     quick_actions: "Швидкі дії",
+    company_workspace: "Простір компанії",
+    company_workspace_description: "Керуйте лідами, бронюваннями, сайтом і бізнес-показниками в одному місці.",
+    open_company_dashboard: "Відкрити кабінет компанії",
+    managed_companies: "Компаній під керуванням",
     posted_jobs: "Мої активні оголошення",
     taken_jobs: "Роботи, які я виконую",
     history: "Історія",
@@ -165,6 +179,10 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_unread: "Непрочитанные",
     stats_done: "В истории",
     quick_actions: "Быстрые действия",
+    company_workspace: "Пространство компании",
+    company_workspace_description: "Управляйте лидами, бронированиями, сайтом и бизнес-показателями в одном месте.",
+    open_company_dashboard: "Открыть кабинет компании",
+    managed_companies: "Компаний под управлением",
     posted_jobs: "Мои активные объявления",
     taken_jobs: "Работы, которые я выполняю",
     history: "История",
@@ -214,6 +232,10 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_unread: "Unread",
     stats_done: "In history",
     quick_actions: "Quick actions",
+    company_workspace: "Company workspace",
+    company_workspace_description: "Manage leads, bookings, website and business metrics from one place.",
+    open_company_dashboard: "Open company dashboard",
+    managed_companies: "Managed companies",
     posted_jobs: "My active listings",
     taken_jobs: "Jobs I am working on",
     history: "History",
@@ -263,6 +285,10 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_unread: "Olästa",
     stats_done: "I historik",
     quick_actions: "Snabba åtgärder",
+    company_workspace: "Företagsyta",
+    company_workspace_description: "Hantera leads, bokningar, webbplats och affärsdata från en samlad arbetsyta.",
+    open_company_dashboard: "Öppna företagsdashboard",
+    managed_companies: "Företag du hanterar",
     posted_jobs: "Mina aktiva annonser",
     taken_jobs: "Jobb jag arbetar med",
     history: "Historik",
@@ -312,6 +338,10 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_unread: "Nieprzeczytane",
     stats_done: "W historii",
     quick_actions: "Szybkie akcje",
+    company_workspace: "Przestrzeń firmy",
+    company_workspace_description: "Zarządzaj leadami, rezerwacjami, stroną i wynikami biznesu w jednym miejscu.",
+    open_company_dashboard: "Otwórz panel firmy",
+    managed_companies: "Zarządzane firmy",
     posted_jobs: "Moje aktywne ogłoszenia",
     taken_jobs: "Prace, które wykonuję",
     history: "Historia",
@@ -660,6 +690,20 @@ export default async function DashboardPage() {
 
   const profile = profileRaw as Profile | null
 
+  const { data: ownedCompaniesRaw, error: ownedCompaniesError } = await supabase
+    .from("companies")
+    .select("id, name, slug")
+    .eq("owner_id", user.id)
+    .order("name", { ascending: true })
+    .limit(20)
+
+  if (ownedCompaniesError) {
+    console.error("Load dashboard owned companies error:", ownedCompaniesError)
+  }
+
+  const ownedCompanies = (ownedCompaniesRaw ?? []) as OwnedCompany[]
+  const primaryOwnedCompany = ownedCompanies[0] ?? null
+
   const { data: jobsRaw, error: jobsError } = await supabase
     .from("jobs")
     .select("id, title, description, city, budget, status, created_at, created_by, assigned_to")
@@ -842,6 +886,35 @@ export default async function DashboardPage() {
             </div>
           </div>
         </section>
+
+        {primaryOwnedCompany ? (
+          <section className="mt-6 rounded-[32px] border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-rose-950 p-5 text-white shadow-[0_12px_34px_rgba(15,23,42,0.14)] md:p-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div className="inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold text-white/80">
+                  {t.company_workspace}
+                </div>
+                <h2 className="mt-4 text-2xl font-semibold tracking-tight md:text-3xl">
+                  {primaryOwnedCompany.name}
+                </h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-white/70">
+                  {t.company_workspace_description}
+                </p>
+                <p className="mt-3 text-xs font-medium text-white/50">
+                  {t.managed_companies}: {ownedCompanies.length}
+                </p>
+              </div>
+
+              <Link
+                href={`/dashboard/company?company=${primaryOwnedCompany.id}`}
+                prefetch={false}
+                className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-2xl bg-white px-5 py-3 text-sm font-semibold text-slate-950 transition hover:bg-rose-50 active:scale-[0.97]"
+              >
+                {t.open_company_dashboard}
+              </Link>
+            </div>
+          </section>
+        ) : null}
 
         <div className="mt-8 space-y-6">
           <JobsSection

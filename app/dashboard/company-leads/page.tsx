@@ -3,6 +3,7 @@ import Link from "next/link"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
+import CompanyWorkspaceNav from "@/components/company-dashboard/company-workspace-nav"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
@@ -300,7 +301,14 @@ export default async function CompanyLeadsPage({ searchParams }: PageProps) {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <form method="get" className="grid gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-6">
+        <CompanyWorkspaceNav
+          locale={locale}
+          active="leads"
+          companyId={selectedCompany || ownedCompanies[0]?.id || null}
+          newLeadsCount={newCount}
+        />
+
+        <form method="get" className="mt-5 grid gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-6">
           <input name="search" defaultValue={search} placeholder={t.searchPlaceholder} className="min-h-11 rounded-xl border border-slate-300 px-3 text-sm lg:col-span-2" />
           <select name="status" defaultValue={selectedStatus} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"><option value="">{t.allStatuses}</option>{COMPANY_LEAD_STATUSES.map((item) => <option key={item} value={item}>{t[item]}</option>)}</select>
           <select name="priority" defaultValue={selectedPriority} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"><option value="">{t.allPriorities}</option>{COMPANY_LEAD_PRIORITIES.map((item) => <option key={item} value={item}>{t[item]}</option>)}</select>
