@@ -6,6 +6,7 @@ import { notFound, redirect } from "next/navigation"
 import LeadStatusSelect from "@/components/company-leads/lead-status-select"
 import LeadViewTracker from "@/components/company-leads/lead-view-tracker"
 import { bookingCopy } from "@/lib/bookings/copy"
+import { crmCopy } from "@/lib/crm/copy"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
@@ -40,6 +41,7 @@ type PageProps = {
 type Lead = {
   id: string
   company_id: string
+  crm_customer_id: string | null
   customer_name: string
   customer_email: string
   customer_phone: string | null
@@ -202,6 +204,7 @@ export default async function CompanyLeadDetailPage({ params, searchParams }: Pa
   const locale = normalizeLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE)
   const t = copy[locale]
   const bookingT = bookingCopy[locale]
+  const crmT = crmCopy[locale] || crmCopy.en
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -210,7 +213,7 @@ export default async function CompanyLeadDetailPage({ params, searchParams }: Pa
   const { data, error } = await supabase
     .from("company_quote_requests")
     .select(`
-      id, company_id, customer_name, customer_email, customer_phone, service_type,
+      id, company_id, crm_customer_id, customer_name, customer_email, customer_phone, service_type,
       city, preferred_date, message, status, priority, source, source_url, lead_type,
       first_viewed_at, owner_notes, lead_score, estimated_value, quoted_value, currency,
       lost_reason, follow_up_at, lead_access, is_paid, lead_price, unlocked_at,
@@ -286,6 +289,11 @@ export default async function CompanyLeadDetailPage({ params, searchParams }: Pa
               <a href={`mailto:${lead.customer_email}`} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700">{t.email}</a>
               {company ? <Link href={`/companies/${company.slug}`} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700">{t.openCompany}</Link> : null}
               {href ? <a href={href} target={href.startsWith("http") ? "_blank" : undefined} rel={href.startsWith("http") ? "noreferrer" : undefined} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-rose-200 bg-rose-50 px-5 text-sm font-black text-rose-700">{t.openSource}</a> : null}
+              {lead.crm_customer_id ? (
+                <Link href={`/dashboard/company-customers/${lead.crm_customer_id}`} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-violet-200 bg-violet-50 px-5 text-sm font-black text-violet-700 hover:bg-violet-100">
+                  {crmT.openCustomer}
+                </Link>
+              ) : null}
               {company && ["quoted", "won"].includes(status) ? (
                 <Link href={`/dashboard/company-bookings/new?lead=${lead.id}`} className="inline-flex min-h-11 items-center justify-center rounded-xl bg-emerald-600 px-5 text-sm font-black text-white hover:bg-emerald-700">
                   {bookingT.convertLead}

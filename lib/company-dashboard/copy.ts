@@ -5,6 +5,7 @@ import type { Locale } from "@/lib/i18n"
 export type CompanyWorkspaceSection =
   | "overview"
   | "leads"
+  | "customers"
   | "bookings"
   | "websites"
   | "services"
@@ -78,6 +79,7 @@ export type CompanyDashboardCopy = {
   claims: string
   navOverview: string
   navLeads: string
+  navCustomers: string
   navBookings: string
   navWebsites: string
   navServices: string
@@ -155,6 +157,7 @@ export const companyDashboardCopy: Record<Locale, CompanyDashboardCopy> = {
     claims: "Mina företagsanspråk",
     navOverview: "Översikt",
     navLeads: "Leads",
+    navCustomers: "Kunder",
     navBookings: "Bokningar",
     navWebsites: "Webbplatser",
     navServices: "Tjänster",
@@ -236,6 +239,7 @@ export const companyDashboardCopy: Record<Locale, CompanyDashboardCopy> = {
     claims: "My company claims",
     navOverview: "Overview",
     navLeads: "Leads",
+    navCustomers: "Customers",
     navBookings: "Bookings",
     navWebsites: "Websites",
     navServices: "Services",
@@ -317,6 +321,7 @@ export const companyDashboardCopy: Record<Locale, CompanyDashboardCopy> = {
     claims: "Мої заявки на компанії",
     navOverview: "Огляд",
     navLeads: "Ліди",
+    navCustomers: "Клієнти",
     navBookings: "Бронювання",
     navWebsites: "Сайти",
     navServices: "Послуги",
@@ -398,6 +403,7 @@ export const companyDashboardCopy: Record<Locale, CompanyDashboardCopy> = {
     claims: "Мои заявки на компании",
     navOverview: "Обзор",
     navLeads: "Лиды",
+    navCustomers: "Клиенты",
     navBookings: "Бронирования",
     navWebsites: "Сайты",
     navServices: "Услуги",
@@ -479,6 +485,7 @@ export const companyDashboardCopy: Record<Locale, CompanyDashboardCopy> = {
     claims: "Moje zgłoszenia firm",
     navOverview: "Przegląd",
     navLeads: "Leady",
+    navCustomers: "Klienci",
     navBookings: "Rezerwacje",
     navWebsites: "Strony",
     navServices: "Usługi",

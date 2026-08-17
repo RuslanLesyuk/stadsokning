@@ -94,6 +94,8 @@ export async function createBookingFromLeadAction(formData: FormData) {
   revalidatePath("/dashboard/company-leads")
   revalidatePath(`/dashboard/company-leads/${lead.id}`)
   revalidatePath("/dashboard/company-bookings")
+  revalidatePath("/dashboard/company-customers")
+  revalidatePath("/dashboard/company")
   revalidatePath(`/dashboard/company-bookings/${booking.id}`)
   redirect(`/dashboard/company-bookings/${booking.id}?saved=created-from-lead`)
 }

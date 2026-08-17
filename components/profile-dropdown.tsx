@@ -8,6 +8,7 @@ type Props = {
   dashboardLabel: string
   myServicesLabel: string
   companyLeadsLabel?: string
+  companyCustomersLabel?: string
   companyClaimsLabel?: string
   companyWebsitesLabel?: string
   myBookingsLabel?: string
@@ -30,6 +31,7 @@ export default function ProfileDropdown({
   dashboardLabel,
   myServicesLabel,
   companyLeadsLabel = "Company requests",
+  companyCustomersLabel = "Company customers",
   companyClaimsLabel = "My company claims",
   companyWebsitesLabel = "Company websites",
   myBookingsLabel = "My bookings",
@@ -141,6 +143,13 @@ export default function ProfileDropdown({
                     {companyLeadsCount > 99 ? "99+" : companyLeadsCount}
                   </span>
                 ) : null}
+              </Link>
+
+              <Link
+                href="/dashboard/company-customers"
+                className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50"
+              >
+                {companyCustomersLabel}
               </Link>
 
               <Link

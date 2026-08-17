@@ -5,6 +5,7 @@ import { redirect } from "next/navigation"
 import DashboardLiveRefresh from "@/components/dashboard-live-refresh"
 import CompanyWorkspaceNav from "@/components/company-dashboard/company-workspace-nav"
 import { getBillingAccessForUser } from "@/lib/billing/server"
+import { crmCopy } from "@/lib/crm/copy"
 import { companyDashboardCopy } from "@/lib/company-dashboard/copy"
 import {
   normalizeBookingStatus,
@@ -413,6 +414,7 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
     cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
   ) as Locale
   const t = companyDashboardCopy[locale] || companyDashboardCopy.en
+  const crmT = crmCopy[locale] || crmCopy.en
 
   const supabase = await createClient()
   const {
@@ -496,6 +498,8 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
     totalLeadResult,
     newLeadResult,
     wonLeadResult,
+    crmCustomerCountResult,
+    crmFollowUpDueResult,
     openLeadValues,
     recentNewLeadsResult,
     recentLeadsResult,
@@ -532,6 +536,18 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
       .select("id", { count: "exact", head: true })
       .eq("company_id", selectedCompany.id)
       .eq("status", "won"),
+    supabase
+      .from("company_crm_customers")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", selectedCompany.id)
+      .neq("lifecycle_stage", "inactive"),
+    supabase
+      .from("company_crm_customers")
+      .select("id", { count: "exact", head: true })
+      .eq("company_id", selectedCompany.id)
+      .neq("lifecycle_stage", "inactive")
+      .not("follow_up_at", "is", null)
+      .lte("follow_up_at", now.toISOString()),
     loadOpenLeadValues(supabase, selectedCompany.id),
     supabase
       .from("company_quote_requests")
@@ -604,6 +620,8 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
     ["total leads", totalLeadResult],
     ["new leads", newLeadResult],
     ["won leads", wonLeadResult],
+    ["crm customers", crmCustomerCountResult],
+    ["crm follow-ups", crmFollowUpDueResult],
     ["recent new leads", recentNewLeadsResult],
     ["recent leads", recentLeadsResult],
     ["pending bookings", pendingBookingResult],
@@ -629,6 +647,8 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
   const totalLeads = totalLeadResult.count ?? 0
   const newLeads = newLeadResult.count ?? 0
   const wonLeads = wonLeadResult.count ?? 0
+  const crmCustomers = crmCustomerCountResult.count ?? 0
+  const crmFollowUpsDue = crmFollowUpDueResult.count ?? 0
   const conversion = totalLeads > 0 ? (wonLeads / totalLeads) * 100 : 0
   const pipelineValue = openLeadValues.reduce(
     (sum, row) =>
@@ -852,8 +872,10 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
           pendingBookingsCount={pendingBookings}
         />
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-8">
           <MetricCard label={t.newLeads} value={String(newLeads)} />
+          <MetricCard label={crmT.customers} value={String(crmCustomers)} />
+          <MetricCard label={crmT.followUpsDue} value={String(crmFollowUpsDue)} />
           <MetricCard label={t.conversion} value={formatPercent(conversion)} />
           <MetricCard label={t.pipeline} value={formatMoney(pipelineValue)} />
           <MetricCard
@@ -1134,6 +1156,14 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
               {t.quickActions}
             </h2>
             <div className="mt-5 grid gap-3">
+              <Link
+                href={`/dashboard/company-customers?company=${selectedCompany.id}`}
+                className="inline-flex min-h-12 items-center justify-between rounded-2xl bg-violet-600 px-5 text-sm font-black text-white hover:bg-violet-700"
+              >
+                <span>{crmT.customers}</span>
+                <span>{crmFollowUpsDue > 0 ? crmFollowUpsDue : "→"}</span>
+              </Link>
+
               <Link
                 href={`/dashboard/company-leads?company=${selectedCompany.id}`}
                 className="inline-flex min-h-12 items-center justify-between rounded-2xl bg-rose-600 px-5 text-sm font-black text-white hover:bg-rose-700"

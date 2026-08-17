@@ -57,6 +57,11 @@ export default function CompanyWorkspaceNav({
       count: newLeadsCount,
     },
     {
+      key: "customers",
+      label: t.navCustomers,
+      href: withCompany("/dashboard/company-customers"),
+    },
+    {
       key: "bookings",
       label: t.navBookings,
       href: withCompany("/dashboard/company-bookings"),

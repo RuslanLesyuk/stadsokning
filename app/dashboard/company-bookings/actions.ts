@@ -14,6 +14,7 @@ function getString(formData: FormData, name: string) {
 function refreshBookingPaths(id: string) {
   revalidatePath("/dashboard/company")
   revalidatePath("/dashboard/company-bookings")
+  revalidatePath("/dashboard/company-customers")
   revalidatePath(`/dashboard/company-bookings/${id}`)
   revalidatePath("/dashboard/bookings")
   revalidatePath(`/dashboard/bookings/${id}`)

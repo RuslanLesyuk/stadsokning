@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation"
 
 import { BookingStatusBadge } from "@/components/bookings/booking-status-badge"
 import { bookingCopy } from "@/lib/bookings/copy"
+import { crmCopy } from "@/lib/crm/copy"
 import type { BookingLocale } from "@/lib/bookings/types"
 import { formatBookingMoney, normalizeBookingOccurrenceStatus, normalizeBookingStatus } from "@/lib/bookings/utils"
 import { DEFAULT_LOCALE, LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/i18n"
@@ -15,7 +16,7 @@ export const dynamic = "force-dynamic"
 type PageProps = { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string; error?: string }> }
 
 type Booking = {
-  id: string; company_id: string; customer_id: string | null; quote_request_id: string | null; customer_name: string; customer_email: string; customer_phone: string | null; service_type: string; address: string; postal_code: string | null; city: string; frequency: string; start_date: string; preferred_time: string; duration_minutes: number; rut_requested: boolean; customer_notes: string | null; status: string; estimated_price: number | string | null; agreed_price: number | string | null; currency: string; source: string; source_url: string | null; payment_status: string; cancellation_reason: string | null; created_at: string; companies: { id: string; name: string; slug: string } | { id: string; name: string; slug: string }[] | null
+  id: string; company_id: string; crm_customer_id: string | null; customer_id: string | null; quote_request_id: string | null; customer_name: string; customer_email: string; customer_phone: string | null; service_type: string; address: string; postal_code: string | null; city: string; frequency: string; start_date: string; preferred_time: string; duration_minutes: number; rut_requested: boolean; customer_notes: string | null; status: string; estimated_price: number | string | null; agreed_price: number | string | null; currency: string; source: string; source_url: string | null; payment_status: string; cancellation_reason: string | null; created_at: string; companies: { id: string; name: string; slug: string } | { id: string; name: string; slug: string }[] | null
 }
 type Occurrence = { id: string; sequence_no: number; scheduled_start: string; scheduled_end: string; status: string; price: number | string | null; cancellation_reason: string | null }
 type Activity = { id: string; event_type: string; from_status: string | null; to_status: string | null; metadata: Record<string, unknown> | null; created_at: string }
@@ -29,12 +30,13 @@ export default async function CompanyBookingDetailPage({ params, searchParams }:
   const cookieStore = await cookies()
   const locale = normalizeLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE) as BookingLocale
   const t = bookingCopy[locale]
+  const crmT = crmCopy[locale] || crmCopy.en
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect(`/login?next=/dashboard/company-bookings/${id}`)
 
   const [{ data, error }, { data: occurrenceData }, { data: activityData }] = await Promise.all([
-    supabase.from("company_bookings").select("id, company_id, customer_id, quote_request_id, customer_name, customer_email, customer_phone, service_type, address, postal_code, city, frequency, start_date, preferred_time, duration_minutes, rut_requested, customer_notes, status, estimated_price, agreed_price, currency, source, source_url, payment_status, cancellation_reason, created_at, companies ( id, name, slug )").eq("id", id).maybeSingle(),
+    supabase.from("company_bookings").select("id, company_id, crm_customer_id, customer_id, quote_request_id, customer_name, customer_email, customer_phone, service_type, address, postal_code, city, frequency, start_date, preferred_time, duration_minutes, rut_requested, customer_notes, status, estimated_price, agreed_price, currency, source, source_url, payment_status, cancellation_reason, created_at, companies ( id, name, slug )").eq("id", id).maybeSingle(),
     supabase.from("company_booking_occurrences").select("id, sequence_no, scheduled_start, scheduled_end, status, price, cancellation_reason").eq("booking_id", id).order("sequence_no"),
     supabase.from("company_booking_activity").select("id, event_type, from_status, to_status, metadata, created_at").eq("booking_id", id).order("created_at", { ascending: false }).limit(100),
   ])
@@ -71,6 +73,7 @@ export default async function CompanyBookingDetailPage({ params, searchParams }:
           {status === "pending" ? <ActionForm bookingId={booking.id} status="confirmed" label={t.confirm} /> : null}
           {status === "pending" ? <ActionForm bookingId={booking.id} status="declined" label={t.decline} danger /> : null}
           {["confirmed", "pending"].includes(status) ? <ActionForm bookingId={booking.id} status="cancelled" label={t.cancel} danger includeReason /> : null}
+          {booking.crm_customer_id ? <Link href={`/dashboard/company-customers/${booking.crm_customer_id}`} className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-violet-200 bg-violet-50 px-4 text-sm font-black text-violet-700 hover:bg-violet-100">{crmT.openCustomer}</Link> : null}
           {company ? <Link href={`/dashboard/company-bookings/settings/${company.id}`} className="inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700">{t.bookingSettings}</Link> : null}
         </aside>
       </section>

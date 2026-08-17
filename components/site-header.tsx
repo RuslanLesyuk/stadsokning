@@ -13,6 +13,7 @@ type HeaderCopy = {
   companies: string
   myServices: string
   companyLeads: string
+  companyCustomers: string
   companyClaims: string
   companyWebsites: string
   myBookings: string
@@ -37,6 +38,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companies: "Компанії",
     myServices: "Мої послуги",
     companyLeads: "Заявки компанії",
+    companyCustomers: "Клієнти компанії",
     companyClaims: "Мої заявки на компанії",
     companyWebsites: "Сайти компаній",
     myBookings: "Мої бронювання",
@@ -59,6 +61,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companies: "Компании",
     myServices: "Мои услуги",
     companyLeads: "Заявки компании",
+    companyCustomers: "Клиенты компании",
     companyClaims: "Мои заявки на компании",
     companyWebsites: "Сайты компаний",
     myBookings: "Мои бронирования",
@@ -81,6 +84,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companies: "Companies",
     myServices: "My services",
     companyLeads: "Company requests",
+    companyCustomers: "Company customers",
     companyClaims: "My company claims",
     companyWebsites: "Company websites",
     myBookings: "My bookings",
@@ -103,6 +107,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companies: "Företag",
     myServices: "Mina tjänster",
     companyLeads: "Offertförfrågningar",
+    companyCustomers: "Företagskunder",
     companyClaims: "Mina företagsanspråk",
     companyWebsites: "Företagswebbplatser",
     myBookings: "Mina bokningar",
@@ -125,6 +130,7 @@ const copy: Record<Locale, HeaderCopy> = {
     companies: "Firmy",
     myServices: "Moje usługi",
     companyLeads: "Zapytania firmowe",
+    companyCustomers: "Klienci firmy",
     companyClaims: "Moje zgłoszenia firm",
     companyWebsites: "Strony firm",
     myBookings: "Moje rezerwacje",
@@ -466,6 +472,7 @@ export default async function SiteHeader() {
                   dashboardLabel={t.dashboard}
                   myServicesLabel={t.myServices}
                   companyLeadsLabel={t.companyLeads}
+                  companyCustomersLabel={t.companyCustomers}
                   companyClaimsLabel={t.companyClaims}
                   companyWebsitesLabel={t.companyWebsites}
                   myBookingsLabel={t.myBookings}
@@ -520,6 +527,7 @@ export default async function SiteHeader() {
               companiesLabel={t.companies}
               myServicesLabel={t.myServices}
               companyLeadsLabel={t.companyLeads}
+              companyCustomersLabel={t.companyCustomers}
               companyClaimsLabel={t.companyClaims}
               companyWebsitesLabel={t.companyWebsites}
               myBookingsLabel={t.myBookings}
