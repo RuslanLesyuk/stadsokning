@@ -1,147 +1,67 @@
+# Clean Jobs — Admin Automation 9/10
 
-# Clean Jobs — CRM Lite 8/10
+## What this package adds
 
-Цей пакет додає CRM Lite поверх існуючих `company_quote_requests` і
-`company_bookings`. Ліди та бронювання залишаються source of truth для
-транзакцій; `company_crm_customers` зберігає тільки єдиний клієнтський профіль,
-CRM metadata, tags, notes і follow-up.
+- `/admin/automation` live operational health center.
+- SLA queue for stale company claims.
+- Stale pending booking queue.
+- Overdue confirmed/in-progress occurrence detection.
+- Unattended customer-lead detection.
+- Overdue CRM follow-up detection.
+- Billing subscription exceptions.
+- Failed / stuck Stripe webhook visibility.
+- Expired admin Premium override detection + safe reconciliation action.
+- Failed / stale-pending custom-domain detection.
+- Email-enrichment retry, never-scanned and stale-invitation counters.
+- Link from the main `/admin` page.
+- Query indexes for the operational health queues.
 
-## 1. Backup
+## Install
+
+1. Back up the current project:
 
 ```bash
 cd /home/owico/stadsokning2
 git add .
-git commit -m "Before CRM Lite 8"
+git commit -m "Before Admin Automation 9"
 ```
 
-## 2. Розпакування
+2. Unzip this package into the project root.
 
-ZIP є flat package: `app/`, `components/`, `lib/`, `supabase/` лежать прямо в
-корені архіву.
+3. Run the SQL migration in Supabase SQL Editor:
+
+`supabase/migrations/20260817_admin_automation.sql`
+
+Expected result:
+
+`Success. No rows returned`
+
+4. Clear Next cache and build:
 
 ```bash
-unzip -o ~/Downloads/clean-jobs-crm-lite-8-FLAT.zip \
-  -d /home/owico/stadsokning2
-```
-
-## 3. Supabase migration
-
-Відкрий:
-
-```text
-supabase/migrations/20260816_crm_lite.sql
-```
-
-У Supabase → SQL Editor → New query встав увесь файл від `begin;` до `commit;`
-і натисни Run.
-
-Очікуваний результат:
-
-```text
-Success. No rows returned
-```
-
-### Що робить migration
-
-- створює `company_crm_customers`;
-- створює `company_crm_customer_activity`;
-- додає `crm_customer_id` до `company_quote_requests` та `company_bookings`;
-- backfill існуючих клієнтів з lead/booking history;
-- дедуплікація клієнта по `(company_id, lower(email))`;
-- автоматично зв'язує нові leads/bookings з CRM customer;
-- prospect автоматично переходить у customer після won lead або
-  confirmed/in_progress/completed booking;
-- VIP / inactive залишаються ручними CRM-статусами;
-- підтягує початковий follow-up з відкритих leads;
-- оновлює CRM recency при роботі з leads, bookings та recurring occurrences;
-- RLS: CRM бачить і редагує тільки owner відповідної компанії;
-- public quote request не може сам підставити `crm_customer_id` — linkage робить
-  database trigger;
-- історичні `updated_at`/`last_activity_at` lead/booking не переписуються під час
-  CRM backfill.
-
-## 4. Перевірка SQL
-
-Після migration можна виконати:
-
-```sql
-select
-  count(*) as crm_customers,
-  count(*) filter (where lifecycle_stage = 'prospect') as prospects,
-  count(*) filter (where lifecycle_stage in ('customer', 'vip')) as customers
-from public.company_crm_customers;
-```
-
-І:
-
-```sql
-select
-  (select count(*)
-   from public.company_quote_requests
-   where crm_customer_id is null
-     and nullif(trim(customer_email), '') is not null) as unlinked_leads,
-
-  (select count(*)
-   from public.company_bookings
-   where crm_customer_id is null
-     and nullif(trim(customer_email), '') is not null) as unlinked_bookings;
-```
-
-Для валідних email очікується `0 / 0`.
-
-## 5. Build
-
-```bash
-cd /home/owico/stadsokning2
 rm -rf .next
 npm run build
 ```
 
-## 6. Runtime
+5. Runtime test:
 
 ```bash
 npm run dev
 ```
 
-Відкрий:
+Open:
 
-```text
-http://localhost:3000/dashboard/company-customers
-```
+`http://localhost:3000/admin/automation`
 
-Перевір:
+## Runtime checks
 
-1. У Company Workspace з'явився пункт `Customers / Клієнти`.
-2. Існуючі leads та bookings вже дали CRM customers.
-3. Однаковий email у lead + booking не створює дубль.
-4. Customer card показує lead count, booking count, completed count і value.
-5. Customer detail показує:
-   - contact;
-   - lifecycle stage;
-   - tags;
-   - notes;
-   - follow-up;
-   - lead history;
-   - booking history;
-   - unified activity.
-6. Зміни tags/notes/follow-up і натисни Save.
-7. Відкрий lead detail — є кнопка Open customer.
-8. Відкрий booking detail — є кнопка Open customer.
-9. `/dashboard/company` показує customer count та due follow-ups.
-10. Profile dropdown і mobile menu мають Company customers.
+- The main Admin page contains an `Automation` link.
+- The automation page opens only for an email included in `ADMIN_EMAILS`.
+- Counts load for claims, bookings, CRM, billing, domains and outreach.
+- Existing queues link to the current admin pages instead of duplicating their business logic.
+- If an expired admin Premium override exists, `Reconcile expired Premium` updates it back to the underlying Stripe / legacy / free entitlement.
+- No customer lead, booking, claim or CRM record is automatically changed by the health page.
 
-## Нові маршрути
+## Important
 
-```text
-/dashboard/company-customers
-/dashboard/company-customers/[id]
-```
-
-## MVP boundary
-
-CRM не дублює leads/bookings і не переносить транзакції в окрему систему.
-Customer identity = company + normalized email.
-
-Email CRM-профілю навмисно не редагується у CRM form, щоб випадково не
-розірвати історію lead/booking linkage. Якщо надалі потрібен merge/change-email
-workflow, його можна додати окремим контрольованим action.
+This package does not add cron jobs or external scheduled infrastructure. The health snapshot is calculated from live database state every time `/admin/automation` loads. This keeps Block 9 deterministic and avoids introducing a background worker immediately before the final Security / QA stage.

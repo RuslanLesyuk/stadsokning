@@ -215,6 +215,13 @@ export default async function AdminPage({
 >
   Billing
 </Link>
+<Link
+  href="/admin/automation"
+  prefetch={false}
+  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-blue-300 bg-blue-50 px-5 py-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-100 active:scale-[0.97]"
+>
+  Automation
+</Link>
            <Link
     href="/dashboard"
     prefetch={false}
