@@ -136,6 +136,45 @@ async function emailAlreadyExists({
   return Boolean(data?.length)
 }
 
+type OutreachEmailPreference = {
+  email_normalized: string
+  unsubscribe_token: string
+  opted_out_at: string | null
+}
+
+async function getOutreachEmailPreference(email: string) {
+  const admin = createAdminClient()
+  const normalizedEmail = normalizeEmail(email)
+
+  const { data, error } = await admin
+    .from("outreach_email_preferences")
+    .upsert(
+      { email_normalized: normalizedEmail, updated_at: new Date().toISOString() },
+      { onConflict: "email_normalized" },
+    )
+    .select("email_normalized, unsubscribe_token, opted_out_at")
+    .single()
+
+  if (error || !data) {
+    console.error("Outreach email preference error:", error)
+    throw new Error("Could not load outreach email preference.")
+  }
+
+  return data as OutreachEmailPreference
+}
+
+function getUnsubscribeUrl(token: string) {
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    "https://cleansjob.com"
+
+  return new URL(
+    `/outreach/unsubscribe/${encodeURIComponent(token)}`,
+    siteUrl,
+  ).toString()
+}
+
 function getInviteUrl(leadId: string) {
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL ||
@@ -153,12 +192,18 @@ function getInviteUrl(leadId: string) {
 function createCompanyInviteEmail({
   companyName,
   inviteUrl,
+  unsubscribeUrl,
 }: {
   companyName: string
   inviteUrl: string
+  unsubscribeUrl: string
 }) {
   const safeCompanyName = escapeHtml(companyName)
   const safeInviteUrl = escapeHtml(inviteUrl)
+  const safeUnsubscribeUrl = escapeHtml(unsubscribeUrl)
+  const supportEmail =
+    process.env.NEXT_PUBLIC_SUPPORT_EMAIL || "support@cleansjob.com"
+  const safeSupportEmail = escapeHtml(supportEmail)
 
   const subject =
     "Få fler städuppdrag i Sverige med Clean Jobs"
@@ -264,6 +309,13 @@ function createCompanyInviteEmail({
                     <p style="margin:0 0 18px;font-size:14px;line-height:1.7;color:#64748b;">
                       Registreringen är enkel och ni bestämmer själva
                       vilka tjänster och områden som ska visas.
+                    </p>
+
+                    <p style="margin:0 0 18px;font-size:13px;line-height:1.7;color:#64748b;">
+                      Vill ni inte få fler företagsinbjudningar från Clean Jobs?
+                      <a href="${safeUnsubscribeUrl}" style="color:#475569;text-decoration:underline;">Avregistrera e-postadressen</a>
+                      eller kontakta oss på
+                      <a href="mailto:${safeSupportEmail}" style="color:#475569;text-decoration:underline;">${safeSupportEmail}</a>.
                     </p>
 
                     <p style="margin:0;font-size:16px;line-height:1.7;color:#334155;">
@@ -506,6 +558,12 @@ export async function sendCompanyInviteAction(formData: FormData) {
 
   const admin = await requireAdmin("/admin/leads")
 
+  if (process.env.OUTREACH_EMAIL_ENABLED !== "true") {
+    redirectWithListError(
+      "Company outreach email is disabled until the production recipient and compliance rules are confirmed.",
+    )
+  }
+
   const { data: lead, error: leadError } = await admin
     .from("company_leads")
     .select(
@@ -553,11 +611,27 @@ export async function sendCompanyInviteAction(formData: FormData) {
     )
   }
 
+  let preference: OutreachEmailPreference
+
+  try {
+    preference = await getOutreachEmailPreference(email)
+  } catch {
+    redirectWithListError("Could not verify the outreach preference for this address.")
+  }
+
+  if (preference.opted_out_at) {
+    redirectWithListError(
+      "This email address has opted out of Clean Jobs outreach.",
+    )
+  }
+
   const inviteUrl = getInviteUrl(lead.id)
+  const unsubscribeUrl = getUnsubscribeUrl(preference.unsubscribe_token)
 
   const emailContent = createCompanyInviteEmail({
     companyName: lead.company_name,
     inviteUrl,
+    unsubscribeUrl,
   })
 
   
@@ -618,6 +692,12 @@ export async function sendBulkCompanyInvitesAction(
   formData: FormData,
 ) {
   const admin = await requireAdmin("/admin/leads")
+
+  if (process.env.OUTREACH_EMAIL_ENABLED !== "true") {
+    redirectWithListError(
+      "Company outreach email is disabled until the production recipient and compliance rules are confirmed.",
+    )
+  }
 
   const rawLeadIds = getFormValue(formData, "leadIds")
 
@@ -696,11 +776,28 @@ export async function sendBulkCompanyInvitesAction(
       continue
     }
 
+    let preference: OutreachEmailPreference
+
+    try {
+      preference = await getOutreachEmailPreference(email)
+    } catch (error) {
+      console.error(`Outreach preference error for ${lead.id}:`, error)
+      failedCount += 1
+      continue
+    }
+
+    if (preference.opted_out_at) {
+      skippedCount += 1
+      continue
+    }
+
     const inviteUrl = getInviteUrl(lead.id)
+    const unsubscribeUrl = getUnsubscribeUrl(preference.unsubscribe_token)
 
     const emailContent = createCompanyInviteEmail({
       companyName: lead.company_name,
       inviteUrl,
+      unsubscribeUrl,
     })
 
     try {

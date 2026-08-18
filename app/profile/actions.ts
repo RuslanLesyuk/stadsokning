@@ -8,6 +8,12 @@ import { createAdminClient } from "@/lib/supabase-admin"
 const AVATAR_BUCKET = "avatars"
 const COMPANY_LOGO_BUCKET = "company-logos"
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
+const ALLOWED_IMAGE_TYPES = new Map([
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+  ["image/webp", "webp"],
+  ["image/avif", "avif"],
+])
 
 function cleanText(value: FormDataEntryValue | null) {
   if (typeof value !== "string") return null
@@ -22,8 +28,7 @@ function getFile(value: FormDataEntryValue | null) {
 }
 
 function getFileExtension(file: File) {
-  const extension = file.name.split(".").pop()?.toLowerCase()
-  return extension || "jpg"
+  return ALLOWED_IMAGE_TYPES.get(file.type) || "jpg"
 }
 
 async function uploadProfileImage({
@@ -39,8 +44,8 @@ async function uploadProfileImage({
 }) {
   if (!file) return null
 
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Only image files are allowed.")
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    throw new Error("Only JPG, PNG, WebP and AVIF images are allowed.")
   }
 
   if (file.size > MAX_IMAGE_SIZE) {
@@ -82,6 +87,15 @@ export async function updateProfile(formData: FormData) {
   const phone = cleanText(formData.get("phone"))
   const city = cleanText(formData.get("city"))
   const companyName = cleanText(formData.get("company_name"))
+
+  if (
+    (fullName?.length || 0) > 120 ||
+    (phone?.length || 0) > 50 ||
+    (city?.length || 0) > 120 ||
+    (companyName?.length || 0) > 200
+  ) {
+    throw new Error("One or more profile fields are too long.")
+  }
 
   const avatarFile = getFile(formData.get("avatar"))
   const companyLogoFile = getFile(formData.get("company_logo"))

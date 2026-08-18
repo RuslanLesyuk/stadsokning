@@ -304,6 +304,15 @@ export async function resetCompanyWebsiteSectionsAction(formData: FormData) {
 
   if (!user) redirect("/login")
 
+  const { data: company } = await supabase
+    .from("companies")
+    .select("id")
+    .eq("id", companyId)
+    .eq("owner_id", user.id)
+    .maybeSingle()
+
+  if (!company) redirect("/dashboard/websites")
+
   const { error } = await supabase
     .from("company_sites")
     .update({ section_settings: DEFAULT_SECTION_SETTINGS })

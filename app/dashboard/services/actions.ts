@@ -7,6 +7,12 @@ import { createClient } from "@/lib/supabase-server"
 const SERVICE_IMAGES_BUCKET = "service-logos"
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024
 const MAX_GALLERY_IMAGES = 10
+const ALLOWED_IMAGE_TYPES = new Map([
+  ["image/jpeg", "jpg"],
+  ["image/png", "png"],
+  ["image/webp", "webp"],
+  ["image/avif", "avif"],
+])
 
 type WorkingHours = {
   monday: string
@@ -61,12 +67,12 @@ function getFiles(values: FormDataEntryValue[]) {
 }
 
 function getFileExtension(file: File) {
-  return file.name.split(".").pop()?.toLowerCase() || "jpg"
+  return ALLOWED_IMAGE_TYPES.get(file.type) || "jpg"
 }
 
 function validateImage(file: File) {
-  if (!file.type.startsWith("image/")) {
-    throw new Error("Only image files are allowed.")
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    throw new Error("Only JPG, PNG, WebP and AVIF images are allowed.")
   }
 
   if (file.size > MAX_IMAGE_SIZE) {

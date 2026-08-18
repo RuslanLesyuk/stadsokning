@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache"
 
 import { createAdminClient } from "@/lib/supabase-admin"
 import { createClient } from "@/lib/supabase-server"
+import { checkActionRateLimit } from "@/lib/security/rate-limit"
 import { inferCompanyLeadSource, sanitizeCompanyLeadSourcePath } from "@/lib/company-leads/utils"
 
 type Locale = "sv" | "en" | "uk" | "ru" | "pl"
@@ -67,6 +68,8 @@ const messages: Record<
     messageRequired: string
     messageShort: string
     messageLong: string
+    rateLimited: string
+    tooLong: string
   }
 > = {
   sv: {
@@ -85,6 +88,8 @@ const messages: Record<
     messageRequired: "Beskriv vad du behöver hjälp med.",
     messageShort: "Beskrivningen måste vara minst 20 tecken.",
     messageLong: "Beskrivningen får vara högst 2 000 tecken.",
+    rateLimited: "För många förfrågningar har skickats. Vänta en stund och försök igen.",
+    tooLong: "Fältet innehåller för många tecken.",
   },
   en: {
     validation: "Check the highlighted fields.",
@@ -102,6 +107,8 @@ const messages: Record<
     messageRequired: "Describe what you need help with.",
     messageShort: "The description must contain at least 20 characters.",
     messageLong: "The description cannot exceed 2,000 characters.",
+    rateLimited: "Too many requests were sent. Please wait a while and try again.",
+    tooLong: "This field contains too many characters.",
   },
   uk: {
     validation: "Перевірте виділені поля.",
@@ -119,6 +126,8 @@ const messages: Record<
     messageRequired: "Опишіть, яка допомога вам потрібна.",
     messageShort: "Опис має містити щонайменше 20 символів.",
     messageLong: "Опис не може перевищувати 2 000 символів.",
+    rateLimited: "Надіслано забагато запитів. Зачекайте трохи та спробуйте ще раз.",
+    tooLong: "У цьому полі забагато символів.",
   },
   ru: {
     validation: "Проверьте выделенные поля.",
@@ -136,6 +145,8 @@ const messages: Record<
     messageRequired: "Опишите, какая помощь вам нужна.",
     messageShort: "Описание должно содержать не менее 20 символов.",
     messageLong: "Описание не может превышать 2 000 символов.",
+    rateLimited: "Отправлено слишком много запросов. Подождите немного и попробуйте снова.",
+    tooLong: "В этом поле слишком много символов.",
   },
   pl: {
     validation: "Sprawdź zaznaczone pola.",
@@ -153,6 +164,8 @@ const messages: Record<
     messageRequired: "Opisz, jakiej pomocy potrzebujesz.",
     messageShort: "Opis musi zawierać co najmniej 20 znaków.",
     messageLong: "Opis nie może przekraczać 2 000 znaków.",
+    rateLimited: "Wysłano zbyt wiele zapytań. Poczekaj chwilę i spróbuj ponownie.",
+    tooLong: "To pole zawiera zbyt wiele znaków.",
   },
 }
 
@@ -399,27 +412,33 @@ export async function submitCompanyLead(
 
   if (!customerName) {
     fieldErrors.customerName = t.nameRequired
+  } else if (customerName.length > 120) {
+    fieldErrors.customerName = t.tooLong
   }
 
   if (!customerEmail) {
     fieldErrors.customerEmail = t.emailRequired
-  } else if (!isValidEmail(customerEmail)) {
+  } else if (customerEmail.length > 254 || !isValidEmail(customerEmail)) {
     fieldErrors.customerEmail = t.emailInvalid
   }
 
-  if (customerPhone && customerPhone.replace(/\D/g, "").length < 6) {
+  if (customerPhone && (customerPhone.length > 40 || customerPhone.replace(/\D/g, "").length < 6)) {
     fieldErrors.customerPhone = t.phoneInvalid
   }
 
   if (!serviceType) {
     fieldErrors.serviceType = t.serviceRequired
+  } else if (serviceType.length > 120) {
+    fieldErrors.serviceType = t.tooLong
   }
 
   if (!city) {
     fieldErrors.city = t.cityRequired
+  } else if (city.length > 120) {
+    fieldErrors.city = t.tooLong
   }
 
-  if (preferredDate && preferredDate < getTodayUtcDateString()) {
+  if (preferredDate && (preferredDate.length !== 10 || preferredDate < getTodayUtcDateString())) {
     fieldErrors.preferredDate = t.dateInvalid
   }
 
@@ -462,6 +481,18 @@ export async function submitCompanyLead(
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  const rateLimit = await checkActionRateLimit({
+    action: "company_quote_request",
+    identity: `${company.id}:${customerEmail.toLowerCase()}`,
+    identityLimit: 5,
+    ipLimit: 20,
+    windowSeconds: 15 * 60,
+  })
+
+  if (!rateLimit.allowed) {
+    return { status: "error", message: t.rateLimited }
+  }
 
   const { data: quoteData, error: insertError } = await supabase
     .from("company_quote_requests")

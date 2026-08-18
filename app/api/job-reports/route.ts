@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { createClient } from "@/lib/supabase-server"
+import { checkActionRateLimit } from "@/lib/security/rate-limit"
 
 export const dynamic = "force-dynamic"
 
@@ -20,6 +21,18 @@ export async function POST(request: Request) {
 
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+  }
+
+  const rateLimit = await checkActionRateLimit({
+    action: "job_report",
+    identity: user.id,
+    identityLimit: 20,
+    ipLimit: 60,
+    windowSeconds: 60 * 60,
+  })
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "Too many reports" }, { status: 429 })
   }
 
   const body = await request.json().catch(() => null)

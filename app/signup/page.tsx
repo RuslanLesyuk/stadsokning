@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { OAuthSubmitButton } from "@/components/auth/oauth-submit-button"
+import { getAuthCallbackUrl, resolveTrustedAuthOrigin } from "@/lib/security/urls"
 
 type Copy = {
   title: string
@@ -148,12 +149,12 @@ export default async function SignupPage() {
 
     const supabase = await createClient()
     const headerStore = await headers()
-    const origin = headerStore.get("origin") ?? "https://cleansjob.com"
+    const origin = resolveTrustedAuthOrigin(headerStore.get("origin"))
 
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${origin}/auth/callback?next=/dashboard`,
+        redirectTo: getAuthCallbackUrl({ origin, next: "/dashboard" }),
       },
     })
 

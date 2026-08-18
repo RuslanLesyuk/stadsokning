@@ -21,6 +21,7 @@ import {
   sanitizeBookingSourcePath,
 } from "@/lib/bookings/utils"
 import { createClient } from "@/lib/supabase-server"
+import { checkActionRateLimit } from "@/lib/security/rate-limit"
 
 type BookingFieldErrors = Partial<Record<
   | "customerName"
@@ -57,11 +58,11 @@ function isValidEmail(value: string) {
 
 function localizedFieldMessage(locale: BookingLocale, field: string) {
   const messages: Record<BookingLocale, Record<string, string>> = {
-    sv: { required: "Fältet är obligatoriskt.", email: "Ange en giltig e-postadress.", phone: "Ange ett giltigt telefonnummer.", duration: "Välj en giltig längd.", notes: "Kommentaren får vara högst 2 000 tecken." },
-    en: { required: "This field is required.", email: "Enter a valid email address.", phone: "Enter a valid phone number.", duration: "Choose a valid duration.", notes: "Notes cannot exceed 2,000 characters." },
-    uk: { required: "Це поле обов’язкове.", email: "Вкажіть правильний email.", phone: "Вкажіть правильний номер телефону.", duration: "Оберіть правильну тривалість.", notes: "Коментар не може перевищувати 2 000 символів." },
-    ru: { required: "Это поле обязательное.", email: "Укажите корректный email.", phone: "Укажите корректный номер телефона.", duration: "Выберите корректную длительность.", notes: "Комментарий не может превышать 2 000 символов." },
-    pl: { required: "To pole jest wymagane.", email: "Podaj prawidłowy adres email.", phone: "Podaj prawidłowy numer telefonu.", duration: "Wybierz prawidłowy czas trwania.", notes: "Uwagi nie mogą przekraczać 2 000 znaków." },
+    sv: { required: "Fältet är obligatoriskt.", email: "Ange en giltig e-postadress.", phone: "Ange ett giltigt telefonnummer.", duration: "Välj en giltig längd.", length: "Fältet innehåller för många tecken.", notes: "Kommentaren får vara högst 2 000 tecken." },
+    en: { required: "This field is required.", email: "Enter a valid email address.", phone: "Enter a valid phone number.", duration: "Choose a valid duration.", length: "This field contains too many characters.", notes: "Notes cannot exceed 2,000 characters." },
+    uk: { required: "Це поле обов’язкове.", email: "Вкажіть правильний email.", phone: "Вкажіть правильний номер телефону.", duration: "Оберіть правильну тривалість.", length: "У цьому полі забагато символів.", notes: "Коментар не може перевищувати 2 000 символів." },
+    ru: { required: "Это поле обязательное.", email: "Укажите корректный email.", phone: "Укажите корректный номер телефона.", duration: "Выберите корректную длительность.", length: "В этом поле слишком много символов.", notes: "Комментарий не может превышать 2 000 символов." },
+    pl: { required: "To pole jest wymagane.", email: "Podaj prawidłowy adres email.", phone: "Podaj prawidłowy numer telefonu.", duration: "Wybierz prawidłowy czas trwania.", length: "To pole zawiera zbyt wiele znaków.", notes: "Uwagi nie mogą przekraczać 2 000 znaków." },
   }
 
   return messages[locale][field] || messages[locale].required
@@ -99,12 +100,17 @@ export async function submitCompanyBooking(
 
   const fieldErrors: BookingFieldErrors = {}
   if (!customerName) fieldErrors.customerName = localizedFieldMessage(locale, "required")
+  else if (customerName.length > 120) fieldErrors.customerName = localizedFieldMessage(locale, "length")
   if (!customerEmail) fieldErrors.customerEmail = localizedFieldMessage(locale, "required")
-  else if (!isValidEmail(customerEmail)) fieldErrors.customerEmail = localizedFieldMessage(locale, "email")
-  if (customerPhone && customerPhone.replace(/\D/g, "").length < 6) fieldErrors.customerPhone = localizedFieldMessage(locale, "phone")
+  else if (customerEmail.length > 254 || !isValidEmail(customerEmail)) fieldErrors.customerEmail = localizedFieldMessage(locale, "email")
+  if (customerPhone && (customerPhone.length > 40 || customerPhone.replace(/\D/g, "").length < 6)) fieldErrors.customerPhone = localizedFieldMessage(locale, "phone")
   if (!serviceType) fieldErrors.serviceType = localizedFieldMessage(locale, "required")
+  else if (serviceType.length > 120) fieldErrors.serviceType = localizedFieldMessage(locale, "length")
   if (!address) fieldErrors.address = localizedFieldMessage(locale, "required")
+  else if (address.length > 300) fieldErrors.address = localizedFieldMessage(locale, "length")
+  if (postalCode.length > 20) fieldErrors.postalCode = localizedFieldMessage(locale, "length")
   if (!city) fieldErrors.city = localizedFieldMessage(locale, "required")
+  else if (city.length > 120) fieldErrors.city = localizedFieldMessage(locale, "length")
   if (!startDate) fieldErrors.startDate = localizedFieldMessage(locale, "required")
   if (!preferredTime) fieldErrors.preferredTime = localizedFieldMessage(locale, "required")
   if (customerNotes.length > 2000) fieldErrors.customerNotes = localizedFieldMessage(locale, "notes")
@@ -169,6 +175,18 @@ export async function submitCompanyBooking(
   const {
     data: { user },
   } = await supabase.auth.getUser()
+
+  const rateLimit = await checkActionRateLimit({
+    action: "company_booking_request",
+    identity: `${company.id}:${customerEmail.toLowerCase()}`,
+    identityLimit: 5,
+    ipLimit: 20,
+    windowSeconds: 15 * 60,
+  })
+
+  if (!rateLimit.allowed) {
+    return { status: "error", message: t.genericError }
+  }
 
   const booking = await createBookingRecord({
     company,

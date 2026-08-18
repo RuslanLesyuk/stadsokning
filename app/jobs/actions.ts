@@ -3,10 +3,6 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
-import { createClient as createSupabaseAdminClient } from "@supabase/supabase-js"
-import { sendEmail } from "@/lib/resend"
-
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://cleansjob.com"
 
 export type JobsActionState = {
   success: boolean
@@ -17,31 +13,6 @@ type SpamCheckResult = {
   blocked: boolean
   score: number
   reasons: string[]
-}
-
-function createAdminClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    return null
-  }
-
-  return createSupabaseAdminClient(supabaseUrl, serviceRoleKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false,
-    },
-  })
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;")
 }
 
 function analyzeJobForSpam({
@@ -137,52 +108,6 @@ function analyzeJobForSpam({
   }
 }
 
-async function sendJobTakenEmail({
-  to,
-  title,
-  workerName,
-  jobId,
-}: {
-  to: string
-  title: string
-  workerName: string
-  jobId: string
-}) {
-  const safeTitle = escapeHtml(title)
-  const safeWorkerName = escapeHtml(workerName)
-
-  await sendEmail({
-    to,
-    subject: "Someone took your job | Clean Jobs",
-    html: `
-      <div style="font-family: Arial, sans-serif; background: #fafafa; padding: 32px;">
-        <div style="max-width: 620px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 24px; padding: 28px;">
-          <div style="display: inline-block; background: #fff1f2; color: #be123c; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 700;">
-            Clean Jobs
-          </div>
-
-          <h1 style="margin: 20px 0 12px; color: #0f172a; font-size: 26px;">
-            Someone took your job
-          </h1>
-
-          <p style="color: #475569; font-size: 16px; line-height: 1.6;">
-            <strong>${safeWorkerName}</strong> accepted your cleaning job.
-          </p>
-
-          <div style="margin-top: 24px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 18px; padding: 18px;">
-            <div style="font-size: 13px; color: #64748b; margin-bottom: 6px;">Job</div>
-            <div style="font-size: 18px; font-weight: 700; color: #0f172a;">${safeTitle}</div>
-          </div>
-
-          <a href="${siteUrl}/jobs/${jobId}" style="display: inline-block; margin-top: 24px; background: #e11d48; color: #ffffff; text-decoration: none; padding: 14px 20px; border-radius: 16px; font-weight: 700;">
-            Open job
-          </a>
-        </div>
-      </div>
-    `,
-  })
-}
-
 export async function createJobAction(
   _prevState: JobsActionState,
   formData: FormData,
@@ -214,8 +139,24 @@ export async function createJobAction(
     return { success: false, message: "Title is required." }
   }
 
+  if (title.length > 120) {
+    return { success: false, message: "Title cannot exceed 120 characters." }
+  }
+
+  if (description.length > 5000) {
+    return { success: false, message: "Description cannot exceed 5,000 characters." }
+  }
+
   if (!city) {
     return { success: false, message: "City is required." }
+  }
+
+  if (city.length > 120 || address.length > 300) {
+    return { success: false, message: "City or address is too long." }
+  }
+
+  if (scheduledDate.length > 10 || scheduledTime.length > 8) {
+    return { success: false, message: "Invalid schedule." }
   }
 
   if (jobType !== "home_cleaning" && jobType !== "office_cleaning") {
@@ -225,12 +166,17 @@ export async function createJobAction(
     }
   }
 
+  const allowedPropertyTypes = new Set(["apartment", "house", "office", "other", ""])
+  if (!allowedPropertyTypes.has(propertyType)) {
+    return { success: false, message: "Please select a valid property type." }
+  }
+
   let budget: number | null = null
 
   if (budgetRaw) {
     const parsedBudget = Number(budgetRaw)
 
-    if (Number.isNaN(parsedBudget) || parsedBudget < 0) {
+    if (!Number.isFinite(parsedBudget) || parsedBudget < 0 || parsedBudget > 10_000_000) {
       return {
         success: false,
         message: "Budget must be a valid positive number.",
@@ -290,119 +236,11 @@ export async function createJobAction(
 
 export async function takeJobAction(
   _prevState: JobsActionState,
-  formData: FormData,
+  _formData: FormData,
 ): Promise<JobsActionState> {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    return {
-      success: false,
-      message: "You must be logged in to take a job.",
-    }
-  }
-
-  const jobId = String(formData.get("jobId") ?? "").trim()
-
-  if (!jobId) {
-    return {
-      success: false,
-      message: "Missing job id.",
-    }
-  }
-
-  const { data: job, error: jobError } = await supabase
-    .from("jobs")
-    .select("id, title, created_by, assigned_to, status")
-    .eq("id", jobId)
-    .maybeSingle()
-
-  if (jobError || !job) {
-    return {
-      success: false,
-      message: "Job not found.",
-    }
-  }
-
-  if (job.created_by === user.id) {
-    return {
-      success: false,
-      message: "You cannot take your own job.",
-    }
-  }
-
-  if (job.assigned_to) {
-    return {
-      success: false,
-      message: "This job is already assigned.",
-    }
-  }
-
-  if (job.status !== "new") {
-    return {
-      success: false,
-      message: "Only new jobs can be taken.",
-    }
-  }
-
-  const { error: updateError } = await supabase
-    .from("jobs")
-    .update({
-      assigned_to: user.id,
-      status: "assigned",
-    })
-    .eq("id", jobId)
-    .is("assigned_to", null)
-    .eq("status", "new")
-
-  if (updateError) {
-    return {
-      success: false,
-      message: updateError.message || "Failed to take job.",
-    }
-  }
-
-  try {
-    const admin = createAdminClient()
-
-    if (admin) {
-      const [{ data: ownerData }, { data: workerProfile }] = await Promise.all([
-        admin.auth.admin.getUserById(job.created_by),
-        supabase
-          .from("profiles")
-          .select("full_name")
-          .eq("id", user.id)
-          .maybeSingle(),
-      ])
-
-      const ownerEmail = ownerData.user?.email
-      const workerName = workerProfile?.full_name?.trim() || user.email || "Worker"
-
-      if (ownerEmail) {
-        await sendJobTakenEmail({
-          to: ownerEmail,
-          title: job.title || "Cleaning job",
-          workerName,
-          jobId,
-        })
-      }
-    } else {
-      console.error("Missing Supabase admin env variables for email notification.")
-    }
-  } catch (emailError) {
-    console.error("Failed to send take job email:", emailError)
-  }
-
-  revalidatePath("/jobs")
-  revalidatePath("/dashboard")
-  revalidatePath(`/jobs/${jobId}`)
-
   return {
-    success: true,
-    message: "Job taken successfully.",
+    success: false,
+    message: "Direct job claiming is disabled. Apply to the job instead.",
   }
 }
 

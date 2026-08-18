@@ -353,13 +353,13 @@ export async function submitCompanyClaim(
 
   if (!businessEmail) {
     fieldErrors.businessEmail = t.emailRequired
-  } else if (!isValidEmail(businessEmail)) {
+  } else if (businessEmail.length > 254 || !isValidEmail(businessEmail)) {
     fieldErrors.businessEmail = t.emailInvalid
   }
 
   if (!businessPhone) {
     fieldErrors.businessPhone = t.phoneRequired
-  } else if (businessPhone.replace(/\D/g, "").length < 6) {
+  } else if (businessPhone.length > 40 || businessPhone.replace(/\D/g, "").length < 6) {
     fieldErrors.businessPhone = t.phoneInvalid
   }
 
@@ -409,6 +409,11 @@ export async function submitCompanyClaim(
   if (userError || !user) {
     return { status: "error", message: t.signIn }
   }
+
+  // Claim rows are written through the trusted server path. The final security
+  // migration removes direct authenticated INSERT/UPDATE privileges so clients
+  // cannot spoof review metadata or verification signals through PostgREST.
+  const admin = createAdminClient()
 
   const { data: company, error: companyError } = await supabase
     .from("companies")
@@ -484,7 +489,7 @@ export async function submitCompanyClaim(
       }
     }
 
-    const { error: updateError } = await supabase
+    const { error: updateError } = await admin
       .from("company_claim_requests")
       .update({
         business_email: businessEmail,
@@ -574,7 +579,7 @@ export async function submitCompanyClaim(
     }
   }
 
-  const { error: insertError } = await supabase
+  const { error: insertError } = await admin
     .from("company_claim_requests")
     .insert({
       id: claimId,
@@ -652,7 +657,8 @@ export async function cancelCompanyClaimAction(formData: FormData) {
     redirect("/dashboard/company-claims")
   }
 
-  const { error } = await supabase
+  const admin = createAdminClient()
+  const { error } = await admin
     .from("company_claim_requests")
     .update({
       status: "cancelled",

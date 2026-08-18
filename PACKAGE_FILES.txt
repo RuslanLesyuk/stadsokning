@@ -1,19 +1,35 @@
-INSTALL.md
-app/dashboard/company-bookings/[id]/page.tsx
-app/dashboard/company-bookings/actions.ts
-app/dashboard/company-bookings/new/actions.ts
-app/dashboard/company-customers/[id]/page.tsx
-app/dashboard/company-customers/actions.ts
-app/dashboard/company-customers/page.tsx
-app/dashboard/company-leads/[id]/page.tsx
-app/dashboard/company-leads/actions.ts
-app/dashboard/company/page.tsx
-components/company-dashboard/company-workspace-nav.tsx
-components/mobile-header-menu.tsx
-components/profile-dropdown.tsx
-components/site-header.tsx
-lib/company-dashboard/copy.ts
-lib/crm/copy.ts
-lib/crm/types.ts
-lib/crm/utils.ts
-supabase/migrations/20260816_crm_lite.sql
+Clean Jobs 10/10 — Legal / Security / Final QA
+
+NEW
+- proxy.ts
+- lib/supabase-proxy.ts
+- lib/security/urls.ts
+- lib/security/rate-limit.ts
+- lib/legal/config.ts
+- app/cookies/page.tsx
+- app/outreach/unsubscribe/actions.ts
+- app/outreach/unsubscribe/[token]/page.tsx
+- app/outreach/unsubscribed/page.tsx
+- supabase/migrations/20260817_security_final_10.sql
+- SECURITY_RELEASE_CHECKLIST.md
+
+REPLACED / HARDENED
+- app/auth/callback/route.ts
+- app/auth/signout/route.ts
+- app/login/page.tsx
+- app/signup/page.tsx
+- app/api/bankid/start/route.ts
+- app/api/bankid/callback/route.ts
+- app/api/email/test/route.ts
+- app/api/job-reports/route.ts
+- app/bookings/actions.ts
+- app/companies/[slug]/actions.ts
+- app/companies/[slug]/claim/actions.ts
+- app/admin/leads/actions.ts
+- app/jobs/actions.ts
+- app/profile/actions.ts
+- app/dashboard/services/actions.ts
+- app/dashboard/companies/[id]/website/actions.ts
+- app/privacy/page.tsx
+- app/terms/page.tsx
+- app/contact/page.tsx
