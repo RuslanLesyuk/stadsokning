@@ -494,7 +494,12 @@ export async function submitCompanyLead(
     return { status: "error", message: t.rateLimited }
   }
 
-  const { data: quoteData, error: insertError } = await supabase
+  // Public lead writes go through the trusted service-role path only.
+  // The public browser role no longer has INSERT on company_quote_requests,
+  // so direct PostgREST calls cannot bypass validation / honeypot / rate limits.
+  const admin = createAdminClient()
+
+  const { data: quoteData, error: insertError } = await admin
     .from("company_quote_requests")
     .insert({
       company_id: company.id,

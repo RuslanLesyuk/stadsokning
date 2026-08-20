@@ -214,8 +214,6 @@ export async function createJobAction(
       scheduled_date: scheduledDate || null,
       scheduled_time: scheduledTime || null,
       created_by: user.id,
-      assigned_to: null,
-      status: "new",
     })
     .select("id")
     .single()

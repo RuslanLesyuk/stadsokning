@@ -92,7 +92,6 @@ export default async function CreateServicePage() {
       languages: parseList(normalizeText(formData.get("languages"))),
       service_types: parseList(normalizeText(formData.get("service_types"))),
       service_areas: parseList(normalizeText(formData.get("service_areas"))),
-      verified: false,
     }
 
     const { data, error } = await supabase
