@@ -2,7 +2,7 @@ export const SUPPORTED_LOCALES = ["uk", "ru", "en", "sv", "pl"] as const
 
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
 
-export const DEFAULT_LOCALE: Locale = "en"
+export const DEFAULT_LOCALE: Locale = "sv"
 export const LOCALE_COOKIE_NAME = "clean_jobs_locale"
 
 export type Dictionary = {
@@ -1833,12 +1833,14 @@ export function getPreferredLocale(
 
   const candidates = acceptLanguageHeader
     .split(",")
-    .map((item) => item.split(";")[0]?.trim())
-    .filter(Boolean)
+    .map((item) => item.split(";")[0]?.trim().toLowerCase())
+    .filter((item): item is string => Boolean(item))
 
   for (const candidate of candidates) {
-    const locale = normalizeLocale(candidate)
-    if (isSupportedLocale(locale)) return locale
+    if (isSupportedLocale(candidate)) return candidate
+
+    const short = candidate.split("-")[0]
+    if (short && isSupportedLocale(short)) return short
   }
 
   return DEFAULT_LOCALE

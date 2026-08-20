@@ -1,16 +1,25 @@
 import type { Metadata, Viewport } from "next"
 import Link from "next/link"
-import Script from "next/script"
 import { cookies, headers } from "next/headers"
 import { Analytics } from "@vercel/analytics/next"
 
 import "./globals.css"
 import SiteHeader from "@/components/site-header"
 import LanguageWelcomeModal from "@/components/language-welcome-modal"
-import { normalizeLocale, type Locale } from "@/lib/i18n"
+import CookieConsentManager from "@/components/privacy/cookie-consent-manager"
+import {
+  LOCALE_COOKIE_NAME,
+  normalizeLocale,
+  type Locale,
+} from "@/lib/i18n"
+import {
+  ANALYTICS_CONSENT_COOKIE,
+  normalizeAnalyticsConsent,
+} from "@/lib/privacy/consent"
 
 const siteUrl = "https://cleansjob.com"
-const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID
+const googleAnalyticsId = process.env.NEXT_PUBLIC_GA_ID || null
+const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_ID || "wzu4anu3qc"
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -42,6 +51,7 @@ type FooterCopy = {
   privacy: string
   contact: string
   faq: string
+  cookies: string
   copyright: string
   popularGuides: string
   guideWorkInSweden: string
@@ -68,6 +78,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     privacy: "Політика конфіденційності",
     contact: "Контакти",
     faq: "Допомога",
+    cookies: "Cookies",
     copyright: "Усі права захищено.",
     popularGuides: "Популярні гайди",
     guideWorkInSweden: "Робота у Швеції",
@@ -92,6 +103,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     privacy: "Политика конфиденциальности",
     contact: "Контакты",
     faq: "Помощь",
+    cookies: "Cookies",
     copyright: "Все права защищены.",
     popularGuides: "Популярные гайды",
     guideWorkInSweden: "Работа в Швеции",
@@ -116,6 +128,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     privacy: "Privacy",
     contact: "Contact",
     faq: "Help Center",
+    cookies: "Cookies",
     copyright: "All rights reserved.",
     popularGuides: "Popular Guides",
     guideWorkInSweden: "Work in Sweden",
@@ -140,6 +153,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     privacy: "Integritet",
     contact: "Kontakt",
     faq: "Hjälp",
+    cookies: "Cookies",
     copyright: "Alla rättigheter förbehållna.",
     popularGuides: "Populära guider",
     guideWorkInSweden: "Jobba i Sverige",
@@ -164,6 +178,7 @@ const footerCopy: Record<Locale, FooterCopy> = {
     privacy: "Prywatność",
     contact: "Kontakt",
     faq: "Pomoc",
+    cookies: "Cookies",
     copyright: "Wszelkie prawa zastrzeżone.",
     popularGuides: "Popularne poradniki",
     guideWorkInSweden: "Praca w Szwecji",
@@ -231,10 +246,13 @@ function isStandaloneCompanySite(pathname: string) {
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [cookieStore, headerStore] = await Promise.all([cookies(), headers()])
-  const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
-  const t = footerCopy[locale] || footerCopy.en
+  const locale = normalizeLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value) as Locale
+  const t = footerCopy[locale] || footerCopy.sv
   const currentPath = headerStore.get("x-current-path") || ""
   const standalone = isStandaloneCompanySite(currentPath)
+  const analyticsConsent = normalizeAnalyticsConsent(
+    cookieStore.get(ANALYTICS_CONSENT_COOKIE)?.value,
+  )
 
   const guideLinks = [
     { href: "/work-in-sweden", label: t.guideWorkInSweden },
@@ -284,6 +302,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
                   <div className="flex flex-wrap items-center gap-3">
                     <Link href="/terms" prefetch={false} className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">{t.terms}</Link>
                     <Link href="/privacy" prefetch={false} className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">{t.privacy}</Link>
+                    <Link href="/cookies" prefetch={false} className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">{t.cookies}</Link>
                     <Link href="/faq" prefetch={false} className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">{t.faq}</Link>
                     <Link href="/contact" prefetch={false} className="inline-flex min-h-10 items-center rounded-xl px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-rose-50 hover:text-rose-700">{t.contact}</Link>
                   </div>
@@ -306,28 +325,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         {!standalone ? <LanguageWelcomeModal /> : null}
 
-        <Script id="microsoft-clarity" strategy="afterInteractive">
-          {`
-            (function(c,l,a,r,i,t,y){
-              c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-              t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-              y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-            })(window, document, "clarity", "script", "wzu4anu3qc");
-          `}
-        </Script>
-
-        {googleAnalyticsId ? (
-          <>
-            <Script src={`https://www.googletagmanager.com/gtag/js?id=${googleAnalyticsId}`} strategy="afterInteractive" />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', '${googleAnalyticsId}', { page_path: window.location.pathname });
-              `}
-            </Script>
-          </>
+        {!standalone ? (
+          <CookieConsentManager
+            locale={locale}
+            initialConsent={analyticsConsent}
+            clarityProjectId={clarityProjectId}
+            googleAnalyticsId={googleAnalyticsId}
+          />
         ) : null}
 
         <Analytics />

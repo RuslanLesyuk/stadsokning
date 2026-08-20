@@ -25,7 +25,7 @@ const copy: Record<Locale, Copy> = {
   sv: {
     title: "Integritetspolicy",
     subtitle: "Så behandlar Clean Jobs personuppgifter för marknadsplatsen, företagsprofiler, offerter, bokningar, CRM, betalningar och säkerhet.",
-    updated: "Uppdaterad: 17 augusti 2026",
+    updated: "Uppdaterad: 20 augusti 2026",
     back: "Tillbaka till startsidan",
     incomplete: "Operatörens juridiska namn, organisationsnummer och postadress måste konfigureras innan offentlig produktionslansering.",
     sections: (operator) => [
@@ -34,7 +34,7 @@ const copy: Record<Locale, Copy> = {
       { title: "3. Var uppgifterna kommer från", text: "Uppgifter kommer från dig, andra användare i samband med en beställning eller bokning, samt från offentligt tillgängliga företagswebbplatser och importerade företagsregister när Clean Jobs bygger sin företagskatalog och genomför relevant B2B-kontakt." },
       { title: "4. Ändamål och rättslig grund", text: "Vi behandlar uppgifter för att skapa och administrera konton, genomföra avtal, förmedla jobb, offerter och bokningar, tillhandahålla företagswebbplatser och Premium, hantera betalningar, support och tvister samt förebygga bedrägerier och missbruk. Behandlingen grundas beroende på situation på avtal, rättslig skyldighet, berättigat intresse eller samtycke när samtycke krävs." },
       { title: "5. Företagskontakt och outreach", text: "För företagskontakt kan Clean Jobs behandla offentligt publicerade yrkesmässiga kontaktuppgifter när det finns en tillämplig rättslig grund. Elektronisk marknadsföring skickas endast när den är tillåten enligt tillämpliga marknadsföringsregler. När intresseavvägning används enligt GDPR görs en bedömning av det berättigade intresset, och mottagaren kan alltid invända mot direktmarknadsföring. Varje utskick innehåller en enkel avregistreringsmöjlighet och en giltig kontaktadress. Vid invändning behåller vi en minimal spärrpost för e-postadressen för att förhindra framtida utskick." },
-      { title: "6. Mottagare och leverantörer", text: "Uppgifter kan delas med den kund eller det företag som behöver dem för en förfrågan, bokning eller ett uppdrag. Tekniska leverantörer kan omfatta Supabase för databas, autentisering och lagring, Vercel för hosting/analytics, Stripe för betalningar, Resend för e-post, Google för OAuth och den konfigurerade BankID/OIDC-leverantören när BankID används." },
+      { title: "6. Mottagare och leverantörer", text: "Uppgifter kan delas med den kund eller det företag som behöver dem för en förfrågan, bokning eller ett uppdrag. Tekniska leverantörer kan omfatta Supabase för databas, autentisering och lagring, Vercel för hosting/analytics, Stripe för betalningar, Resend för e-post, Google för OAuth och den konfigurerade BankID/OIDC-leverantören när BankID används. Microsoft Clarity och Google Analytics kan användas för valfri webbplatsanalys först efter att du har lämnat samtycke till sådan analys." },
       { title: "7. Överföringar utanför EU/EES", text: "Vissa leverantörer kan behandla uppgifter utanför EU/EES. När en sådan överföring sker använder vi tillämpliga skyddsmekanismer, exempelvis beslut om adekvat skyddsnivå eller standardavtalsklausuler, beroende på leverantör och behandling." },
       { title: "8. Lagring", text: "Uppgifter sparas så länge de behövs för det aktuella kontot, avtalet, bokningen, säkerheten, bokförings- eller andra rättsliga skyldigheter, eller för att hantera tvister. Därefter raderas eller anonymiseras de när det inte längre finns ett giltigt behov." },
       { title: "9. Automatiska säkerhetskontroller", text: "Clean Jobs använder tekniska regler för att upptäcka spam, misstänkta annonser och missbruk. Sådana kontroller används för plattformssäkerhet och kan stoppa eller flagga innehåll. Kontakta support om du anser att en säkerhetskontroll har blivit fel." },
@@ -46,7 +46,7 @@ const copy: Record<Locale, Copy> = {
   en: {
     title: "Privacy Policy",
     subtitle: "How Clean Jobs processes personal data for the marketplace, company profiles, quotes, bookings, CRM, payments, and security.",
-    updated: "Updated: 17 August 2026",
+    updated: "Updated: 20 August 2026",
     back: "Back to home",
     incomplete: "The operator's legal name, organisation number, and postal address must be configured before a public production launch.",
     sections: (operator) => [
@@ -55,7 +55,7 @@ const copy: Record<Locale, Copy> = {
       { title: "3. Sources of data", text: "Data comes from you, other users involved in an order or booking, and publicly available company websites or imported business registers when Clean Jobs builds its company directory and performs relevant B2B outreach." },
       { title: "4. Purposes and lawful bases", text: "We process data to create and administer accounts, perform contracts, facilitate jobs, quotes and bookings, provide company websites and Premium, process payments, provide support, resolve disputes, and prevent fraud or abuse. Depending on the activity, the lawful basis is contract, legal obligation, legitimate interests, or consent where consent is required." },
       { title: "5. Business outreach", text: "For business contact, Clean Jobs may process publicly published professional contact details where an applicable lawful basis exists. Electronic marketing is sent only where permitted by applicable marketing rules. Where legitimate interests are relied on under the GDPR, we assess those interests and the recipient may always object to direct marketing. Each marketing email includes a simple unsubscribe option and a valid contact address. If you object, we keep a minimal suppression record for the email address to prevent future outreach." },
-      { title: "6. Recipients and processors", text: "Data may be shared with the customer or company that needs it for a quote, booking, or job. Technical providers may include Supabase for database/auth/storage, Vercel for hosting/analytics, Stripe for payments, Resend for email, Google for OAuth, and the configured BankID/OIDC provider when BankID is used." },
+      { title: "6. Recipients and processors", text: "Data may be shared with the customer or company that needs it for a quote, booking, or job. Technical providers may include Supabase for database/auth/storage, Vercel for hosting/analytics, Stripe for payments, Resend for email, Google for OAuth, and the configured BankID/OIDC provider when BankID is used. Microsoft Clarity and Google Analytics may be used for optional website analytics only after you consent to that analytics." },
       { title: "7. International transfers", text: "Some providers may process data outside the EU/EEA. Where such transfers occur, we use applicable safeguards such as adequacy decisions or standard contractual clauses, depending on the provider and processing." },
       { title: "8. Retention", text: "Data is retained for as long as necessary for the relevant account, contract, booking, security, accounting or other legal obligations, or dispute handling. It is then deleted or anonymised when there is no longer a valid need." },
       { title: "9. Automated security checks", text: "Clean Jobs uses technical rules to detect spam, suspicious listings, and abuse. These checks protect the platform and may stop or flag content. Contact support if you believe a security control made an error." },
@@ -67,7 +67,7 @@ const copy: Record<Locale, Copy> = {
   uk: {
     title: "Політика конфіденційності",
     subtitle: "Як Clean Jobs обробляє персональні дані для маркетплейсу, профілів компаній, заявок, бронювань, CRM, оплат і безпеки.",
-    updated: "Оновлено: 17 серпня 2026",
+    updated: "Оновлено: 20 серпня 2026",
     back: "Назад на головну",
     incomplete: "Перед публічним production-запуском потрібно вказати юридичну назву оператора, організаційний номер і поштову адресу.",
     sections: (operator) => [
@@ -76,7 +76,7 @@ const copy: Record<Locale, Copy> = {
       { title: "3. Джерела даних", text: "Дані надходять від вас, інших сторін замовлення або бронювання, а також з публічних сайтів компаній чи імпортованих бізнес-реєстрів для каталогу та релевантного B2B outreach." },
       { title: "4. Цілі та правові підстави", text: "Дані потрібні для акаунтів, виконання договорів, робіт, заявок і бронювань, сайтів компаній, Premium, оплат, підтримки, спорів і запобігання шахрайству. Залежно від операції підставою є договір, юридичний обов’язок, законний інтерес або згода, коли вона потрібна." },
       { title: "5. B2B outreach", text: "Для контакту з компаніями Clean Jobs може обробляти публічно опубліковані професійні контактні дані, якщо для цього є належна правова підстава. Електронний маркетинг надсилається лише тоді, коли це дозволено застосовними правилами маркетингу. Якщо за GDPR використовується законний інтерес, ми оцінюємо такий інтерес, а одержувач завжди може заперечити проти прямого маркетингу. Кожен маркетинговий лист містить просту можливість відписки та дійсну контактну адресу. Після заперечення ми зберігаємо мінімальний запис блокування email, щоб запобігти майбутнім розсилкам." },
-      { title: "6. Одержувачі та провайдери", text: "Дані можуть передаватися клієнту або компанії, яким вони потрібні для заявки, бронювання чи роботи. Технічні провайдери можуть включати Supabase, Vercel, Stripe, Resend, Google OAuth та налаштованого BankID/OIDC-провайдера." },
+      { title: "6. Одержувачі та провайдери", text: "Дані можуть передаватися клієнту або компанії, яким вони потрібні для заявки, бронювання чи роботи. Технічні провайдери можуть включати Supabase, Vercel, Stripe, Resend, Google OAuth та налаштованого BankID/OIDC-провайдера. Microsoft Clarity і Google Analytics можуть використовуватися для необов’язкової веб-аналітики лише після вашої згоди на таку аналітику." },
       { title: "7. Передача за межі ЄС/ЄЕЗ", text: "Деякі провайдери можуть обробляти дані за межами ЄС/ЄЕЗ. У таких випадках застосовуються відповідні механізми захисту, наприклад рішення про належний рівень захисту або стандартні договірні положення." },
       { title: "8. Зберігання", text: "Дані зберігаються стільки, скільки потрібно для акаунта, договору, бронювання, безпеки, бухгалтерських чи інших юридичних обов’язків або спорів, після чого видаляються чи анонімізуються." },
       { title: "9. Автоматичні перевірки безпеки", text: "Clean Jobs використовує технічні правила для виявлення спаму, підозрілих оголошень і зловживань. Вони можуть заблокувати або позначити контент. Якщо перевірка спрацювала помилково, зверніться до підтримки." },
@@ -88,7 +88,7 @@ const copy: Record<Locale, Copy> = {
   ru: {
     title: "Политика конфиденциальности",
     subtitle: "Как Clean Jobs обрабатывает персональные данные для маркетплейса, профилей компаний, заявок, бронирований, CRM, оплат и безопасности.",
-    updated: "Обновлено: 17 августа 2026",
+    updated: "Обновлено: 20 августа 2026",
     back: "Назад на главную",
     incomplete: "До публичного production-запуска необходимо указать юридическое название оператора, организационный номер и почтовый адрес.",
     sections: (operator) => [
@@ -97,7 +97,7 @@ const copy: Record<Locale, Copy> = {
       { title: "3. Источники данных", text: "Данные поступают от вас, других сторон заказа или бронирования, а также с публичных сайтов компаний или импортированных бизнес-реестров для каталога и релевантного B2B outreach." },
       { title: "4. Цели и правовые основания", text: "Данные нужны для аккаунтов, договоров, работ, заявок и бронирований, сайтов компаний, Premium, оплат, поддержки, споров и предотвращения мошенничества. Основанием в зависимости от операции служит договор, юридическая обязанность, законный интерес или согласие, когда оно требуется." },
       { title: "5. B2B outreach", text: "Для контакта с компаниями Clean Jobs может обрабатывать публично опубликованные профессиональные контактные данные, если существует применимое правовое основание. Электронный маркетинг отправляется только тогда, когда это разрешено применимыми правилами маркетинга. Если по GDPR используется законный интерес, мы оцениваем такой интерес, а получатель всегда может возразить против прямого маркетинга. Каждое маркетинговое письмо содержит простой способ отписки и действительный контактный адрес. После возражения мы сохраняем минимальную запись блокировки email, чтобы предотвратить будущие рассылки." },
-      { title: "6. Получатели и провайдеры", text: "Данные могут передаваться клиенту или компании, которым они нужны для заявки, бронирования или работы. Технические провайдеры могут включать Supabase, Vercel, Stripe, Resend, Google OAuth и настроенного BankID/OIDC-провайдера." },
+      { title: "6. Получатели и провайдеры", text: "Данные могут передаваться клиенту или компании, которым они нужны для заявки, бронирования или работы. Технические провайдеры могут включать Supabase, Vercel, Stripe, Resend, Google OAuth и настроенного BankID/OIDC-провайдера. Microsoft Clarity и Google Analytics могут использоваться для необязательной веб-аналитики только после вашего согласия на такую аналитику." },
       { title: "7. Передачи вне ЕС/ЕЭЗ", text: "Некоторые провайдеры могут обрабатывать данные вне ЕС/ЕЭЗ. В таких случаях используются применимые защитные механизмы, например решения об адекватности или стандартные договорные положения." },
       { title: "8. Хранение", text: "Данные хранятся столько, сколько необходимо для аккаунта, договора, бронирования, безопасности, бухгалтерских или иных юридических обязанностей либо споров, после чего удаляются или анонимизируются." },
       { title: "9. Автоматические проверки безопасности", text: "Clean Jobs использует технические правила для выявления спама, подозрительных объявлений и злоупотреблений. Они могут блокировать или отмечать контент. При ошибке проверки обратитесь в поддержку." },
@@ -109,7 +109,7 @@ const copy: Record<Locale, Copy> = {
   pl: {
     title: "Polityka prywatności",
     subtitle: "Jak Clean Jobs przetwarza dane osobowe dla marketplace, profili firm, zapytań, rezerwacji, CRM, płatności i bezpieczeństwa.",
-    updated: "Zaktualizowano: 17 sierpnia 2026",
+    updated: "Zaktualizowano: 20 sierpnia 2026",
     back: "Wróć na stronę główną",
     incomplete: "Przed publicznym uruchomieniem produkcyjnym należy skonfigurować nazwę prawną operatora, numer organizacyjny i adres pocztowy.",
     sections: (operator) => [
@@ -118,7 +118,7 @@ const copy: Record<Locale, Copy> = {
       { title: "3. Źródła danych", text: "Dane pochodzą od Ciebie, innych stron zlecenia lub rezerwacji oraz z publicznych stron firm lub importowanych rejestrów biznesowych dla katalogu i odpowiedniego kontaktu B2B." },
       { title: "4. Cele i podstawy prawne", text: "Przetwarzamy dane dla kont, realizacji umów, zleceń, zapytań i rezerwacji, stron firmowych, Premium, płatności, wsparcia, sporów i zapobiegania nadużyciom. Podstawą zależnie od operacji jest umowa, obowiązek prawny, uzasadniony interes lub zgoda, gdy jest wymagana." },
       { title: "5. Kontakt B2B", text: "W ramach kontaktu biznesowego Clean Jobs może przetwarzać publicznie dostępne zawodowe dane kontaktowe, jeśli istnieje odpowiednia podstawa prawna. Marketing elektroniczny jest wysyłany tylko wtedy, gdy pozwalają na to właściwe przepisy marketingowe. Gdy podstawą w rozumieniu GDPR jest uzasadniony interes, oceniamy ten interes, a odbiorca zawsze może wnieść sprzeciw wobec marketingu bezpośredniego. Każda wiadomość marketingowa zawiera prostą możliwość rezygnacji oraz ważny adres kontaktowy. Po sprzeciwie zachowujemy minimalny wpis blokujący adres e-mail, aby zapobiec przyszłym wysyłkom." },
-      { title: "6. Odbiorcy i dostawcy", text: "Dane mogą być udostępniane klientowi lub firmie, która potrzebuje ich do zapytania, rezerwacji lub zlecenia. Dostawcy techniczni mogą obejmować Supabase, Vercel, Stripe, Resend, Google OAuth oraz skonfigurowanego dostawcę BankID/OIDC." },
+      { title: "6. Odbiorcy i dostawcy", text: "Dane mogą być udostępniane klientowi lub firmie, która potrzebuje ich do zapytania, rezerwacji lub zlecenia. Dostawcy techniczni mogą obejmować Supabase, Vercel, Stripe, Resend, Google OAuth oraz skonfigurowanego dostawcę BankID/OIDC. Microsoft Clarity i Google Analytics mogą być używane do opcjonalnej analityki witryny dopiero po wyrażeniu zgody na taką analitykę." },
       { title: "7. Transfery poza UE/EOG", text: "Niektórzy dostawcy mogą przetwarzać dane poza UE/EOG. Gdy dochodzi do transferu, stosujemy odpowiednie zabezpieczenia, np. decyzje o adekwatności lub standardowe klauzule umowne." },
       { title: "8. Retencja", text: "Dane są przechowywane tak długo, jak jest to potrzebne dla konta, umowy, rezerwacji, bezpieczeństwa, księgowości lub innych obowiązków prawnych albo sporów, a następnie usuwane lub anonimizowane." },
       { title: "9. Automatyczne kontrole bezpieczeństwa", text: "Clean Jobs używa reguł technicznych do wykrywania spamu, podejrzanych ogłoszeń i nadużyć. Kontrole mogą blokować lub oznaczać treść. W razie błędu skontaktuj się ze wsparciem." },
@@ -132,7 +132,7 @@ const copy: Record<Locale, Copy> = {
 export default async function PrivacyPage() {
   const store = await cookies()
   const locale = normalizeLocale(store.get("clean_jobs_locale")?.value) as Locale
-  const t = copy[locale] || copy.en
+  const t = copy[locale] || copy.sv
   const operator = getLegalOperator()
   const sections = t.sections(formatLegalOperator(operator))
 
