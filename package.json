@@ -6,7 +6,10 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm run build",
+    "db:types": "bash scripts/generate-database-types.sh",
+    "preflight": "node scripts/final-preflight.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.5.2",

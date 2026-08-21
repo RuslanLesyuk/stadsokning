@@ -24,3 +24,6 @@ Thumbs.db
 
 # misc
 *.pem
+
+# Supabase CLI local state
+supabase/.temp/
