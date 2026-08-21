@@ -149,17 +149,24 @@ const copy: Record<Locale, HeaderCopy> = {
   },
 }
 
-type ProfileRow = {
+type HeaderSnapshot = {
   full_name: string | null
   avatar_url: string | null
-  company_logo_url: string | null
-  company_name: string | null
+  profile_company_name: string | null
+  profile_company_logo_url: string | null
+  primary_company_name: string | null
+  primary_company_logo_url: string | null
+  has_owned_company: boolean
+  unread_notifications_count: number
+  active_claims_count: number
+  new_company_leads_count: number
+  pending_company_bookings_count: number
+  unread_messages_count: number
 }
 
-type OwnedCompanyRow = {
-  id: string
-  name: string
-  logo_url: string | null
+function numberCount(value: unknown) {
+  const parsed = Number(value ?? 0)
+  return Number.isFinite(parsed) && parsed > 0 ? Math.floor(parsed) : 0
 }
 
 function getInitials(name: string) {
@@ -264,132 +271,33 @@ export default async function SiteHeader() {
   let unreadNotificationsCount = 0
 
   if (user) {
-    const [
-      { data: profile, error: profileError },
-      {
-        count: notificationsCount,
-        error: notificationsError,
-      },
-      { data: jobs, error: jobsError },
-      { data: ownedCompaniesData, error: ownedCompaniesError },
-      { count: activeClaimsCount, error: activeClaimsError },
-    ] = await Promise.all([
-      supabase
-        .from("profiles")
-        .select("full_name, avatar_url, company_logo_url, company_name")
-        .eq("id", user.id)
-        .maybeSingle(),
-      supabase
-        .from("notifications")
-        .select("id", {
-          count: "exact",
-          head: true,
-        })
-        .eq("user_id", user.id)
-        .eq("is_read", false),
-      supabase
-        .from("jobs")
-        .select("id")
-        .or(`created_by.eq.${user.id},assigned_to.eq.${user.id}`),
-      supabase
-        .from("companies")
-        .select("id, name, logo_url")
-        .eq("owner_id", user.id)
-        .order("name", { ascending: true })
-        .limit(20),
-      supabase
-        .from("company_claim_requests")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .in("status", ["pending", "needs_info"]),
-    ])
+    const { data: snapshotRaw, error: snapshotError } = await supabase.rpc(
+      "get_header_snapshot",
+    )
 
-    if (profileError) {
-      console.error("Load header profile error:", profileError)
+    if (snapshotError) {
+      console.error("Load header snapshot error:", snapshotError)
     }
 
-    if (notificationsError) {
-      console.error("Load unread notifications error:", notificationsError)
-    }
+    const raw =
+      snapshotRaw && typeof snapshotRaw === "object"
+        ? (snapshotRaw as Partial<HeaderSnapshot>)
+        : {}
 
-    if (jobsError) {
-      console.error("Load header jobs error:", jobsError)
-    }
-
-    if (ownedCompaniesError) {
-      console.error("Load header owned companies error:", ownedCompaniesError)
-    }
-
-    if (activeClaimsError) {
-      console.error("Load active company claims error:", activeClaimsError)
-    }
-
-    const profileRow = profile as ProfileRow | null
-    const ownedCompanies = (ownedCompaniesData ?? []) as OwnedCompanyRow[]
-    const primaryOwnedCompany = ownedCompanies[0] ?? null
-
-    fullName = profileRow?.full_name?.trim() || user.email || null
+    fullName = raw.full_name?.trim() || user.email || null
     companyName =
-      primaryOwnedCompany?.name?.trim() ||
-      profileRow?.company_name?.trim() ||
+      raw.primary_company_name?.trim() ||
+      raw.profile_company_name?.trim() ||
       null
-    avatarUrl = profileRow?.avatar_url || null
+    avatarUrl = raw.avatar_url || null
     companyLogoUrl =
-      primaryOwnedCompany?.logo_url || profileRow?.company_logo_url || null
-    unreadNotificationsCount = notificationsCount ?? 0
-    companyClaimsCount = activeClaimsCount ?? 0
-    showCompanyLeads = ownedCompanies.length > 0
-
-    const companyIds = ownedCompanies.map((company) => company.id)
-
-    if (companyIds.length > 0) {
-      const { count, error: companyLeadsError } = await supabase
-        .from("company_quote_requests")
-        .select("id", {
-          count: "exact",
-          head: true,
-        })
-        .in("company_id", companyIds)
-        .eq("status", "new")
-
-      if (companyLeadsError) {
-        console.error("Load new company leads error:", companyLeadsError)
-      }
-
-      companyLeadsCount = count ?? 0
-
-      const { count: bookingCount, error: bookingCountError } = await supabase
-        .from("company_bookings")
-        .select("id", { count: "exact", head: true })
-        .in("company_id", companyIds)
-        .eq("status", "pending")
-
-      if (bookingCountError) {
-        console.error("Load pending company bookings error:", bookingCountError)
-      }
-
-      companyBookingsCount = bookingCount ?? 0
-    }
-
-    const jobIds = (jobs ?? []).map((job) => job.id)
-
-    if (jobIds.length > 0) {
-      const { count, error: messagesError } = await supabase
-        .from("messages")
-        .select("id", {
-          count: "exact",
-          head: true,
-        })
-        .in("job_id", jobIds)
-        .neq("sender_id", user.id)
-        .is("read_at", null)
-
-      if (messagesError) {
-        console.error("Load unread messages error:", messagesError)
-      }
-
-      unreadMessagesCount = count ?? 0
-    }
+      raw.primary_company_logo_url || raw.profile_company_logo_url || null
+    showCompanyLeads = Boolean(raw.has_owned_company)
+    companyLeadsCount = numberCount(raw.new_company_leads_count)
+    companyBookingsCount = numberCount(raw.pending_company_bookings_count)
+    companyClaimsCount = numberCount(raw.active_claims_count)
+    unreadMessagesCount = numberCount(raw.unread_messages_count)
+    unreadNotificationsCount = numberCount(raw.unread_notifications_count)
   }
 
   const profileLabel = fullName || "User"

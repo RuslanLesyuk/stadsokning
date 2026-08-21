@@ -7,42 +7,41 @@ type Props = {
   interval?: number
 }
 
-export default function DashboardLiveRefresh({
-  interval = 15000,
-}: Props) {
+export default function DashboardLiveRefresh({ interval = 60000 }: Props) {
   const router = useRouter()
   const [, startTransition] = useTransition()
-  const hiddenRef = useRef(false)
+  const lastRefreshRef = useRef(Date.now())
+  const refreshingRef = useRef(false)
+  const minimumStaleMs = Math.max(interval, 30000)
 
   useEffect(() => {
-    const handleVisibility = () => {
-      hiddenRef.current = document.hidden
-    }
+    function refreshIfStale() {
+      if (document.hidden || refreshingRef.current) return
+      if (Date.now() - lastRefreshRef.current < minimumStaleMs) return
 
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibility,
-    )
-
-    handleVisibility()
-
-    const id = setInterval(() => {
-      if (hiddenRef.current) return
+      refreshingRef.current = true
+      lastRefreshRef.current = Date.now()
 
       startTransition(() => {
         router.refresh()
+        window.setTimeout(() => {
+          refreshingRef.current = false
+        }, 1000)
       })
-    }, interval)
+    }
+
+    function handleVisibility() {
+      if (!document.hidden) refreshIfStale()
+    }
+
+    window.addEventListener("focus", refreshIfStale)
+    document.addEventListener("visibilitychange", handleVisibility)
 
     return () => {
-      clearInterval(id)
-
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibility,
-      )
+      window.removeEventListener("focus", refreshIfStale)
+      document.removeEventListener("visibilitychange", handleVisibility)
     }
-  }, [interval, router])
+  }, [minimumStaleMs, router])
 
   return null
 }

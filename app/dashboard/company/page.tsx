@@ -56,6 +56,18 @@ type BookingSettingsRow = {
   timezone: string
 }
 
+type DashboardMetrics = {
+  total_leads: number | string
+  new_leads: number | string
+  won_leads: number | string
+  crm_customers: number | string
+  crm_follow_ups_due: number | string
+  pipeline_value: number | string
+  pending_bookings: number | string
+  next_seven_days: number | string
+  month_revenue: number | string
+}
+
 type LeadRow = {
   id: string
   customer_name: string
@@ -70,10 +82,6 @@ type LeadRow = {
   updated_at: string
 }
 
-type LeadValueRow = {
-  estimated_value: number | string | null
-  quoted_value: number | string | null
-}
 
 type BookingRow = {
   id: string
@@ -111,77 +119,6 @@ type OccurrenceRow = {
     | null
 }
 
-type RevenueRow = {
-  price: number | string | null
-}
-
-type ServerSupabaseClient = Awaited<ReturnType<typeof createClient>>
-
-async function loadOpenLeadValues(
-  supabase: ServerSupabaseClient,
-  companyId: string,
-) {
-  const rows: LeadValueRow[] = []
-  const pageSize = 1000
-  let from = 0
-
-  while (true) {
-    const { data, error } = await supabase
-      .from("company_quote_requests")
-      .select("estimated_value, quoted_value")
-      .eq("company_id", companyId)
-      .in("status", ["new", "viewed", "contacted", "qualified", "quoted"])
-      .range(from, from + pageSize - 1)
-
-    if (error) {
-      console.error("Company dashboard pipeline value error:", error)
-      break
-    }
-
-    const chunk = (data ?? []) as LeadValueRow[]
-    rows.push(...chunk)
-
-    if (chunk.length < pageSize) break
-    from += pageSize
-  }
-
-  return rows
-}
-
-async function loadMonthRevenueRows(
-  supabase: ServerSupabaseClient,
-  companyId: string,
-  startIso: string,
-  endIso: string,
-) {
-  const rows: RevenueRow[] = []
-  const pageSize = 1000
-  let from = 0
-
-  while (true) {
-    const { data, error } = await supabase
-      .from("company_booking_occurrences")
-      .select("price")
-      .eq("company_id", companyId)
-      .eq("status", "completed")
-      .gte("completed_at", startIso)
-      .lt("completed_at", endIso)
-      .range(from, from + pageSize - 1)
-
-    if (error) {
-      console.error("Company dashboard month revenue error:", error)
-      break
-    }
-
-    const chunk = (data ?? []) as RevenueRow[]
-    rows.push(...chunk)
-
-    if (chunk.length < pageSize) break
-    from += pageSize
-  }
-
-  return rows
-}
 
 type AttentionItem =
   | {
@@ -221,6 +158,11 @@ function formatMoney(value: number | string | null | undefined) {
 
 function formatPercent(value: number) {
   return `${Math.round(value * 10) / 10}%`
+}
+
+function metricNumber(value: unknown) {
+  const parsed = Number(value ?? 0)
+  return Number.isFinite(parsed) ? parsed : 0
 }
 
 function formatDateTime(value: string, locale: Locale) {
@@ -275,81 +217,6 @@ function statusPill(kind: "lead" | "booking", status: string) {
   return map[status] || map.pending
 }
 
-function stockholmParts(date = new Date()) {
-  const formatter = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Stockholm",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  })
-
-  const parts = Object.fromEntries(
-    formatter
-      .formatToParts(date)
-      .filter((part) => part.type !== "literal")
-      .map((part) => [part.type, part.value]),
-  )
-
-  return {
-    year: Number(parts.year),
-    month: Number(parts.month),
-    day: Number(parts.day),
-  }
-}
-
-function timeZoneOffsetMs(date: Date, timeZone: string) {
-  const formatter = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hourCycle: "h23",
-  })
-
-  const parts = Object.fromEntries(
-    formatter
-      .formatToParts(date)
-      .filter((part) => part.type !== "literal")
-      .map((part) => [part.type, part.value]),
-  )
-
-  const asUtc = Date.UTC(
-    Number(parts.year),
-    Number(parts.month) - 1,
-    Number(parts.day),
-    Number(parts.hour),
-    Number(parts.minute),
-    Number(parts.second),
-  )
-
-  return asUtc - date.getTime()
-}
-
-function stockholmLocalMidnightUtc(year: number, month: number, day: number) {
-  const timeZone = "Europe/Stockholm"
-  const desiredUtc = Date.UTC(year, month - 1, day, 0, 0, 0)
-  let candidate = new Date(desiredUtc)
-
-  for (let i = 0; i < 2; i += 1) {
-    const offset = timeZoneOffsetMs(candidate, timeZone)
-    candidate = new Date(desiredUtc - offset)
-  }
-
-  return candidate
-}
-
-function stockholmMonthBounds(now = new Date()) {
-  const parts = stockholmParts(now)
-  const start = stockholmLocalMidnightUtc(parts.year, parts.month, 1)
-  const nextYear = parts.month === 12 ? parts.year + 1 : parts.year
-  const nextMonth = parts.month === 12 ? 1 : parts.month + 1
-  const end = stockholmLocalMidnightUtc(nextYear, nextMonth, 1)
-
-  return { start, end }
-}
 
 function MetricCard({
   label,
@@ -490,31 +357,20 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
 
   const now = new Date()
   const sevenDaysFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000)
-  const monthBounds = stockholmMonthBounds(now)
 
   const [
     siteResult,
     settingsResult,
-    totalLeadResult,
-    newLeadResult,
-    wonLeadResult,
-    crmCustomerCountResult,
-    crmFollowUpDueResult,
-    openLeadValues,
+    metricsResult,
     recentNewLeadsResult,
     recentLeadsResult,
-    pendingBookingResult,
     recentPendingBookingsResult,
     recentBookingsResult,
-    upcomingCountResult,
     upcomingResult,
-    monthRevenueRows,
   ] = await Promise.all([
     supabase
       .from("company_sites")
-      .select(
-        "id, site_slug, status, custom_domain, domain_status, updated_at",
-      )
+      .select("id, site_slug, status, custom_domain, domain_status, updated_at")
       .eq("company_id", selectedCompany.id)
       .maybeSingle(),
     supabase
@@ -522,33 +378,10 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
       .select("booking_enabled, recurring_enabled, timezone")
       .eq("company_id", selectedCompany.id)
       .maybeSingle(),
-    supabase
-      .from("company_quote_requests")
-      .select("id", { count: "exact", head: true })
-      .eq("company_id", selectedCompany.id),
-    supabase
-      .from("company_quote_requests")
-      .select("id", { count: "exact", head: true })
-      .eq("company_id", selectedCompany.id)
-      .eq("status", "new"),
-    supabase
-      .from("company_quote_requests")
-      .select("id", { count: "exact", head: true })
-      .eq("company_id", selectedCompany.id)
-      .eq("status", "won"),
-    supabase
-      .from("company_crm_customers")
-      .select("id", { count: "exact", head: true })
-      .eq("company_id", selectedCompany.id)
-      .neq("lifecycle_stage", "inactive"),
-    supabase
-      .from("company_crm_customers")
-      .select("id", { count: "exact", head: true })
-      .eq("company_id", selectedCompany.id)
-      .neq("lifecycle_stage", "inactive")
-      .not("follow_up_at", "is", null)
-      .lte("follow_up_at", now.toISOString()),
-    loadOpenLeadValues(supabase, selectedCompany.id),
+    supabase.rpc("get_company_dashboard_metrics", {
+      p_company_id: selectedCompany.id,
+      p_now: now.toISOString(),
+    }),
     supabase
       .from("company_quote_requests")
       .select(
@@ -568,11 +401,6 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
       .limit(6),
     supabase
       .from("company_bookings")
-      .select("id", { count: "exact", head: true })
-      .eq("company_id", selectedCompany.id)
-      .eq("status", "pending"),
-    supabase
-      .from("company_bookings")
       .select(
         "id, customer_name, service_type, city, status, frequency, start_date, preferred_time, estimated_price, agreed_price, created_at, updated_at",
       )
@@ -590,13 +418,6 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
       .limit(6),
     supabase
       .from("company_booking_occurrences")
-      .select("id", { count: "exact", head: true })
-      .eq("company_id", selectedCompany.id)
-      .in("status", ["confirmed", "in_progress"])
-      .gte("scheduled_start", now.toISOString())
-      .lt("scheduled_start", sevenDaysFromNow.toISOString()),
-    supabase
-      .from("company_booking_occurrences")
       .select(
         "id, booking_id, scheduled_start, scheduled_end, status, price, company_bookings ( id, customer_name, service_type )",
       )
@@ -606,28 +427,16 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
       .lt("scheduled_start", sevenDaysFromNow.toISOString())
       .order("scheduled_start", { ascending: true })
       .limit(12),
-    loadMonthRevenueRows(
-      supabase,
-      selectedCompany.id,
-      monthBounds.start.toISOString(),
-      monthBounds.end.toISOString(),
-    ),
   ])
 
   for (const [label, result] of [
     ["site", siteResult],
     ["booking settings", settingsResult],
-    ["total leads", totalLeadResult],
-    ["new leads", newLeadResult],
-    ["won leads", wonLeadResult],
-    ["crm customers", crmCustomerCountResult],
-    ["crm follow-ups", crmFollowUpDueResult],
+    ["dashboard metrics", metricsResult],
     ["recent new leads", recentNewLeadsResult],
     ["recent leads", recentLeadsResult],
-    ["pending bookings", pendingBookingResult],
     ["recent pending bookings", recentPendingBookingsResult],
     ["recent bookings", recentBookingsResult],
-    ["upcoming count", upcomingCountResult],
     ["upcoming", upcomingResult],
   ] as const) {
     if (result.error) {
@@ -644,23 +453,21 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
   const recentBookings = (recentBookingsResult.data ?? []) as BookingRow[]
   const upcomingOccurrences = (upcomingResult.data ?? []) as OccurrenceRow[]
 
-  const totalLeads = totalLeadResult.count ?? 0
-  const newLeads = newLeadResult.count ?? 0
-  const wonLeads = wonLeadResult.count ?? 0
-  const crmCustomers = crmCustomerCountResult.count ?? 0
-  const crmFollowUpsDue = crmFollowUpDueResult.count ?? 0
+  const metricsRaw =
+    metricsResult.data && typeof metricsResult.data === "object"
+      ? (metricsResult.data as Partial<DashboardMetrics>)
+      : {}
+
+  const totalLeads = metricNumber(metricsRaw.total_leads)
+  const newLeads = metricNumber(metricsRaw.new_leads)
+  const wonLeads = metricNumber(metricsRaw.won_leads)
+  const crmCustomers = metricNumber(metricsRaw.crm_customers)
+  const crmFollowUpsDue = metricNumber(metricsRaw.crm_follow_ups_due)
   const conversion = totalLeads > 0 ? (wonLeads / totalLeads) * 100 : 0
-  const pipelineValue = openLeadValues.reduce(
-    (sum, row) =>
-      sum + bookingNumberValue(row.quoted_value || row.estimated_value),
-    0,
-  )
-  const pendingBookings = pendingBookingResult.count ?? 0
-  const nextSevenDays = upcomingCountResult.count ?? 0
-  const monthRevenue = monthRevenueRows.reduce(
-    (sum, row) => sum + bookingNumberValue(row.price),
-    0,
-  )
+  const pipelineValue = metricNumber(metricsRaw.pipeline_value)
+  const pendingBookings = metricNumber(metricsRaw.pending_bookings)
+  const nextSevenDays = metricNumber(metricsRaw.next_seven_days)
+  const monthRevenue = metricNumber(metricsRaw.month_revenue)
 
   const attentionItems: AttentionItem[] = [
     ...recentNewLeads.map((lead) => ({
@@ -738,7 +545,7 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
 
   return (
     <main className="min-h-screen bg-slate-50">
-      <DashboardLiveRefresh interval={15000} />
+      <DashboardLiveRefresh interval={60000} />
 
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-9 sm:px-6 lg:px-8">

@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 }
 
 type PageProps = {
-  searchParams: Promise<{ status?: string; search?: string }>
+  searchParams: Promise<{ status?: string; search?: string; page?: string }>
 }
 
 type Lead = {
@@ -41,6 +41,7 @@ type Lead = {
 }
 
 const statuses = ["new", "viewed", "contacted", "qualified", "quoted", "won", "lost", "archived"]
+const PAGE_SIZE = 100
 
 function getAdminEmails() {
   return (process.env.ADMIN_EMAILS || "")
@@ -58,6 +59,20 @@ function safeSearch(value: string) {
   return value.replace(/[%,()_]/g, " ").replace(/\s+/g, " ").trim().slice(0, 100)
 }
 
+function normalizePage(value: string | undefined) {
+  const parsed = Number(value || 1)
+  return Number.isInteger(parsed) && parsed > 0 ? Math.min(parsed, 100000) : 1
+}
+
+function buildHref({ status, search, page }: { status: string; search: string; page?: number }) {
+  const params = new URLSearchParams()
+  if (status) params.set("status", status)
+  if (search) params.set("search", search)
+  if (page && page > 1) params.set("page", String(page))
+  const query = params.toString()
+  return query ? `/admin/customer-leads?${query}` : "/admin/customer-leads"
+}
+
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("sv-SE", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value))
 }
@@ -73,6 +88,7 @@ export default async function AdminCustomerLeadsPage({ searchParams }: PageProps
   const admin = createAdminClient()
   const selectedStatus = statuses.includes(params.status || "") ? params.status! : ""
   const search = safeSearch(params.search || "")
+  const currentPage = normalizePage(params.page)
 
   let query = admin
     .from("company_quote_requests")
@@ -81,7 +97,7 @@ export default async function AdminCustomerLeadsPage({ searchParams }: PageProps
       city, status, priority, source, lead_type, estimated_value, quoted_value,
       lead_access, is_paid, created_at,
       companies ( id, name, slug )
-    `)
+    `, { count: "exact" })
     .order("created_at", { ascending: false })
 
   if (selectedStatus) query = query.eq("status", selectedStatus)
@@ -95,13 +111,38 @@ export default async function AdminCustomerLeadsPage({ searchParams }: PageProps
     ].join(","))
   }
 
-  const { data, error } = await query.limit(300)
-  if (error) console.error("Admin customer leads query error:", error)
-  const leads = (data ?? []) as Lead[]
+  const from = (currentPage - 1) * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
 
-  const { data: countsRaw } = await admin.from("company_quote_requests").select("status")
+  const [pageResult, totalCountResult, ...statusCountResults] = await Promise.all([
+    query.range(from, to),
+    admin.from("company_quote_requests").select("id", { count: "exact", head: true }),
+    ...statuses.map((status) =>
+      admin
+        .from("company_quote_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("status", status),
+    ),
+  ])
+
+  if (pageResult.error) console.error("Admin customer leads query error:", pageResult.error)
+  if (totalCountResult.error) console.error("Admin customer leads total count error:", totalCountResult.error)
+
+  const leads = (pageResult.data ?? []) as Lead[]
+  const totalFiltered = pageResult.count ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE))
+
+  if (totalFiltered > 0 && currentPage > totalPages) {
+    redirect(buildHref({ status: selectedStatus, search, page: totalPages }))
+  }
+
   const counts = new Map<string, number>()
-  for (const row of countsRaw ?? []) counts.set(row.status, (counts.get(row.status) || 0) + 1)
+  statuses.forEach((status, index) => {
+    const result = statusCountResults[index]
+    if (result?.error) console.error(`Admin customer leads ${status} count error:`, result.error)
+    counts.set(status, result?.count ?? 0)
+  })
+  const totalCount = totalCountResult.count ?? 0
 
   return (
     <main className="min-h-screen bg-slate-50">
@@ -113,7 +154,7 @@ export default async function AdminCustomerLeadsPage({ searchParams }: PageProps
             <h1 className="mt-2 text-4xl font-black text-slate-950">Customer leads</h1>
             <p className="mt-3 text-slate-600">All customer quote requests across every company on Clean Jobs.</p>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm"><p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total</p><p className="mt-1 text-3xl font-black text-slate-950">{countsRaw?.length || 0}</p></div>
+          <div className="rounded-2xl border border-slate-200 bg-white px-5 py-4 shadow-sm"><p className="text-xs font-bold uppercase tracking-wide text-slate-400">Total</p><p className="mt-1 text-3xl font-black text-slate-950">{totalCount}</p></div>
         </div>
 
         <form method="get" className="mt-7 flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:flex-row">
@@ -122,6 +163,11 @@ export default async function AdminCustomerLeadsPage({ searchParams }: PageProps
           <button className="min-h-11 rounded-xl bg-slate-950 px-5 text-sm font-black text-white">Filter</button>
           <Link href="/admin/customer-leads" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 px-5 text-sm font-black text-slate-700">Reset</Link>
         </form>
+
+        <div className="mt-5 flex flex-col gap-2 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>Showing {totalFiltered === 0 ? 0 : from + 1}–{Math.min(to + 1, totalFiltered)} of {totalFiltered} matching leads</p>
+          {totalPages > 1 ? <p>Page {currentPage} of {totalPages}</p> : null}
+        </div>
 
         <div className="mt-7 overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           {leads.length === 0 ? <div className="p-10 text-center text-slate-500">No customer leads found.</div> : <div className="divide-y divide-slate-200">{leads.map((lead) => {
@@ -135,6 +181,28 @@ export default async function AdminCustomerLeadsPage({ searchParams }: PageProps
             </article>
           })}</div>}
         </div>
+
+        {totalPages > 1 ? (
+          <nav className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4">
+            {currentPage > 1 ? (
+              <Link
+                href={buildHref({ status: selectedStatus, search, page: currentPage - 1 })}
+                className="inline-flex min-h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 hover:bg-slate-50"
+              >
+                ← Previous
+              </Link>
+            ) : <span />}
+            <span className="text-sm font-black text-slate-500">{currentPage} / {totalPages}</span>
+            {currentPage < totalPages ? (
+              <Link
+                href={buildHref({ status: selectedStatus, search, page: currentPage + 1 })}
+                className="inline-flex min-h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-black text-slate-700 hover:bg-slate-50"
+              >
+                Next →
+              </Link>
+            ) : <span />}
+          </nav>
+        ) : null}
       </div>
     </main>
   )

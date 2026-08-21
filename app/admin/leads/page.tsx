@@ -49,6 +49,7 @@ type LeadsPageProps = {
     sent?: string
     skipped?: string
     failed?: string
+    page?: string
   }>
 }
 
@@ -59,6 +60,8 @@ const allowedStatuses: LeadStatus[] = [
   "registered",
   "ignored",
 ]
+
+const PAGE_SIZE = 100
 
 function getAdminEmails() {
   return (process.env.ADMIN_EMAILS || "")
@@ -91,12 +94,19 @@ function normalizeCount(value: string | undefined) {
   return Math.floor(parsedValue)
 }
 
+function normalizePage(value: string | undefined) {
+  const parsed = Number(value || 1)
+  return Number.isInteger(parsed) && parsed > 0 ? Math.min(parsed, 100000) : 1
+}
+
 function buildFilterHref({
   status,
   search,
+  page,
 }: {
   status?: LeadStatus | "all"
   search?: string
+  page?: number
 }) {
   const params = new URLSearchParams()
 
@@ -106,6 +116,10 @@ function buildFilterHref({
 
   if (search?.trim()) {
     params.set("search", search.trim())
+  }
+
+  if (page && page > 1) {
+    params.set("page", String(page))
   }
 
   const query = params.toString()
@@ -124,7 +138,8 @@ export default async function AdminLeadsPage({
   const skippedCount = normalizeCount(params.skipped)
   const failedCount = normalizeCount(params.failed)
   const selectedStatus = normalizeStatus(params.status)
-  const search = String(params.search || "").trim()
+  const search = String(params.search || "").trim().slice(0, 100)
+  const currentPage = normalizePage(params.page)
 
   const supabase = await createClient()
 
@@ -166,6 +181,7 @@ export default async function AdminLeadsPage({
         created_at,
         updated_at
       `,
+      { count: "exact" },
     )
     .order("created_at", { ascending: false })
 
@@ -175,8 +191,8 @@ export default async function AdminLeadsPage({
 
   if (search) {
     const safeSearch = search
-      .replaceAll("%", "")
-      .replaceAll(",", " ")
+      .replace(/[%,()_]/g, " ")
+      .replace(/\s+/g, " ")
       .trim()
 
     if (safeSearch) {
@@ -191,40 +207,49 @@ export default async function AdminLeadsPage({
     }
   }
 
-  const { data, error } = await query.limit(200)
+  const from = (currentPage - 1) * PAGE_SIZE
+  const to = from + PAGE_SIZE - 1
+
+  const [pageResult, totalCountResult, newCountResult, invitedCountResult, registeredCountResult] =
+    await Promise.all([
+      query.range(from, to),
+      admin.from("company_leads").select("id", { count: "exact", head: true }),
+      admin.from("company_leads").select("id", { count: "exact", head: true }).eq("status", "new"),
+      admin.from("company_leads").select("id", { count: "exact", head: true }).eq("status", "invited"),
+      admin
+        .from("company_leads")
+        .select("id", { count: "exact", head: true })
+        .or("status.eq.registered,registered.eq.true"),
+    ])
+
+  const { data, error, count: filteredCount } = pageResult
 
   if (error) {
     console.error("Admin leads query error:", error.message)
   }
 
-  const leads = (data ?? []) as CompanyLeadRow[]
-
-  const { data: allLeadsRaw, error: countsError } = await admin
-    .from("company_leads")
-    .select("status, registered")
-
-  if (countsError) {
-    console.error(
-      "Admin leads counts error:",
-      countsError.message,
-    )
+  for (const [label, result] of [
+    ["total", totalCountResult],
+    ["new", newCountResult],
+    ["invited", invitedCountResult],
+    ["registered", registeredCountResult],
+  ] as const) {
+    if (result.error) console.error(`Admin leads ${label} count error:`, result.error.message)
   }
 
-  const allLeads = (allLeadsRaw ?? []) as Array<{
-    status: LeadStatus
-    registered: boolean
-  }>
+  const leads = (data ?? []) as CompanyLeadRow[]
+  const totalFiltered = filteredCount ?? 0
+  const totalPages = Math.max(1, Math.ceil(totalFiltered / PAGE_SIZE))
+
+  if (totalFiltered > 0 && currentPage > totalPages) {
+    redirect(buildFilterHref({ status: selectedStatus, search, page: totalPages }))
+  }
 
   const stats = {
-    total: allLeads.length,
-    new: allLeads.filter((lead) => lead.status === "new").length,
-    invited: allLeads.filter(
-      (lead) => lead.status === "invited",
-    ).length,
-    registered: allLeads.filter(
-      (lead) =>
-        lead.status === "registered" || lead.registered,
-    ).length,
+    total: totalCountResult.count ?? 0,
+    new: newCountResult.count ?? 0,
+    invited: invitedCountResult.count ?? 0,
+    registered: registeredCountResult.count ?? 0,
   }
 
   const filters: Array<{
@@ -476,9 +501,40 @@ export default async function AdminLeadsPage({
           </div>
         ) : null}
 
+        <div className="mt-6 flex flex-col gap-2 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            Showing {totalFiltered === 0 ? 0 : from + 1}–{Math.min(to + 1, totalFiltered)} of {totalFiltered} matching leads
+          </p>
+          {totalPages > 1 ? <p>Page {currentPage} of {totalPages}</p> : null}
+        </div>
+
         <BulkLeadsList
           leads={leads as BulkCompanyLead[]}
         />
+
+        {totalPages > 1 ? (
+          <nav className="mt-6 flex items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4">
+            {currentPage > 1 ? (
+              <Link
+                href={buildFilterHref({ status: selectedStatus, search, page: currentPage - 1 })}
+                prefetch={false}
+                className="inline-flex min-h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                ← Previous
+              </Link>
+            ) : <span />}
+            <span className="text-sm font-semibold text-slate-500">{currentPage} / {totalPages}</span>
+            {currentPage < totalPages ? (
+              <Link
+                href={buildFilterHref({ status: selectedStatus, search, page: currentPage + 1 })}
+                prefetch={false}
+                className="inline-flex min-h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50"
+              >
+                Next →
+              </Link>
+            ) : <span />}
+          </nav>
+        ) : null}
       </div>
     </main>
   )
