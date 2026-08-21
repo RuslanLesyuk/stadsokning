@@ -24,11 +24,11 @@ const clarityProjectId = process.env.NEXT_PUBLIC_CLARITY_ID || "wzu4anu3qc"
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Cleaning Jobs in Sweden | Find Cleaners & Cleaning Work",
+    default: "Städjobb och städföretag i Sverige | Clean Jobs",
     template: "%s | Clean Jobs",
   },
   description:
-    "Find cleaning jobs across Sweden or hire trusted cleaners. Browse house cleaning, office cleaning, apartment cleaning and professional cleaning work in Stockholm, Göteborg, Malmö and nearby cities.",
+    "Hitta städjobb och jämför städföretag i Sverige. Sök hemstädning, flyttstädning, kontorsstädning och andra städtjänster i Stockholm, Göteborg, Malmö och fler orter.",
   applicationName: "Clean Jobs",
   authors: [{ name: "Clean Jobs" }],
   creator: "Clean Jobs",
@@ -213,7 +213,7 @@ const jsonLd = {
           "@type": "ContactPoint",
           contactType: "customer support",
           email: "support@cleansjob.com",
-          availableLanguage: ["Ukrainian", "Russian", "English", "Swedish", "Polish"],
+          availableLanguage: ["Swedish", "English", "Ukrainian", "Russian", "Polish"],
         },
       ],
     },
@@ -222,14 +222,9 @@ const jsonLd = {
       "@id": `${siteUrl}/#website`,
       url: siteUrl,
       name: "Clean Jobs",
-      description: "Marketplace for cleaning jobs, cleaners and cleaning companies in Sweden.",
+      description: "Svensk marknadsplats för städjobb, städare och städföretag.",
       publisher: { "@id": `${siteUrl}/#organization` },
-      inLanguage: ["uk", "ru", "en", "sv", "pl"],
-      potentialAction: {
-        "@type": "SearchAction",
-        target: `${siteUrl}/jobs?search={search_term_string}`,
-        "query-input": "required name=search_term_string",
-      },
+      inLanguage: ["sv", "en", "uk", "ru", "pl"],
     },
   ],
 }
@@ -254,7 +249,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     cookieStore.get(ANALYTICS_CONSENT_COOKIE)?.value,
   )
 
-  const guideLinks = [
+  const allGuideLinks = [
     { href: "/work-in-sweden", label: t.guideWorkInSweden },
     { href: "/jobs-for-foreigners-in-sweden", label: t.guideForeigners },
     { href: "/how-to-find-a-job-in-sweden", label: t.guideFindJob },
@@ -270,6 +265,21 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     { href: "/best-cleaning-companies-in-sweden", label: t.guideBestCompanies },
     { href: "/basta-stadforetag-i-sverige", label: t.guideBastaStadforetag },
   ]
+
+  const swedishGuidePaths = new Set([
+    "/jobb-i-sverige",
+    "/jobb-utan-svenska",
+    "/hur-man-far-jobb-i-sverige",
+    "/vad-tjanar-en-stadare-i-sverige",
+    "/stadbranschen-i-sverige-statistik",
+    "/stadfirma-stockholm",
+    "/basta-stadforetag-i-sverige",
+  ])
+
+  const guideLinks =
+    locale === "sv"
+      ? allGuideLinks.filter((link) => swedishGuidePaths.has(link.href))
+      : allGuideLinks
 
   return (
     <html lang={locale}>

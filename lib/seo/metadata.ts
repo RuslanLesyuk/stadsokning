@@ -1,14 +1,15 @@
+
 import type { Metadata } from "next"
 
 import {
   SEO_DEFAULT_OG_IMAGE,
   SEO_DEFAULT_TWITTER_IMAGE,
-  SEO_ORGANIZATION_NAME,
-  SEO_ROBOTS_INDEX,
   SEO_SITE_NAME,
   SEO_SITE_URL,
   SEO_TWITTER_CARD,
 } from "./constants"
+
+import { shouldIndexSeoEnginePage } from "./indexing"
 
 import {
   buildAbsoluteSeoUrl,
@@ -33,12 +34,12 @@ function getSeoName(item: SeoCity | SeoService, locale: SeoLocale) {
   }
 
   if (
-    "names" in item &&
-    item.names &&
-    typeof item.names === "object" &&
-    locale in item.names
+    "name" in item &&
+    item.name &&
+    typeof item.name === "object" &&
+    locale in item.name
   ) {
-    return item.names[locale as keyof typeof item.names] as string
+    return item.name[locale as keyof typeof item.name] as string
   }
 
   return item.slug
@@ -57,42 +58,49 @@ export function createSeoMetadata({
     service: service.slug,
   })
 
-  const languageAlternates = buildSeoLanguageAlternates({
-    city: city.slug,
-    service: service.slug,
-  })
-
-  const xDefault = buildSeoXDefaultUrl({
-    city: city.slug,
-    service: service.slug,
+  const indexable = shouldIndexSeoEnginePage({
+    locale,
+    citySlug: city.slug,
+    serviceSlug: service.slug,
   })
 
   const cityName = getSeoName(city, locale)
   const serviceName = getSeoName(service, locale)
-
+  const absoluteTitle = `${title} | ${SEO_SITE_NAME}`
   const ogImageUrl = buildAbsoluteUrl(SEO_DEFAULT_OG_IMAGE)
   const twitterImageUrl = buildAbsoluteUrl(SEO_DEFAULT_TWITTER_IMAGE)
 
+  const alternates = indexable
+    ? {
+        canonical,
+        languages: {
+          ...buildSeoLanguageAlternates({
+            city: city.slug,
+            service: service.slug,
+          }),
+          "x-default": buildSeoXDefaultUrl({
+            city: city.slug,
+            service: service.slug,
+          }),
+        },
+      }
+    : {
+        canonical,
+      }
+
   return {
     metadataBase: new URL(SEO_SITE_URL),
-
-    title,
-    description,
-
-    applicationName: SEO_SITE_NAME,
-
-    alternates: {
-      canonical,
-      languages: {
-        ...languageAlternates,
-        "x-default": xDefault,
-      },
+    title: {
+      absolute: absoluteTitle,
     },
+    description,
+    applicationName: SEO_SITE_NAME,
+    alternates,
 
     openGraph: {
       type: "website",
       siteName: SEO_SITE_NAME,
-      title,
+      title: absoluteTitle,
       description,
       url: canonical,
       locale,
@@ -101,27 +109,39 @@ export function createSeoMetadata({
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: `${serviceName} in ${cityName} | ${SEO_SITE_NAME}`,
+          alt: `${serviceName} – ${cityName}`,
         },
       ],
     },
 
     twitter: {
       card: SEO_TWITTER_CARD,
-      title,
+      title: absoluteTitle,
       description,
       images: [twitterImageUrl],
     },
 
-    robots: SEO_ROBOTS_INDEX,
+    robots: indexable
+      ? {
+          index: true,
+          follow: true,
+          googleBot: {
+            index: true,
+            follow: true,
+            "max-snippet": -1,
+            "max-image-preview": "large",
+            "max-video-preview": -1,
+          },
+        }
+      : {
+          index: false,
+          follow: true,
+          googleBot: {
+            index: false,
+            follow: true,
+          },
+        },
 
-    category: "Cleaning services",
-
-    other: {
-      "og:site_name": SEO_SITE_NAME,
-      "og:locale": locale,
-      "business:contact_data:country_name": "Sweden",
-      "article:publisher": SEO_ORGANIZATION_NAME,
-    },
+    category: locale === "sv" ? "Städtjänster" : "Cleaning services",
   }
 }

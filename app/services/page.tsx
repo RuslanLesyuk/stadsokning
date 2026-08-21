@@ -8,23 +8,18 @@ import {
   getDictionary,
   normalizeLocale,
 } from "@/lib/i18n"
-import { getLanguageAlternates } from "@/lib/seo"
 
 export async function generateMetadata(): Promise<Metadata> {
-  const cookieStore = await cookies()
-  const locale = normalizeLocale(
-    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
-  )
-  const dictionary = getDictionary(locale)
-  const t = dictionary.services
+  const t = getDictionary("sv").services
 
   return {
-    title: `${t.pageTitle} | Clean Jobs`,
+    title: {
+      absolute: `${t.pageTitle} | Clean Jobs`,
+    },
     description: t.pageSubtitle,
     alternates: {
-  canonical: "https://cleansjob.com/services",
-  languages: getLanguageAlternates("/services"),
-},
+      canonical: "https://cleansjob.com/services",
+    },
   }
 }
 

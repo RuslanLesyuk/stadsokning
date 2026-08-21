@@ -7,7 +7,6 @@ import { createClient } from "@/lib/supabase-server"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
-  getDictionary,
   normalizeLocale,
 } from "@/lib/i18n"
 import {
@@ -15,23 +14,12 @@ import {
   getSeoLandingPage,
   seoLandingPages,
 } from "@/lib/seo-landing-pages"
-import { getLanguageAlternates } from "@/lib/seo"
 import { SEO_SITE_URL } from "@/lib/seo/constants"
 
 type PageProps = {
   params: Promise<{
     seoSlug: string
   }>
-}
-
-function cityToSlug(city: string) {
-  return city
-    .toLowerCase()
-    .replaceAll("å", "a")
-    .replaceAll("ä", "a")
-    .replaceAll("ö", "o")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
 }
 
 function getRelatedServiceTypes(serviceType: string) {
@@ -75,20 +63,15 @@ export async function generateMetadata({
     return {}
   }
 
-  const cookieStore = await cookies()
-  const locale = normalizeLocale(
-    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
-  )
-  const copy = getSeoLandingCopy(page, locale)
-  const dictionary = getDictionary(locale)
-  const common = dictionary.common
+  const copy = getSeoLandingCopy(page, "sv")
 
   return {
-    title: copy.title,
+    title: {
+      absolute: copy.title,
+    },
     description: copy.description,
     alternates: {
       canonical: `${SEO_SITE_URL}/${page.slug}`,
-      languages: getLanguageAlternates(`/${page.slug}`),
     },
     openGraph: {
       title: copy.title,
@@ -115,28 +98,15 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const copy = getSeoLandingCopy(page, locale)
 
   const supabase = await createClient()
-  const citySlug = cityToSlug(page.city)
-
-  const { data: services } = await supabase
-    .from("service_profiles")
-    .select("*")
+  const { data: companies } = await supabase
+    .from("companies")
+    .select(
+      "id, name, slug, city, verified, description, hourly_rate, service_types, rut_available",
+    )
     .ilike("city", `%${page.city}%`)
     .order("verified", { ascending: false })
-    .order("company_name")
+    .order("name")
     .limit(9)
-
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: copy.faq.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: item.answer,
-      },
-    })),
-  }
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -161,14 +131,10 @@ export default async function SeoLandingPage({ params }: PageProps) {
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
 
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c") }}
       />
 
       <main className="mx-auto max-w-7xl px-4 py-10">
@@ -187,7 +153,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
 
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
-              href={`/services/city/${citySlug}`}
+              href={`/companies?city=${encodeURIComponent(page.city)}`}
               prefetch={false}
               className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
             >
@@ -212,35 +178,35 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
 
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {services?.map((service) => (
+            {companies?.map((company) => (
               <Link
-                key={service.id}
-                href={`/services/${service.slug}`}
+                key={company.id}
+                href={`/companies/${company.slug}`}
                 prefetch={false}
                 className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="flex items-start justify-between gap-3">
                   <h3 className="text-xl font-bold text-slate-950">
-                    {service.company_name}
+                    {company.name}
                   </h3>
 
-                  {service.verified && (
+                  {company.verified && (
                     <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                      Verified
+                      {locale === "sv" ? "Verifierad" : "Verified"}
                     </span>
                   )}
                 </div>
 
-                <p className="mt-3 text-sm text-slate-500">{service.city}</p>
+                <p className="mt-3 text-sm text-slate-500">{company.city}</p>
 
-                {service.hourly_rate && (
+                {company.hourly_rate && (
                   <p className="mt-4 text-sm font-semibold text-slate-950">
-                    {copy.priceFrom} {service.hourly_rate} {copy.perHour}
+                    {copy.priceFrom} {company.hourly_rate} {copy.perHour}
                   </p>
                 )}
 
                 <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
-                  {service.description || copy.fallback}
+                  {company.description || copy.fallback}
                 </p>
 
                 <span className="mt-6 inline-flex text-sm font-semibold text-rose-600">
@@ -291,7 +257,18 @@ export default async function SeoLandingPage({ params }: PageProps) {
 
           <div className="mt-6 flex flex-wrap gap-3">
             {seoLandingPages
-              .filter((item) => item.slug !== page.slug)
+              .filter(
+                (item) =>
+                  item.slug !== page.slug &&
+                  (item.city === page.city ||
+                    item.serviceType === page.serviceType),
+              )
+              .sort((a, b) => {
+                const aSameCity = a.city === page.city ? 1 : 0
+                const bSameCity = b.city === page.city ? 1 : 0
+                return bSameCity - aSameCity
+              })
+              .slice(0, 10)
               .map((item) => {
                 const relatedCopy = getSeoLandingCopy(item, locale)
 

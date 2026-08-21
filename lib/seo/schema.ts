@@ -1,4 +1,3 @@
-import { createSeoContent } from "./content"
 
 import {
   SEO_COUNTRY_CODE,
@@ -7,7 +6,7 @@ import {
   SEO_SITE_URL,
 } from "./constants"
 
-import { buildAbsoluteSeoUrl } from "./urls"
+import { buildAbsoluteSeoUrl, buildAbsoluteUrl } from "./urls"
 
 import type { SeoCity, SeoLocale, SeoService } from "./types"
 
@@ -31,15 +30,6 @@ function getSeoName(item: SeoCity | SeoService, locale: SeoLocale) {
     return item.name[locale as keyof typeof item.name] as string
   }
 
-  if (
-    "names" in item &&
-    item.names &&
-    typeof item.names === "object" &&
-    locale in item.names
-  ) {
-    return item.names[locale as keyof typeof item.names] as string
-  }
-
   return item.slug
 }
 
@@ -48,12 +38,6 @@ export function createSeoSchema({
   city,
   service,
 }: CreateSeoSchemaParams) {
-  const content = createSeoContent({
-    locale,
-    city,
-    service,
-  })
-
   const cityName = getSeoName(city, locale)
   const serviceName = getSeoName(service, locale)
 
@@ -62,15 +46,6 @@ export function createSeoSchema({
     city: city.slug,
     service: service.slug,
   })
-
-  const faqItems = content.faq.map((item) => ({
-    "@type": "Question",
-    name: item.question,
-    acceptedAnswer: {
-      "@type": "Answer",
-      text: item.answer,
-    },
-  }))
 
   return {
     "@context": "https://schema.org",
@@ -91,27 +66,27 @@ export function createSeoSchema({
         },
       },
       {
-        "@type": "Service",
-        "@id": `${pageUrl}#service`,
-        name: `${serviceName} in ${cityName}`,
-        serviceType: serviceName,
-        areaServed: {
-          "@type": "City",
-          name: cityName,
-          address: {
-            "@type": "PostalAddress",
-            addressCountry: SEO_COUNTRY_CODE,
+        "@type": "WebPage",
+        "@id": `${pageUrl}#webpage`,
+        url: pageUrl,
+        name: `${serviceName} – ${cityName}`,
+        inLanguage: locale,
+        isPartOf: {
+          "@id": `${SEO_SITE_URL}/#website`,
+        },
+        about: {
+          "@type": "Service",
+          name: serviceName,
+          serviceType: serviceName,
+          areaServed: {
+            "@type": "City",
+            name: cityName,
+            address: {
+              "@type": "PostalAddress",
+              addressCountry: SEO_COUNTRY_CODE,
+            },
           },
         },
-        provider: {
-          "@id": `${SEO_SITE_URL}/#organization`,
-        },
-        url: pageUrl,
-      },
-      {
-        "@type": "FAQPage",
-        "@id": `${pageUrl}#faq`,
-        mainEntity: faqItems,
       },
       {
         "@type": "BreadcrumbList",
@@ -127,7 +102,7 @@ export function createSeoSchema({
             "@type": "ListItem",
             position: 2,
             name: cityName,
-            item: pageUrl,
+            item: buildAbsoluteUrl(`/companies?city=${encodeURIComponent(cityName)}`),
           },
           {
             "@type": "ListItem",

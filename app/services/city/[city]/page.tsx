@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
-import { getLanguageAlternates } from "@/lib/seo"
 import { createClient } from "@/lib/supabase-server"
 import {
   DEFAULT_LOCALE,
@@ -39,12 +38,13 @@ export async function generateMetadata({
   if (!cityName) return {}
 
   return {
-    title: `Cleaning Services in ${cityName} | Clean Jobs`,
-    description: `Find cleaning companies and private cleaners in ${cityName}. Compare prices, service areas and contact details.`,
+    title: {
+      absolute: `Städtjänster i ${cityName} | Clean Jobs`,
+    },
+    description: `Hitta städtjänster i ${cityName}. Jämför lokala utförare, priser, serviceområden och kontaktuppgifter på Clean Jobs.`,
     alternates: {
-  canonical: `https://cleansjob.com/services/city/${city}`,
-  languages: getLanguageAlternates(`/services/city/${city}`),
-},
+      canonical: `https://cleansjob.com/services/city/${city}`,
+    },
   }
 }
 

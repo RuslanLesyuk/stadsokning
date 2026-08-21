@@ -6,9 +6,14 @@ import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { getUiDictionary } from "@/lib/ui-i18n"
 
 export const metadata: Metadata = {
-  title: "Cleaning jobs & cleaners | Clean Jobs",
+  title: {
+    absolute: "Städjobb och städföretag i Sverige | Clean Jobs",
+  },
   description:
-    "Find cleaning jobs or hire professional cleaners. Fast, simple and trusted cleaning marketplace.",
+    "Hitta städjobb, jämför städföretag och hitta städtjänster i Sverige. Clean Jobs samlar jobb, företag och lokala städtjänster på en plats.",
+  alternates: {
+    canonical: "https://cleansjob.com/",
+  },
 }
 
 type LocalText = Record<Locale, string>
@@ -609,7 +614,22 @@ export default async function HomePage() {
   const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value)
   const dict = getUiDictionary(locale)
   const landing = dict.landing
-  const home = homeCopy[locale] || homeCopy.en
+  const home = homeCopy[locale] || homeCopy.sv
+  const swedishGuidePaths = new Set([
+    "/jobb-i-sverige",
+    "/stadjobb-stockholm",
+    "/stadjobb-goteborg",
+    "/jobb-utan-svenska",
+    "/hur-man-far-jobb-i-sverige",
+    "/vad-tjanar-en-stadare-i-sverige",
+    "/stadfirma-stockholm",
+    "/stadbranschen-i-sverige-statistik",
+    "/basta-stadforetag-i-sverige",
+  ])
+  const displayedGuides =
+    locale === "sv"
+      ? guides.filter((guide) => swedishGuidePaths.has(guide.href))
+      : guides
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -779,7 +799,7 @@ export default async function HomePage() {
           </div>
 
           <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-            {guides.map((guide) => (
+            {displayedGuides.map((guide) => (
               <GuideCard
                 key={guide.href}
                 href={guide.href}

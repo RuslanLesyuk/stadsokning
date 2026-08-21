@@ -218,22 +218,15 @@ function buildDirectoryHref({
 }
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale()
-  const dictionary = dictionaries[locale]
+  const dictionary = dictionaries.sv
 
   return {
-    title: dictionary.metadataTitle,
+    title: {
+      absolute: dictionary.metadataTitle,
+    },
     description: dictionary.metadataDescription,
     alternates: {
       canonical: "https://cleansjob.com/companies",
-      languages: {
-        sv: "https://cleansjob.com/companies",
-        en: "https://cleansjob.com/companies",
-        uk: "https://cleansjob.com/companies",
-        ru: "https://cleansjob.com/companies",
-        pl: "https://cleansjob.com/companies",
-        "x-default": "https://cleansjob.com/companies",
-      },
     },
     openGraph: {
       type: "website",

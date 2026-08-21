@@ -61,8 +61,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!cityName) return {}
 
   return {
-    title: `Cleaning Companies in ${cityName} | Clean Jobs`,
-    description: `Find cleaning companies in ${cityName}. Compare websites, contact details and cleaning services.`,
+    title: {
+      absolute: `Städföretag i ${cityName} | Clean Jobs`,
+    },
+    description: `Hitta och jämför städföretag i ${cityName}. Se företagsprofiler, kontaktuppgifter, webbplatser och verifierade företag på Clean Jobs.`,
     alternates: { canonical: `https://cleansjob.com/companies/city/${city}` },
   }
 }
@@ -153,11 +155,11 @@ export default async function CompaniesCityPage({ params, searchParams }: Props)
           {totalPages > 1 ? (
             <nav className="mt-8 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4">
               {currentPage > 1 ? (
-                <Link href={pageHref(city, currentPage - 1)} prefetch={false} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">← Previous</Link>
+                <Link href={pageHref(city, currentPage - 1)} prefetch={false} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">← Föregående</Link>
               ) : <span />}
               <span className="text-sm font-bold text-slate-500">{currentPage} / {totalPages}</span>
               {currentPage < totalPages ? (
-                <Link href={pageHref(city, currentPage + 1)} prefetch={false} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Next →</Link>
+                <Link href={pageHref(city, currentPage + 1)} prefetch={false} className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50">Nästa →</Link>
               ) : <span />}
             </nav>
           ) : null}
