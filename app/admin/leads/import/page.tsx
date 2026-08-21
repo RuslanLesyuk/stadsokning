@@ -135,6 +135,9 @@ export default async function ImportCompanyLeadsPage({ searchParams }: PageProps
             <Link href="/admin/leads" prefetch={false} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-bold text-slate-700 hover:bg-slate-100">
               Back to leads
             </Link>
+            <Link href="/admin/leads/publish" prefetch={false} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-300 bg-blue-50 px-5 text-sm font-bold text-blue-800 hover:bg-blue-100">
+              Publish directory
+            </Link>
             <a href="/templates/company-leads-import-template.csv" download className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white hover:bg-slate-800">
               Download CSV template
             </a>
@@ -156,9 +159,17 @@ export default async function ImportCompanyLeadsPage({ searchParams }: PageProps
                   Batch {params.batch || "—"}. No emails were sent and no public company profiles were created.
                 </p>
               </div>
-              <Link href="/admin/leads/enrich" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-bold text-emerald-800 hover:bg-emerald-100">
-                Open email enrichment →
-              </Link>
+              <div className="flex flex-wrap gap-2">
+                <Link
+                  href={params.batch ? `/admin/leads/publish?batch=${encodeURIComponent(params.batch)}` : "/admin/leads/publish"}
+                  className="inline-flex min-h-10 items-center justify-center rounded-xl bg-blue-600 px-4 text-sm font-bold text-white hover:bg-blue-700"
+                >
+                  Publish this batch →
+                </Link>
+                <Link href="/admin/leads/enrich" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-bold text-emerald-800 hover:bg-emerald-100">
+                  Open email enrichment →
+                </Link>
+              </div>
             </div>
 
             <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
@@ -197,7 +208,7 @@ export default async function ImportCompanyLeadsPage({ searchParams }: PageProps
               <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5 text-sm leading-6 text-blue-900">
                 <p className="font-black">Important separation</p>
                 <p className="mt-1">
-                  This step imports only into <code>company_leads</code>, the admin outreach CRM. It does not publish companies into the public <code>companies</code> directory. Publication is Mass Import 2/4.
+                  This step imports only into <code>company_leads</code>, the admin outreach CRM. After review, use <Link href="/admin/leads/publish" className="font-bold underline">Mass Import 2/4</Link> to publish eligible records into the public <code>companies</code> directory.
                 </p>
               </div>
 

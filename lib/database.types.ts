@@ -161,11 +161,13 @@ export type Database = {
       companies: {
         Row: {
           address: string | null
+          catalog_source: string
           city: string | null
           claimed_at: string | null
           cover_url: string | null
           created_at: string | null
           description: string | null
+          directory_quality_score: number
           email: string | null
           faq: Json
           founded_year: number | null
@@ -176,6 +178,10 @@ export type Database = {
           logo_url: string | null
           minimum_order: number | null
           name: string
+          normalized_city: string | null
+          normalized_company_name: string | null
+          normalized_email: string | null
+          normalized_phone: string | null
           organization_number: string | null
           owner_id: string | null
           phone: string | null
@@ -189,15 +195,18 @@ export type Database = {
           updated_at: string
           verified: boolean | null
           website: string | null
+          website_domain: string | null
           working_hours: Json
         }
         Insert: {
           address?: string | null
+          catalog_source?: string
           city?: string | null
           claimed_at?: string | null
           cover_url?: string | null
           created_at?: string | null
           description?: string | null
+          directory_quality_score?: number
           email?: string | null
           faq?: Json
           founded_year?: number | null
@@ -208,6 +217,10 @@ export type Database = {
           logo_url?: string | null
           minimum_order?: number | null
           name: string
+          normalized_city?: string | null
+          normalized_company_name?: string | null
+          normalized_email?: string | null
+          normalized_phone?: string | null
           organization_number?: string | null
           owner_id?: string | null
           phone?: string | null
@@ -221,15 +234,18 @@ export type Database = {
           updated_at?: string
           verified?: boolean | null
           website?: string | null
+          website_domain?: string | null
           working_hours?: Json
         }
         Update: {
           address?: string | null
+          catalog_source?: string
           city?: string | null
           claimed_at?: string | null
           cover_url?: string | null
           created_at?: string | null
           description?: string | null
+          directory_quality_score?: number
           email?: string | null
           faq?: Json
           founded_year?: number | null
@@ -240,6 +256,10 @@ export type Database = {
           logo_url?: string | null
           minimum_order?: number | null
           name?: string
+          normalized_city?: string | null
+          normalized_company_name?: string | null
+          normalized_email?: string | null
+          normalized_phone?: string | null
           organization_number?: string | null
           owner_id?: string | null
           phone?: string | null
@@ -253,6 +273,7 @@ export type Database = {
           updated_at?: string
           verified?: boolean | null
           website?: string | null
+          website_domain?: string | null
           working_hours?: Json
         }
         Relationships: []
@@ -885,6 +906,10 @@ export type Database = {
       company_leads: {
         Row: {
           address: string | null
+          catalog_company_id: string | null
+          catalog_publication_status: string
+          catalog_publish_error: string | null
+          catalog_published_at: string | null
           city: string | null
           company_name: string
           created_at: string
@@ -921,6 +946,10 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          catalog_company_id?: string | null
+          catalog_publication_status?: string
+          catalog_publish_error?: string | null
+          catalog_published_at?: string | null
           city?: string | null
           company_name: string
           created_at?: string
@@ -957,6 +986,10 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          catalog_company_id?: string | null
+          catalog_publication_status?: string
+          catalog_publish_error?: string | null
+          catalog_published_at?: string | null
           city?: string | null
           company_name?: string
           created_at?: string
@@ -992,6 +1025,13 @@ export type Database = {
           website_domain?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "company_leads_catalog_company_id_fkey"
+            columns: ["catalog_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "company_leads_import_batch_id_fkey"
             columns: ["import_batch_id"]
@@ -1895,6 +1935,11 @@ export type Database = {
         Args: { claim_request_id: string; reviewer_user_id: string }
         Returns: undefined
       }
+      company_catalog_slug_base: {
+        Args: { city_name: string; company_name: string }
+        Returns: string
+      }
+      company_catalog_slug_part: { Args: { value: string }; Returns: string }
       company_import_quality_score: {
         Args: {
           city_name: string
@@ -1945,6 +1990,14 @@ export type Database = {
       normalize_company_import_text: {
         Args: { value: string }
         Returns: string
+      }
+      publish_company_leads_batch: {
+        Args: {
+          p_import_batch_id?: string
+          p_limit?: number
+          p_min_quality?: number
+        }
+        Returns: Json
       }
       reject_company_claim: {
         Args: {
