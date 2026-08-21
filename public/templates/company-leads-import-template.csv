@@ -1,0 +1,2 @@
+company_name,city,organization_number,website,email,phone,address,postal_code,source,notes
+Exempel Städ AB,Stockholm,556123-4567,https://example.se,info@example.se,+46 8 123 45 67,Exempelgatan 1,111 22,bolagsregister,Example row - delete before import

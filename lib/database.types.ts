@@ -1,7 +1,3 @@
-// Generated from the linked Clean Jobs Supabase schema.
-// Regenerate with: npm run db:types
-// The Stage 3 performance RPC signatures are included in this checked-in snapshot.
-
 export type Json =
   | string
   | number
@@ -829,11 +825,70 @@ export type Database = {
           },
         ]
       }
+      company_import_batches: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_count: number
+          duplicate_count: number
+          error_message: string | null
+          failed_count: number
+          file_name: string
+          file_type: string
+          id: string
+          invalid_count: number
+          source: string
+          status: string
+          total_rows: number
+          updated_at: string
+          updated_count: number
+          uploaded_by: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_count?: number
+          duplicate_count?: number
+          error_message?: string | null
+          failed_count?: number
+          file_name: string
+          file_type: string
+          id?: string
+          invalid_count?: number
+          source: string
+          status?: string
+          total_rows?: number
+          updated_at?: string
+          updated_count?: number
+          uploaded_by?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_count?: number
+          duplicate_count?: number
+          error_message?: string | null
+          failed_count?: number
+          file_name?: string
+          file_type?: string
+          id?: string
+          invalid_count?: number
+          source?: string
+          status?: string
+          total_rows?: number
+          updated_at?: string
+          updated_count?: number
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       company_leads: {
         Row: {
+          address: string | null
           city: string | null
           company_name: string
           created_at: string
+          data_quality_score: number
           email: string | null
           email_checked_at: string | null
           email_scan_error: string | null
@@ -841,22 +896,35 @@ export type Database = {
           email_source: string | null
           email_source_url: string | null
           id: string
+          import_batch_id: string | null
+          import_fingerprint: string | null
+          import_row_number: number | null
+          import_updated_at: string | null
           invite_count: number
           invited_at: string | null
           last_invited_at: string | null
+          normalized_city: string | null
+          normalized_company_name: string | null
+          normalized_email: string | null
+          normalized_phone: string | null
           notes: string | null
+          organization_number: string | null
           phone: string | null
+          postal_code: string | null
           registered: boolean
           registered_user_id: string | null
           source: string | null
           status: string
           updated_at: string
           website: string | null
+          website_domain: string | null
         }
         Insert: {
+          address?: string | null
           city?: string | null
           company_name: string
           created_at?: string
+          data_quality_score?: number
           email?: string | null
           email_checked_at?: string | null
           email_scan_error?: string | null
@@ -864,22 +932,35 @@ export type Database = {
           email_source?: string | null
           email_source_url?: string | null
           id?: string
+          import_batch_id?: string | null
+          import_fingerprint?: string | null
+          import_row_number?: number | null
+          import_updated_at?: string | null
           invite_count?: number
           invited_at?: string | null
           last_invited_at?: string | null
+          normalized_city?: string | null
+          normalized_company_name?: string | null
+          normalized_email?: string | null
+          normalized_phone?: string | null
           notes?: string | null
+          organization_number?: string | null
           phone?: string | null
+          postal_code?: string | null
           registered?: boolean
           registered_user_id?: string | null
           source?: string | null
           status?: string
           updated_at?: string
           website?: string | null
+          website_domain?: string | null
         }
         Update: {
+          address?: string | null
           city?: string | null
           company_name?: string
           created_at?: string
+          data_quality_score?: number
           email?: string | null
           email_checked_at?: string | null
           email_scan_error?: string | null
@@ -887,19 +968,38 @@ export type Database = {
           email_source?: string | null
           email_source_url?: string | null
           id?: string
+          import_batch_id?: string | null
+          import_fingerprint?: string | null
+          import_row_number?: number | null
+          import_updated_at?: string | null
           invite_count?: number
           invited_at?: string | null
           last_invited_at?: string | null
+          normalized_city?: string | null
+          normalized_company_name?: string | null
+          normalized_email?: string | null
+          normalized_phone?: string | null
           notes?: string | null
+          organization_number?: string | null
           phone?: string | null
+          postal_code?: string | null
           registered?: boolean
           registered_user_id?: string | null
           source?: string | null
           status?: string
           updated_at?: string
           website?: string | null
+          website_domain?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "company_leads_import_batch_id_fkey"
+            columns: ["import_batch_id"]
+            isOneToOne: false
+            referencedRelation: "company_import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       company_quote_request_activity: {
         Row: {
@@ -1787,29 +1887,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_company_dashboard_metrics: {
-        Args: { p_company_id: string; p_now?: string }
-        Returns: Json
-      }
-      get_company_directory_facets: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      get_header_snapshot: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      search_company_directory: {
-        Args: {
-          p_city?: string
-          p_limit?: number
-          p_offset?: number
-          p_search?: string
-          p_sort?: string
-          p_status?: string
-        }
-        Returns: Json
-      }
       accept_job_application: {
         Args: { p_application_id: string }
         Returns: Json
@@ -1817,6 +1894,18 @@ export type Database = {
       approve_company_claim: {
         Args: { claim_request_id: string; reviewer_user_id: string }
         Returns: undefined
+      }
+      company_import_quality_score: {
+        Args: {
+          city_name: string
+          domain_name: string
+          email_address: string
+          org_number: string
+          phone_number: string
+          postal: string
+          street_address: string
+        }
+        Returns: number
       }
       consume_security_rate_limit: {
         Args: {
@@ -1826,6 +1915,36 @@ export type Database = {
           p_window_seconds: number
         }
         Returns: boolean
+      }
+      get_company_dashboard_metrics: {
+        Args: { p_company_id: string; p_now?: string }
+        Returns: Json
+      }
+      get_company_directory_facets: { Args: never; Returns: Json }
+      get_header_snapshot: { Args: never; Returns: Json }
+      import_company_leads_batch: {
+        Args: { p_batch_id: string; p_rows: Json }
+        Returns: Json
+      }
+      normalize_company_import_domain: {
+        Args: { value: string }
+        Returns: string
+      }
+      normalize_company_import_email: {
+        Args: { value: string }
+        Returns: string
+      }
+      normalize_company_import_org_number: {
+        Args: { value: string }
+        Returns: string
+      }
+      normalize_company_import_phone: {
+        Args: { value: string }
+        Returns: string
+      }
+      normalize_company_import_text: {
+        Args: { value: string }
+        Returns: string
       }
       reject_company_claim: {
         Args: {
@@ -1846,6 +1965,17 @@ export type Database = {
           reviewer_user_id: string
         }
         Returns: undefined
+      }
+      search_company_directory: {
+        Args: {
+          p_city?: string
+          p_limit?: number
+          p_offset?: number
+          p_search?: string
+          p_sort?: string
+          p_status?: string
+        }
+        Returns: Json
       }
       upsert_company_crm_customer: {
         Args: {
