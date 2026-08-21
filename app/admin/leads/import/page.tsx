@@ -166,8 +166,15 @@ export default async function ImportCompanyLeadsPage({ searchParams }: PageProps
                 >
                   Publish this batch →
                 </Link>
-                <Link href="/admin/leads/enrich" className="inline-flex min-h-10 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-bold text-emerald-800 hover:bg-emerald-100">
-                  Open email enrichment →
+                <Link
+                  href={
+                    params.batch
+                      ? `/admin/leads/enrich?importBatch=${encodeURIComponent(params.batch)}`
+                      : "/admin/leads/enrich"
+                  }
+                  className="inline-flex min-h-10 items-center justify-center rounded-xl border border-emerald-300 bg-white px-4 text-sm font-bold text-emerald-800 hover:bg-emerald-100"
+                >
+                  Enrich this batch →
                 </Link>
               </div>
             </div>

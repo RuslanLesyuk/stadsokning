@@ -1,6 +1,8 @@
-MASS_IMPORT_2_README.md
+MASS_IMPORT_3_README.md
 PACKAGE_FILES.txt
+app/admin/leads/enrich/batch-actions.ts
+app/admin/leads/enrich/batch-runner.tsx
+app/admin/leads/enrich/page.tsx
 app/admin/leads/import/page.tsx
-app/admin/leads/publish/actions.ts
-app/admin/leads/publish/page.tsx
-supabase/migrations/20260821213000_mass_import_2_catalog_publication.sql
+lib/email-enrichment/batch-types.ts
+supabase/migrations/20260821220000_mass_import_3_batch_enrichment.sql

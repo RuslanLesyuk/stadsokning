@@ -846,6 +846,155 @@ export type Database = {
           },
         ]
       }
+      company_enrichment_batch_items: {
+        Row: {
+          batch_id: string
+          claim_attempts: number
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          lead_id: string
+          position: number
+          result_status: string | null
+          source_status: string
+          status: string
+          updated_at: string
+          worker_token: string | null
+        }
+        Insert: {
+          batch_id: string
+          claim_attempts?: number
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          lead_id: string
+          position: number
+          result_status?: string | null
+          source_status: string
+          status?: string
+          updated_at?: string
+          worker_token?: string | null
+        }
+        Update: {
+          batch_id?: string
+          claim_attempts?: number
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          lead_id?: string
+          position?: number
+          result_status?: string | null
+          source_status?: string
+          status?: string
+          updated_at?: string
+          worker_token?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_enrichment_batch_items_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "company_enrichment_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_enrichment_batch_items_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "company_leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_enrichment_batches: {
+        Row: {
+          completed_at: string | null
+          completed_count: number
+          created_at: string
+          created_by: string | null
+          failed_count: number
+          found_count: number
+          id: string
+          import_batch_id: string | null
+          imported_only: boolean
+          invalid_site_count: number
+          max_attempts: number
+          not_found_count: number
+          processing_count: number
+          queued_count: number
+          requested_limit: number
+          skipped_count: number
+          source_status: string
+          started_at: string | null
+          status: string
+          timeout_count: number
+          total_items: number
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_count?: number
+          created_at?: string
+          created_by?: string | null
+          failed_count?: number
+          found_count?: number
+          id?: string
+          import_batch_id?: string | null
+          imported_only?: boolean
+          invalid_site_count?: number
+          max_attempts?: number
+          not_found_count?: number
+          processing_count?: number
+          queued_count?: number
+          requested_limit?: number
+          skipped_count?: number
+          source_status?: string
+          started_at?: string | null
+          status?: string
+          timeout_count?: number
+          total_items?: number
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_count?: number
+          created_at?: string
+          created_by?: string | null
+          failed_count?: number
+          found_count?: number
+          id?: string
+          import_batch_id?: string | null
+          imported_only?: boolean
+          invalid_site_count?: number
+          max_attempts?: number
+          not_found_count?: number
+          processing_count?: number
+          queued_count?: number
+          requested_limit?: number
+          skipped_count?: number
+          source_status?: string
+          started_at?: string | null
+          status?: string
+          timeout_count?: number
+          total_items?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_enrichment_batches_import_batch_id_fkey"
+            columns: ["import_batch_id"]
+            isOneToOne: false
+            referencedRelation: "company_import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       company_import_batches: {
         Row: {
           completed_at: string | null
@@ -916,7 +1065,10 @@ export type Database = {
           data_quality_score: number
           email: string | null
           email_checked_at: string | null
+          email_scan_attempt_count: number
           email_scan_error: string | null
+          email_scan_last_attempt_at: string | null
+          email_scan_last_batch_id: string | null
           email_scan_status: string
           email_source: string | null
           email_source_url: string | null
@@ -956,7 +1108,10 @@ export type Database = {
           data_quality_score?: number
           email?: string | null
           email_checked_at?: string | null
+          email_scan_attempt_count?: number
           email_scan_error?: string | null
+          email_scan_last_attempt_at?: string | null
+          email_scan_last_batch_id?: string | null
           email_scan_status?: string
           email_source?: string | null
           email_source_url?: string | null
@@ -996,7 +1151,10 @@ export type Database = {
           data_quality_score?: number
           email?: string | null
           email_checked_at?: string | null
+          email_scan_attempt_count?: number
           email_scan_error?: string | null
+          email_scan_last_attempt_at?: string | null
+          email_scan_last_batch_id?: string | null
           email_scan_status?: string
           email_source?: string | null
           email_source_url?: string | null
@@ -1030,6 +1188,13 @@ export type Database = {
             columns: ["catalog_company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_leads_email_scan_last_batch_id_fkey"
+            columns: ["email_scan_last_batch_id"]
+            isOneToOne: false
+            referencedRelation: "company_enrichment_batches"
             referencedColumns: ["id"]
           },
           {
@@ -1935,6 +2100,17 @@ export type Database = {
         Args: { claim_request_id: string; reviewer_user_id: string }
         Returns: undefined
       }
+      claim_company_enrichment_items: {
+        Args: { p_batch_id: string; p_limit?: number; p_worker_token?: string }
+        Returns: {
+          catalog_company_id: string
+          company_name: string
+          item_id: string
+          lead_id: string
+          source_status: string
+          website: string
+        }[]
+      }
       company_catalog_slug_base: {
         Args: { city_name: string; company_name: string }
         Returns: string
@@ -1952,6 +2128,18 @@ export type Database = {
         }
         Returns: number
       }
+      complete_company_enrichment_item: {
+        Args: {
+          p_email?: string
+          p_email_source?: string
+          p_email_source_url?: string
+          p_error?: string
+          p_item_id: string
+          p_result_status: string
+          p_worker_token: string
+        }
+        Returns: Json
+      }
       consume_security_rate_limit: {
         Args: {
           p_action: string
@@ -1960,6 +2148,17 @@ export type Database = {
           p_window_seconds: number
         }
         Returns: boolean
+      }
+      create_company_enrichment_batch: {
+        Args: {
+          p_created_by: string
+          p_import_batch_id?: string
+          p_imported_only?: boolean
+          p_limit?: number
+          p_max_attempts?: number
+          p_source_status?: string
+        }
+        Returns: Json
       }
       get_company_dashboard_metrics: {
         Args: { p_company_id: string; p_now?: string }
@@ -1997,6 +2196,10 @@ export type Database = {
           p_limit?: number
           p_min_quality?: number
         }
+        Returns: Json
+      }
+      refresh_company_enrichment_batch: {
+        Args: { p_batch_id: string }
         Returns: Json
       }
       reject_company_claim: {
