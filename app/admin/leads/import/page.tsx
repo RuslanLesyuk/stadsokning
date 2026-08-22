@@ -138,6 +138,9 @@ export default async function ImportCompanyLeadsPage({ searchParams }: PageProps
             <Link href="/admin/leads/publish" prefetch={false} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-blue-300 bg-blue-50 px-5 text-sm font-bold text-blue-800 hover:bg-blue-100">
               Publish directory
             </Link>
+            <Link href="/admin/leads/rollout" prefetch={false} className="inline-flex min-h-11 items-center justify-center rounded-xl border border-violet-300 bg-violet-50 px-5 text-sm font-bold text-violet-800 hover:bg-violet-100">
+              Rollout QA
+            </Link>
             <a href="/templates/company-leads-import-template.csv" download className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white hover:bg-slate-800">
               Download CSV template
             </a>

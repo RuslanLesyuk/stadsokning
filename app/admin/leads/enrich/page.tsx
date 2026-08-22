@@ -279,6 +279,13 @@ export default async function EnrichLeadsPage({ searchParams }: PageProps) {
               Publish directory
             </Link>
             <Link
+              href="/admin/leads/rollout"
+              prefetch={false}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-violet-300 bg-violet-50 px-5 text-sm font-bold text-violet-800 hover:bg-violet-100"
+            >
+              Rollout QA
+            </Link>
+            <Link
               href="/admin/leads"
               prefetch={false}
               className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-5 text-sm font-bold text-white hover:bg-slate-800"

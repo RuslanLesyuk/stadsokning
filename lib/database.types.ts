@@ -2165,6 +2165,34 @@ export type Database = {
         Returns: Json
       }
       get_company_directory_facets: { Args: never; Returns: Json }
+      get_company_import_rollout_issues: {
+        Args: {
+          p_import_batch_id?: string
+          p_limit?: number
+          p_max_attempts?: number
+          p_min_quality?: number
+        }
+        Returns: {
+          catalog_publication_status: string
+          city: string
+          company_name: string
+          data_quality_score: number
+          detail: string
+          email_scan_attempt_count: number
+          email_scan_status: string
+          issue_code: string
+          lead_id: string
+          severity: string
+        }[]
+      }
+      get_company_import_rollout_summary: {
+        Args: {
+          p_import_batch_id?: string
+          p_max_attempts?: number
+          p_min_quality?: number
+        }
+        Returns: Json
+      }
       get_header_snapshot: { Args: never; Returns: Json }
       import_company_leads_batch: {
         Args: { p_batch_id: string; p_rows: Json }
