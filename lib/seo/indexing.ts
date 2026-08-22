@@ -1,4 +1,3 @@
-
 import { buildLocalizedSeoPath } from "./urls"
 
 import type { SeoCity, SeoLocale, SeoService } from "./types"
@@ -60,6 +59,7 @@ export const SWEDISH_LANDING_CITY_SLUGS = [
 ] as const
 
 export const SWEDISH_LANDING_SERVICE_SLUGS = [
+  "stadfirma",
   "hemstadning",
   "flyttstadning",
   "kontorsstadning",
@@ -101,12 +101,33 @@ export function getPreferredSeoPath({
 }) {
   if (locale === "sv") {
     const landingPath = getSwedishSeoLandingPath(city, service)
-    if (landingPath) return landingPath
+
+    if (landingPath) {
+      return landingPath
+    }
   }
 
-  return buildLocalizedSeoPath({ locale, city, service })
+  return buildLocalizedSeoPath({
+    locale,
+    city,
+    service,
+  })
 }
 
+/**
+ * Controls whether a valid SEO-engine page may be indexed.
+ *
+ * Important:
+ * - non-Swedish SEO pages remain indexable;
+ * - Swedish long-tail SEO pages remain indexable;
+ * - Swedish combinations that have a cleaner landing URL are NOT
+ *   indexed at /seo/... because that route permanently redirects
+ *   to the cleaner URL.
+ *
+ * This is deliberately separate from generateStaticParams().
+ * Indexability must not depend on whether a page is pre-rendered
+ * during next build.
+ */
 export function shouldIndexSeoEnginePage({
   locale,
   citySlug,
@@ -116,40 +137,63 @@ export function shouldIndexSeoEnginePage({
   citySlug: string
   serviceSlug: string
 }) {
-  if (locale !== "sv") {
-    return true
+  if (
+    locale === "sv" &&
+    getSwedishSeoLandingPath(citySlug, serviceSlug)
+  ) {
+    return false
   }
 
-  return isSwedishPriorityCity(citySlug) && isSwedishPriorityService(serviceSlug)
+  return true
 }
 
+/**
+ * Determines whether the Swedish /seo/[city]/[service] URL itself
+ * is a canonical SEO-engine URL.
+ *
+ * Cleaner Swedish landing URLs replace the corresponding /seo/... URL.
+ */
 export function shouldIncludeSwedishSeoEnginePage(
   citySlug: string,
   serviceSlug: string,
 ) {
-  return (
-    isSwedishPriorityCity(citySlug) &&
-    isSwedishPriorityService(serviceSlug) &&
-    !getSwedishSeoLandingPath(citySlug, serviceSlug)
-  )
+  return !getSwedishSeoLandingPath(citySlug, serviceSlug)
 }
 
+/**
+ * Keep build-time pre-rendering intentionally small.
+ *
+ * These are performance/prebuild priorities only.
+ * Other valid SEO URLs remain available through dynamic rendering
+ * and may still be indexed.
+ */
 export function getSwedishSeoStaticParams(
   cities: SeoCity[],
   services: SeoService[],
 ) {
-  return cities.flatMap((city) =>
-    services
-      .filter((service) =>
-        shouldIncludeSwedishSeoEnginePage(city.slug, service.slug),
+  return cities.flatMap((city) => {
+    if (!priorityCities.has(city.slug)) {
+      return []
+    }
+
+    return services
+      .filter(
+        (service) =>
+          priorityServices.has(service.slug) &&
+          shouldIncludeSwedishSeoEnginePage(city.slug, service.slug),
       )
       .map((service) => ({
         city: city.slug,
         service: service.slug,
-      })),
-  )
+      }))
+  })
 }
 
+/**
+ * Keep localized build-time pre-rendering intentionally limited.
+ *
+ * Remaining valid localized SEO pages are generated on demand.
+ */
 export function getLocalizedSeoStaticParams({
   locales,
   cities,
@@ -160,13 +204,16 @@ export function getLocalizedSeoStaticParams({
   services: SeoService[]
 }) {
   const prebuildCities = new Set<string>(SWEDISH_LANDING_CITY_SLUGS)
+
   const prebuildServices = new Set<string>(
     SWEDISH_PRIORITY_SERVICE_SLUGS.slice(0, 5),
   )
 
   return locales.flatMap((seoSlug) =>
     cities.flatMap((city) => {
-      if (!prebuildCities.has(city.slug)) return []
+      if (!prebuildCities.has(city.slug)) {
+        return []
+      }
 
       return services
         .filter((service) => prebuildServices.has(service.slug))

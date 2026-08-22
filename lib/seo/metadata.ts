@@ -1,4 +1,3 @@
-
 import type { Metadata } from "next"
 
 import {
@@ -6,17 +5,16 @@ import {
   SEO_DEFAULT_TWITTER_IMAGE,
   SEO_SITE_NAME,
   SEO_SITE_URL,
+  SEO_SUPPORTED_LOCALES,
   SEO_TWITTER_CARD,
 } from "./constants"
 
-import { shouldIndexSeoEnginePage } from "./indexing"
-
 import {
-  buildAbsoluteSeoUrl,
-  buildAbsoluteUrl,
-  buildSeoLanguageAlternates,
-  buildSeoXDefaultUrl,
-} from "./urls"
+  getPreferredSeoPath,
+  shouldIndexSeoEnginePage,
+} from "./indexing"
+
+import { buildAbsoluteUrl } from "./urls"
 
 import type { SeoCity, SeoLocale, SeoService } from "./types"
 
@@ -52,11 +50,13 @@ export function createSeoMetadata({
   title,
   description,
 }: CreateSeoMetadataInput): Metadata {
-  const canonical = buildAbsoluteSeoUrl({
-    locale,
-    city: city.slug,
-    service: service.slug,
-  })
+  const canonical = buildAbsoluteUrl(
+    getPreferredSeoPath({
+      locale,
+      city: city.slug,
+      service: service.slug,
+    }),
+  )
 
   const indexable = shouldIndexSeoEnginePage({
     locale,
@@ -64,9 +64,34 @@ export function createSeoMetadata({
     serviceSlug: service.slug,
   })
 
+  const languages = SEO_SUPPORTED_LOCALES.reduce(
+    (acc, alternateLocale) => {
+      acc[alternateLocale] = buildAbsoluteUrl(
+        getPreferredSeoPath({
+          locale: alternateLocale,
+          city: city.slug,
+          service: service.slug,
+        }),
+      )
+
+      return acc
+    },
+    {} as Record<string, string>,
+  )
+
+  const xDefault = buildAbsoluteUrl(
+    getPreferredSeoPath({
+      locale: "sv",
+      city: city.slug,
+      service: service.slug,
+    }),
+  )
+
   const cityName = getSeoName(city, locale)
   const serviceName = getSeoName(service, locale)
+
   const absoluteTitle = `${title} | ${SEO_SITE_NAME}`
+
   const ogImageUrl = buildAbsoluteUrl(SEO_DEFAULT_OG_IMAGE)
   const twitterImageUrl = buildAbsoluteUrl(SEO_DEFAULT_TWITTER_IMAGE)
 
@@ -74,14 +99,8 @@ export function createSeoMetadata({
     ? {
         canonical,
         languages: {
-          ...buildSeoLanguageAlternates({
-            city: city.slug,
-            service: service.slug,
-          }),
-          "x-default": buildSeoXDefaultUrl({
-            city: city.slug,
-            service: service.slug,
-          }),
+          ...languages,
+          "x-default": xDefault,
         },
       }
     : {
@@ -90,11 +109,15 @@ export function createSeoMetadata({
 
   return {
     metadataBase: new URL(SEO_SITE_URL),
+
     title: {
       absolute: absoluteTitle,
     },
+
     description,
+
     applicationName: SEO_SITE_NAME,
+
     alternates,
 
     openGraph: {
@@ -142,6 +165,9 @@ export function createSeoMetadata({
           },
         },
 
-    category: locale === "sv" ? "Städtjänster" : "Cleaning services",
+    category:
+      locale === "sv"
+        ? "Städtjänster"
+        : "Cleaning services",
   }
 }
