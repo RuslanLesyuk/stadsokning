@@ -12,7 +12,10 @@ import {
 import { seoCities } from "@/lib/seo/cities"
 import { seoServices } from "@/lib/seo/services"
 
-import { getPreferredSeoPath } from "@/lib/seo/indexing"
+import {
+  getPreferredSeoPath,
+  shouldIndexPreferredSeoPage,
+} from "@/lib/seo/indexing"
 
 const citySlugs = [
   "stockholm",
@@ -122,30 +125,40 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   )
 
   /**
-   * Full canonical SEO coverage.
+   * Recovery sitemap:
    *
-   * Swedish combinations use cleaner URLs when one exists.
-   * Other Swedish combinations use /seo/[city]/[service].
-   *
-   * EN / UK / RU / PL use their localized SEO-engine URLs.
-   *
-   * generateStaticParams() remains intentionally smaller;
-   * pages outside that prebuilt subset are generated on demand.
+   * Do not submit the full 290 x 20 x 5 matrix.
+   * Only canonical priority combinations belong in the sitemap.
+   * Other valid routes remain available but carry noindex metadata.
    */
   const seoEnginePages: MetadataRoute.Sitemap = seoCities.flatMap((city) =>
     seoServices.flatMap((service) =>
-      SEO_SUPPORTED_LOCALES.map((locale) => ({
-        url: `${SEO_SITE_URL}${getPreferredSeoPath({
-          locale,
-          city: city.slug,
-          service: service.slug,
-        })}`,
-        changeFrequency: "weekly" as const,
-        priority:
-          locale === "sv"
-            ? 0.72
-            : 0.65,
-      })),
+      SEO_SUPPORTED_LOCALES.flatMap((locale) => {
+        if (
+          !shouldIndexPreferredSeoPage({
+            locale,
+            citySlug: city.slug,
+            serviceSlug: service.slug,
+          })
+        ) {
+          return []
+        }
+
+        return [
+          {
+            url: `${SEO_SITE_URL}${getPreferredSeoPath({
+              locale,
+              city: city.slug,
+              service: service.slug,
+            })}`,
+            changeFrequency: "weekly" as const,
+            priority:
+              locale === "sv"
+                ? 0.78
+                : 0.7,
+          },
+        ]
+      }),
     ),
   )
 

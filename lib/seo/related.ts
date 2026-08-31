@@ -1,10 +1,8 @@
-
 import { seoCities } from "./cities"
 import { seoServices } from "./services"
 import {
   getPreferredSeoPath,
-  isSwedishPriorityCity,
-  isSwedishPriorityService,
+  shouldIndexPreferredSeoPage,
 } from "./indexing"
 
 import type { SeoCity, SeoLocale, SeoService } from "./types"
@@ -39,6 +37,7 @@ function getSeoName(item: SeoCity | SeoService, locale: SeoLocale) {
 
 function uniqueCities(items: SeoCity[]) {
   const seen = new Set<string>()
+
   return items.filter((item) => {
     if (seen.has(item.slug)) return false
     seen.add(item.slug)
@@ -51,13 +50,16 @@ export function createRelatedContent({
   city,
   service,
 }: CreateRelatedContentParams) {
-  const serviceCandidates =
-    locale === "sv"
-      ? seoServices.filter((item) => isSwedishPriorityService(item.slug))
-      : seoServices
-
-  const services: RelatedLink[] = serviceCandidates
-    .filter((item) => item.slug !== service.slug)
+  const services: RelatedLink[] = seoServices
+    .filter(
+      (item) =>
+        item.slug !== service.slug &&
+        shouldIndexPreferredSeoPage({
+          locale,
+          citySlug: city.slug,
+          serviceSlug: item.slug,
+        }),
+    )
     .slice(0, 6)
     .map((item) => ({
       title: getSeoName(item, locale),
@@ -74,19 +76,27 @@ export function createRelatedContent({
       item.region &&
       city.region &&
       item.region === city.region &&
-      (locale !== "sv" || isSwedishPriorityCity(item.slug)),
+      shouldIndexPreferredSeoPage({
+        locale,
+        citySlug: item.slug,
+        serviceSlug: service.slug,
+      }),
   )
 
-  const priorityElsewhere = seoCities.filter(
+  const elsewhere = seoCities.filter(
     (item) =>
       item.slug !== city.slug &&
       !sameRegion.some((nearby) => nearby.slug === item.slug) &&
-      (locale !== "sv" || isSwedishPriorityCity(item.slug)),
+      shouldIndexPreferredSeoPage({
+        locale,
+        citySlug: item.slug,
+        serviceSlug: service.slug,
+      }),
   )
 
   const cities: RelatedLink[] = uniqueCities([
     ...sameRegion,
-    ...priorityElsewhere,
+    ...elsewhere,
   ])
     .slice(0, 6)
     .map((item) => ({

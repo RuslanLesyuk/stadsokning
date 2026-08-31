@@ -66,10 +66,21 @@ export const SWEDISH_LANDING_SERVICE_SLUGS = [
   "fonsterputs",
 ] as const
 
+export const LOCALIZED_PRIORITY_SERVICE_SLUGS = [
+  "hemstadning",
+  "flyttstadning",
+  "kontorsstadning",
+  "fonsterputs",
+  "trappstadning",
+] as const
+
 const priorityCities = new Set<string>(SWEDISH_PRIORITY_CITY_SLUGS)
 const priorityServices = new Set<string>(SWEDISH_PRIORITY_SERVICE_SLUGS)
 const landingCities = new Set<string>(SWEDISH_LANDING_CITY_SLUGS)
 const landingServices = new Set<string>(SWEDISH_LANDING_SERVICE_SLUGS)
+const localizedPriorityServices = new Set<string>(
+  LOCALIZED_PRIORITY_SERVICE_SLUGS,
+)
 
 export function isSwedishPriorityCity(citySlug: string) {
   return priorityCities.has(citySlug)
@@ -77,6 +88,14 @@ export function isSwedishPriorityCity(citySlug: string) {
 
 export function isSwedishPriorityService(serviceSlug: string) {
   return priorityServices.has(serviceSlug)
+}
+
+export function isLocalizedPriorityCity(citySlug: string) {
+  return landingCities.has(citySlug)
+}
+
+export function isLocalizedPriorityService(serviceSlug: string) {
+  return localizedPriorityServices.has(serviceSlug)
 }
 
 export function getSwedishSeoLandingPath(
@@ -115,18 +134,49 @@ export function getPreferredSeoPath({
 }
 
 /**
- * Controls whether a valid SEO-engine page may be indexed.
+ * Canonical index policy.
  *
- * Important:
- * - non-Swedish SEO pages remain indexable;
- * - Swedish long-tail SEO pages remain indexable;
- * - Swedish combinations that have a cleaner landing URL are NOT
- *   indexed at /seo/... because that route permanently redirects
- *   to the cleaner URL.
+ * Recovery strategy:
+ * - Swedish: keep the strongest 28 cities x 8 commercial services.
+ * - EN/UK/RU/PL: keep 11 priority cities x the 5 strongest services.
+ * - Cleaner Swedish landing URLs remain indexable and replace the
+ *   corresponding /seo/... URL.
  *
- * This is deliberately separate from generateStaticParams().
- * Indexability must not depend on whether a page is pre-rendered
- * during next build.
+ * All other valid combinations remain routable but are noindex.
+ * This lets us preserve the engine without asking Google to evaluate
+ * ~29k near-template pages at the same time.
+ */
+export function shouldIndexPreferredSeoPage({
+  locale,
+  citySlug,
+  serviceSlug,
+}: {
+  locale: SeoLocale
+  citySlug: string
+  serviceSlug: string
+}) {
+  if (locale === "sv") {
+    if (getSwedishSeoLandingPath(citySlug, serviceSlug)) {
+      return true
+    }
+
+    return (
+      priorityCities.has(citySlug) &&
+      priorityServices.has(serviceSlug)
+    )
+  }
+
+  return (
+    landingCities.has(citySlug) &&
+    localizedPriorityServices.has(serviceSlug)
+  )
+}
+
+/**
+ * Controls the actual /seo route.
+ *
+ * A Swedish combination with a cleaner landing path is not indexable
+ * at /seo/... because that route permanently redirects to the clean URL.
  */
 export function shouldIndexSeoEnginePage({
   locale,
@@ -144,15 +194,13 @@ export function shouldIndexSeoEnginePage({
     return false
   }
 
-  return true
+  return shouldIndexPreferredSeoPage({
+    locale,
+    citySlug,
+    serviceSlug,
+  })
 }
 
-/**
- * Determines whether the Swedish /seo/[city]/[service] URL itself
- * is a canonical SEO-engine URL.
- *
- * Cleaner Swedish landing URLs replace the corresponding /seo/... URL.
- */
 export function shouldIncludeSwedishSeoEnginePage(
   citySlug: string,
   serviceSlug: string,
@@ -160,13 +208,6 @@ export function shouldIncludeSwedishSeoEnginePage(
   return !getSwedishSeoLandingPath(citySlug, serviceSlug)
 }
 
-/**
- * Keep build-time pre-rendering intentionally small.
- *
- * These are performance/prebuild priorities only.
- * Other valid SEO URLs remain available through dynamic rendering
- * and may still be indexed.
- */
 export function getSwedishSeoStaticParams(
   cities: SeoCity[],
   services: SeoService[],
@@ -189,11 +230,6 @@ export function getSwedishSeoStaticParams(
   })
 }
 
-/**
- * Keep localized build-time pre-rendering intentionally limited.
- *
- * Remaining valid localized SEO pages are generated on demand.
- */
 export function getLocalizedSeoStaticParams({
   locales,
   cities,
@@ -203,20 +239,16 @@ export function getLocalizedSeoStaticParams({
   cities: SeoCity[]
   services: SeoService[]
 }) {
-  const prebuildCities = new Set<string>(SWEDISH_LANDING_CITY_SLUGS)
-
-  const prebuildServices = new Set<string>(
-    SWEDISH_PRIORITY_SERVICE_SLUGS.slice(0, 5),
-  )
-
   return locales.flatMap((seoSlug) =>
     cities.flatMap((city) => {
-      if (!prebuildCities.has(city.slug)) {
+      if (!landingCities.has(city.slug)) {
         return []
       }
 
       return services
-        .filter((service) => prebuildServices.has(service.slug))
+        .filter((service) =>
+          localizedPriorityServices.has(service.slug),
+        )
         .map((service) => ({
           seoSlug,
           city: city.slug,

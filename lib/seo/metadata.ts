@@ -11,6 +11,7 @@ import {
 
 import {
   getPreferredSeoPath,
+  shouldIndexPreferredSeoPage,
   shouldIndexSeoEnginePage,
 } from "./indexing"
 
@@ -66,26 +67,34 @@ export function createSeoMetadata({
 
   const languages = SEO_SUPPORTED_LOCALES.reduce(
     (acc, alternateLocale) => {
-      acc[alternateLocale] = buildAbsoluteUrl(
-        getPreferredSeoPath({
+      if (
+        shouldIndexPreferredSeoPage({
           locale: alternateLocale,
-          city: city.slug,
-          service: service.slug,
-        }),
-      )
+          citySlug: city.slug,
+          serviceSlug: service.slug,
+        })
+      ) {
+        acc[alternateLocale] = buildAbsoluteUrl(
+          getPreferredSeoPath({
+            locale: alternateLocale,
+            city: city.slug,
+            service: service.slug,
+          }),
+        )
+      }
 
       return acc
     },
     {} as Record<string, string>,
   )
 
-  const xDefault = buildAbsoluteUrl(
-    getPreferredSeoPath({
-      locale: "sv",
-      city: city.slug,
-      service: service.slug,
-    }),
-  )
+  const swedishPreferredPath = getPreferredSeoPath({
+    locale: "sv",
+    city: city.slug,
+    service: service.slug,
+  })
+
+  const xDefault = buildAbsoluteUrl(swedishPreferredPath)
 
   const cityName = getSeoName(city, locale)
   const serviceName = getSeoName(service, locale)

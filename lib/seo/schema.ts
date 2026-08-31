@@ -1,4 +1,3 @@
-
 import {
   SEO_COUNTRY_CODE,
   SEO_ORGANIZATION_NAME,
@@ -6,7 +5,8 @@ import {
   SEO_SITE_URL,
 } from "./constants"
 
-import { buildAbsoluteSeoUrl, buildAbsoluteUrl } from "./urls"
+import { getPreferredSeoPath } from "./indexing"
+import { buildAbsoluteUrl } from "./urls"
 
 import type { SeoCity, SeoLocale, SeoService } from "./types"
 
@@ -41,11 +41,13 @@ export function createSeoSchema({
   const cityName = getSeoName(city, locale)
   const serviceName = getSeoName(service, locale)
 
-  const pageUrl = buildAbsoluteSeoUrl({
-    locale,
-    city: city.slug,
-    service: service.slug,
-  })
+  const pageUrl = buildAbsoluteUrl(
+    getPreferredSeoPath({
+      locale,
+      city: city.slug,
+      service: service.slug,
+    }),
+  )
 
   return {
     "@context": "https://schema.org",
@@ -102,7 +104,9 @@ export function createSeoSchema({
             "@type": "ListItem",
             position: 2,
             name: cityName,
-            item: buildAbsoluteUrl(`/companies?city=${encodeURIComponent(cityName)}`),
+            item: buildAbsoluteUrl(
+              `/companies?city=${encodeURIComponent(city.name)}`,
+            ),
           },
           {
             "@type": "ListItem",

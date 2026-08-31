@@ -1,20 +1,15 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
 
-import { createClient } from "@/lib/supabase-server"
-import {
-  DEFAULT_LOCALE,
-  LOCALE_COOKIE_NAME,
-  normalizeLocale,
-} from "@/lib/i18n"
 import {
   getSeoLandingCopy,
   getSeoLandingPage,
   seoLandingPages,
 } from "@/lib/seo-landing-pages"
 import { SEO_SITE_URL } from "@/lib/seo/constants"
+import { getSeoMarketplaceSnapshot } from "@/lib/seo/marketplace"
+import { seoServices } from "@/lib/seo/services"
 
 type PageProps = {
   params: Promise<{
@@ -80,6 +75,10 @@ export async function generateMetadata({
       siteName: "Clean Jobs",
       type: "website",
     },
+    robots: {
+      index: true,
+      follow: true,
+    },
   }
 }
 
@@ -91,22 +90,23 @@ export default async function SeoLandingPage({ params }: PageProps) {
     notFound()
   }
 
-  const cookieStore = await cookies()
-  const locale = normalizeLocale(
-    cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
-  )
+  /**
+   * Cleaner landing URLs are Swedish canonical pages.
+   * Never let a visitor language cookie change their page copy.
+   */
+  const locale = "sv" as const
   const copy = getSeoLandingCopy(page, locale)
 
-  const supabase = await createClient()
-  const { data: companies } = await supabase
-    .from("companies")
-    .select(
-      "id, name, slug, city, verified, description, hourly_rate, service_types, rut_available",
-    )
-    .ilike("city", `%${page.city}%`)
-    .order("verified", { ascending: false })
-    .order("name")
-    .limit(9)
+  const service =
+    page.serviceType === "stadfirma"
+      ? null
+      : seoServices.find((item) => item.slug === page.serviceType) ?? null
+
+  const marketplace = await getSeoMarketplaceSnapshot({
+    city: { name: page.city },
+    service,
+    limit: 9,
+  })
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -129,12 +129,19 @@ export default async function SeoLandingPage({ params }: PageProps) {
 
   const relatedServiceTypes = getRelatedServiceTypes(page.serviceType)
 
+  const providersTitle =
+    page.serviceType === "stadfirma" ||
+    marketplace.serviceMatchCount > 0
+      ? copy.providersTitle
+      : `Städföretag i ${page.city}`
+
   return (
     <div className="min-h-screen bg-[#fafafa]">
-
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c") }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       <main className="mx-auto max-w-7xl px-4 py-10">
@@ -170,52 +177,95 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="mt-10">
-          <div className="mb-5">
-            <h2 className="text-2xl font-bold text-slate-950">
-              {copy.providersTitle}
-            </h2>
-          </div>
+        {marketplace.companies.length > 0 ? (
+          <section className="mt-10">
+            <div className="mb-5">
+              <h2 className="text-2xl font-bold text-slate-950">
+                {providersTitle}
+              </h2>
+              <p className="mt-2 text-sm text-slate-600">
+                {marketplace.totalCityCompanies} publicerade företagsprofiler i {page.city}
+                {marketplace.serviceMatchCount > 0
+                  ? ` · ${marketplace.serviceMatchCount} med tjänsten i profilen`
+                  : ""}
+              </p>
+            </div>
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {companies?.map((company) => (
-              <Link
-                key={company.id}
-                href={`/companies/${company.slug}`}
-                prefetch={false}
-                className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="text-xl font-bold text-slate-950">
-                    {company.name}
-                  </h3>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {marketplace.companies.map((company) => (
+                <Link
+                  key={company.id}
+                  href={`/companies/${company.slug}`}
+                  prefetch={false}
+                  className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="text-xl font-bold text-slate-950">
+                      {company.name}
+                    </h3>
 
-                  {company.verified && (
-                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
-                      {locale === "sv" ? "Verifierad" : "Verified"}
-                    </span>
-                  )}
-                </div>
+                    {company.verified ? (
+                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                        Verifierad
+                      </span>
+                    ) : null}
+                  </div>
 
-                <p className="mt-3 text-sm text-slate-500">{company.city}</p>
-
-                {company.hourly_rate && (
-                  <p className="mt-4 text-sm font-semibold text-slate-950">
-                    {copy.priceFrom} {company.hourly_rate} {copy.perHour}
+                  <p className="mt-3 text-sm text-slate-500">
+                    {company.city || page.city}
                   </p>
-                )}
 
-                <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
-                  {company.description || copy.fallback}
-                </p>
+                  {company.hourly_rate ? (
+                    <p className="mt-4 text-sm font-semibold text-slate-950">
+                      {copy.priceFrom} {company.hourly_rate} {copy.perHour}
+                    </p>
+                  ) : null}
 
-                <span className="mt-6 inline-flex text-sm font-semibold text-rose-600">
-                  {copy.viewCompany} →
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
+                  <p className="mt-4 line-clamp-3 text-sm leading-6 text-slate-600">
+                    {company.description || copy.fallback}
+                  </p>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {company.matchesService ? (
+                      <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">
+                        Tjänsten finns i profilen
+                      </span>
+                    ) : null}
+
+                    {company.rut_available ? (
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                        RUT
+                      </span>
+                    ) : null}
+
+                    {company.website || company.phone || company.email ? (
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                        Kontaktuppgifter
+                      </span>
+                    ) : null}
+                  </div>
+
+                  {company.service_types.length > 0 ? (
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {company.service_types.slice(0, 3).map((type) => (
+                        <span
+                          key={type}
+                          className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600"
+                        >
+                          {type}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+
+                  <span className="mt-6 inline-flex text-sm font-semibold text-rose-600">
+                    {copy.viewCompany} →
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="mt-12 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <h2 className="text-2xl font-bold text-slate-950">
