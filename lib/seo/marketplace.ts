@@ -22,6 +22,10 @@ export type SeoMarketplaceSnapshot = {
   companies: SeoMarketplaceCompany[]
   totalCityCompanies: number
   serviceMatchCount: number
+  rutCount: number
+  contactCount: number
+  verifiedCount: number
+  descriptionCount: number
   mode: "city" | "service"
   serviceLabel: string | null
 }
@@ -85,6 +89,36 @@ function prepareCompany(
   }
 }
 
+function hasContact(company: {
+  website: string | null
+  phone: string | null
+  email: string | null
+}) {
+  return Boolean(company.website || company.phone || company.email)
+}
+
+function getEvidenceStats(
+  companies: Array<{
+    description: string | null
+    website: string | null
+    phone: string | null
+    email: string | null
+    verified: boolean | null
+    rut_available: boolean | null
+  }>,
+) {
+  return {
+    rutCount: companies.filter((company) => company.rut_available === true)
+      .length,
+    contactCount: companies.filter(hasContact).length,
+    verifiedCount: companies.filter((company) => company.verified === true)
+      .length,
+    descriptionCount: companies.filter(
+      (company) => Boolean(company.description?.trim()),
+    ).length,
+  }
+}
+
 export async function getSeoMarketplaceSnapshot({
   city,
   service,
@@ -97,89 +131,70 @@ export async function getSeoMarketplaceSnapshot({
   const supabase = await createClient()
   const serviceLabel = getCatalogServiceLabel(service ?? null)
 
-  if (!serviceLabel) {
-    const { data, error, count } = await supabase
-      .from("companies")
-      .select(COMPANY_FIELDS, { count: "exact" })
-      .ilike("city", `%${city.name}%`)
-      .order("verified", { ascending: false })
-      .order("directory_quality_score", { ascending: false })
-      .order("name", { ascending: true })
-      .limit(limit)
+  /**
+   * Phase 3 quality strategy:
+   *
+   * Load the complete city result set once, then derive service-specific
+   * evidence from the same published profiles. The current catalogue is
+   * intentionally small, so this gives truthful totals without extra count
+   * queries and keeps displayed cards + evidence numbers in sync.
+   *
+   * Keep the same city matching behavior that passed Phase 2 production QA.
+   * Phase 3 changes evidence depth, not route/data-selection semantics.
+   */
+  const { data, error } = await supabase
+    .from("companies")
+    .select(COMPANY_FIELDS)
+    .ilike("city", `%${city.name}%`)
+    .order("verified", { ascending: false })
+    .order("directory_quality_score", { ascending: false })
+    .order("name", { ascending: true })
 
-    if (error || !data) {
-      if (error) {
-        console.error("SEO marketplace city company load error:", error)
-      }
-
-      return {
-        companies: [],
-        totalCityCompanies: 0,
-        serviceMatchCount: 0,
-        mode: "city",
-        serviceLabel: null,
-      }
+  if (error || !data) {
+    if (error) {
+      console.error("SEO marketplace company load error:", error)
     }
 
     return {
-      companies: data.map((company) =>
-        prepareCompany(company, false),
-      ),
-      totalCityCompanies: count ?? data.length,
+      companies: [],
+      totalCityCompanies: 0,
       serviceMatchCount: 0,
+      rutCount: 0,
+      contactCount: 0,
+      verifiedCount: 0,
+      descriptionCount: 0,
+      mode: serviceLabel ? "service" : "city",
+      serviceLabel,
+    }
+  }
+
+  if (!serviceLabel) {
+    const stats = getEvidenceStats(data)
+
+    return {
+      companies: data
+        .slice(0, limit)
+        .map((company) => prepareCompany(company, false)),
+      totalCityCompanies: data.length,
+      serviceMatchCount: 0,
+      ...stats,
       mode: "city",
       serviceLabel: null,
     }
   }
 
-  const [cityCountResult, serviceResult] = await Promise.all([
-    supabase
-      .from("companies")
-      .select("id", { count: "exact", head: true })
-      .ilike("city", `%${city.name}%`),
-
-    supabase
-      .from("companies")
-      .select(COMPANY_FIELDS, { count: "exact" })
-      .ilike("city", `%${city.name}%`)
-      .contains("service_types", [serviceLabel])
-      .order("verified", { ascending: false })
-      .order("directory_quality_score", { ascending: false })
-      .order("name", { ascending: true })
-      .limit(limit),
-  ])
-
-  if (cityCountResult.error) {
-    console.error(
-      "SEO marketplace city count error:",
-      cityCountResult.error,
-    )
-  }
-
-  if (serviceResult.error || !serviceResult.data) {
-    if (serviceResult.error) {
-      console.error(
-        "SEO marketplace service company load error:",
-        serviceResult.error,
-      )
-    }
-
-    return {
-      companies: [],
-      totalCityCompanies: cityCountResult.count ?? 0,
-      serviceMatchCount: 0,
-      mode: "service",
-      serviceLabel,
-    }
-  }
+  const matchingCompanies = data.filter((company) =>
+    (company.service_types ?? []).includes(serviceLabel),
+  )
+  const stats = getEvidenceStats(matchingCompanies)
 
   return {
-    companies: serviceResult.data.map((company) =>
-      prepareCompany(company, true),
-    ),
-    totalCityCompanies: cityCountResult.count ?? 0,
-    serviceMatchCount:
-      serviceResult.count ?? serviceResult.data.length,
+    companies: matchingCompanies
+      .slice(0, limit)
+      .map((company) => prepareCompany(company, true)),
+    totalCityCompanies: data.length,
+    serviceMatchCount: matchingCompanies.length,
+    ...stats,
     mode: "service",
     serviceLabel,
   }

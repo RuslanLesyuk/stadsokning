@@ -52,41 +52,41 @@ const cityContent: Record<
 > = {
   stockholm: {
     introExtra: {
-      sv: "I Stockholm finns stor efterfrågan på städtjänster för lägenheter, villor, kontor och flyttar. Många kunder söker flexibla företag som kan arbeta i innerstaden, närförorter och större bostadsområden.",
-      en: "In Stockholm, there is strong demand for cleaning services for apartments, houses, offices and moving. Many customers look for flexible providers working across the city centre, suburbs and residential areas.",
-      uk: "У Стокгольмі високий попит на клінінгові послуги для квартир, будинків, офісів і переїздів. Багато клієнтів шукають компанії, які працюють у центрі, передмістях і житлових районах.",
-      ru: "В Стокгольме высокий спрос на клининговые услуги для квартир, домов, офисов и переездов. Многие клиенты ищут компании, которые работают в центре, пригородах и жилых районах.",
-      pl: "W Sztokholmie jest duże zapotrzebowanie na usługi sprzątania mieszkań, domów, biur i przeprowadzek. Wielu klientów szuka firm działających w centrum, na przedmieściach i w dzielnicach mieszkalnych.",
+      sv: "",
+      en: "",
+      uk: "",
+      ru: "",
+      pl: "",
     },
     districts: ["Södermalm", "Vasastan", "Östermalm", "Kungsholmen", "Solna", "Nacka", "Järfälla"],
   },
   goteborg: {
     introExtra: {
-      sv: "Göteborg har många hushåll, kontor och företag som regelbundet behöver städning. Särskilt efterfrågat är hemstädning, flyttstädning och kontorsstädning i centrala Göteborg och närliggande områden.",
-      en: "Gothenburg has many households, offices and businesses that regularly need cleaning. Home cleaning, moving cleaning and office cleaning are especially common in central Gothenburg and nearby areas.",
-      uk: "У Гетеборзі багато домогосподарств, офісів і компаній, яким регулярно потрібне прибирання. Особливо популярні прибирання дому, прибирання після переїзду та офісне прибирання.",
-      ru: "В Гётеборге много домов, офисов и компаний, которым регулярно нужна уборка. Особенно востребованы уборка дома, уборка после переезда и уборка офисов.",
-      pl: "W Göteborgu wiele gospodarstw domowych, biur i firm regularnie potrzebuje sprzątania. Szczególnie popularne są sprzątanie domu, sprzątanie po przeprowadzce i sprzątanie biur.",
+      sv: "",
+      en: "",
+      uk: "",
+      ru: "",
+      pl: "",
     },
     districts: ["Centrum", "Hisingen", "Majorna", "Linné", "Mölndal", "Partille", "Frölunda"],
   },
   malmo: {
     introExtra: {
-      sv: "Malmö har en växande marknad för städtjänster med många bostäder, kontor och mindre företag. Kunder söker ofta prisvärda och flexibla städfirmor i hela Malmöområdet.",
-      en: "Malmö has a growing market for cleaning services with many homes, offices and smaller businesses. Customers often look for affordable and flexible cleaning companies across the Malmö area.",
-      uk: "У Мальме зростає попит на клінінгові послуги для житла, офісів і малого бізнесу. Клієнти часто шукають доступні та гнучкі клінінгові компанії.",
-      ru: "В Мальмё растет спрос на клининговые услуги для жилья, офисов и малого бизнеса. Клиенты часто ищут доступные и гибкие клининговые компании.",
-      pl: "W Malmö rośnie zapotrzebowanie na usługi sprzątania mieszkań, biur i małych firm. Klienci często szukają przystępnych cenowo i elastycznych firm sprzątających.",
+      sv: "",
+      en: "",
+      uk: "",
+      ru: "",
+      pl: "",
     },
     districts: ["Centrum", "Limhamn", "Hyllie", "Rosengård", "Västra Hamnen", "Lund", "Trelleborg"],
   },
   uppsala: {
     introExtra: {
-      sv: "Uppsala har många studenter, familjer och företag som behöver återkommande städning. Hemstädning, flyttstädning och kontorsstädning är vanliga tjänster i området.",
-      en: "Uppsala has many students, families and businesses that need recurring cleaning. Home cleaning, moving cleaning and office cleaning are common services in the area.",
-      uk: "В Уппсалі багато студентів, сімей і компаній, яким потрібне регулярне прибирання. Популярні послуги — прибирання дому, після переїзду та офісів.",
-      ru: "В Уппсале много студентов, семей и компаний, которым нужна регулярная уборка. Популярны уборка дома, после переезда и офисов.",
-      pl: "W Uppsali wielu studentów, rodzin i firm potrzebuje regularnego sprzątania. Popularne są sprzątanie domu, po przeprowadzce i biur.",
+      sv: "",
+      en: "",
+      uk: "",
+      ru: "",
+      pl: "",
     },
     districts: ["Centrum", "Fålhagen", "Luthagen", "Gottsunda", "Gränby", "Sävja"],
   },
@@ -139,15 +139,16 @@ export function getSeoLandingCopy(page: SeoLandingPage, locale: Locale) {
   const city = page.city
   const citySlug = page.slug.split("-").at(-1) || ""
   const localCityContent = cityContent[citySlug]
-  const introExtra = localCityContent?.introExtra[locale] || ""
+  const introExtra =
+    locale === "sv" ? "" : localCityContent?.introExtra[locale] || ""
   const districts = localCityContent?.districts || []
 
   const copy = {
     sv: {
       title: `${serviceName} i ${city} | Clean Jobs`,
-      description: `Hitta ${serviceName.toLowerCase()} i ${city}. Jämför företag, priser, tjänster och kontaktuppgifter på Clean Jobs.`,
+      description: `Hitta ${serviceName.toLowerCase()} i ${city}. Jämför företagsprofiler, registrerade tjänster, RUT-information och kontaktuppgifter på Clean Jobs.`,
       h1: `${serviceName} i ${city}`,
-      intro: `Letar du efter ${serviceName.toLowerCase()} i ${city}? På Clean Jobs kan du hitta och jämföra städföretag, privata städare och tjänster i ${city}.${introExtra ? ` ${introExtra}` : ""}`,
+      intro: `Letar du efter ${serviceName.toLowerCase()} i ${city}? På Clean Jobs kan du jämföra publicerade företagsprofiler, registrerade städtjänster och kontaktuppgifter i ${city}.${introExtra ? ` ${introExtra}` : ""}`,
       providersTitle: `Företag för ${serviceName.toLowerCase()} i ${city}`,
       popularTitle: "Populära städtjänster",
       faqTitle: "Vanliga frågor",
@@ -163,15 +164,15 @@ export function getSeoLandingCopy(page: SeoLandingPage, locale: Locale) {
       faq: [
         {
           question: `Hur hittar jag ${serviceName.toLowerCase()} i ${city}?`,
-          answer: "Du kan jämföra företag och städtjänster på Clean Jobs och kontakta leverantörer direkt.",
+          answer: "Du kan jämföra publicerade företagsprofiler och kontakta företag direkt via uppgifterna i profilen.",
         },
         {
           question: "Kan jag jämföra flera företag?",
-          answer: "Ja, Clean Jobs gör det lättare att jämföra företag, områden, priser och kontaktuppgifter.",
+          answer: "Ja, Clean Jobs gör det lättare att jämföra företagsprofiler, registrerade tjänster, RUT-information och kontaktuppgifter.",
         },
         {
           question: "Finns RUT-avdrag?",
-          answer: "Många städtjänster kan omfattas av RUT-avdrag. Kontrollera alltid detta med företaget.",
+          answer: "På Clean Jobs visas RUT när det finns RUT-information registrerad i företagsprofilen. Kontrollera alltid aktuella villkor med företaget.",
         },
       ],
     },

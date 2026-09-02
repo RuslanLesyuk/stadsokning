@@ -1,6 +1,8 @@
 import Link from "next/link"
 
+import { getPreferredSeoPath } from "./indexing"
 import { getSeoMarketplaceSnapshot } from "./marketplace"
+import { createMarketplaceItemListSchema } from "./marketplace-schema"
 import type { createSeoEngine } from "./index"
 
 type SeoEngine = NonNullable<ReturnType<typeof createSeoEngine>>
@@ -27,6 +29,18 @@ const labels = {
     localServiceCompanies: "Företag med tjänsten i profilen",
     cityProfiles: "företagsprofiler i staden",
     serviceProfiles: "profiler med tjänsten",
+    rutProfiles: "med RUT-information",
+    contactProfiles: "med kontaktuppgifter",
+    verifiedProfiles: "verifierade profiler",
+    qualityTitle: "Så bygger Clean Jobs jämförelsen",
+    qualityIntro:
+      "Siffrorna bygger på uppgifter i publicerade företagsprofiler på Clean Jobs.",
+    qualityServiceRule:
+      "En tjänst räknas bara när den finns registrerad i företagets profil.",
+    qualityRutRule:
+      "RUT visas bara när profilen innehåller uppgift om RUT.",
+    qualityPriceRule:
+      "Pris visas bara när företaget har ett pris registrerat. Clean Jobs fyller inte i saknade priser.",
     verified: "Verifierad",
     serviceMatch: "Tjänsten finns i profilen",
     from: "Från",
@@ -50,6 +64,18 @@ const labels = {
     localServiceCompanies: "Companies with the service in their profile",
     cityProfiles: "company profiles in the city",
     serviceProfiles: "profiles with the service",
+    rutProfiles: "with RUT information",
+    contactProfiles: "with contact details",
+    verifiedProfiles: "verified profiles",
+    qualityTitle: "How Clean Jobs builds this comparison",
+    qualityIntro:
+      "The figures are based on information in published company profiles on Clean Jobs.",
+    qualityServiceRule:
+      "A service is counted only when it is registered in the company profile.",
+    qualityRutRule:
+      "RUT is shown only when the profile contains RUT information.",
+    qualityPriceRule:
+      "A price is shown only when the company has registered one. Clean Jobs does not fill in missing prices.",
     verified: "Verified",
     serviceMatch: "Service listed in profile",
     from: "From",
@@ -73,6 +99,18 @@ const labels = {
     localServiceCompanies: "Компанії, у профілі яких вказана ця послуга",
     cityProfiles: "профілів компаній у місті",
     serviceProfiles: "профілів із цією послугою",
+    rutProfiles: "з інформацією про RUT",
+    contactProfiles: "з контактними даними",
+    verifiedProfiles: "перевірених профілів",
+    qualityTitle: "Як Clean Jobs формує це порівняння",
+    qualityIntro:
+      "Цифри базуються на даних в опублікованих профілях компаній Clean Jobs.",
+    qualityServiceRule:
+      "Послуга враховується лише тоді, коли вона зареєстрована у профілі компанії.",
+    qualityRutRule:
+      "RUT показується лише тоді, коли у профілі є відповідна інформація.",
+    qualityPriceRule:
+      "Ціна показується лише тоді, коли компанія її вказала. Clean Jobs не заповнює відсутні ціни.",
     verified: "Перевірено",
     serviceMatch: "Послуга вказана у профілі",
     from: "Від",
@@ -96,6 +134,18 @@ const labels = {
     localServiceCompanies: "Компании, у которых услуга указана в профиле",
     cityProfiles: "профилей компаний в городе",
     serviceProfiles: "профилей с этой услугой",
+    rutProfiles: "с информацией о RUT",
+    contactProfiles: "с контактными данными",
+    verifiedProfiles: "проверенных профилей",
+    qualityTitle: "Как Clean Jobs формирует сравнение",
+    qualityIntro:
+      "Цифры основаны на данных в опубликованных профилях компаний Clean Jobs.",
+    qualityServiceRule:
+      "Услуга учитывается только тогда, когда она зарегистрирована в профиле компании.",
+    qualityRutRule:
+      "RUT показывается только тогда, когда в профиле есть соответствующая информация.",
+    qualityPriceRule:
+      "Цена показывается только тогда, когда компания ее указала. Clean Jobs не заполняет отсутствующие цены.",
     verified: "Проверено",
     serviceMatch: "Услуга указана в профиле",
     from: "От",
@@ -119,6 +169,18 @@ const labels = {
     localServiceCompanies: "Firmy z usługą podaną w profilu",
     cityProfiles: "profili firm w mieście",
     serviceProfiles: "profili z tą usługą",
+    rutProfiles: "z informacją RUT",
+    contactProfiles: "z danymi kontaktowymi",
+    verifiedProfiles: "zweryfikowanych profili",
+    qualityTitle: "Jak Clean Jobs tworzy to porównanie",
+    qualityIntro:
+      "Liczby opierają się na danych w opublikowanych profilach firm w Clean Jobs.",
+    qualityServiceRule:
+      "Usługa jest liczona tylko wtedy, gdy została wpisana w profilu firmy.",
+    qualityRutRule:
+      "RUT jest pokazywany tylko wtedy, gdy profil zawiera informację o RUT.",
+    qualityPriceRule:
+      "Cena jest pokazywana tylko wtedy, gdy firma ją podała. Clean Jobs nie uzupełnia brakujących cen.",
     verified: "Zweryfikowana",
     serviceMatch: "Usługa znajduje się w profilu",
     from: "Od",
@@ -170,6 +232,18 @@ export async function SeoPage({ seo }: SeoPageProps) {
     limit: 6,
   })
 
+  const preferredPath = getPreferredSeoPath({
+    locale,
+    city: city.slug,
+    service: service.slug,
+  })
+
+  const itemListSchema = createMarketplaceItemListSchema({
+    pageUrl: preferredPath,
+    name: `${serviceName} – ${city.name}`,
+    companies: marketplace.companies,
+  })
+
   return (
     <>
       <script
@@ -178,6 +252,15 @@ export async function SeoPage({ seo }: SeoPageProps) {
           __html: JSON.stringify(schema).replace(/</g, "\\u003c"),
         }}
       />
+
+      {itemListSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(itemListSchema).replace(/</g, "\\u003c"),
+          }}
+        />
+      ) : null}
 
       <main className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
         <nav className="mb-8 text-sm text-gray-500" aria-label="Breadcrumb">
@@ -246,7 +329,7 @@ export async function SeoPage({ seo }: SeoPageProps) {
             </Link>
           </div>
 
-          <div className="mt-5 grid max-w-xl gap-3 sm:grid-cols-2">
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
               <p className="text-3xl font-bold text-gray-950">
                 {marketplace.serviceMatchCount}
@@ -262,6 +345,24 @@ export async function SeoPage({ seo }: SeoPageProps) {
               </p>
               <p className="mt-1 text-sm text-gray-600">
                 {t.cityProfiles}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <p className="text-3xl font-bold text-gray-950">
+                {marketplace.rutCount}
+              </p>
+              <p className="mt-1 text-sm text-gray-600">
+                {t.rutProfiles}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <p className="text-3xl font-bold text-gray-950">
+                {marketplace.contactCount}
+              </p>
+              <p className="mt-1 text-sm text-gray-600">
+                {t.contactProfiles}
               </p>
             </div>
           </div>
@@ -350,6 +451,26 @@ export async function SeoPage({ seo }: SeoPageProps) {
               </p>
             </div>
           )}
+
+          <div className="mt-8 rounded-2xl border border-gray-200 bg-gray-50 p-6">
+            <h3 className="text-lg font-bold text-gray-950">
+              {t.qualityTitle}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              {t.qualityIntro}
+            </p>
+
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-gray-600">
+              <li>• {t.qualityServiceRule}</li>
+              <li>• {t.qualityRutRule}</li>
+              <li>• {t.qualityPriceRule}</li>
+              {marketplace.verifiedCount > 0 ? (
+                <li>
+                  • {marketplace.verifiedCount} {t.verifiedProfiles}
+                </li>
+              ) : null}
+            </ul>
+          </div>
         </section>
 
         <section className="mt-12 grid gap-6 md:grid-cols-2">

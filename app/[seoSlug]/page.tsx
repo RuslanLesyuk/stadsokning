@@ -6,10 +6,17 @@ import {
   getSeoLandingCopy,
   getSeoLandingPage,
   seoLandingPages,
+  type SeoLandingPage,
 } from "@/lib/seo-landing-pages"
 import { SEO_SITE_URL } from "@/lib/seo/constants"
-import { getSeoMarketplaceSnapshot } from "@/lib/seo/marketplace"
+import {
+  getSeoMarketplaceSnapshot,
+  type SeoMarketplaceSnapshot,
+} from "@/lib/seo/marketplace"
+import { createMarketplaceItemListSchema } from "@/lib/seo/marketplace-schema"
 import { seoServices } from "@/lib/seo/services"
+
+export const revalidate = 86400
 
 type PageProps = {
   params: Promise<{
@@ -17,29 +24,34 @@ type PageProps = {
   }>
 }
 
-function getRelatedServiceTypes(serviceType: string) {
-  switch (serviceType) {
-    case "stadfirma":
-      return [
-        "Hemstädning",
-        "Flyttstädning",
-        "Kontorsstädning",
-        "Fönsterputs",
-        "Storstädning",
-        "Trappstädning",
-        "Byggstädning",
-      ]
-    case "hemstadning":
-      return ["Hemstädning", "Storstädning", "Fönsterputs", "Flyttstädning"]
-    case "flyttstadning":
-      return ["Flyttstädning", "Storstädning", "Fönsterputs", "Hemstädning"]
-    case "kontorsstadning":
-      return ["Kontorsstädning", "Trappstädning", "Byggstädning", "Fönsterputs"]
-    case "fonsterputs":
-      return ["Fönsterputs", "Hemstädning", "Flyttstädning", "Kontorsstädning"]
-    default:
-      return ["Hemstädning", "Flyttstädning", "Kontorsstädning", "Fönsterputs"]
+function getLandingService(page: SeoLandingPage) {
+  if (page.serviceType === "stadfirma") {
+    return null
   }
+
+  return seoServices.find((item) => item.slug === page.serviceType) ?? null
+}
+
+function buildLandingMetaDescription({
+  page,
+  marketplace,
+}: {
+  page: SeoLandingPage
+  marketplace: SeoMarketplaceSnapshot
+}) {
+  if (marketplace.mode === "city") {
+    if (marketplace.totalCityCompanies > 0) {
+      return `Jämför ${marketplace.totalCityCompanies} publicerade städföretag i ${page.city}. Se registrerade tjänster, RUT-information och kontaktuppgifter på Clean Jobs.`
+    }
+
+    return `Hitta städföretag i ${page.city} och jämför publicerade företagsprofiler på Clean Jobs.`
+  }
+
+  if (marketplace.serviceMatchCount > 0 && marketplace.serviceLabel) {
+    return `Jämför ${marketplace.serviceMatchCount} företagsprofiler i ${page.city} som listar ${marketplace.serviceLabel.toLowerCase()}. Se RUT-information och kontaktuppgifter på Clean Jobs.`
+  }
+
+  return `Hitta städföretag i ${page.city} och se vilka tjänster som finns registrerade i företagsprofiler på Clean Jobs.`
 }
 
 export async function generateStaticParams() {
@@ -59,18 +71,28 @@ export async function generateMetadata({
   }
 
   const copy = getSeoLandingCopy(page, "sv")
+  const service = getLandingService(page)
+  const marketplace = await getSeoMarketplaceSnapshot({
+    city: { name: page.city },
+    service,
+    limit: 9,
+  })
+  const description = buildLandingMetaDescription({
+    page,
+    marketplace,
+  })
 
   return {
     title: {
       absolute: copy.title,
     },
-    description: copy.description,
+    description,
     alternates: {
       canonical: `${SEO_SITE_URL}/${page.slug}`,
     },
     openGraph: {
       title: copy.title,
-      description: copy.description,
+      description,
       url: `${SEO_SITE_URL}/${page.slug}`,
       siteName: "Clean Jobs",
       type: "website",
@@ -93,10 +115,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const locale = "sv" as const
   const copy = getSeoLandingCopy(page, locale)
 
-  const service =
-    page.serviceType === "stadfirma"
-      ? null
-      : seoServices.find((item) => item.slug === page.serviceType) ?? null
+  const service = getLandingService(page)
 
   const marketplace = await getSeoMarketplaceSnapshot({
     city: { name: page.city },
@@ -123,7 +142,17 @@ export default async function SeoLandingPage({ params }: PageProps) {
     ],
   }
 
-  const relatedServiceTypes = getRelatedServiceTypes(page.serviceType)
+  const sameCityPages = seoLandingPages.filter(
+    (item) => item.city === page.city && item.slug !== page.slug,
+  )
+
+  const sameServicePages = seoLandingPages
+    .filter(
+      (item) =>
+        item.serviceType === page.serviceType &&
+        item.city !== page.city,
+    )
+    .slice(0, 10)
 
   const providersTitle =
     page.serviceType === "stadfirma"
@@ -131,6 +160,12 @@ export default async function SeoLandingPage({ params }: PageProps) {
       : copy.providersTitle
 
   const hasServiceFilter = marketplace.mode === "service"
+
+  const itemListSchema = createMarketplaceItemListSchema({
+    pageUrl: `/${page.slug}`,
+    name: providersTitle,
+    companies: marketplace.companies,
+  })
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -140,6 +175,15 @@ export default async function SeoLandingPage({ params }: PageProps) {
           __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
         }}
       />
+
+      {itemListSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(itemListSchema).replace(/</g, "\\u003c"),
+          }}
+        />
+      ) : null}
 
       <main className="mx-auto max-w-7xl px-4 py-10">
         <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-10">
@@ -193,6 +237,48 @@ export default async function SeoLandingPage({ params }: PageProps) {
                 {page.city}.
               </p>
             )}
+          </div>
+
+          <div className="mb-7 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p className="text-3xl font-black text-slate-950">
+                {hasServiceFilter
+                  ? marketplace.serviceMatchCount
+                  : marketplace.totalCityCompanies}
+              </p>
+              <p className="mt-1 text-sm text-slate-600">
+                {hasServiceFilter
+                  ? "profiler med tjänsten"
+                  : "företagsprofiler i staden"}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p className="text-3xl font-black text-slate-950">
+                {marketplace.rutCount}
+              </p>
+              <p className="mt-1 text-sm text-slate-600">
+                med RUT-information
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p className="text-3xl font-black text-slate-950">
+                {marketplace.contactCount}
+              </p>
+              <p className="mt-1 text-sm text-slate-600">
+                med kontaktuppgifter
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <p className="text-3xl font-black text-slate-950">
+                {marketplace.descriptionCount}
+              </p>
+              <p className="mt-1 text-sm text-slate-600">
+                med företagsbeskrivning
+              </p>
+            </div>
           </div>
 
           {marketplace.companies.length > 0 ? (
@@ -289,6 +375,38 @@ export default async function SeoLandingPage({ params }: PageProps) {
               </Link>
             </div>
           )}
+
+          <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-6">
+            <h3 className="text-lg font-black text-slate-950">
+              Så bygger Clean Jobs jämförelsen
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Siffrorna på sidan bygger på uppgifter i publicerade
+              företagsprofiler på Clean Jobs.
+            </p>
+
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-slate-600">
+              {hasServiceFilter ? (
+                <li>
+                  • En tjänst räknas bara när den finns registrerad i
+                  företagets profil.
+                </li>
+              ) : null}
+              <li>
+                • RUT visas bara när profilen innehåller uppgift om RUT.
+              </li>
+              <li>
+                • Pris visas bara när företaget själv har ett pris registrerat.
+                Clean Jobs fyller inte i saknade priser.
+              </li>
+              {marketplace.verifiedCount > 0 ? (
+                <li>
+                  • {marketplace.verifiedCount} av profilerna i jämförelsen är
+                  markerade som verifierade.
+                </li>
+              ) : null}
+            </ul>
+          </div>
         </section>
 
         <section className="mt-12 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
@@ -296,15 +414,21 @@ export default async function SeoLandingPage({ params }: PageProps) {
             {copy.popularTitle}
           </h2>
 
-          <div className="mt-6 flex flex-wrap gap-2">
-            {relatedServiceTypes.map((type) => (
-              <span
-                key={type}
-                className="rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700"
-              >
-                {type}
-              </span>
-            ))}
+          <div className="mt-6 flex flex-wrap gap-3">
+            {sameCityPages.map((item) => {
+              const relatedCopy = getSeoLandingCopy(item, locale)
+
+              return (
+                <Link
+                  key={item.slug}
+                  href={`/${item.slug}`}
+                  prefetch={false}
+                  className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700"
+                >
+                  {relatedCopy.h1}
+                </Link>
+              )
+            })}
           </div>
         </section>
 
@@ -330,33 +454,20 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </h2>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            {seoLandingPages
-              .filter(
-                (item) =>
-                  item.slug !== page.slug &&
-                  (item.city === page.city ||
-                    item.serviceType === page.serviceType),
-              )
-              .sort((a, b) => {
-                const aSameCity = a.city === page.city ? 1 : 0
-                const bSameCity = b.city === page.city ? 1 : 0
-                return bSameCity - aSameCity
-              })
-              .slice(0, 10)
-              .map((item) => {
-                const relatedCopy = getSeoLandingCopy(item, locale)
+            {sameServicePages.map((item) => {
+              const relatedCopy = getSeoLandingCopy(item, locale)
 
-                return (
-                  <Link
-                    key={item.slug}
-                    href={`/${item.slug}`}
-                    prefetch={false}
-                    className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium transition hover:border-rose-300 hover:bg-rose-50"
-                  >
-                    {relatedCopy.h1}
-                  </Link>
-                )
-              })}
+              return (
+                <Link
+                  key={item.slug}
+                  href={`/${item.slug}`}
+                  prefetch={false}
+                  className="rounded-full border border-slate-200 px-4 py-2 text-sm font-medium transition hover:border-rose-300 hover:bg-rose-50"
+                >
+                  {relatedCopy.h1}
+                </Link>
+              )
+            })}
           </div>
         </section>
 
