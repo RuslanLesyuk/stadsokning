@@ -9,6 +9,7 @@ import {
   type SeoLandingPage,
 } from "@/lib/seo-landing-pages"
 import { SEO_SITE_URL } from "@/lib/seo/constants"
+import { createSwedishSeoQualityContent } from "@/lib/seo/content-quality"
 import {
   getSeoMarketplaceSnapshot,
   type SeoMarketplaceSnapshot,
@@ -122,6 +123,15 @@ export default async function SeoLandingPage({ params }: PageProps) {
     service,
     limit: 9,
   })
+  const qualityContent = createSwedishSeoQualityContent({
+    page,
+    marketplace,
+  })
+
+  const faqItems = qualityContent
+    ? [...copy.faq, ...qualityContent.faq]
+    : copy.faq
+
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -409,6 +419,64 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
         </section>
 
+        {qualityContent ? (
+          <section className="mt-12 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-rose-600">
+              {qualityContent.eyebrow}
+            </p>
+
+            <h2 className="mt-3 text-3xl font-black tracking-tight text-slate-950">
+              {qualityContent.title}
+            </h2>
+
+            <p className="mt-4 max-w-4xl text-base leading-8 text-slate-600">
+              {qualityContent.intro}
+            </p>
+
+            <div className="mt-7 rounded-3xl border border-rose-100 bg-rose-50 p-6">
+              <h3 className="text-lg font-black text-rose-950">
+                {qualityContent.catalogueTitle}
+              </h3>
+              <p className="mt-2 leading-7 text-rose-900">
+                {qualityContent.catalogueText}
+              </p>
+            </div>
+
+            <div className="mt-7 grid gap-6 lg:grid-cols-3">
+              {qualityContent.sections.map((section) => (
+                <article
+                  key={section.title}
+                  className="rounded-3xl border border-slate-200 bg-slate-50 p-6"
+                >
+                  <h3 className="text-xl font-black text-slate-950">
+                    {section.title}
+                  </h3>
+
+                  <div className="mt-4 space-y-4 text-sm leading-7 text-slate-600">
+                    {section.paragraphs.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
+
+                  {section.checklist?.length ? (
+                    <ul className="mt-5 space-y-3 text-sm leading-6 text-slate-700">
+                      {section.checklist.map((item) => (
+                        <li key={item} className="flex gap-3">
+                          <span
+                            className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-rose-500"
+                            aria-hidden="true"
+                          />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : null}
+
         <section className="mt-12 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <h2 className="text-2xl font-bold text-slate-950">
             {copy.popularTitle}
@@ -436,7 +504,7 @@ export default async function SeoLandingPage({ params }: PageProps) {
           <h2 className="text-2xl font-bold text-slate-950">{copy.faqTitle}</h2>
 
           <div className="mt-6 space-y-6">
-            {copy.faq.map((item) => (
+            {faqItems.map((item) => (
               <div key={item.question}>
                 <h3 className="text-lg font-semibold text-slate-900">
                   {item.question}
