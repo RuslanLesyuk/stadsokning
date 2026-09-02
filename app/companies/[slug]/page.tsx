@@ -13,6 +13,7 @@ import {
   type Locale,
 } from "@/lib/i18n"
 import { getLanguageAlternates } from "@/lib/seo"
+import { getCompanySeoLinks } from "@/lib/seo/company-links"
 import { createClient } from "@/lib/supabase-server"
 
 type PageProps = {
@@ -116,6 +117,8 @@ type Copy = {
   companyWebsite: string
   relatedCompanies: string
   relatedCompaniesText: string
+  seoGuides: string
+  seoGuidesText: string
   viewCompany: string
   backToCompanies: string
   fallbackDescription: string
@@ -190,6 +193,8 @@ const copy: Record<Locale, Copy> = {
     companyWebsite: "Företagets webbplats",
     relatedCompanies: "Liknande städföretag",
     relatedCompaniesText: "Utforska andra städföretag på Clean Jobs.",
+    seoGuides: "Jämför tjänster i området",
+    seoGuidesText: "Öppna Clean Jobs jämförelsesidor för de tjänster som finns registrerade i företagets profil.",
     viewCompany: "Visa företag",
     backToCompanies: "Alla företag",
     fallbackDescription:
@@ -255,6 +260,8 @@ const copy: Record<Locale, Copy> = {
     companyWebsite: "Company website",
     relatedCompanies: "Similar cleaning companies",
     relatedCompaniesText: "Explore other cleaning companies on Clean Jobs.",
+    seoGuides: "Compare services in the area",
+    seoGuidesText: "Open Clean Jobs comparison pages for services listed in this company profile.",
     viewCompany: "View company",
     backToCompanies: "All companies",
     fallbackDescription:
@@ -320,6 +327,8 @@ const copy: Record<Locale, Copy> = {
     companyWebsite: "Сайт компанії",
     relatedCompanies: "Схожі клінінгові компанії",
     relatedCompaniesText: "Перегляньте інші клінінгові компанії у Clean Jobs.",
+    seoGuides: "Порівняти послуги в цьому місті",
+    seoGuidesText: "Відкрийте сторінки порівняння Clean Jobs для послуг, указаних у профілі компанії.",
     viewCompany: "Переглянути компанію",
     backToCompanies: "Усі компанії",
     fallbackDescription:
@@ -384,6 +393,8 @@ const copy: Record<Locale, Copy> = {
     companyWebsite: "Сайт компании",
     relatedCompanies: "Похожие клининговые компании",
     relatedCompaniesText: "Посмотрите другие клининговые компании в Clean Jobs.",
+    seoGuides: "Сравнить услуги в этом городе",
+    seoGuidesText: "Откройте страницы сравнения Clean Jobs для услуг, указанных в профиле компании.",
     viewCompany: "Посмотреть компанию",
     backToCompanies: "Все компании",
     fallbackDescription:
@@ -448,6 +459,8 @@ const copy: Record<Locale, Copy> = {
     companyWebsite: "Strona firmy",
     relatedCompanies: "Podobne firmy sprzątające",
     relatedCompaniesText: "Zobacz inne firmy sprzątające w Clean Jobs.",
+    seoGuides: "Porównaj usługi w okolicy",
+    seoGuidesText: "Otwórz strony porównawcze Clean Jobs dla usług wymienionych w profilu firmy.",
     viewCompany: "Zobacz firmę",
     backToCompanies: "Wszystkie firmy",
     fallbackDescription:
@@ -667,6 +680,14 @@ export default async function CompanyPage({ params }: PageProps) {
   const galleryUrls = normalizeStringArray(company.gallery_urls)
   const workingHours = normalizeWorkingHours(company.working_hours)
   const faqItems = normalizeFaq(company.faq)
+  const companySeoLinks = company.city
+    ? getCompanySeoLinks({
+        cityName: company.city,
+        serviceTypes,
+        locale,
+        limit: 6,
+      })
+    : []
 
   let pendingClaim: { id: string; status: string } | null = null
 
@@ -740,29 +761,49 @@ export default async function CompanyPage({ params }: PageProps) {
         reviews.length
       : null
 
-  let relatedQuery = supabase
-    .from("companies")
-    .select(
-      "id, name, slug, city, description, logo_url, verified, owner_id, website, phone, email, address, postal_code, organization_number, founded_year, cover_url, gallery_urls, service_types, service_areas, languages, hourly_rate, minimum_order, rut_available, working_hours, faq, updated_at",
-    )
-    .neq("id", company.id)
-    .order("verified", { ascending: false })
-    .order("name", { ascending: true })
-    .limit(3)
+  const relatedCompanyFields =
+    "id, name, slug, city, description, logo_url, verified, owner_id, website, phone, email, address, postal_code, organization_number, founded_year, cover_url, gallery_urls, service_types, service_areas, languages, hourly_rate, minimum_order, rut_available, working_hours, faq, updated_at"
 
-  if (company.city) relatedQuery = relatedQuery.eq("city", company.city)
+  let relatedCompanies: Company[] = []
 
-  const { data: relatedData } = await relatedQuery
-  let relatedCompanies = (relatedData ?? []) as Company[]
+  if (company.city && serviceTypes.length > 0) {
+    const { data: overlapData } = await supabase
+      .from("companies")
+      .select(relatedCompanyFields)
+      .neq("id", company.id)
+      .eq("city", company.city)
+      .overlaps("service_types", serviceTypes)
+      .order("verified", { ascending: false })
+      .order("name", { ascending: true })
+      .limit(3)
+
+    relatedCompanies = (overlapData ?? []) as Company[]
+  }
+
+  if (company.city && relatedCompanies.length < 3) {
+    const existingIds = [company.id, ...relatedCompanies.map((item) => item.id)]
+
+    const { data: sameCityData } = await supabase
+      .from("companies")
+      .select(relatedCompanyFields)
+      .eq("city", company.city)
+      .not("id", "in", `(${existingIds.join(",")})`)
+      .order("verified", { ascending: false })
+      .order("name", { ascending: true })
+      .limit(3 - relatedCompanies.length)
+
+    relatedCompanies = [
+      ...relatedCompanies,
+      ...((sameCityData ?? []) as Company[]),
+    ]
+  }
 
   if (relatedCompanies.length < 3) {
     const existingIds = [company.id, ...relatedCompanies.map((item) => item.id)]
 
     const { data: fallbackData } = await supabase
       .from("companies")
-      .select(
-        "id, name, slug, city, description, logo_url, verified, owner_id, website, phone, email, address, postal_code, organization_number, founded_year, cover_url, gallery_urls, service_types, service_areas, languages, hourly_rate, minimum_order, rut_available, working_hours, faq, updated_at",
-      )
+      .select(relatedCompanyFields)
       .not("id", "in", `(${existingIds.join(",")})`)
       .order("verified", { ascending: false })
       .order("name", { ascending: true })
@@ -1085,6 +1126,29 @@ export default async function CompanyPage({ params }: PageProps) {
                     </div>
                   ))}
                 </div>
+
+                {companySeoLinks.length > 0 ? (
+                  <div className="mt-8 border-t border-slate-200 pt-7">
+                    <h3 className="text-lg font-black text-slate-950">
+                      {t.seoGuides}
+                    </h3>
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+                      {t.seoGuidesText}
+                    </p>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      {companySeoLinks.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          prefetch={false}
+                          className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-bold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100"
+                        >
+                          {link.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
               </ContentSection>
             ) : null}
 

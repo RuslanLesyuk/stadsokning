@@ -539,13 +539,6 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
         </section>
 
-        <section className="mt-12 rounded-[2rem] border border-slate-200 bg-gradient-to-r from-rose-50 to-white p-8 shadow-sm">
-          <div className="max-w-3xl">
-            <h2 className="text-3xl font-bold text-slate-950">Clean Jobs</h2>
-
-            <p className="mt-4 leading-8 text-slate-600">{copy.intro}</p>
-          </div>
-        </section>
       </main>
     </div>
   )
