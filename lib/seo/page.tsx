@@ -24,7 +24,9 @@ const labels = {
     directory: "Jämför städföretag",
     services: "Se städtjänster",
     localCompanies: "Städföretag i området",
-    localCompaniesText: "Publicerade företagsprofiler på Clean Jobs",
+    localServiceCompanies: "Företag med tjänsten i profilen",
+    cityProfiles: "företagsprofiler i staden",
+    serviceProfiles: "profiler med tjänsten",
     verified: "Verifierad",
     serviceMatch: "Tjänsten finns i profilen",
     from: "Från",
@@ -33,6 +35,10 @@ const labels = {
     contact: "Kontakt finns",
     viewCompany: "Visa företag",
     allCompanies: "Se alla företag i staden",
+    noServiceMatches:
+      "Ingen publicerad företagsprofil i staden har ännu denna tjänst registrerad.",
+    noServiceMatchesHelp:
+      "Du kan fortfarande se alla publicerade städföretag i staden och kontrollera deras profiler direkt.",
   },
   en: {
     faq: "Frequently asked questions",
@@ -41,7 +47,9 @@ const labels = {
     directory: "Compare cleaning companies",
     services: "See cleaning services",
     localCompanies: "Cleaning companies in the area",
-    localCompaniesText: "Published company profiles on Clean Jobs",
+    localServiceCompanies: "Companies with the service in their profile",
+    cityProfiles: "company profiles in the city",
+    serviceProfiles: "profiles with the service",
     verified: "Verified",
     serviceMatch: "Service listed in profile",
     from: "From",
@@ -50,6 +58,10 @@ const labels = {
     contact: "Contact details available",
     viewCompany: "View company",
     allCompanies: "See all companies in the city",
+    noServiceMatches:
+      "No published company profile in the city currently lists this service.",
+    noServiceMatchesHelp:
+      "You can still view all published cleaning companies in the city and check their profiles directly.",
   },
   uk: {
     faq: "Поширені запитання",
@@ -58,7 +70,9 @@ const labels = {
     directory: "Порівняти компанії",
     services: "Переглянути послуги",
     localCompanies: "Клінінгові компанії в цьому районі",
-    localCompaniesText: "Опубліковані профілі компаній на Clean Jobs",
+    localServiceCompanies: "Компанії, у профілі яких вказана ця послуга",
+    cityProfiles: "профілів компаній у місті",
+    serviceProfiles: "профілів із цією послугою",
     verified: "Перевірено",
     serviceMatch: "Послуга вказана у профілі",
     from: "Від",
@@ -67,6 +81,10 @@ const labels = {
     contact: "Є контактні дані",
     viewCompany: "Переглянути компанію",
     allCompanies: "Усі компанії міста",
+    noServiceMatches:
+      "Наразі жоден опублікований профіль компанії в місті не містить цієї послуги.",
+    noServiceMatchesHelp:
+      "Ви все одно можете переглянути всі опубліковані клінінгові компанії міста та перевірити їхні профілі.",
   },
   ru: {
     faq: "Частые вопросы",
@@ -75,7 +93,9 @@ const labels = {
     directory: "Сравнить компании",
     services: "Посмотреть услуги",
     localCompanies: "Клининговые компании в этом районе",
-    localCompaniesText: "Опубликованные профили компаний на Clean Jobs",
+    localServiceCompanies: "Компании, у которых услуга указана в профиле",
+    cityProfiles: "профилей компаний в городе",
+    serviceProfiles: "профилей с этой услугой",
     verified: "Проверено",
     serviceMatch: "Услуга указана в профиле",
     from: "От",
@@ -84,6 +104,10 @@ const labels = {
     contact: "Есть контактные данные",
     viewCompany: "Открыть компанию",
     allCompanies: "Все компании города",
+    noServiceMatches:
+      "Сейчас ни в одном опубликованном профиле компании в городе эта услуга не указана.",
+    noServiceMatchesHelp:
+      "Вы всё равно можете посмотреть все опубликованные клининговые компании города и проверить их профили.",
   },
   pl: {
     faq: "Najczęstsze pytania",
@@ -92,7 +116,9 @@ const labels = {
     directory: "Porównaj firmy",
     services: "Zobacz usługi",
     localCompanies: "Firmy sprzątające w okolicy",
-    localCompaniesText: "Opublikowane profile firm w Clean Jobs",
+    localServiceCompanies: "Firmy z usługą podaną w profilu",
+    cityProfiles: "profili firm w mieście",
+    serviceProfiles: "profili z tą usługą",
     verified: "Zweryfikowana",
     serviceMatch: "Usługa znajduje się w profilu",
     from: "Od",
@@ -101,6 +127,10 @@ const labels = {
     contact: "Dane kontaktowe dostępne",
     viewCompany: "Zobacz firmę",
     allCompanies: "Wszystkie firmy w mieście",
+    noServiceMatches:
+      "Żaden opublikowany profil firmy w mieście nie zawiera obecnie tej usługi.",
+    noServiceMatchesHelp:
+      "Nadal możesz zobaczyć wszystkie opublikowane firmy sprzątające w mieście i sprawdzić ich profile.",
   },
 } as const
 
@@ -129,6 +159,10 @@ export async function SeoPage({ seo }: SeoPageProps) {
 
   const t = labels[locale]
   const cityQuery = encodeURIComponent(city.name)
+  const serviceName =
+    service.name[locale] ??
+    service.name.sv ??
+    service.name.en
 
   const marketplace = await getSeoMarketplaceSnapshot({
     city,
@@ -192,32 +226,47 @@ export async function SeoPage({ seo }: SeoPageProps) {
           </div>
         </section>
 
-        {marketplace.companies.length > 0 ? (
-          <section className="mt-12">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">
-                  {t.localCompaniesText}
-                </p>
-                <h2 className="mt-2 text-3xl font-bold text-gray-950">
-                  {t.localCompanies} – {city.name}
-                </h2>
-                <p className="mt-3 max-w-3xl text-gray-600">
-                  {marketplace.totalCityCompanies} {t.localCompaniesText.toLowerCase()}.
-                  {marketplace.serviceMatchCount > 0
-                    ? ` ${marketplace.serviceMatchCount} ${t.serviceMatch.toLowerCase()}.`
-                    : ""}
-                </p>
-              </div>
+        <section className="mt-12">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-emerald-700">
+                {t.localServiceCompanies}
+              </p>
 
-              <Link
-                href={`/companies?city=${cityQuery}`}
-                className="text-sm font-semibold text-emerald-700 hover:text-emerald-900"
-              >
-                {t.allCompanies} →
-              </Link>
+              <h2 className="mt-2 text-3xl font-bold text-gray-950">
+                {serviceName} – {city.name}
+              </h2>
             </div>
 
+            <Link
+              href={`/companies?city=${cityQuery}`}
+              className="text-sm font-semibold text-emerald-700 hover:text-emerald-900"
+            >
+              {t.allCompanies} →
+            </Link>
+          </div>
+
+          <div className="mt-5 grid max-w-xl gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <p className="text-3xl font-bold text-gray-950">
+                {marketplace.serviceMatchCount}
+              </p>
+              <p className="mt-1 text-sm text-gray-600">
+                {t.serviceProfiles}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+              <p className="text-3xl font-bold text-gray-950">
+                {marketplace.totalCityCompanies}
+              </p>
+              <p className="mt-1 text-sm text-gray-600">
+                {t.cityProfiles}
+              </p>
+            </div>
+          </div>
+
+          {marketplace.companies.length > 0 ? (
             <div className="mt-6 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {marketplace.companies.map((company) => (
                 <Link
@@ -249,11 +298,9 @@ export async function SeoPage({ seo }: SeoPageProps) {
                   ) : null}
 
                   <div className="mt-4 flex flex-wrap gap-2">
-                    {company.matchesService ? (
-                      <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800">
-                        {t.serviceMatch}
-                      </span>
-                    ) : null}
+                    <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-800">
+                      {t.serviceMatch}
+                    </span>
 
                     {company.rut_available ? (
                       <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
@@ -293,8 +340,17 @@ export async function SeoPage({ seo }: SeoPageProps) {
                 </Link>
               ))}
             </div>
-          </section>
-        ) : null}
+          ) : (
+            <div className="mt-6 rounded-2xl border border-amber-200 bg-amber-50 p-6">
+              <h3 className="font-semibold text-amber-950">
+                {t.noServiceMatches}
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-amber-900">
+                {t.noServiceMatchesHelp}
+              </p>
+            </div>
+          )}
+        </section>
 
         <section className="mt-12 grid gap-6 md:grid-cols-2">
           {content.sections.map((section) => (

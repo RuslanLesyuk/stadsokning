@@ -90,10 +90,6 @@ export default async function SeoLandingPage({ params }: PageProps) {
     notFound()
   }
 
-  /**
-   * Cleaner landing URLs are Swedish canonical pages.
-   * Never let a visitor language cookie change their page copy.
-   */
   const locale = "sv" as const
   const copy = getSeoLandingCopy(page, locale)
 
@@ -130,10 +126,11 @@ export default async function SeoLandingPage({ params }: PageProps) {
   const relatedServiceTypes = getRelatedServiceTypes(page.serviceType)
 
   const providersTitle =
-    page.serviceType === "stadfirma" ||
-    marketplace.serviceMatchCount > 0
-      ? copy.providersTitle
-      : `Städföretag i ${page.city}`
+    page.serviceType === "stadfirma"
+      ? `Städföretag i ${page.city}`
+      : copy.providersTitle
+
+  const hasServiceFilter = marketplace.mode === "service"
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -177,20 +174,28 @@ export default async function SeoLandingPage({ params }: PageProps) {
           </div>
         </section>
 
-        {marketplace.companies.length > 0 ? (
-          <section className="mt-10">
-            <div className="mb-5">
-              <h2 className="text-2xl font-bold text-slate-950">
-                {providersTitle}
-              </h2>
-              <p className="mt-2 text-sm text-slate-600">
-                {marketplace.totalCityCompanies} publicerade företagsprofiler i {page.city}
-                {marketplace.serviceMatchCount > 0
-                  ? ` · ${marketplace.serviceMatchCount} med tjänsten i profilen`
-                  : ""}
-              </p>
-            </div>
+        <section className="mt-10">
+          <div className="mb-5">
+            <h2 className="text-2xl font-bold text-slate-950">
+              {providersTitle}
+            </h2>
 
+            {hasServiceFilter ? (
+              <p className="mt-2 text-sm text-slate-600">
+                {marketplace.serviceMatchCount} av{" "}
+                {marketplace.totalCityCompanies} publicerade företagsprofiler i{" "}
+                {page.city} har {marketplace.serviceLabel?.toLowerCase()} registrerad
+                som tjänst.
+              </p>
+            ) : (
+              <p className="mt-2 text-sm text-slate-600">
+                {marketplace.totalCityCompanies} publicerade företagsprofiler i{" "}
+                {page.city}.
+              </p>
+            )}
+          </div>
+
+          {marketplace.companies.length > 0 ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {marketplace.companies.map((company) => (
                 <Link
@@ -264,8 +269,27 @@ export default async function SeoLandingPage({ params }: PageProps) {
                 </Link>
               ))}
             </div>
-          </section>
-        ) : null}
+          ) : (
+            <div className="rounded-3xl border border-amber-200 bg-amber-50 p-6">
+              <h3 className="font-semibold text-amber-950">
+                Ingen matchande publicerad företagsprofil ännu
+              </h3>
+              <p className="mt-2 text-sm leading-6 text-amber-900">
+                Clean Jobs har {marketplace.totalCityCompanies} publicerade
+                företagsprofiler i {page.city}, men ingen av dem har just nu{" "}
+                {marketplace.serviceLabel?.toLowerCase() || "den här tjänsten"}{" "}
+                registrerad i profilen.
+              </p>
+              <Link
+                href={`/companies?city=${encodeURIComponent(page.city)}`}
+                prefetch={false}
+                className="mt-4 inline-flex text-sm font-semibold text-amber-950 underline"
+              >
+                Se alla företag i {page.city} →
+              </Link>
+            </div>
+          )}
+        </section>
 
         <section className="mt-12 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm md:p-8">
           <h2 className="text-2xl font-bold text-slate-950">
