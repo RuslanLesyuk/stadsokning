@@ -1,18 +1,10 @@
-import Link from "next/link"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
-import FormSubmitButton from "@/components/form-submit-button"
-import JobCityField from "@/components/job-city-field"
-import {
-  Input,
-  Select,
-  Textarea,
-} from "@/components/ui/field"
+import CreateJobWizard from "@/components/create-job-wizard"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
-  getDictionary,
   normalizeLocale,
 } from "@/lib/i18n"
 import { sendEmail } from "@/lib/resend"
@@ -214,7 +206,6 @@ export default async function CreateJobPage() {
       DEFAULT_LOCALE,
   )
 
-  const dictionary = getDictionary(locale)
   const today = getStockholmDateString()
 
   const supabase = await createClient()
@@ -294,35 +285,33 @@ export default async function CreateJobPage() {
     }
 
     const payload = {
-      title,
-      description:
-        normalizeText(
-          formData.get("description"),
-        ) || null,
-      city: resolveCity(formData),
-      address:
-        normalizeText(
-          formData.get("address"),
-        ) || null,
-      budget: parseBudget(
-        normalizeText(
-          formData.get("budget"),
-        ),
-      ),
-      job_type:
-        normalizeText(
-          formData.get("job_type"),
-        ) || null,
-      property_type:
-        normalizeText(
-          formData.get("property_type"),
-        ) || null,
-      scheduled_date: scheduledDate,
-      scheduled_time: scheduledTime,
-      created_by: user.id,
-      assigned_to: null,
-      status: "new",
-    }
+  title,
+  description:
+    normalizeText(
+      formData.get("description"),
+    ) || null,
+  city: resolveCity(formData),
+  address:
+    normalizeText(
+      formData.get("address"),
+    ) || null,
+  budget: parseBudget(
+    normalizeText(
+      formData.get("budget"),
+    ),
+  ),
+  job_type:
+    normalizeText(
+      formData.get("job_type"),
+    ) || null,
+  property_type:
+    normalizeText(
+      formData.get("property_type"),
+    ) || null,
+  scheduled_date: scheduledDate,
+  scheduled_time: scheduledTime,
+  created_by: user.id,
+}
 
     const { data, error } = await supabase
       .from("jobs")
@@ -367,234 +356,10 @@ export default async function CreateJobPage() {
   }
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-8 md:py-10">
-      <div className="mb-6">
-        <Link
-          href="/dashboard"
-          prefetch={false}
-          className="rounded-md text-sm text-black/60 transition hover:text-black focus:outline-none focus:ring-2 focus:ring-black/20 focus:ring-offset-2"
-        >
-          {dictionary.jobForm.backToDashboard}
-        </Link>
-      </div>
-
-      <div className="rounded-3xl border border-black/10 bg-white p-6 shadow-sm md:p-8">
-        <h1 className="text-3xl font-semibold tracking-tight text-black">
-          {dictionary.jobForm.createTitle}
-        </h1>
-
-        <p className="mt-2 text-sm leading-6 text-black/60">
-          {dictionary.jobForm.createSubtitle}
-        </p>
-
-        <form
-          action={createJobAction}
-          className="mt-8 grid gap-5 md:grid-cols-2"
-        >
-          <div className="md:col-span-2">
-            <Input
-              id="title"
-              name="title"
-              required
-              label={
-                dictionary.jobForm.titleLabel
-              }
-              placeholder={
-                dictionary.jobForm.titlePlaceholder
-              }
-            />
-          </div>
-
-          <div className="md:col-span-2">
-            <Textarea
-              id="description"
-              name="description"
-              rows={5}
-              label={
-                dictionary.jobForm
-                  .descriptionLabel
-              }
-              placeholder={
-                dictionary.jobForm
-                  .descriptionPlaceholder
-              }
-            />
-          </div>
-
-          <JobCityField
-            label={
-              dictionary.jobForm.cityLabel
-            }
-            placeholder={
-              dictionary.jobForm.cityPlaceholder
-            }
-            otherLabel={
-              dictionary.jobForm.other
-            }
-            selectOptionLabel={
-              dictionary.jobForm.selectOption
-            }
-          />
-
-          <Input
-            id="address"
-            name="address"
-            label={
-              dictionary.jobForm.addressLabel
-            }
-            placeholder={
-              dictionary.jobForm
-                .addressPlaceholder
-            }
-          />
-
-          <Input
-            id="budget"
-            name="budget"
-            type="number"
-            min="0"
-            step="1"
-            label={
-              dictionary.jobForm.budgetLabel
-            }
-            placeholder={
-              dictionary.jobForm
-                .budgetPlaceholder
-            }
-          />
-
-          <Select
-            id="job_type"
-            name="job_type"
-            label={
-              dictionary.jobForm.jobTypeLabel
-            }
-            defaultValue=""
-          >
-            <option value="">
-              {dictionary.jobForm.selectOption}
-            </option>
-
-            <option value="home_cleaning">
-              {dictionary.jobForm.homeCleaning}
-            </option>
-
-            <option value="office_cleaning">
-              {dictionary.jobForm.officeCleaning}
-            </option>
-          </Select>
-
-          <Select
-            id="property_type"
-            name="property_type"
-            label={
-              dictionary.jobForm
-                .propertyTypeLabel
-            }
-            defaultValue=""
-          >
-            <option value="">
-              {dictionary.jobForm.selectOption}
-            </option>
-
-            <option value="apartment">
-              {dictionary.jobForm.apartment}
-            </option>
-
-            <option value="house">
-              {dictionary.jobForm.house}
-            </option>
-
-            <option value="office">
-              {dictionary.jobForm.office}
-            </option>
-
-            <option value="other">
-              {dictionary.jobForm.other}
-            </option>
-          </Select>
-
-          <Input
-            id="scheduled_date"
-            name="scheduled_date"
-            type="date"
-            min={today}
-            label={
-              dictionary.jobForm
-                .scheduledDateLabel
-            }
-          />
-
-          <div>
-            <div className="mb-2 text-sm font-medium text-black">
-              {
-                dictionary.jobForm
-                  .scheduledTimeLabel
-              }
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Select
-                id="scheduled_hour"
-                name="scheduled_hour"
-                label=""
-                defaultValue=""
-                aria-label="Hour"
-              >
-                <option value="">
-                  {dictionary.jobForm.selectOption}
-                </option>
-
-                {hourOptions.map((hour) => (
-                  <option
-                    key={hour}
-                    value={hour}
-                  >
-                    {hour}
-                  </option>
-                ))}
-              </Select>
-
-              <Select
-                id="scheduled_minute"
-                name="scheduled_minute"
-                label=""
-                defaultValue=""
-                aria-label="Minute"
-              >
-                <option value="">
-                  {dictionary.jobForm.selectOption}
-                </option>
-
-                {minuteOptions.map((minute) => (
-                  <option
-                    key={minute}
-                    value={minute}
-                  >
-                    {minute}
-                  </option>
-                ))}
-              </Select>
-            </div>
-
-            <div className="mt-2 text-xs text-black/50">
-              24-hour format: 00:00–23:45
-            </div>
-          </div>
-
-          <div className="md:col-span-2 pt-1">
-            <FormSubmitButton
-              locale={locale}
-              idleLabel={
-                dictionary.jobForm.createButton
-              }
-              loadingLabel={
-                dictionary.jobForm.saving
-              }
-            />
-          </div>
-        </form>
-      </div>
-    </main>
+    <CreateJobWizard
+      locale={locale}
+      today={today}
+      action={createJobAction}
+    />
   )
 }

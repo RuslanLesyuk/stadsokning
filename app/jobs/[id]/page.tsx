@@ -338,6 +338,111 @@ const copy: Record<Locale, Copy> = {
   },
 }
 
+
+type WorkflowCopy = {
+  nextStep: string
+  moreActions: string
+  ownerWaitingTitle: string
+  ownerWaitingText: string
+  ownerApplicationsTitle: string
+  ownerApplicationsText: string
+  ownerAssignedTitle: string
+  ownerAssignedText: string
+  ownerProgressTitle: string
+  ownerProgressText: string
+  workerApplyTitle: string
+  workerApplyText: string
+  workerWaitingTitle: string
+  workerWaitingText: string
+  workerAssignedTitle: string
+  workerAssignedText: string
+  workerProgressTitle: string
+  workerProgressText: string
+  doneTitle: string
+  doneText: string
+  cancelledTitle: string
+  cancelledText: string
+  openChat: string
+  seeApplications: string
+  applyNow: string
+  leaveReview: string
+  editDetails: string
+  backToDashboard: string
+  backToJobs: string
+  homeCleaning: string
+  officeCleaning: string
+  apartment: string
+  house: string
+  office: string
+  other: string
+}
+
+const workflowCopy: Record<Locale, WorkflowCopy> = {
+  sv: {
+    nextStep: "Nästa steg",
+    moreActions: "Fler åtgärder",
+    ownerWaitingTitle: "Jobbet är publicerat",
+    ownerWaitingText: "Nu väntar du på ansökningar. Du behöver inte göra något förrän någon skickar en ansökan.",
+    ownerApplicationsTitle: "Du har nya ansökningar",
+    ownerApplicationsText: "Jämför förslagen nedan och välj den utförare du vill gå vidare med.",
+    ownerAssignedTitle: "Utföraren är vald",
+    ownerAssignedText: "Öppna chatten och kom överens om tid, adress och praktiska detaljer.",
+    ownerProgressTitle: "Arbetet pågår",
+    ownerProgressText: "Du kan använda chatten om ni behöver stämma av något under arbetet.",
+    workerApplyTitle: "Vill du ha jobbet?",
+    workerApplyText: "Skicka en enkel ansökan med ditt pris och ett kort meddelande.",
+    workerWaitingTitle: "Din ansökan väntar på svar",
+    workerWaitingText: "Beställaren har fått din ansökan. Du behöver inte göra något nu.",
+    workerAssignedTitle: "Du har fått jobbet",
+    workerAssignedText: "Öppna chatten, stäm av detaljerna och starta jobbet när ni är överens.",
+    workerProgressTitle: "Jobbet pågår",
+    workerProgressText: "När arbetet är helt färdigt markerar du jobbet som klart.",
+    doneTitle: "Jobbet är klart",
+    doneText: "Arbetet är avslutat. Lämna gärna en recension om hur samarbetet fungerade.",
+    cancelledTitle: "Jobbet är avbrutet",
+    cancelledText: "Jobbet ligger kvar i historiken. Beställaren kan öppna det igen vid behov.",
+    openChat: "Öppna chatten",
+    seeApplications: "Se ansökningar",
+    applyNow: "Skicka ansökan",
+    leaveReview: "Lämna recension",
+    editDetails: "Ändra uppgifter",
+    backToDashboard: "Mina ärenden",
+    backToJobs: "Lediga jobb",
+    homeCleaning: "Hemstädning",
+    officeCleaning: "Kontorsstädning",
+    apartment: "Lägenhet",
+    house: "Hus",
+    office: "Kontor",
+    other: "Annat",
+  },
+  en: {
+    nextStep: "Next step", moreActions: "More actions", ownerWaitingTitle: "Your job is published", ownerWaitingText: "Now wait for applications. You do not need to do anything until someone applies.", ownerApplicationsTitle: "You have new applications", ownerApplicationsText: "Compare the offers below and choose the worker you want to continue with.", ownerAssignedTitle: "Worker selected", ownerAssignedText: "Open the chat and agree on time, address and practical details.", ownerProgressTitle: "Work is in progress", ownerProgressText: "Use the chat if you need to coordinate anything during the job.", workerApplyTitle: "Want this job?", workerApplyText: "Send a simple application with your price and a short message.", workerWaitingTitle: "Your application is waiting for a response", workerWaitingText: "The customer has received your application. You do not need to do anything now.", workerAssignedTitle: "You got the job", workerAssignedText: "Open the chat, agree on the details and start when you are both ready.", workerProgressTitle: "Job in progress", workerProgressText: "When the work is completely finished, mark the job as done.", doneTitle: "Job completed", doneText: "The work is finished. You can now leave a review about the collaboration.", cancelledTitle: "Job cancelled", cancelledText: "The job remains in history. The customer can reopen it if needed.", openChat: "Open chat", seeApplications: "See applications", applyNow: "Send application", leaveReview: "Leave a review", editDetails: "Edit details", backToDashboard: "My activity", backToJobs: "Available jobs", homeCleaning: "Home cleaning", officeCleaning: "Office cleaning", apartment: "Apartment", house: "House", office: "Office", other: "Other",
+  },
+  uk: {
+    nextStep: "Наступний крок", moreActions: "Інші дії", ownerWaitingTitle: "Замовлення опубліковано", ownerWaitingText: "Тепер чекайте на заявки. Поки ніхто не відгукнувся, нічого робити не потрібно.", ownerApplicationsTitle: "У вас є нові заявки", ownerApplicationsText: "Порівняйте пропозиції нижче та оберіть виконавця.", ownerAssignedTitle: "Виконавця обрано", ownerAssignedText: "Відкрийте чат і домовтеся про час, адресу та практичні деталі.", ownerProgressTitle: "Робота виконується", ownerProgressText: "Використовуйте чат, якщо потрібно щось уточнити під час роботи.", workerApplyTitle: "Хочете цю роботу?", workerApplyText: "Надішліть просту заявку з ціною та коротким повідомленням.", workerWaitingTitle: "Ваша заявка чекає відповіді", workerWaitingText: "Замовник отримав заявку. Зараз нічого робити не потрібно.", workerAssignedTitle: "Ви отримали роботу", workerAssignedText: "Відкрийте чат, узгодьте деталі та почніть роботу, коли все домовлено.", workerProgressTitle: "Робота триває", workerProgressText: "Коли все повністю готово, позначте роботу як завершену.", doneTitle: "Роботу завершено", doneText: "Робота закінчена. Тепер можна залишити відгук про співпрацю.", cancelledTitle: "Замовлення скасовано", cancelledText: "Замовлення залишилось в історії. Власник може відкрити його знову за потреби.", openChat: "Відкрити чат", seeApplications: "Переглянути заявки", applyNow: "Надіслати заявку", leaveReview: "Залишити відгук", editDetails: "Змінити дані", backToDashboard: "Мої справи", backToJobs: "Доступні роботи", homeCleaning: "Прибирання дому", officeCleaning: "Прибирання офісу", apartment: "Квартира", house: "Будинок", office: "Офіс", other: "Інше",
+  },
+  ru: {
+    nextStep: "Следующий шаг", moreActions: "Другие действия", ownerWaitingTitle: "Заказ опубликован", ownerWaitingText: "Теперь ждите заявки. Пока никто не откликнулся, ничего делать не нужно.", ownerApplicationsTitle: "У вас есть новые заявки", ownerApplicationsText: "Сравните предложения ниже и выберите исполнителя.", ownerAssignedTitle: "Исполнитель выбран", ownerAssignedText: "Откройте чат и договоритесь о времени, адресе и деталях.", ownerProgressTitle: "Работа выполняется", ownerProgressText: "Используйте чат, если нужно что-то уточнить во время работы.", workerApplyTitle: "Хотите эту работу?", workerApplyText: "Отправьте простую заявку с ценой и коротким сообщением.", workerWaitingTitle: "Ваша заявка ждёт ответа", workerWaitingText: "Заказчик получил заявку. Сейчас ничего делать не нужно.", workerAssignedTitle: "Вы получили работу", workerAssignedText: "Откройте чат, согласуйте детали и начните работу, когда всё согласовано.", workerProgressTitle: "Работа идёт", workerProgressText: "Когда всё полностью готово, отметьте работу как завершённую.", doneTitle: "Работа завершена", doneText: "Работа закончена. Теперь можно оставить отзыв о сотрудничестве.", cancelledTitle: "Заказ отменён", cancelledText: "Заказ остался в истории. Владелец может открыть его снова при необходимости.", openChat: "Открыть чат", seeApplications: "Посмотреть заявки", applyNow: "Отправить заявку", leaveReview: "Оставить отзыв", editDetails: "Изменить данные", backToDashboard: "Мои дела", backToJobs: "Доступные работы", homeCleaning: "Уборка дома", officeCleaning: "Уборка офиса", apartment: "Квартира", house: "Дом", office: "Офис", other: "Другое",
+  },
+  pl: {
+    nextStep: "Następny krok", moreActions: "Więcej działań", ownerWaitingTitle: "Zlecenie jest opublikowane", ownerWaitingText: "Teraz poczekaj na oferty. Nie musisz nic robić, dopóki ktoś się nie zgłosi.", ownerApplicationsTitle: "Masz nowe oferty", ownerApplicationsText: "Porównaj propozycje poniżej i wybierz wykonawcę.", ownerAssignedTitle: "Wykonawca wybrany", ownerAssignedText: "Otwórz czat i ustal czas, adres oraz szczegóły.", ownerProgressTitle: "Praca trwa", ownerProgressText: "Użyj czatu, jeśli podczas pracy trzeba coś ustalić.", workerApplyTitle: "Chcesz to zlecenie?", workerApplyText: "Wyślij prostą ofertę z ceną i krótką wiadomością.", workerWaitingTitle: "Twoja oferta czeka na odpowiedź", workerWaitingText: "Klient otrzymał ofertę. Teraz nie musisz nic robić.", workerAssignedTitle: "Masz to zlecenie", workerAssignedText: "Otwórz czat, ustal szczegóły i rozpocznij pracę, gdy wszystko będzie uzgodnione.", workerProgressTitle: "Praca trwa", workerProgressText: "Gdy wszystko jest gotowe, oznacz zlecenie jako zakończone.", doneTitle: "Zlecenie zakończone", doneText: "Praca została zakończona. Możesz teraz dodać opinię o współpracy.", cancelledTitle: "Zlecenie anulowane", cancelledText: "Zlecenie pozostaje w historii. Klient może je ponownie otworzyć.", openChat: "Otwórz czat", seeApplications: "Zobacz oferty", applyNow: "Wyślij ofertę", leaveReview: "Dodaj opinię", editDetails: "Edytuj dane", backToDashboard: "Moje sprawy", backToJobs: "Dostępne zlecenia", homeCleaning: "Sprzątanie domu", officeCleaning: "Sprzątanie biura", apartment: "Mieszkanie", house: "Dom", office: "Biuro", other: "Inne",
+  },
+}
+
+function getJobTypeDisplay(value: string | null, t: WorkflowCopy, fallback: string) {
+  if (value === "home_cleaning") return t.homeCleaning
+  if (value === "office_cleaning") return t.officeCleaning
+  return fallback
+}
+
+function getPropertyTypeDisplay(value: string | null, t: WorkflowCopy, fallback: string) {
+  if (value === "apartment") return t.apartment
+  if (value === "house") return t.house
+  if (value === "office") return t.office
+  if (value === "other") return t.other
+  return fallback
+}
+
 export async function generateMetadata({
   params,
 }: PageProps): Promise<Metadata> {
@@ -699,6 +804,7 @@ export default async function JobDetailsPage({
   ) as Locale
 
   const t = copy[locale] || copy.en
+  const wf = workflowCopy[locale] || workflowCopy.en
 
   async function deleteJobAction() {
     "use server"
@@ -1095,6 +1201,11 @@ export default async function JobDetailsPage({
         )
       })
 
+
+  const pendingApplicationsCount = ownerApplications.filter(
+    (application) => application.status === "pending",
+  ).length
+
   const activityActorIds = Array.from(
     new Set(
       activity
@@ -1130,11 +1241,6 @@ export default async function JobDetailsPage({
       job.assigned_to === null) ||
       currentApplication !== null)
 
-  const canOpenChat =
-    job.assigned_to !== null &&
-    (job.created_by === user.id ||
-      job.assigned_to === user.id)
-
   const canEdit = isOwner && !isHistory
   const canDelete = isOwner && !isHistory
 
@@ -1156,16 +1262,97 @@ export default async function JobDetailsPage({
             ? "Czy na pewno chcesz usunąć tę pracę?"
             : "Are you sure you want to delete this job?"
 
+  let nextStepTitle = ""
+  let nextStepText = ""
+  let nextStepHref: string | null = null
+  let nextStepLabel: string | null = null
+  let showStatusActions = false
+
+  if (isOwner) {
+    if (job.status === "new") {
+      if (pendingApplicationsCount > 0) {
+        nextStepTitle = wf.ownerApplicationsTitle
+        nextStepText = wf.ownerApplicationsText
+        nextStepHref = "#applications"
+        nextStepLabel = wf.seeApplications
+      } else {
+        nextStepTitle = wf.ownerWaitingTitle
+        nextStepText = wf.ownerWaitingText
+        nextStepHref = `/jobs/${job.id}/edit`
+        nextStepLabel = wf.editDetails
+      }
+    } else if (job.status === "assigned") {
+      nextStepTitle = wf.ownerAssignedTitle
+      nextStepText = wf.ownerAssignedText
+      nextStepHref = `/jobs/${job.id}/chat`
+      nextStepLabel = wf.openChat
+      showStatusActions = true
+    } else if (job.status === "in_progress") {
+      nextStepTitle = wf.ownerProgressTitle
+      nextStepText = wf.ownerProgressText
+      nextStepHref = `/jobs/${job.id}/chat`
+      nextStepLabel = wf.openChat
+      showStatusActions = true
+    } else if (job.status === "done") {
+      nextStepTitle = wf.doneTitle
+      nextStepText = wf.doneText
+      nextStepHref = "#reviews"
+      nextStepLabel = wf.leaveReview
+      showStatusActions = true
+    } else if (job.status === "cancelled") {
+      nextStepTitle = wf.cancelledTitle
+      nextStepText = wf.cancelledText
+      showStatusActions = true
+    }
+  } else if (isAssignedWorker) {
+    if (job.status === "assigned") {
+      nextStepTitle = wf.workerAssignedTitle
+      nextStepText = wf.workerAssignedText
+      nextStepHref = `/jobs/${job.id}/chat`
+      nextStepLabel = wf.openChat
+      showStatusActions = true
+    } else if (job.status === "in_progress") {
+      nextStepTitle = wf.workerProgressTitle
+      nextStepText = wf.workerProgressText
+      nextStepHref = `/jobs/${job.id}/chat`
+      nextStepLabel = wf.openChat
+      showStatusActions = true
+    } else if (job.status === "done") {
+      nextStepTitle = wf.doneTitle
+      nextStepText = wf.doneText
+      nextStepHref = "#reviews"
+      nextStepLabel = wf.leaveReview
+    } else if (job.status === "cancelled") {
+      nextStepTitle = wf.cancelledTitle
+      nextStepText = wf.cancelledText
+    }
+  } else if (currentApplication?.status === "pending") {
+    nextStepTitle = wf.workerWaitingTitle
+    nextStepText = wf.workerWaitingText
+  } else if (job.status === "new" && currentApplication === null) {
+    nextStepTitle = wf.workerApplyTitle
+    nextStepText = wf.workerApplyText
+    nextStepHref = "#apply"
+    nextStepLabel = wf.applyNow
+  } else if (job.status === "done") {
+    nextStepTitle = wf.doneTitle
+    nextStepText = wf.doneText
+  } else if (job.status === "cancelled") {
+    nextStepTitle = wf.cancelledTitle
+    nextStepText = wf.cancelledText
+  }
+
+
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <div className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-10">
         <div className="mb-5 md:mb-6">
           <Link
-            href="/jobs"
+            href={isParticipant ? "/dashboard" : "/jobs"}
             prefetch={false}
             className="inline-flex min-h-11 items-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.98]"
           >
-            {t.back}
+            ← {isParticipant ? wf.backToDashboard : wf.backToJobs}
           </Link>
         </div>
 
@@ -1262,67 +1449,80 @@ export default async function JobDetailsPage({
                 ) : null}
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:flex lg:w-auto lg:flex-wrap">
-                {canOpenChat ? (
-                  <Link
-                    href={`/jobs/${job.id}/chat`}
-                    prefetch={false}
-                    className={
-                      isHistory
-                        ? "inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97]"
-                        : "inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97]"
-                    }
-                  >
-                    {t.chat}
-                  </Link>
-                ) : null}
+              {canEdit || canDelete || !isOwner ? (
+                <details className="rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <summary className="cursor-pointer select-none px-4 py-3 text-sm font-semibold text-slate-700">
+                    {wf.moreActions}
+                  </summary>
 
-                {canEdit ? (
-                  <Link
-                    href={`/jobs/${job.id}/edit`}
-                    prefetch={false}
-                    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-2 active:scale-[0.97]"
-                  >
-                    {t.edit}
-                  </Link>
-                ) : null}
+                  <div className="grid gap-3 border-t border-slate-200 p-3">
+                  {canEdit ? (
+                    <Link
+                      href={`/jobs/${job.id}/edit`}
+                      prefetch={false}
+                      className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+                    >
+                      {t.edit}
+                    </Link>
+                  ) : null}
 
-                {canDelete ? (
-                  <form action={deleteJobAction}>
-                    <DeleteJobButton
-                      label={t.delete}
-                      confirmText={deleteConfirmText}
-                    />
-                  </form>
-                ) : null}
+                  {canDelete ? (
+                    <form action={deleteJobAction}>
+                      <DeleteJobButton label={t.delete} confirmText={deleteConfirmText} />
+                    </form>
+                  ) : null}
 
-                <SaveJobButton
-                  jobId={job.id}
-                  initialSaved={isSaved}
-                  locale={locale}
-                />
+                  {!isOwner ? (
+                    <SaveJobButton jobId={job.id} initialSaved={isSaved} locale={locale} />
+                  ) : null}
 
-                <ReportJobForm
-                  jobId={job.id}
-                  locale={locale}
-                />
-
-               
-
-                <JobStatusActions
-                  jobId={job.id}
-                  status={job.status}
-                  currentUserId={user.id}
-                  createdBy={job.created_by}
-                  assignedTo={job.assigned_to}
-                  locale={locale}
-                />
-              </div>
+                    {!isOwner ? <ReportJobForm jobId={job.id} locale={locale} /> : null}
+                  </div>
+                </details>
+              ) : null}
             </div>
           </div>
         </section>
+
+        {nextStepTitle ? (
+          <section className="mt-6 rounded-[30px] border border-rose-200 bg-gradient-to-br from-white to-rose-50 p-5 shadow-sm md:p-6">
+            <div className="text-xs font-semibold uppercase tracking-[0.16em] text-rose-700">
+              {wf.nextStep}
+            </div>
+            <div className="mt-3 flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">{nextStepTitle}</h2>
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">{nextStepText}</p>
+              </div>
+
+              <div className="flex shrink-0 flex-col gap-3 sm:flex-row">
+                {nextStepHref && nextStepLabel ? (
+                  <Link
+                    href={nextStepHref}
+                    prefetch={false}
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
+                  >
+                    {nextStepLabel}
+                  </Link>
+                ) : null}
+
+                {showStatusActions ? (
+                  <JobStatusActions
+                    jobId={job.id}
+                    status={job.status}
+                    currentUserId={user.id}
+                    createdBy={job.created_by}
+                    assignedTo={job.assigned_to}
+                    locale={locale}
+                  />
+                ) : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
+
         {canApplyToJob ? (
-          <section className="mt-6 md:mt-8">
+          <section id="apply" className="mt-6 scroll-mt-28 md:mt-8">
             <TakeJobForm
               jobId={job.id}
               locale={locale}
@@ -1387,15 +1587,13 @@ export default async function JobDetailsPage({
 
           <InfoCard
             label={t.jobType}
-            value={job.job_type || t.typeMissing}
+            value={getJobTypeDisplay(job.job_type, wf, t.typeMissing)}
             subdued={isHistory}
           />
 
           <InfoCard
             label={t.propertyType}
-            value={
-              job.property_type || t.propertyMissing
-            }
+            value={getPropertyTypeDisplay(job.property_type, wf, t.propertyMissing)}
             subdued={isHistory}
           />
 
@@ -1429,12 +1627,14 @@ export default async function JobDetailsPage({
         </section>
 
         <section className="mt-6 grid gap-6 md:mt-8 md:gap-8 xl:grid-cols-[1.1fr_0.9fr]">
-          <JobReviewsSection
-            jobId={job.id}
-            revieweeId={revieweeId}
-            locale={locale}
-            allowReview={canLeaveReview}
-          />
+          <div id="reviews" className="scroll-mt-28">
+            <JobReviewsSection
+              jobId={job.id}
+              revieweeId={revieweeId}
+              locale={locale}
+              allowReview={canLeaveReview}
+            />
+          </div>
 
           <div
             className={

@@ -58,7 +58,7 @@ const initialState: DashboardActionState = {
 
 const labels = {
   uk: {
-    title: "Заявки на роботу",
+    title: "Виберіть виконавця",
     subtitle:
       "Перегляньте пропозиції кандидатів і виберіть виконавця.",
     total: "Усього",
@@ -74,7 +74,7 @@ const labels = {
     availableFrom: "Може почати",
     message: "Повідомлення",
     submitted: "Подано",
-    accept: "Прийняти заявку",
+    accept: "Обрати виконавця",
     accepting: "Приймаємо...",
     reject: "Відхилити",
     rejecting: "Відхиляємо...",
@@ -86,10 +86,14 @@ const labels = {
     noReviews: "Ще немає відгуків",
     hours: "год.",
     selectionClosed:
-      "Виконавця вже обрано. Інші заявки більше не можна прийняти.",
+      "Виконавця обрано. Тепер відкрийте чат і домовтеся про деталі роботи.",
+    openChat: "Відкрити чат",
+    acceptConfirm: "Обрати цього виконавця для роботи?",
+    acceptedToast: "Виконавця обрано.",
+    rejectedToast: "Заявку відхилено.",
   },
   ru: {
-    title: "Заявки на работу",
+    title: "Выберите исполнителя",
     subtitle:
       "Просмотрите предложения кандидатов и выберите исполнителя.",
     total: "Всего",
@@ -105,7 +109,7 @@ const labels = {
     availableFrom: "Может начать",
     message: "Сообщение",
     submitted: "Отправлено",
-    accept: "Принять заявку",
+    accept: "Выбрать исполнителя",
     accepting: "Принимаем...",
     reject: "Отклонить",
     rejecting: "Отклоняем...",
@@ -117,10 +121,14 @@ const labels = {
     noReviews: "Отзывов пока нет",
     hours: "ч.",
     selectionClosed:
-      "Исполнитель уже выбран. Другие заявки больше нельзя принять.",
+      "Исполнитель выбран. Теперь откройте чат и договоритесь о деталях работы.",
+    openChat: "Открыть чат",
+    acceptConfirm: "Выбрать этого исполнителя для работы?",
+    acceptedToast: "Исполнитель выбран.",
+    rejectedToast: "Заявка отклонена.",
   },
   en: {
-    title: "Job applications",
+    title: "Choose a worker",
     subtitle:
       "Review candidate offers and select the most suitable worker.",
     total: "Total",
@@ -136,7 +144,7 @@ const labels = {
     availableFrom: "Available from",
     message: "Message",
     submitted: "Submitted",
-    accept: "Accept application",
+    accept: "Choose this worker",
     accepting: "Accepting...",
     reject: "Reject",
     rejecting: "Rejecting...",
@@ -148,10 +156,14 @@ const labels = {
     noReviews: "No reviews yet",
     hours: "hours",
     selectionClosed:
-      "A worker has already been selected. Other applications can no longer be accepted.",
+      "A worker has been selected. Open the chat to agree on the job details.",
+    openChat: "Open chat",
+    acceptConfirm: "Choose this worker for the job?",
+    acceptedToast: "Worker selected.",
+    rejectedToast: "Application rejected.",
   },
   sv: {
-    title: "Jobbansökningar",
+    title: "Välj utförare",
     subtitle:
       "Granska kandidaternas erbjudanden och välj den bästa utföraren.",
     total: "Totalt",
@@ -167,7 +179,7 @@ const labels = {
     availableFrom: "Tillgänglig från",
     message: "Meddelande",
     submitted: "Skickad",
-    accept: "Godkänn ansökan",
+    accept: "Välj som utförare",
     accepting: "Godkänner...",
     reject: "Avvisa",
     rejecting: "Avvisar...",
@@ -179,10 +191,14 @@ const labels = {
     noReviews: "Inga recensioner ännu",
     hours: "timmar",
     selectionClosed:
-      "En utförare har redan valts. Andra ansökningar kan inte längre godkännas.",
+      "Utföraren är vald. Nästa steg är att öppna chatten och komma överens om detaljerna.",
+    openChat: "Öppna chatten",
+    acceptConfirm: "Vill du välja den här personen som utförare?",
+    acceptedToast: "Utföraren är vald.",
+    rejectedToast: "Ansökan avvisades.",
   },
   pl: {
-    title: "Oferty wykonawców",
+    title: "Wybierz wykonawcę",
     subtitle:
       "Sprawdź propozycje kandydatów i wybierz odpowiedniego wykonawcę.",
     total: "Wszystkie",
@@ -198,7 +214,7 @@ const labels = {
     availableFrom: "Dostępny od",
     message: "Wiadomość",
     submitted: "Wysłano",
-    accept: "Przyjmij ofertę",
+    accept: "Wybierz wykonawcę",
     accepting: "Przyjmowanie...",
     reject: "Odrzuć",
     rejecting: "Odrzucanie...",
@@ -210,7 +226,11 @@ const labels = {
     noReviews: "Brak opinii",
     hours: "godz.",
     selectionClosed:
-      "Wykonawca został już wybrany. Innych ofert nie można już przyjąć.",
+      "Wykonawca został wybrany. Otwórz czat, aby ustalić szczegóły zlecenia.",
+    openChat: "Otwórz czat",
+    acceptConfirm: "Wybrać tę osobę jako wykonawcę?",
+    acceptedToast: "Wykonawca został wybrany.",
+    rejectedToast: "Oferta została odrzucona.",
   },
 } satisfies Record<Locale, Record<string, string>>
 
@@ -342,7 +362,7 @@ function ApplicationCard({
     }
 
     if (acceptState.success) {
-      toast.success(acceptState.message)
+      toast.success(t.acceptedToast)
       router.refresh()
       return
     }
@@ -356,7 +376,7 @@ function ApplicationCard({
     }
 
     if (rejectState.success) {
-      toast.success(rejectState.message)
+      toast.success(t.rejectedToast)
       router.refresh()
       return
     }
@@ -520,7 +540,14 @@ function ApplicationCard({
 
       {canManage ? (
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <form action={acceptAction}>
+          <form
+            action={acceptAction}
+            onSubmit={(event) => {
+              if (!window.confirm(t.acceptConfirm)) {
+                event.preventDefault()
+              }
+            }}
+          >
             <input
               type="hidden"
               name="applicationId"
@@ -577,7 +604,7 @@ export default function JobApplicationsSection({
     jobStatus !== "new" || acceptedCount > 0
 
   return (
-    <section className="mt-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:mt-8 md:p-6">
+    <section id="applications" className="mt-6 scroll-mt-28 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm md:mt-8 md:p-6">
       <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-slate-900 md:text-2xl">
@@ -620,8 +647,16 @@ export default function JobApplicationsSection({
       </div>
 
       {selectionClosed && applications.length > 0 ? (
-        <div className="mt-5 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-700">
-          {t.selectionClosed}
+        <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-sky-200 bg-sky-50 px-4 py-4 text-sm text-sky-800 sm:flex-row sm:items-center sm:justify-between">
+          <span>{t.selectionClosed}</span>
+          {acceptedCount > 0 ? (
+            <a
+              href={`/jobs/${jobId}/chat`}
+              className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-xl bg-sky-700 px-4 py-2 font-semibold text-white transition hover:bg-sky-800"
+            >
+              {t.openChat}
+            </a>
+          ) : null}
         </div>
       ) : null}
 

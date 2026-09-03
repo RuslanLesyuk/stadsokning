@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase-server"
 import ChatMessageForm from "@/components/chat-message-form"
 import ChatLiveRefresh from "@/components/chat-live-refresh"
 import ChatReadSync from "@/components/chat-read-sync"
+import JobStatusActions from "@/components/job-status-actions"
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE_NAME,
@@ -280,6 +281,29 @@ function getReadOnlyCopy(
   }
 }
 
+function getWorkerNextStepCopy(
+  locale: "uk" | "ru" | "en" | "sv" | "pl",
+  status: string | null,
+) {
+  if (status === "assigned") {
+    if (locale === "sv") return { title: "När ni är överens", text: "Starta jobbet här när du och beställaren har kommit överens om detaljerna." }
+    if (locale === "uk") return { title: "Коли все узгоджено", text: "Почніть роботу тут, коли ви із замовником домовилися про деталі." }
+    if (locale === "ru") return { title: "Когда всё согласовано", text: "Начните работу здесь, когда вы с заказчиком договорились о деталях." }
+    if (locale === "pl") return { title: "Gdy wszystko jest ustalone", text: "Rozpocznij zlecenie tutaj, gdy ustalisz szczegóły z klientem." }
+    return { title: "When you are ready", text: "Start the job here after you and the customer have agreed on the details." }
+  }
+
+  if (status === "in_progress") {
+    if (locale === "sv") return { title: "När jobbet är helt färdigt", text: "Markera jobbet som klart först när arbetet är slutfört." }
+    if (locale === "uk") return { title: "Коли робота повністю готова", text: "Позначте роботу завершеною лише після повного виконання." }
+    if (locale === "ru") return { title: "Когда работа полностью готова", text: "Отметьте работу завершённой только после полного выполнения." }
+    if (locale === "pl") return { title: "Gdy praca jest całkowicie gotowa", text: "Oznacz zlecenie jako zakończone dopiero po pełnym wykonaniu." }
+    return { title: "When the job is fully finished", text: "Mark the job as done only after the work is complete." }
+  }
+
+  return null
+}
+
 function ChatEmptyState({
   title,
   description,
@@ -465,6 +489,10 @@ export default async function JobChatPage({ params }: PageProps) {
     : null
 
   const isHistory = isHistoryStatus(job.status)
+  const isAssignedWorker = job.assigned_to === user.id
+  const workerNextStep = isAssignedWorker
+    ? getWorkerNextStepCopy(locale, job.status)
+    : null
   const historyHint = getHistoryHint(locale, job.status)
   const isReadOnly = isHistory
   const readOnlyCopy = getReadOnlyCopy(locale, job.status)
@@ -522,9 +550,6 @@ export default async function JobChatPage({ params }: PageProps) {
             ) : null}
           </div>
 
-          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 shadow-sm">
-            {dictionary.chat.autoRefresh}: {dictionary.chat.every30Seconds}
-          </div>
         </div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-2">
@@ -566,6 +591,25 @@ export default async function JobChatPage({ params }: PageProps) {
             }
           />
         </div>
+
+        {workerNextStep ? (
+          <section className="mb-6 rounded-[28px] border border-rose-200 bg-rose-50 p-4 md:p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="font-semibold text-slate-950">{workerNextStep.title}</h2>
+                <p className="mt-1 text-sm leading-6 text-slate-600">{workerNextStep.text}</p>
+              </div>
+              <JobStatusActions
+                jobId={job.id}
+                status={job.status as "assigned" | "in_progress"}
+                currentUserId={user.id}
+                createdBy={job.created_by || ""}
+                assignedTo={job.assigned_to}
+                locale={locale}
+              />
+            </div>
+          </section>
+        ) : null}
 
         <div
           className={

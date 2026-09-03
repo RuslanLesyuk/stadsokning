@@ -49,6 +49,7 @@ type StatusActionConfig = {
     | "danger"
     | "secondary"
   confirmText?: string
+  successLabel: string
 }
 
 const initialState: DashboardActionState = {
@@ -70,6 +71,11 @@ const labels: Record<
     cancelConfirm: string
     reopenConfirm: string
     genericError: string
+    completeConfirm: string
+    startedSuccess: string
+    completedSuccess: string
+    cancelledSuccess: string
+    reopenedSuccess: string
   }
 > = {
   uk: {
@@ -87,6 +93,11 @@ const labels: Record<
       "Ти точно хочеш знову відкрити це замовлення?",
     genericError:
       "Сталася помилка. Спробуй ще раз.",
+    completeConfirm: "Робота точно завершена? Після завершення чат стане доступним лише для перегляду.",
+    startedSuccess: "Роботу розпочато.",
+    completedSuccess: "Роботу завершено.",
+    cancelledSuccess: "Замовлення скасовано.",
+    reopenedSuccess: "Замовлення відкрито знову.",
   },
 
   ru: {
@@ -104,6 +115,11 @@ const labels: Record<
       "Ты точно хочешь снова открыть этот заказ?",
     genericError:
       "Произошла ошибка. Попробуй ещё раз.",
+    completeConfirm: "Работа точно завершена? После завершения чат станет доступен только для просмотра.",
+    startedSuccess: "Работа начата.",
+    completedSuccess: "Работа завершена.",
+    cancelledSuccess: "Заказ отменён.",
+    reopenedSuccess: "Заказ открыт снова.",
   },
 
   en: {
@@ -121,6 +137,11 @@ const labels: Record<
       "Are you sure you want to reopen this job?",
     genericError:
       "Something went wrong. Please try again.",
+    completeConfirm: "Is the job finished? After completion, the chat becomes read-only.",
+    startedSuccess: "Job started.",
+    completedSuccess: "Job completed.",
+    cancelledSuccess: "Job cancelled.",
+    reopenedSuccess: "Job reopened.",
   },
 
   sv: {
@@ -138,6 +159,11 @@ const labels: Record<
       "Är du säker på att du vill öppna jobbet igen?",
     genericError:
       "Något gick fel. Försök igen.",
+    completeConfirm: "Är jobbet färdigt? När du markerar det som klart blir chatten skrivskyddad.",
+    startedSuccess: "Jobbet har startats.",
+    completedSuccess: "Jobbet är klart.",
+    cancelledSuccess: "Jobbet har avbrutits.",
+    reopenedSuccess: "Jobbet har öppnats igen.",
   },
 
   pl: {
@@ -155,6 +181,11 @@ const labels: Record<
       "Czy na pewno chcesz ponownie otworzyć to zlecenie?",
     genericError:
       "Wystąpił błąd. Spróbuj ponownie.",
+    completeConfirm: "Czy zlecenie jest zakończone? Po zakończeniu czat będzie tylko do odczytu.",
+    startedSuccess: "Zlecenie rozpoczęte.",
+    completedSuccess: "Zlecenie zakończone.",
+    cancelledSuccess: "Zlecenie anulowane.",
+    reopenedSuccess: "Zlecenie otwarte ponownie.",
   },
 }
 
@@ -241,7 +272,7 @@ function StatusActionButton({
           return
         }
 
-        toast.success(result.message)
+        toast.success(config.successLabel)
 
         /*
          * Спочатку оновлюємо серверні компоненти
@@ -324,6 +355,7 @@ export default function JobStatusActions({
       label: t.start,
       pendingLabel: t.starting,
       variant: "primary",
+      successLabel: t.startedSuccess,
     })
   }
 
@@ -337,6 +369,8 @@ export default function JobStatusActions({
       label: t.complete,
       pendingLabel: t.completing,
       variant: "success",
+      confirmText: t.completeConfirm,
+      successLabel: t.completedSuccess,
     })
   }
 
@@ -352,6 +386,7 @@ export default function JobStatusActions({
       pendingLabel: t.cancelling,
       variant: "danger",
       confirmText: t.cancelConfirm,
+      successLabel: t.cancelledSuccess,
     })
   }
 
@@ -367,6 +402,7 @@ export default function JobStatusActions({
       pendingLabel: t.reopening,
       variant: "secondary",
       confirmText: t.reopenConfirm,
+      successLabel: t.reopenedSuccess,
     })
   }
 
