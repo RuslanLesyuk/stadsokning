@@ -71,6 +71,21 @@ type DashboardCopy = {
   stats_unread: string
   stats_done: string
   quick_actions: string
+  next_steps: string
+  next_steps_description: string
+  applications_waiting: string
+  applications_waiting_description: string
+  unread_messages_action: string
+  unread_messages_description: string
+  continue_work: string
+  continue_work_description: string
+  open_applications: string
+  open_message: string
+  open_active_job: string
+  all_clear: string
+  all_clear_description: string
+  need_cleaning: string
+  find_work: string
   company_workspace: string
   company_workspace_description: string
   open_company_dashboard: string
@@ -105,8 +120,8 @@ type DashboardCopy = {
 
 const copy: Record<Locale, DashboardCopy> = {
   uk: {
-    title: "Кабінет",
-    subtitle: "Особистий простір для ваших замовлень, чатів і статусу профілю.",
+    title: "Мої справи",
+    subtitle: "Тут показано, що потребує вашої уваги зараз.",
     admin_panel: "Адмін панель",
     create_job: "Створити замовлення",
     browse_jobs: "Переглянути роботи",
@@ -125,7 +140,22 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Взяті роботи",
     stats_unread: "Непрочитані",
     stats_done: "В історії",
-    quick_actions: "Швидкі дії",
+    quick_actions: "Інші дії",
+    next_steps: "Що потрібно зробити",
+    next_steps_description: "Найважливіші дії з ваших замовлень і повідомлень.",
+    applications_waiting: "нових заявок",
+    applications_waiting_description: "Перегляньте кандидатів і виберіть виконавця.",
+    unread_messages_action: "непрочитаних повідомлень",
+    unread_messages_description: "Відкрийте чат і перегляньте нові повідомлення.",
+    continue_work: "Продовжити активну роботу",
+    continue_work_description: "У вас є робота, яка вже призначена або виконується.",
+    open_applications: "Переглянути заявки",
+    open_message: "Відкрити чат",
+    open_active_job: "Відкрити роботу",
+    all_clear: "Зараз нічого термінового",
+    all_clear_description: "Ви можете створити нове замовлення або знайти роботу.",
+    need_cleaning: "Мені потрібне прибирання",
+    find_work: "Я шукаю роботу",
     company_workspace: "Простір компанії",
     company_workspace_description: "Керуйте лідами, бронюваннями, сайтом і бізнес-показниками в одному місці.",
     open_company_dashboard: "Відкрити кабінет компанії",
@@ -158,8 +188,8 @@ const copy: Record<Locale, DashboardCopy> = {
     status_cancelled: "Скасовано",
   },
   ru: {
-    title: "Кабинет",
-    subtitle: "Личное пространство для ваших заказов, чатов и статуса профиля.",
+    title: "Мои дела",
+    subtitle: "Здесь показано, что требует вашего внимания сейчас.",
     admin_panel: "Админ панель",
     create_job: "Создать заказ",
     browse_jobs: "Смотреть работы",
@@ -178,7 +208,22 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Взятые работы",
     stats_unread: "Непрочитанные",
     stats_done: "В истории",
-    quick_actions: "Быстрые действия",
+    quick_actions: "Другие действия",
+    next_steps: "Что нужно сделать",
+    next_steps_description: "Самые важные действия по вашим заказам и сообщениям.",
+    applications_waiting: "новых заявок",
+    applications_waiting_description: "Просмотрите кандидатов и выберите исполнителя.",
+    unread_messages_action: "непрочитанных сообщений",
+    unread_messages_description: "Откройте чат и прочитайте новые сообщения.",
+    continue_work: "Продолжить активную работу",
+    continue_work_description: "У вас есть работа, которая уже назначена или выполняется.",
+    open_applications: "Посмотреть заявки",
+    open_message: "Открыть чат",
+    open_active_job: "Открыть работу",
+    all_clear: "Сейчас ничего срочного",
+    all_clear_description: "Вы можете создать новый заказ или найти работу.",
+    need_cleaning: "Мне нужна уборка",
+    find_work: "Я ищу работу",
     company_workspace: "Пространство компании",
     company_workspace_description: "Управляйте лидами, бронированиями, сайтом и бизнес-показателями в одном месте.",
     open_company_dashboard: "Открыть кабинет компании",
@@ -211,8 +256,8 @@ const copy: Record<Locale, DashboardCopy> = {
     status_cancelled: "Отменено",
   },
   en: {
-    title: "Dashboard",
-    subtitle: "Your personal workspace for jobs, chats, and profile status.",
+    title: "My activity",
+    subtitle: "See what needs your attention right now.",
     admin_panel: "Admin panel",
     create_job: "Post job",
     browse_jobs: "Browse jobs",
@@ -231,7 +276,22 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Accepted jobs",
     stats_unread: "Unread",
     stats_done: "In history",
-    quick_actions: "Quick actions",
+    quick_actions: "Other actions",
+    next_steps: "Next steps",
+    next_steps_description: "The most important actions from your jobs and messages.",
+    applications_waiting: "new applications",
+    applications_waiting_description: "Review the candidates and choose who should do the job.",
+    unread_messages_action: "unread messages",
+    unread_messages_description: "Open the chat and read the new messages.",
+    continue_work: "Continue active job",
+    continue_work_description: "You have a job that is assigned or already in progress.",
+    open_applications: "Review applications",
+    open_message: "Open chat",
+    open_active_job: "Open job",
+    all_clear: "Nothing urgent right now",
+    all_clear_description: "You can post a new cleaning request or look for work.",
+    need_cleaning: "I need cleaning",
+    find_work: "I am looking for work",
     company_workspace: "Company workspace",
     company_workspace_description: "Manage leads, bookings, website and business metrics from one place.",
     open_company_dashboard: "Open company dashboard",
@@ -264,8 +324,8 @@ const copy: Record<Locale, DashboardCopy> = {
     status_cancelled: "Cancelled",
   },
   sv: {
-    title: "Dashboard",
-    subtitle: "Din personliga arbetsyta för jobb, chattar och profilstatus.",
+    title: "Mina ärenden",
+    subtitle: "Här ser du vad som behöver din uppmärksamhet just nu.",
     admin_panel: "Adminpanel",
     create_job: "Skapa jobb",
     browse_jobs: "Visa jobb",
@@ -284,7 +344,22 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Tagna jobb",
     stats_unread: "Olästa",
     stats_done: "I historik",
-    quick_actions: "Snabba åtgärder",
+    quick_actions: "Andra saker",
+    next_steps: "Nästa steg",
+    next_steps_description: "De viktigaste sakerna att göra i dina jobb och meddelanden.",
+    applications_waiting: "nya ansökningar",
+    applications_waiting_description: "Öppna jobbet, jämför kandidaterna och välj utförare.",
+    unread_messages_action: "olästa meddelanden",
+    unread_messages_description: "Öppna chatten och läs de nya meddelandena.",
+    continue_work: "Fortsätt med aktivt jobb",
+    continue_work_description: "Du har ett jobb som är tilldelat eller redan pågår.",
+    open_applications: "Se ansökningar",
+    open_message: "Öppna chatten",
+    open_active_job: "Öppna jobbet",
+    all_clear: "Inget brådskande just nu",
+    all_clear_description: "Du kan lägga upp ett nytt städjobb eller hitta lediga jobb.",
+    need_cleaning: "Jag behöver städning",
+    find_work: "Jag söker jobb",
     company_workspace: "Företagsyta",
     company_workspace_description: "Hantera leads, bokningar, webbplats och affärsdata från en samlad arbetsyta.",
     open_company_dashboard: "Öppna företagsdashboard",
@@ -317,8 +392,8 @@ const copy: Record<Locale, DashboardCopy> = {
     status_cancelled: "Avbruten",
   },
   pl: {
-    title: "Panel",
-    subtitle: "Twoje centrum pracy, czatów i statusu profilu.",
+    title: "Moje sprawy",
+    subtitle: "Tutaj zobaczysz, co wymaga teraz Twojej uwagi.",
     admin_panel: "Panel admina",
     create_job: "Dodaj zlecenie",
     browse_jobs: "Przeglądaj prace",
@@ -337,7 +412,22 @@ const copy: Record<Locale, DashboardCopy> = {
     stats_taken: "Przyjęte prace",
     stats_unread: "Nieprzeczytane",
     stats_done: "W historii",
-    quick_actions: "Szybkie akcje",
+    quick_actions: "Inne działania",
+    next_steps: "Co dalej",
+    next_steps_description: "Najważniejsze działania związane z Twoimi zleceniami i wiadomościami.",
+    applications_waiting: "nowych zgłoszeń",
+    applications_waiting_description: "Przejrzyj kandydatów i wybierz wykonawcę.",
+    unread_messages_action: "nieprzeczytanych wiadomości",
+    unread_messages_description: "Otwórz czat i przeczytaj nowe wiadomości.",
+    continue_work: "Kontynuuj aktywne zlecenie",
+    continue_work_description: "Masz zlecenie, które zostało przydzielone lub jest w trakcie.",
+    open_applications: "Zobacz zgłoszenia",
+    open_message: "Otwórz czat",
+    open_active_job: "Otwórz zlecenie",
+    all_clear: "Teraz nic pilnego",
+    all_clear_description: "Możesz dodać nowe zlecenie sprzątania lub poszukać pracy.",
+    need_cleaning: "Potrzebuję sprzątania",
+    find_work: "Szukam pracy",
     company_workspace: "Przestrzeń firmy",
     company_workspace_description: "Zarządzaj leadami, rezerwacjami, stroną i wynikami biznesu w jednym miejscu.",
     open_company_dashboard: "Otwórz panel firmy",
@@ -445,6 +535,46 @@ function truncate(text: string | null | undefined, max = 110) {
   if (!text) return ""
   if (text.length <= max) return text
   return `${text.slice(0, max).trim()}…`
+}
+
+function NextActionCard({
+  title,
+  description,
+  href,
+  label,
+  emphasis = false,
+}: {
+  title: string
+  description: string
+  href: string
+  label: string
+  emphasis?: boolean
+}) {
+  return (
+    <article
+      className={
+        emphasis
+          ? "rounded-[28px] border border-rose-200 bg-rose-50/70 p-5 shadow-[0_2px_12px_rgba(15,23,42,0.04)]"
+          : "rounded-[28px] border border-slate-200 bg-white p-5 shadow-[0_2px_12px_rgba(15,23,42,0.04)]"
+      }
+    >
+      <h3 className="text-lg font-semibold tracking-tight text-slate-950">
+        {title}
+      </h3>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{description}</p>
+      <Link
+        href={href}
+        prefetch={false}
+        className={
+          emphasis
+            ? "mt-5 inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 active:scale-[0.97]"
+            : "mt-5 inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 active:scale-[0.97]"
+        }
+      >
+        {label}
+      </Link>
+    </article>
+  )
 }
 
 function StatCard({ label, value }: { label: string; value: number }) {
@@ -714,22 +844,38 @@ export default async function DashboardPage() {
     throw new Error(jobsError.message)
   }
 
-  const { count: savedJobsCountRaw } = await supabase
-    .from("saved_jobs")
-    .select("*", {
-      count: "exact",
-      head: true,
-    })
-    .eq("user_id", user.id)
-
-  const savedJobsCount = savedJobsCountRaw ?? 0
-
   const jobs = (jobsRaw ?? []) as Job[]
   const activeJobs = jobs.filter((job) => !isHistoryStatus(job.status))
   const historyJobs = jobs.filter((job) => isHistoryStatus(job.status))
   const postedActiveJobs = activeJobs.filter((job) => job.created_by === user.id)
   const takenActiveJobs = activeJobs.filter((job) => job.assigned_to === user.id)
-  const doneJobs = historyJobs.length
+
+  const pendingApplicationsByJob = new Map<string, number>()
+
+  if (postedActiveJobs.length > 0) {
+    const { data: applicationsRaw, error: applicationsError } = await supabase
+      .from("job_applications")
+      .select("job_id, status")
+      .in(
+        "job_id",
+        postedActiveJobs.map((job) => job.id),
+      )
+      .eq("status", "pending")
+
+    if (applicationsError) {
+      console.error(
+        "Load dashboard pending applications error:",
+        applicationsError,
+      )
+    }
+
+    for (const application of applicationsRaw ?? []) {
+      pendingApplicationsByJob.set(
+        application.job_id,
+        (pendingApplicationsByJob.get(application.job_id) ?? 0) + 1,
+      )
+    }
+  }
 
   const jobIds = jobs.map((job) => job.id)
   const unreadByJob = new Map<string, number>()
@@ -759,6 +905,23 @@ export default async function DashboardPage() {
   const unreadTotal = Array.from(unreadByJob.values()).reduce(
     (sum, count) => sum + count,
     0,
+  )
+
+  const pendingJob =
+    postedActiveJobs.find(
+      (job) => (pendingApplicationsByJob.get(job.id) ?? 0) > 0,
+    ) ?? null
+
+  const unreadJob =
+    jobs.find((job) => (unreadByJob.get(job.id) ?? 0) > 0) ?? null
+
+  const activeTakenJob =
+    takenActiveJobs.find(
+      (job) => job.status === "assigned" || job.status === "in_progress",
+    ) ?? null
+
+  const hasNextSteps = Boolean(
+    pendingJob || unreadJob || activeTakenJob,
   )
 
   const adminEmails = getAdminEmails()
@@ -815,12 +978,70 @@ export default async function DashboardPage() {
           </div>
         </section>
 
-        <section className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <section className="mt-6 rounded-[32px] border border-slate-200 bg-white/70 p-5 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-6">
+          <div>
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+              {t.next_steps}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {t.next_steps_description}
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
+            {pendingJob ? (
+              <NextActionCard
+                title={`${pendingApplicationsByJob.get(pendingJob.id) ?? 0} ${t.applications_waiting}`}
+                description={t.applications_waiting_description}
+                href={`/jobs/${pendingJob.id}`}
+                label={t.open_applications}
+                emphasis
+              />
+            ) : null}
+
+            {unreadJob ? (
+              <NextActionCard
+                title={`${unreadByJob.get(unreadJob.id) ?? 0} ${t.unread_messages_action}`}
+                description={t.unread_messages_description}
+                href={`/jobs/${unreadJob.id}/chat`}
+                label={t.open_message}
+                emphasis
+              />
+            ) : null}
+
+            {activeTakenJob ? (
+              <NextActionCard
+                title={t.continue_work}
+                description={`${activeTakenJob.title}. ${t.continue_work_description}`}
+                href={`/jobs/${activeTakenJob.id}`}
+                label={t.open_active_job}
+              />
+            ) : null}
+
+            {!hasNextSteps ? (
+              <>
+                <NextActionCard
+                  title={t.all_clear}
+                  description={t.all_clear_description}
+                  href="/jobs/create"
+                  label={t.need_cleaning}
+                  emphasis
+                />
+                <NextActionCard
+                  title={t.find_work}
+                  description={t.empty_taken_description}
+                  href="/jobs"
+                  label={t.browse_jobs}
+                />
+              </>
+            ) : null}
+          </div>
+        </section>
+
+        <section className="mt-6 grid gap-4 md:grid-cols-3">
           <StatCard label={t.stats_posted} value={postedActiveJobs.length} />
           <StatCard label={t.stats_taken} value={takenActiveJobs.length} />
           <StatCard label={t.stats_unread} value={unreadTotal} />
-          <StatCard label={t.stats_done} value={doneJobs} />
-          <StatCard label={t.saved_jobs} value={savedJobsCount} />
         </section>
 
         <section className="mt-6 grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">

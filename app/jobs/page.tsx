@@ -45,6 +45,8 @@ type JobsCopy = {
   title: string
   subtitle: string
   filters: string
+  advanced_filters: string
+  back_home: string
   search_placeholder: string
   city_placeholder: string
   all_statuses: string
@@ -102,19 +104,21 @@ type JobsCopy = {
 
 const copy: Record<Locale, JobsCopy> = {
   uk: {
-    title: "Роботи",
-    subtitle: "Знайдіть клінінгову роботу у вашому місті.",
-    filters: "Фільтри",
+    title: "Доступні роботи з прибирання",
+    subtitle: "Тут показані замовлення, які ще шукають виконавця.",
+    filters: "Пошук",
+    advanced_filters: "Додаткові фільтри",
+    back_home: "На головну",
     search_placeholder: "Пошук за назвою або описом",
     city_placeholder: "Місто",
     all_statuses: "Усі статуси",
     all_job_types: "Усі типи робіт",
     all_property_types: "Усі типи об'єктів",
-    active_tab: "Активні",
+    active_tab: "Доступні",
     completed_tab: "Завершені",
-    active_results: "Активні роботи",
+    active_results: "Доступні роботи",
     completed_results: "Завершені та скасовані",
-    active_description: "Поточні замовлення для пошуку та роботи.",
+    active_description: "Замовлення, які ще не мають вибраного виконавця.",
     completed_description: "Історія завершених і скасованих замовлень без шуму в основному потоці.",
     in_history: "в історії",
     status_new: "Нове",
@@ -138,7 +142,7 @@ const copy: Record<Locale, JobsCopy> = {
     open_job: "Відкрити",
     no_jobs: "Нічого не знайдено",
     no_jobs_description_active:
-      "Зараз немає активних замовлень за цими фільтрами. Спробуйте змінити пошук або створіть нове оголошення.",
+      "Зараз немає доступних замовлень за цими фільтрами. Спробуйте змінити пошук або скинути фільтри.",
     no_jobs_description_completed:
       "У завершеній історії зараз немає замовлень за цими фільтрами. Спробуйте змінити пошук або скинути фільтри.",
     no_jobs_secondary_cta: "Скинути фільтри",
@@ -151,7 +155,7 @@ const copy: Record<Locale, JobsCopy> = {
     property_type: "Тип об'єкта",
     city: "Місто",
     post_job: "Створити роботу",
-    browse_hint: "Переглядайте замовлення, фільтруйте та відкривайте деталі.",
+    browse_hint: "Оберіть місто або тип роботи. Додаткові параметри можна відкрити за потреби.",
     author: "Автор",
     worker: "Виконавець",
     no_company: "Без компанії",
@@ -162,19 +166,21 @@ const copy: Record<Locale, JobsCopy> = {
     bankid_only: "Тільки BankID",
   },
   ru: {
-    title: "Работы",
-    subtitle: "Найдите клининговую работу в вашем городе.",
-    filters: "Фильтры",
+    title: "Доступные работы по уборке",
+    subtitle: "Здесь показаны заказы, которые ещё ищут исполнителя.",
+    filters: "Поиск",
+    advanced_filters: "Дополнительные фильтры",
+    back_home: "На главную",
     search_placeholder: "Поиск по названию или описанию",
     city_placeholder: "Город",
     all_statuses: "Все статусы",
     all_job_types: "Все типы работ",
     all_property_types: "Все типы объектов",
-    active_tab: "Активные",
+    active_tab: "Доступные",
     completed_tab: "Завершённые",
-    active_results: "Активные работы",
+    active_results: "Доступные работы",
     completed_results: "Завершённые и отменённые",
-    active_description: "Текущие заказы для поиска и работы.",
+    active_description: "Заказы, у которых ещё не выбран исполнитель.",
     completed_description: "История завершённых и отменённых заказов без шума в основном потоке.",
     in_history: "в истории",
     status_new: "Новый",
@@ -198,7 +204,7 @@ const copy: Record<Locale, JobsCopy> = {
     open_job: "Открыть",
     no_jobs: "Ничего не найдено",
     no_jobs_description_active:
-      "Сейчас нет активных заказов по этим фильтрам. Попробуйте изменить поиск или создайте новое объявление.",
+      "Сейчас нет доступных заказов по этим фильтрам. Попробуйте изменить поиск или сбросить фильтры.",
     no_jobs_description_completed:
       "В завершённой истории сейчас нет заказов по этим фильтрам. Попробуйте изменить поиск или сбросить фильтры.",
     no_jobs_secondary_cta: "Сбросить фильтры",
@@ -211,7 +217,7 @@ const copy: Record<Locale, JobsCopy> = {
     property_type: "Тип объекта",
     city: "Город",
     post_job: "Создать работу",
-    browse_hint: "Просматривайте заказы, фильтруйте и открывайте детали.",
+    browse_hint: "Выберите город или тип работы. Дополнительные параметры можно открыть при необходимости.",
     author: "Автор",
     worker: "Исполнитель",
     no_company: "Без компании",
@@ -222,19 +228,21 @@ const copy: Record<Locale, JobsCopy> = {
     bankid_only: "Только BankID",
   },
   en: {
-    title: "Jobs",
-    subtitle: "Find cleaning jobs in your city.",
-    filters: "Filters",
+    title: "Available cleaning jobs",
+    subtitle: "These jobs are still looking for a cleaner.",
+    filters: "Search",
+    advanced_filters: "More filters",
+    back_home: "Back to home",
     search_placeholder: "Search by title or description",
     city_placeholder: "City",
     all_statuses: "All statuses",
     all_job_types: "All job types",
     all_property_types: "All property types",
-    active_tab: "Active",
+    active_tab: "Available",
     completed_tab: "Completed",
-    active_results: "Active jobs",
+    active_results: "Available jobs",
     completed_results: "Completed and cancelled",
-    active_description: "Current jobs available for browsing and work.",
+    active_description: "Jobs that have not selected a worker yet.",
     completed_description: "History of completed and cancelled jobs without cluttering the main flow.",
     in_history: "in history",
     status_new: "New",
@@ -258,7 +266,7 @@ const copy: Record<Locale, JobsCopy> = {
     open_job: "Open",
     no_jobs: "No jobs found",
     no_jobs_description_active:
-      "There are no active jobs matching these filters right now. Try adjusting your search or create a new job.",
+      "There are no available jobs matching these filters right now. Try adjusting your search or reset the filters.",
     no_jobs_description_completed:
       "There are no completed jobs matching these filters right now. Try adjusting your search or reset the filters.",
     no_jobs_secondary_cta: "Reset filters",
@@ -271,7 +279,7 @@ const copy: Record<Locale, JobsCopy> = {
     property_type: "Property type",
     city: "City",
     post_job: "Post job",
-    browse_hint: "Browse jobs, filter them, and open details.",
+    browse_hint: "Choose a city or job type. Open more filters only when you need them.",
     author: "Author",
     worker: "Worker",
     no_company: "No company",
@@ -282,19 +290,21 @@ const copy: Record<Locale, JobsCopy> = {
     bankid_only: "Only BankID verified",
   },
   sv: {
-    title: "Jobb",
-    subtitle: "Hitta städjobb i din stad.",
-    filters: "Filter",
+    title: "Lediga städjobb",
+    subtitle: "Här visas jobb som fortfarande söker en utförare.",
+    filters: "Sök",
+    advanced_filters: "Fler filter",
+    back_home: "Till startsidan",
     search_placeholder: "Sök på titel eller beskrivning",
     city_placeholder: "Stad",
     all_statuses: "Alla statusar",
     all_job_types: "Alla jobbtyper",
     all_property_types: "Alla objekttyper",
-    active_tab: "Aktiva",
+    active_tab: "Lediga",
     completed_tab: "Slutförda",
-    active_results: "Aktiva jobb",
+    active_results: "Lediga jobb",
     completed_results: "Slutförda och avbrutna",
-    active_description: "Aktuella jobb för sökning och arbete.",
+    active_description: "Jobb som ännu inte har valt en utförare.",
     completed_description: "Historik över slutförda och avbrutna jobb utan att störa huvudflödet.",
     in_history: "i historiken",
     status_new: "Ny",
@@ -318,7 +328,7 @@ const copy: Record<Locale, JobsCopy> = {
     open_job: "Öppna",
     no_jobs: "Inga jobb hittades",
     no_jobs_description_active:
-      "Det finns inga aktiva jobb som matchar dessa filter just nu. Prova att ändra din sökning eller skapa ett nytt jobb.",
+      "Det finns inga lediga jobb som matchar dessa filter just nu. Prova att ändra sökningen eller återställ filtren.",
     no_jobs_description_completed:
       "Det finns inga slutförda jobb som matchar dessa filter just nu. Prova att ändra din sökning eller återställ filtren.",
     no_jobs_secondary_cta: "Återställ filter",
@@ -331,7 +341,7 @@ const copy: Record<Locale, JobsCopy> = {
     property_type: "Typ av objekt",
     city: "Stad",
     post_job: "Skapa jobb",
-    browse_hint: "Bläddra bland jobb, filtrera och öppna detaljer.",
+    browse_hint: "Välj stad eller typ av jobb. Öppna fler filter bara om du behöver dem.",
     author: "Skapad av",
     worker: "Arbetare",
     no_company: "Inget företag",
@@ -342,19 +352,21 @@ const copy: Record<Locale, JobsCopy> = {
     bankid_only: "Endast BankID-verifierade",
   },
   pl: {
-    title: "Prace",
-    subtitle: "Znajdź pracę przy sprzątaniu w swoim mieście.",
-    filters: "Filtry",
+    title: "Dostępne zlecenia sprzątania",
+    subtitle: "Tutaj są zlecenia, które nadal szukają wykonawcy.",
+    filters: "Szukaj",
+    advanced_filters: "Więcej filtrów",
+    back_home: "Na stronę główną",
     search_placeholder: "Szukaj po tytule lub opisie",
     city_placeholder: "Miasto",
     all_statuses: "Wszystkie statusy",
     all_job_types: "Wszystkie typy prac",
     all_property_types: "Wszystkie typy obiektów",
-    active_tab: "Aktywne",
+    active_tab: "Dostępne",
     completed_tab: "Zakończone",
-    active_results: "Aktywne zlecenia",
+    active_results: "Dostępne zlecenia",
     completed_results: "Zakończone i anulowane",
-    active_description: "Bieżące zlecenia do przeglądania i wykonywania.",
+    active_description: "Zlecenia, które nie mają jeszcze wybranego wykonawcy.",
     completed_description: "Historia zakończonych i anulowanych zleceń bez zaśmiecania głównego widoku.",
     in_history: "w historii",
     status_new: "Nowe",
@@ -378,7 +390,7 @@ const copy: Record<Locale, JobsCopy> = {
     open_job: "Otwórz",
     no_jobs: "Nie znaleziono zleceń",
     no_jobs_description_active:
-      "Obecnie nie ma aktywnych zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub dodaj nowe zlecenie.",
+      "Obecnie nie ma dostępnych zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub zresetuj filtry.",
     no_jobs_description_completed:
       "Obecnie nie ma zakończonych zleceń pasujących do tych filtrów. Spróbuj zmienić wyszukiwanie lub zresetuj filtry.",
     no_jobs_secondary_cta: "Resetuj filtry",
@@ -391,7 +403,7 @@ const copy: Record<Locale, JobsCopy> = {
     property_type: "Typ obiektu",
     city: "Miasto",
     post_job: "Dodaj zlecenie",
-    browse_hint: "Przeglądaj zlecenia, filtruj i otwieraj szczegóły.",
+    browse_hint: "Wybierz miasto lub typ pracy. Otwórz więcej filtrów tylko wtedy, gdy ich potrzebujesz.",
     author: "Autor",
     worker: "Wykonawca",
     no_company: "Bez firmy",
@@ -707,12 +719,14 @@ export default async function JobsPage({
     query = query.ilike("city", `%${city}%`)
   }
 
-  if (status) {
-    query = query.eq("status", status)
-  } else if (view === "completed") {
-    query = query.in("status", ["done", "cancelled"])
+  if (view === "completed") {
+    if (status === "done" || status === "cancelled") {
+      query = query.eq("status", status)
+    } else {
+      query = query.in("status", ["done", "cancelled"])
+    }
   } else {
-    query = query.in("status", ["new", "assigned", "in_progress"])
+    query = query.eq("status", "new")
   }
 
   if (jobType) {
@@ -791,7 +805,7 @@ export default async function JobsPage({
     view: "active",
     q,
     city,
-    status: status && !isCompletedStatus(status as JobStatus) ? status : "",
+    status: "",
     jobType,
     propertyType,
     sort,
@@ -826,13 +840,6 @@ export default async function JobsPage({
               <p className="mt-2 text-sm text-slate-500">{t.browse_hint}</p>
             </div>
 
-            <Link
-              href="/jobs/create"
-              prefetch={false}
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
-            >
-              {t.post_job}
-            </Link>
           </div>
 
           <div className="mt-8 flex flex-wrap gap-3">
@@ -860,29 +867,6 @@ export default async function JobsPage({
               {t.completed_tab}
             </Link>
           </div>
-          <div className="mt-4 flex flex-wrap gap-3">
-  <Link
-    href={buildHref({
-      view,
-      q,
-      city,
-      status,
-      jobType,
-      propertyType,
-      sort,
-      bankidOnly: !bankidOnly,
-    })}
-    prefetch={false}
-    className={
-      bankidOnly
-        ? "inline-flex min-h-10 items-center justify-center rounded-2xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-emerald-700"
-        : "inline-flex min-h-10 items-center justify-center rounded-2xl border border-emerald-200 bg-white px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
-    }
-  >
-    ✓ {t.bankid_only}
-  </Link>
-</div>
-
           <div className="mt-4 flex flex-wrap items-center gap-3">
             <div className="rounded-full bg-white px-4 py-2 text-sm text-slate-700 shadow-[0_1px_4px_rgba(15,23,42,0.03)]">
               {view === "active" ? t.active_description : t.completed_description}
@@ -900,24 +884,12 @@ export default async function JobsPage({
             className="mt-8 rounded-[28px] border border-slate-200/80 bg-white p-4 shadow-[0_2px_10px_rgba(15,23,42,0.03)] md:p-5"
           >
             <input type="hidden" name="view" value={view} />
-            {bankidOnly ? <input type="hidden" name="bankidOnly" value="1" /> : null}
 
             <div className="mb-5 text-sm font-semibold tracking-tight text-slate-900">
               {t.filters}
             </div>
 
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
-              <div>
-                <FilterLabel>{t.search_placeholder}</FilterLabel>
-                <input
-                  type="text"
-                  name="q"
-                  defaultValue={q}
-                  placeholder={t.search_placeholder}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
-                />
-              </div>
-
+            <div className="grid gap-3 md:grid-cols-3">
               <div>
                 <FilterLabel>{t.city}</FilterLabel>
                 <input
@@ -927,29 +899,6 @@ export default async function JobsPage({
                   placeholder={t.city_placeholder}
                   className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
                 />
-              </div>
-
-              <div>
-                <FilterLabel>{t.status}</FilterLabel>
-                <select
-                  name="status"
-                  defaultValue={status}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
-                >
-                  <option value="">{t.all_statuses}</option>
-                  {view === "active" ? (
-                    <>
-                      <option value="new">{t.status_new}</option>
-                      <option value="assigned">{t.status_assigned}</option>
-                      <option value="in_progress">{t.status_in_progress}</option>
-                    </>
-                  ) : (
-                    <>
-                      <option value="done">{t.status_done}</option>
-                      <option value="cancelled">{t.status_cancelled}</option>
-                    </>
-                  )}
-                </select>
               </div>
 
               <div>
@@ -966,39 +915,98 @@ export default async function JobsPage({
               </div>
 
               <div>
-                <FilterLabel>{t.property_type}</FilterLabel>
-                <select
-                  name="propertyType"
-                  defaultValue={propertyType}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
-                >
-                  <option value="">{t.all_property_types}</option>
-                  <option value="apartment">{t.property_type_apartment}</option>
-                  <option value="house">{t.property_type_house}</option>
-                  <option value="office">{t.property_type_office}</option>
-                  <option value="other">{t.property_type_other}</option>
-                </select>
-              </div>
-
-              <div>
-                <FilterLabel>{t.results}</FilterLabel>
-                <select
-                  name="sort"
-                  defaultValue={sort}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
-                >
-                  <option value="newest">{t.newest}</option>
-                  <option value="oldest">{t.oldest}</option>
-                  <option value="highest_budget">{t.highest_budget}</option>
-                  <option value="lowest_budget">{t.lowest_budget}</option>
-                </select>
+                <FilterLabel>{t.search_placeholder}</FilterLabel>
+                <input
+                  type="text"
+                  name="q"
+                  defaultValue={q}
+                  placeholder={t.search_placeholder}
+                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10 active:scale-[0.995]"
+                />
               </div>
             </div>
+
+            <details className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70">
+              <summary className="cursor-pointer list-none px-4 py-3 text-sm font-semibold text-slate-700">
+                {t.advanced_filters}
+              </summary>
+
+              <div className="grid gap-3 border-t border-slate-200 p-4 md:grid-cols-2 xl:grid-cols-4">
+                {view === "completed" ? (
+                  <div>
+                    <FilterLabel>{t.status}</FilterLabel>
+                    <select
+                      name="status"
+                      defaultValue={status}
+                      className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10"
+                    >
+                      <option value="">{t.all_statuses}</option>
+                      <option value="done">{t.status_done}</option>
+                      <option value="cancelled">{t.status_cancelled}</option>
+                    </select>
+                  </div>
+                ) : null}
+
+                <div>
+                  <FilterLabel>{t.property_type}</FilterLabel>
+                  <select
+                    name="propertyType"
+                    defaultValue={propertyType}
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10"
+                  >
+                    <option value="">{t.all_property_types}</option>
+                    <option value="apartment">{t.property_type_apartment}</option>
+                    <option value="house">{t.property_type_house}</option>
+                    <option value="office">{t.property_type_office}</option>
+                    <option value="other">{t.property_type_other}</option>
+                  </select>
+                </div>
+
+                <div>
+                  <FilterLabel>{t.results}</FilterLabel>
+                  <select
+                    name="sort"
+                    defaultValue={sort}
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-rose-500 focus:ring-2 focus:ring-rose-500/10"
+                  >
+                    <option value="newest">{t.newest}</option>
+                    <option value="oldest">{t.oldest}</option>
+                    <option value="highest_budget">{t.highest_budget}</option>
+                    <option value="lowest_budget">{t.lowest_budget}</option>
+                  </select>
+                </div>
+
+                <div className="flex items-end">
+                  <Link
+                    href={buildHref({
+                      view,
+                      q,
+                      city,
+                      status: view === "completed" ? status : "",
+                      jobType,
+                      propertyType,
+                      sort,
+                      bankidOnly: !bankidOnly,
+                    })}
+                    prefetch={false}
+                    className={
+                      bankidOnly
+                        ? "inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-700"
+                        : "inline-flex min-h-11 w-full items-center justify-center rounded-2xl border border-emerald-200 bg-white px-4 py-3 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50"
+                    }
+                  >
+                    ✓ {t.bankid_only}
+                  </Link>
+                </div>
+              </div>
+            </details>
+
+            {bankidOnly ? <input type="hidden" name="bankidOnly" value="1" /> : null}
 
             <div className="mt-5 flex flex-col gap-3 sm:flex-row">
               <button
                 type="submit"
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97]"
               >
                 {t.apply}
               </button>
@@ -1006,7 +1014,7 @@ export default async function JobsPage({
               <Link
                 href={clearHref}
                 prefetch={false}
-                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
+                className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97]"
               >
                 {t.clear}
               </Link>
@@ -1038,10 +1046,10 @@ export default async function JobsPage({
                   ? t.no_jobs_description_active
                   : t.no_jobs_description_completed
               }
-              primaryLabel={t.post_job}
-              primaryHref="/jobs/create"
-              secondaryLabel={t.no_jobs_secondary_cta}
-              secondaryHref={clearHref}
+              primaryLabel={t.no_jobs_secondary_cta}
+              primaryHref={clearHref}
+              secondaryLabel={t.back_home}
+              secondaryHref="/"
             />
           ) : (
             <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
@@ -1070,17 +1078,13 @@ export default async function JobsPage({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex flex-wrap items-center gap-2">
-                        {job.is_featured ? (
-                          <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
-                            ✨ {t.featured}
+                        {view === "completed" ? (
+                          <span
+                            className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
+                          >
+                            {getStatusLabel(job.status, t)}
                           </span>
                         ) : null}
-
-                        <span
-                          className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${getStatusClasses(job.status)}`}
-                        >
-                          {getStatusLabel(job.status, t)}
-                        </span>
 
                         {isFeatured ? (
                           <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-3 py-1 text-xs font-semibold text-amber-700">
@@ -1095,10 +1099,10 @@ export default async function JobsPage({
                         ) : null}
 
                         {isVerifiedAuthor ? (
-  <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
-    ✓ BankID Verified
-  </span>
-) : null}
+                          <span className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+                            ✓ {t.verified}
+                          </span>
+                        ) : null}
                       </div>
 
                       <div
