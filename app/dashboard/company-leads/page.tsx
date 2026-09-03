@@ -219,6 +219,13 @@ export default async function CompanyLeadsPage({ searchParams }: PageProps) {
   const cookieStore = await cookies()
   const locale = normalizeLocale(cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE)
   const t = copy[locale]
+  const moreFilters = {
+    sv: "Fler filter",
+    en: "More filters",
+    uk: "Інші фільтри",
+    ru: "Другие фильтры",
+    pl: "Więcej filtrów",
+  }[locale]
   const supabase = await createClient()
 
   const { data: { user } } = await supabase.auth.getUser()
@@ -308,15 +315,107 @@ export default async function CompanyLeadsPage({ searchParams }: PageProps) {
           newLeadsCount={newCount}
         />
 
-        <form method="get" className="mt-5 grid gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-6">
-          <input name="search" defaultValue={search} placeholder={t.searchPlaceholder} className="min-h-11 rounded-xl border border-slate-300 px-3 text-sm lg:col-span-2" />
-          <select name="status" defaultValue={selectedStatus} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"><option value="">{t.allStatuses}</option>{COMPANY_LEAD_STATUSES.map((item) => <option key={item} value={item}>{t[item]}</option>)}</select>
-          <select name="priority" defaultValue={selectedPriority} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"><option value="">{t.allPriorities}</option>{COMPANY_LEAD_PRIORITIES.map((item) => <option key={item} value={item}>{t[item]}</option>)}</select>
-          <select name="source" defaultValue={selectedSource} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"><option value="">{t.allSources}</option>{COMPANY_LEAD_SOURCES.map((item) => <option key={item} value={item}>{t[item]}</option>)}</select>
-          <select name="company" defaultValue={selectedCompany} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"><option value="">{t.allCompanies}</option>{ownedCompanies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}</select>
-          <select name="sort" defaultValue={sort} className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm lg:col-span-2"><option value="newest">{t.newest}</option><option value="oldest">{t.oldest}</option><option value="follow_up">{t.followUp}</option><option value="value">{t.highestValue}</option></select>
-          <button className="min-h-11 rounded-xl bg-slate-950 px-5 text-sm font-black text-white">{t.filter}</button>
-          <Link href="/dashboard/company-leads" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700">{t.reset}</Link>
+        <form
+          method="get"
+          className="mt-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+        >
+          <div className="grid gap-3 lg:grid-cols-6">
+            <input
+              name="search"
+              defaultValue={search}
+              placeholder={t.searchPlaceholder}
+              className="min-h-11 rounded-xl border border-slate-300 px-3 text-sm lg:col-span-2"
+            />
+
+            <select
+              name="status"
+              defaultValue={selectedStatus}
+              className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+            >
+              <option value="">{t.allStatuses}</option>
+              {COMPANY_LEAD_STATUSES.map((item) => (
+                <option key={item} value={item}>
+                  {t[item]}
+                </option>
+              ))}
+            </select>
+
+            <select
+              name="company"
+              defaultValue={selectedCompany}
+              className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+            >
+              <option value="">{t.allCompanies}</option>
+              {ownedCompanies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
+
+            <button className="min-h-11 rounded-xl bg-slate-950 px-5 text-sm font-black text-white">
+              {t.filter}
+            </button>
+
+            <Link
+              href="/dashboard/company-leads"
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700"
+            >
+              {t.reset}
+            </Link>
+          </div>
+
+          <details
+            className="mt-4 border-t border-slate-100 pt-4"
+            open={Boolean(
+              selectedPriority ||
+                selectedSource ||
+                sort !== "newest",
+            )}
+          >
+            <summary className="cursor-pointer list-none text-sm font-black text-slate-600 hover:text-rose-700">
+              {moreFilters} ▾
+            </summary>
+
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <select
+                name="priority"
+                defaultValue={selectedPriority}
+                className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+              >
+                <option value="">{t.allPriorities}</option>
+                {COMPANY_LEAD_PRIORITIES.map((item) => (
+                  <option key={item} value={item}>
+                    {t[item]}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                name="source"
+                defaultValue={selectedSource}
+                className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+              >
+                <option value="">{t.allSources}</option>
+                {COMPANY_LEAD_SOURCES.map((item) => (
+                  <option key={item} value={item}>
+                    {t[item]}
+                  </option>
+                ))}
+              </select>
+
+              <select
+                name="sort"
+                defaultValue={sort}
+                className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+              >
+                <option value="newest">{t.newest}</option>
+                <option value="oldest">{t.oldest}</option>
+                <option value="follow_up">{t.followUp}</option>
+                <option value="value">{t.highestValue}</option>
+              </select>
+            </div>
+          </details>
         </form>
 
         {error ? (

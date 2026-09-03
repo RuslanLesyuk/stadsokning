@@ -212,6 +212,13 @@ export default async function CompanyCustomersPage({
     cookieStore.get(LOCALE_COOKIE_NAME)?.value || DEFAULT_LOCALE,
   ) as Locale
   const t = crmCopy[locale] || crmCopy.en
+  const moreFilters = {
+    sv: "Fler filter",
+    en: "More filters",
+    uk: "Інші фільтри",
+    ru: "Другие фильтры",
+    pl: "Więcej filtrów",
+  }[locale]
 
   const supabase = await createClient()
   const {
@@ -507,86 +514,103 @@ export default async function CompanyCustomersPage({
 
         <form
           method="get"
-          className="mt-5 grid gap-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm lg:grid-cols-6"
+          className="mt-5 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
         >
-          <input
-            name="search"
-            defaultValue={search}
-            placeholder={t.searchPlaceholder}
-            className="min-h-11 rounded-xl border border-slate-300 px-3 text-sm lg:col-span-2"
-          />
+          <div className="grid gap-3 lg:grid-cols-6">
+            <input
+              name="search"
+              defaultValue={search}
+              placeholder={t.searchPlaceholder}
+              className="min-h-11 rounded-xl border border-slate-300 px-3 text-sm lg:col-span-2"
+            />
 
-          <select
-            name="stage"
-            defaultValue={selectedStage}
-            className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+            <select
+              name="stage"
+              defaultValue={selectedStage}
+              className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+            >
+              <option value="">{t.allStages}</option>
+              {CRM_CUSTOMER_STAGES.map((stage) => (
+                <option key={stage} value={stage}>
+                  {t.stages[stage]}
+                </option>
+              ))}
+            </select>
+
+            <select
+              name="company"
+              defaultValue={selectedCompany}
+              className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+            >
+              {companies.map((company) => (
+                <option key={company.id} value={company.id}>
+                  {company.name}
+                </option>
+              ))}
+            </select>
+
+            <button className="min-h-11 rounded-xl bg-slate-950 px-5 text-sm font-black text-white">
+              {t.filter}
+            </button>
+
+            <Link
+              href={`/dashboard/company-customers?company=${encodeURIComponent(
+                selectedCompany,
+              )}`}
+              className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700"
+            >
+              {t.reset}
+            </Link>
+          </div>
+
+          <details
+            className="mt-4 border-t border-slate-100 pt-4"
+            open={Boolean(
+              selectedTag ||
+                followUpFilter ||
+                sort !== "recent",
+            )}
           >
-            <option value="">{t.allStages}</option>
-            {CRM_CUSTOMER_STAGES.map((stage) => (
-              <option key={stage} value={stage}>
-                {t.stages[stage]}
-              </option>
-            ))}
-          </select>
+            <summary className="cursor-pointer list-none text-sm font-black text-slate-600 hover:text-rose-700">
+              {moreFilters} ▾
+            </summary>
 
-          <select
-            name="tag"
-            defaultValue={selectedTag}
-            className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
-          >
-            <option value="">{t.allTags}</option>
-            {uniqueTags.map((tag) => (
-              <option key={tag} value={tag}>
-                {tag}
-              </option>
-            ))}
-          </select>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <select
+                name="tag"
+                defaultValue={selectedTag}
+                className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+              >
+                <option value="">{t.allTags}</option>
+                {uniqueTags.map((tag) => (
+                  <option key={tag} value={tag}>
+                    {tag}
+                  </option>
+                ))}
+              </select>
 
-          <select
-            name="follow_up"
-            defaultValue={followUpFilter}
-            className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
-          >
-            <option value="">{t.allFollowUps}</option>
-            <option value="due">{t.dueFollowUps}</option>
-            <option value="upcoming">{t.upcomingFollowUps}</option>
-          </select>
+              <select
+                name="follow_up"
+                defaultValue={followUpFilter}
+                className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+              >
+                <option value="">{t.allFollowUps}</option>
+                <option value="due">{t.dueFollowUps}</option>
+                <option value="upcoming">{t.upcomingFollowUps}</option>
+              </select>
 
-          <select
-            name="sort"
-            defaultValue={sort}
-            className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
-          >
-            <option value="recent">{t.sortRecent}</option>
-            <option value="name">{t.sortName}</option>
-            <option value="value">{t.sortValue}</option>
-            <option value="follow_up">{t.sortFollowUp}</option>
-          </select>
-
-          <select
-            name="company"
-            defaultValue={selectedCompany}
-            className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm lg:col-span-2"
-          >
-            {companies.map((company) => (
-              <option key={company.id} value={company.id}>
-                {company.name}
-              </option>
-            ))}
-          </select>
-
-          <button className="min-h-11 rounded-xl bg-slate-950 px-5 text-sm font-black text-white">
-            {t.filter}
-          </button>
-
-          <Link
-            href={`/dashboard/company-customers?company=${encodeURIComponent(
-              selectedCompany,
-            )}`}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700"
-          >
-            {t.reset}
-          </Link>
+              <select
+                name="sort"
+                defaultValue={sort}
+                className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm"
+              >
+                <option value="recent">{t.sortRecent}</option>
+                <option value="name">{t.sortName}</option>
+                <option value="value">{t.sortValue}</option>
+                <option value="follow_up">{t.sortFollowUp}</option>
+              </select>
+            </div>
+          </details>
         </form>
 
         {customerError ? (
@@ -745,3 +769,4 @@ function MiniMetric({
     </div>
   )
 }
+

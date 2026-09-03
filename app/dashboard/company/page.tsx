@@ -274,6 +274,234 @@ function EmptyCard({ text }: { text: string }) {
   )
 }
 
+type CompanyUxCopy = {
+  nextSteps: string
+  nextStepsText: string
+  newLeadsTitle: string
+  newLeadsText: string
+  pendingBookingsTitle: string
+  pendingBookingsText: string
+  followUpsTitle: string
+  followUpsText: string
+  nothingUrgent: string
+  nothingUrgentText: string
+  finishWebsiteTitle: string
+  finishWebsiteText: string
+  enableBookingsTitle: string
+  enableBookingsText: string
+  latestIncoming: string
+  latestIncomingText: string
+  companyReady: string
+  companyReadyText: string
+  businessData: string
+  businessDataText: string
+}
+
+const companyUxCopy: Record<Locale, CompanyUxCopy> = {
+  sv: {
+    nextSteps: "Nästa steg",
+    nextStepsText:
+      "Börja med det som behöver din uppmärksamhet. Resten kan vänta.",
+    newLeadsTitle: "Svara på nya leads",
+    newLeadsText:
+      "Nya offertförfrågningar väntar på att du öppnar och följer upp dem.",
+    pendingBookingsTitle: "Hantera väntande bokningar",
+    pendingBookingsText:
+      "Bekräfta, justera eller avböj bokningar som ännu inte är behandlade.",
+    followUpsTitle: "Följ upp kunder",
+    followUpsText:
+      "Du har kunder där nästa uppföljning är förfallen.",
+    nothingUrgent: "Inget brådskande just nu",
+    nothingUrgentText:
+      "Företagsytan är i ordning. Du kan kontrollera profilen eller fortsätta med vanliga kundärenden.",
+    finishWebsiteTitle: "Gör företagets webbplats klar",
+    finishWebsiteText:
+      "Skapa eller publicera webbplatsen så att kunder får en tydlig väg till företaget.",
+    enableBookingsTitle: "Aktivera onlinebokning",
+    enableBookingsText:
+      "Slå på bokningar när företaget är redo att ta emot bokningsförfrågningar online.",
+    latestIncoming: "Senaste inkommet",
+    latestIncomingText:
+      "De senaste nya leadsen och bokningarna. Öppna bara det du behöver arbeta med nu.",
+    companyReady: "Grundinställningar",
+    companyReadyText:
+      "En snabb kontroll av de viktigaste sakerna kunderna möter.",
+    businessData: "Mer företagsdata",
+    businessDataText:
+      "Detaljerad statistik och aktivitet finns här när du behöver den.",
+  },
+  en: {
+    nextSteps: "Next steps",
+    nextStepsText:
+      "Start with what needs your attention. Everything else can wait.",
+    newLeadsTitle: "Respond to new leads",
+    newLeadsText:
+      "New quote requests are waiting for you to open and follow up.",
+    pendingBookingsTitle: "Handle pending bookings",
+    pendingBookingsText:
+      "Confirm, adjust or decline bookings that have not been handled yet.",
+    followUpsTitle: "Follow up with customers",
+    followUpsText:
+      "You have customers whose next follow-up is overdue.",
+    nothingUrgent: "Nothing urgent right now",
+    nothingUrgentText:
+      "Your company workspace is in order. You can check the public profile or continue with normal customer work.",
+    finishWebsiteTitle: "Finish the company website",
+    finishWebsiteText:
+      "Create or publish the website so customers have a clear path to the company.",
+    enableBookingsTitle: "Enable online booking",
+    enableBookingsText:
+      "Turn on bookings when the company is ready to receive booking requests online.",
+    latestIncoming: "Latest incoming",
+    latestIncomingText:
+      "The newest leads and bookings. Open only what you need to work on now.",
+    companyReady: "Core setup",
+    companyReadyText:
+      "A quick check of the most important things customers interact with.",
+    businessData: "More business data",
+    businessDataText:
+      "Detailed statistics and recent activity are available here when you need them.",
+  },
+  uk: {
+    nextSteps: "Наступні кроки",
+    nextStepsText:
+      "Почніть із того, що потребує уваги зараз. Решта може зачекати.",
+    newLeadsTitle: "Відповісти на нові ліди",
+    newLeadsText:
+      "Нові запити на ціну очікують, щоб ви їх відкрили та опрацювали.",
+    pendingBookingsTitle: "Опрацювати бронювання",
+    pendingBookingsText:
+      "Підтвердіть, змініть або відхиліть бронювання, які ще не опрацьовані.",
+    followUpsTitle: "Зв’язатися з клієнтами",
+    followUpsText:
+      "Є клієнти, для яких настав або минув час наступного контакту.",
+    nothingUrgent: "Зараз нічого термінового",
+    nothingUrgentText:
+      "Робочий простір компанії в порядку. Можна перевірити публічний профіль або продовжити звичайну роботу з клієнтами.",
+    finishWebsiteTitle: "Завершити сайт компанії",
+    finishWebsiteText:
+      "Створіть або опублікуйте сайт, щоб клієнти мали зрозумілий шлях до компанії.",
+    enableBookingsTitle: "Увімкнути онлайн-бронювання",
+    enableBookingsText:
+      "Увімкніть бронювання, коли компанія готова приймати запити онлайн.",
+    latestIncoming: "Останні звернення",
+    latestIncomingText:
+      "Найновіші ліди та бронювання. Відкривайте лише те, з чим потрібно працювати зараз.",
+    companyReady: "Основні налаштування",
+    companyReadyText:
+      "Швидка перевірка найважливіших речей, які бачать клієнти.",
+    businessData: "Більше даних компанії",
+    businessDataText:
+      "Детальна статистика та остання активність доступні тут, коли вони потрібні.",
+  },
+  ru: {
+    nextSteps: "Следующие шаги",
+    nextStepsText:
+      "Начните с того, что требует внимания сейчас. Остальное может подождать.",
+    newLeadsTitle: "Ответить на новые лиды",
+    newLeadsText:
+      "Новые запросы цены ждут, чтобы вы их открыли и обработали.",
+    pendingBookingsTitle: "Обработать бронирования",
+    pendingBookingsText:
+      "Подтвердите, измените или отклоните бронирования, которые ещё не обработаны.",
+    followUpsTitle: "Связаться с клиентами",
+    followUpsText:
+      "Есть клиенты, для которых срок следующего контакта уже наступил.",
+    nothingUrgent: "Сейчас ничего срочного",
+    nothingUrgentText:
+      "Рабочее пространство компании в порядке. Можно проверить публичный профиль или продолжить обычную работу с клиентами.",
+    finishWebsiteTitle: "Завершить сайт компании",
+    finishWebsiteText:
+      "Создайте или опубликуйте сайт, чтобы у клиентов был понятный путь к компании.",
+    enableBookingsTitle: "Включить онлайн-бронирование",
+    enableBookingsText:
+      "Включите бронирования, когда компания готова принимать запросы онлайн.",
+    latestIncoming: "Последние обращения",
+    latestIncomingText:
+      "Самые новые лиды и бронирования. Открывайте только то, с чем нужно работать сейчас.",
+    companyReady: "Основные настройки",
+    companyReadyText:
+      "Быстрая проверка самых важных вещей, которые видят клиенты.",
+    businessData: "Больше данных компании",
+    businessDataText:
+      "Подробная статистика и последняя активность доступны здесь, когда они нужны.",
+  },
+  pl: {
+    nextSteps: "Następne kroki",
+    nextStepsText:
+      "Zacznij od tego, co wymaga uwagi teraz. Reszta może poczekać.",
+    newLeadsTitle: "Odpowiedz na nowe leady",
+    newLeadsText:
+      "Nowe zapytania ofertowe czekają na otwarcie i dalszy kontakt.",
+    pendingBookingsTitle: "Obsłuż oczekujące rezerwacje",
+    pendingBookingsText:
+      "Potwierdź, zmień lub odrzuć rezerwacje, które nie zostały jeszcze obsłużone.",
+    followUpsTitle: "Skontaktuj się z klientami",
+    followUpsText:
+      "Masz klientów, dla których termin kolejnego kontaktu już minął.",
+    nothingUrgent: "Teraz nic pilnego",
+    nothingUrgentText:
+      "Przestrzeń firmy jest uporządkowana. Możesz sprawdzić profil publiczny lub kontynuować zwykłą pracę z klientami.",
+    finishWebsiteTitle: "Dokończ stronę firmy",
+    finishWebsiteText:
+      "Utwórz lub opublikuj stronę, aby klienci mieli prostą drogę do firmy.",
+    enableBookingsTitle: "Włącz rezerwacje online",
+    enableBookingsText:
+      "Włącz rezerwacje, gdy firma jest gotowa przyjmować zapytania online.",
+    latestIncoming: "Najnowsze zgłoszenia",
+    latestIncomingText:
+      "Najnowsze leady i rezerwacje. Otwieraj tylko to, czym trzeba zająć się teraz.",
+    companyReady: "Podstawowa konfiguracja",
+    companyReadyText:
+      "Szybka kontrola najważniejszych elementów widocznych dla klientów.",
+    businessData: "Więcej danych firmy",
+    businessDataText:
+      "Szczegółowe statystyki i ostatnia aktywność są dostępne tutaj, gdy są potrzebne.",
+  },
+}
+
+function CompanyNextActionCard({
+  title,
+  description,
+  href,
+  label,
+  emphasis = false,
+}: {
+  title: string
+  description: string
+  href: string
+  label: string
+  emphasis?: boolean
+}) {
+  return (
+    <article
+      className={
+        emphasis
+          ? "rounded-3xl border border-rose-200 bg-rose-50/70 p-5"
+          : "rounded-3xl border border-slate-200 bg-white p-5"
+      }
+    >
+      <h3 className="text-lg font-black tracking-tight text-slate-950">
+        {title}
+      </h3>
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        {description}
+      </p>
+      <Link
+        href={href}
+        prefetch={false}
+        className={
+          emphasis
+            ? "mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-rose-600 px-5 text-sm font-black text-white hover:bg-rose-700"
+            : "mt-5 inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50"
+        }
+      >
+        {label}
+      </Link>
+    </article>
+  )
+}
+
 export default async function CompanyDashboardPage({ searchParams }: PageProps) {
   const query = await searchParams
   const cookieStore = await cookies()
@@ -282,6 +510,7 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
   ) as Locale
   const t = companyDashboardCopy[locale] || companyDashboardCopy.en
   const crmT = crmCopy[locale] || crmCopy.en
+  const ux = companyUxCopy[locale] || companyUxCopy.en
 
   const supabase = await createClient()
   const {
@@ -548,7 +777,7 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
       <DashboardLiveRefresh interval={60000} />
 
       <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-9 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
             <div className="min-w-0">
               <Link
@@ -559,38 +788,33 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
                 ← {t.personalDashboard}
               </Link>
 
-              <p className="mt-6 text-sm font-black uppercase tracking-[0.18em] text-rose-600">
-                {t.eyebrow}
-              </p>
-
-              <div className="mt-3 flex items-center gap-4">
+              <div className="mt-6 flex items-center gap-4">
                 {selectedCompany.logo_url ? (
                   <img
                     src={selectedCompany.logo_url}
                     alt=""
-                    className="h-16 w-16 shrink-0 rounded-2xl border border-slate-200 bg-white object-contain p-2"
+                    className="h-14 w-14 shrink-0 rounded-2xl border border-slate-200 bg-white object-contain p-2"
                   />
                 ) : (
-                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-2xl font-black text-white">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-950 text-xl font-black text-white">
                     {selectedCompany.name.charAt(0).toUpperCase()}
                   </div>
                 )}
 
                 <div className="min-w-0">
-                  <h1 className="truncate text-3xl font-black tracking-tight text-slate-950 md:text-5xl">
+                  <p className="text-xs font-black uppercase tracking-[0.16em] text-rose-600">
+                    {t.eyebrow}
+                  </p>
+                  <h1 className="mt-1 truncate text-3xl font-black tracking-tight text-slate-950 md:text-4xl">
                     {selectedCompany.name}
                   </h1>
-                  <p className="mt-2 text-slate-600">
-                    {selectedCompany.city || "Sweden"} · {t.title}
+                  <p className="mt-1 text-sm text-slate-500">
+                    {selectedCompany.city || "Sweden"}
                   </p>
                 </div>
               </div>
 
-              <p className="mt-5 max-w-3xl leading-7 text-slate-600">
-                {t.subtitle}
-              </p>
-
-              <div className="mt-5 flex flex-wrap gap-2">
+              <div className="mt-4 flex flex-wrap gap-2">
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-black ${
                     selectedCompany.verified
@@ -622,6 +846,7 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
                   <label className="sr-only" htmlFor="company-dashboard-company">
                     {t.selectCompany}
                   </label>
+
                   <select
                     id="company-dashboard-company"
                     name="company"
@@ -634,29 +859,20 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
                       </option>
                     ))}
                   </select>
+
                   <button className="min-h-11 rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-slate-800">
                     {t.switchCompany}
                   </button>
                 </form>
               ) : null}
 
-              <div className="flex flex-wrap gap-2">
+              <div className="grid gap-2 sm:grid-cols-2">
                 <Link
                   href={`/companies/${selectedCompany.slug}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50"
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-rose-600 px-4 text-sm font-black text-white hover:bg-rose-700"
                 >
                   {t.publicProfile}
                 </Link>
-
-                {site?.status === "published" ? (
-                  <Link
-                    href={`/site/${site.site_slug}`}
-                    target="_blank"
-                    className="inline-flex min-h-11 items-center justify-center rounded-xl bg-rose-600 px-4 text-sm font-black text-white hover:bg-rose-700"
-                  >
-                    {t.openWebsite}
-                  </Link>
-                ) : null}
 
                 <Link
                   href={`/dashboard/companies/${selectedCompany.id}/edit`}
@@ -679,44 +895,111 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
           pendingBookingsCount={pendingBookings}
         />
 
-        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-8">
+        <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <div>
+            <h2 className="text-2xl font-black tracking-tight text-slate-950">
+              {ux.nextSteps}
+            </h2>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+              {ux.nextStepsText}
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-3">
+            {newLeads > 0 ? (
+              <CompanyNextActionCard
+                title={`${newLeads} · ${ux.newLeadsTitle}`}
+                description={ux.newLeadsText}
+                href={`/dashboard/company-leads?company=${selectedCompany.id}&status=new`}
+                label={t.leads}
+                emphasis
+              />
+            ) : null}
+
+            {pendingBookings > 0 ? (
+              <CompanyNextActionCard
+                title={`${pendingBookings} · ${ux.pendingBookingsTitle}`}
+                description={ux.pendingBookingsText}
+                href={`/dashboard/company-bookings?company=${selectedCompany.id}&status=pending`}
+                label={t.bookings}
+                emphasis
+              />
+            ) : null}
+
+            {crmFollowUpsDue > 0 ? (
+              <CompanyNextActionCard
+                title={`${crmFollowUpsDue} · ${ux.followUpsTitle}`}
+                description={ux.followUpsText}
+                href={`/dashboard/company-customers?company=${selectedCompany.id}&follow_up=due`}
+                label={crmT.customers}
+                emphasis
+              />
+            ) : null}
+
+            {newLeads === 0 &&
+            pendingBookings === 0 &&
+            crmFollowUpsDue === 0 &&
+            !site ? (
+              <CompanyNextActionCard
+                title={ux.finishWebsiteTitle}
+                description={ux.finishWebsiteText}
+                href={`/dashboard/companies/${selectedCompany.id}/website`}
+                label={t.websites}
+              />
+            ) : null}
+
+            {newLeads === 0 &&
+            pendingBookings === 0 &&
+            crmFollowUpsDue === 0 &&
+            site &&
+            !settings?.booking_enabled ? (
+              <CompanyNextActionCard
+                title={ux.enableBookingsTitle}
+                description={ux.enableBookingsText}
+                href={`/dashboard/company-bookings/settings/${selectedCompany.id}`}
+                label={t.bookingSettings}
+              />
+            ) : null}
+
+            {newLeads === 0 &&
+            pendingBookings === 0 &&
+            crmFollowUpsDue === 0 &&
+            site &&
+            settings?.booking_enabled ? (
+              <CompanyNextActionCard
+                title={ux.nothingUrgent}
+                description={ux.nothingUrgentText}
+                href={`/companies/${selectedCompany.slug}`}
+                label={t.publicProfile}
+              />
+            ) : null}
+          </div>
+        </section>
+
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <MetricCard label={t.newLeads} value={String(newLeads)} />
           <MetricCard label={crmT.customers} value={String(crmCustomers)} />
-          <MetricCard label={crmT.followUpsDue} value={String(crmFollowUpsDue)} />
-          <MetricCard label={t.conversion} value={formatPercent(conversion)} />
-          <MetricCard label={t.pipeline} value={formatMoney(pipelineValue)} />
           <MetricCard
             label={t.pendingBookings}
             value={String(pendingBookings)}
           />
           <MetricCard label={t.nextSevenDays} value={String(nextSevenDays)} />
-          <MetricCard
-            label={t.revenueThisMonth}
-            value={formatMoney(monthRevenue)}
-          />
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(320px,0.7fr)]">
+        <section className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(300px,0.8fr)]">
           <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <div>
-                <h2 className="text-2xl font-black tracking-tight text-slate-950">
-                  {t.attention}
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-slate-500">
-                  {t.attentionText}
-                </p>
-              </div>
-              <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-black text-rose-700">
-                {newLeads + pendingBookings}
-              </span>
-            </div>
+            <h2 className="text-2xl font-black tracking-tight text-slate-950">
+              {ux.latestIncoming}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              {ux.latestIncomingText}
+            </p>
 
-            <div className="mt-6 space-y-3">
+            <div className="mt-5 space-y-3">
               {attentionItems.length === 0 ? (
                 <EmptyCard text={t.attentionEmpty} />
               ) : (
-                attentionItems.map((item) => (
+                attentionItems.slice(0, 4).map((item) => (
                   <Link
                     key={`${item.type}-${item.id}`}
                     href={item.href}
@@ -742,12 +1025,12 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
                         <p className="mt-1 truncate text-sm text-slate-500">
                           {item.subtitle || "—"}
                         </p>
-                        <p className="mt-1 text-xs text-slate-400">
-                          {formatDateTime(item.createdAt, locale)}
-                        </p>
                       </div>
+
                       <div className="shrink-0 text-left sm:text-right">
-                        <p className="font-black text-slate-950">{item.value}</p>
+                        <p className="font-black text-slate-950">
+                          {item.value}
+                        </p>
                         <p className="mt-1 text-xs font-bold text-rose-600">
                           {item.type === "lead" ? t.openLead : t.openBooking} →
                         </p>
@@ -761,9 +1044,13 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
 
           <aside className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
             <h2 className="text-2xl font-black tracking-tight text-slate-950">
-              {t.setup}
+              {ux.companyReady}
             </h2>
-            <div className="mt-5">
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              {ux.companyReadyText}
+            </p>
+
+            <div className="mt-4">
               <SetupRow
                 label={t.website}
                 value={websiteStatus}
@@ -775,6 +1062,7 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
                       : "neutral"
                 }
               />
+
               <SetupRow
                 label={t.bookings}
                 value={
@@ -784,29 +1072,13 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
                 }
                 tone={settings?.booking_enabled ? "good" : "warn"}
               />
-              <SetupRow
-                label={t.bookingSettings}
-                value={
-                  settings?.recurring_enabled ? t.recurringOn : t.recurringOff
-                }
-                tone={settings?.recurring_enabled ? "good" : "neutral"}
-              />
-              <SetupRow
-                label={t.customDomain}
-                value={site?.custom_domain || t.noDomain}
-                tone={
-                  site?.custom_domain && site.domain_status === "verified"
-                    ? "good"
-                    : site?.custom_domain
-                      ? "warn"
-                      : "neutral"
-                }
-              />
+
               <SetupRow
                 label="RUT"
                 value={selectedCompany.rut_available ? t.rutOn : t.rutOff}
                 tone={selectedCompany.rut_available ? "good" : "neutral"}
               />
+
               <SetupRow
                 label="Premium"
                 value={billing.isPremium ? t.premium : t.free}
@@ -814,24 +1086,19 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
               />
             </div>
 
-            <div className="mt-6 grid gap-2">
+            <div className="mt-5 grid gap-2">
               <Link
                 href={`/dashboard/companies/${selectedCompany.id}/website`}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-950 px-4 text-sm font-black text-white hover:bg-rose-600"
               >
                 {t.websites}
               </Link>
+
               <Link
                 href={`/dashboard/company-bookings/settings/${selectedCompany.id}`}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50"
               >
                 {t.bookingSettings}
-              </Link>
-              <Link
-                href="/billing"
-                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-black text-amber-800 hover:bg-amber-100"
-              >
-                {t.billing}
               </Link>
             </div>
           </aside>
@@ -847,6 +1114,7 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
                 {t.upcomingText}
               </p>
             </div>
+
             <Link
               href={`/dashboard/company-bookings?company=${selectedCompany.id}`}
               className="text-sm font-black text-rose-600 hover:text-rose-700"
@@ -885,6 +1153,7 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
                           {booking?.service_type || "—"}
                         </p>
                       </div>
+
                       <span
                         className={`rounded-full border px-2.5 py-1 text-[11px] font-black ${statusPill(
                           "booking",
@@ -910,117 +1179,116 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
           )}
         </section>
 
-        <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <h2 className="text-2xl font-black tracking-tight text-slate-950">
-              {t.recentActivity}
+        <details className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+          <summary className="cursor-pointer list-none">
+            <h2 className="inline text-xl font-black tracking-tight text-slate-950">
+              {ux.businessData}
             </h2>
-            <p className="mt-1 text-sm leading-6 text-slate-500">
-              {t.recentActivityText}
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              {ux.businessDataText}
             </p>
+          </summary>
 
-            <div className="mt-6 space-y-3">
-              {activityItems.length === 0 ? (
-                <EmptyCard text={t.activityEmpty} />
-              ) : (
-                activityItems.map((activity) => (
-                  <Link
-                    key={activity.id}
-                    href={activity.href}
-                    prefetch={false}
-                    className="flex items-start gap-4 rounded-2xl border border-slate-200 p-4 transition hover:border-rose-200 hover:bg-rose-50/30"
-                  >
-                    <span
-                      className={`mt-1 h-3 w-3 shrink-0 rounded-full ${
-                        activity.kind === "lead"
-                          ? "bg-blue-500"
-                          : activity.kind === "booking"
-                            ? "bg-emerald-500"
-                            : "bg-violet-500"
-                      }`}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-6 grid gap-4 sm:grid-cols-3">
+            <MetricCard label={t.conversion} value={formatPercent(conversion)} />
+            <MetricCard label={t.pipeline} value={formatMoney(pipelineValue)} />
+            <MetricCard
+              label={t.revenueThisMonth}
+              value={formatMoney(monthRevenue)}
+            />
+          </div>
+
+          <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_340px]">
+            <div>
+              <h3 className="text-lg font-black text-slate-950">
+                {t.recentActivity}
+              </h3>
+
+              <div className="mt-4 space-y-3">
+                {activityItems.length === 0 ? (
+                  <EmptyCard text={t.activityEmpty} />
+                ) : (
+                  activityItems.map((activity) => (
+                    <Link
+                      key={activity.id}
+                      href={activity.href}
+                      prefetch={false}
+                      className="flex items-start gap-4 rounded-2xl border border-slate-200 p-4 transition hover:border-rose-200 hover:bg-rose-50/30"
+                    >
+                      <span
+                        className={`mt-1 h-3 w-3 shrink-0 rounded-full ${
+                          activity.kind === "lead"
+                            ? "bg-blue-500"
+                            : activity.kind === "booking"
+                              ? "bg-emerald-500"
+                              : "bg-violet-500"
+                        }`}
+                      />
+
+                      <div className="min-w-0 flex-1">
                         <p className="truncate font-black text-slate-950">
                           {activity.title}
                         </p>
-                        <p className="shrink-0 text-xs text-slate-400">
+                        <p className="mt-1 text-sm text-slate-500">
+                          {activity.subtitle}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-400">
                           {formatDateTime(activity.timestamp, locale)}
                         </p>
                       </div>
-                      <p className="mt-1 text-sm text-slate-500">
-                        {activity.subtitle}
-                      </p>
-                    </div>
-                  </Link>
-                ))
-              )}
+                    </Link>
+                  ))
+                )}
+              </div>
             </div>
+
+            <aside>
+              <h3 className="text-lg font-black text-slate-950">
+                {t.setup}
+              </h3>
+
+              <div className="mt-3">
+                <SetupRow
+                  label={t.bookingSettings}
+                  value={
+                    settings?.recurring_enabled
+                      ? t.recurringOn
+                      : t.recurringOff
+                  }
+                  tone={settings?.recurring_enabled ? "good" : "neutral"}
+                />
+
+                <SetupRow
+                  label={t.customDomain}
+                  value={site?.custom_domain || t.noDomain}
+                  tone={
+                    site?.custom_domain && site.domain_status === "verified"
+                      ? "good"
+                      : site?.custom_domain
+                        ? "warn"
+                        : "neutral"
+                  }
+                />
+              </div>
+
+              <div className="mt-4 grid gap-2">
+                <Link
+                  href="/dashboard/services"
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-4 text-sm font-black text-slate-700 hover:bg-slate-50"
+                >
+                  {t.services}
+                </Link>
+
+                <Link
+                  href="/billing"
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl border border-amber-200 bg-amber-50 px-4 text-sm font-black text-amber-800 hover:bg-amber-100"
+                >
+                  {t.billing}
+                </Link>
+              </div>
+            </aside>
           </div>
-
-          <aside className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-            <h2 className="text-2xl font-black tracking-tight text-slate-950">
-              {t.quickActions}
-            </h2>
-            <div className="mt-5 grid gap-3">
-              <Link
-                href={`/dashboard/company-customers?company=${selectedCompany.id}`}
-                className="inline-flex min-h-12 items-center justify-between rounded-2xl bg-violet-600 px-5 text-sm font-black text-white hover:bg-violet-700"
-              >
-                <span>{crmT.customers}</span>
-                <span>{crmFollowUpsDue > 0 ? crmFollowUpsDue : "→"}</span>
-              </Link>
-
-              <Link
-                href={`/dashboard/company-leads?company=${selectedCompany.id}`}
-                className="inline-flex min-h-12 items-center justify-between rounded-2xl bg-rose-600 px-5 text-sm font-black text-white hover:bg-rose-700"
-              >
-                <span>{t.leads}</span>
-                <span>{newLeads > 0 ? newLeads : "→"}</span>
-              </Link>
-
-              <Link
-                href={`/dashboard/company-bookings?company=${selectedCompany.id}`}
-                className="inline-flex min-h-12 items-center justify-between rounded-2xl bg-slate-950 px-5 text-sm font-black text-white hover:bg-slate-800"
-              >
-                <span>{t.bookings}</span>
-                <span>{pendingBookings > 0 ? pendingBookings : "→"}</span>
-              </Link>
-
-              <Link
-                href={`/dashboard/companies/${selectedCompany.id}/website`}
-                className="inline-flex min-h-12 items-center justify-between rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50"
-              >
-                <span>{t.websites}</span>
-                <span>→</span>
-              </Link>
-
-              <Link
-                href={`/dashboard/company-bookings/settings/${selectedCompany.id}`}
-                className="inline-flex min-h-12 items-center justify-between rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50"
-              >
-                <span>{t.bookingSettings}</span>
-                <span>→</span>
-              </Link>
-
-              <Link
-                href="/dashboard/services"
-                className="inline-flex min-h-12 items-center justify-between rounded-2xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50"
-              >
-                <span>{t.services}</span>
-                <span>→</span>
-              </Link>
-
-              <Link
-                href="/billing"
-                className="inline-flex min-h-12 items-center justify-between rounded-2xl border border-amber-200 bg-amber-50 px-5 text-sm font-black text-amber-800 hover:bg-amber-100"
-              >
-                <span>{t.billing}</span>
-                <span>→</span>
-              </Link>
-            </div>
-          </aside>
-        </section>
+        </details>
       </div>
     </main>
   )
