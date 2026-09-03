@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next"
+import { Suspense } from "react"
 import Link from "next/link"
 import { cookies, headers } from "next/headers"
 import { Analytics } from "@vercel/analytics/next"
 
 import "./globals.css"
 import SiteHeader from "@/components/site-header"
+import NavigationLoading from "@/components/navigation-loading"
 import LanguageWelcomeModal from "@/components/language-welcome-modal"
 import CookieConsentManager from "@/components/privacy/cookie-consent-manager"
 import {
@@ -284,6 +286,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang={locale}>
       <body className="min-h-screen bg-[#fafafa] text-slate-900">
+        <Suspense fallback={null}>
+          <NavigationLoading locale={locale} />
+        </Suspense>
         {!standalone ? (
           <script
             type="application/ld+json"

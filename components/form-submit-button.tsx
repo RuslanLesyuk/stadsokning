@@ -49,7 +49,17 @@ export default function FormSubmitButton({
         className,
       )}
     >
-      {pending ? resolvedLoadingLabel : resolvedIdleLabel}
+      {pending ? (
+        <span className="inline-flex items-center gap-2">
+          <span
+            aria-hidden="true"
+            className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-current border-r-transparent"
+          />
+          <span>{resolvedLoadingLabel}</span>
+        </span>
+      ) : (
+        resolvedIdleLabel
+      )}
     </button>
   )
 }
