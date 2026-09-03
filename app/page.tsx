@@ -36,6 +36,17 @@ const homeCopy: Record<
     guidesTitle: string
     guidesText: string
     readGuide: string
+    chooseTitle: string
+    chooseText: string
+    customerTitle: string
+    customerText: string
+    customerCta: string
+    workerTitle: string
+    workerText: string
+    workerCta: string
+    companyTitle: string
+    companyText: string
+    companyCta: string
   }
 > = {
   uk: {
@@ -44,11 +55,22 @@ const homeCopy: Record<
     companiesText:
       "Переглядайте клінінгові компанії у Стокгольмі. Порівнюйте послуги, контактні дані та профілі компаній.",
     viewAllCompanies: "Переглянути всі компанії →",
-    guidesBadge: "SEO гайди",
+    guidesBadge: "Гайди",
     guidesTitle: "Популярні гайди про роботу та клінінг у Швеції",
     guidesText:
       "Дізнайтеся, як знайти роботу у Швеції, як працюють клінінгові вакансії та як клієнти можуть знайти надійних прибиральників.",
     readGuide: "Читати гайд →",
+    chooseTitle: "Що ви хочете зробити?",
+    chooseText: "Оберіть один варіант — ми покажемо найкоротший шлях.",
+    customerTitle: "Мені потрібне прибирання",
+    customerText: "Знайдіть клінінгову компанію та перегляньте її послуги й контакти.",
+    customerCta: "Знайти компанію",
+    workerTitle: "Я шукаю роботу з прибирання",
+    workerText: "Переглядайте доступні замовлення та знаходьте роботу у своєму місті.",
+    workerCta: "Знайти роботу",
+    companyTitle: "Я керую клінінговою компанією",
+    companyText: "Знайдіть профіль своєї компанії, підтвердьте його та керуйте ним у Clean Jobs.",
+    companyCta: "Знайти свою компанію",
   },
   ru: {
     companiesBadge: "Компании",
@@ -56,23 +78,45 @@ const homeCopy: Record<
     companiesText:
       "Просматривайте клининговые компании в Стокгольме. Сравнивайте услуги, контакты и профили компаний.",
     viewAllCompanies: "Посмотреть все компании →",
-    guidesBadge: "SEO гайды",
+    guidesBadge: "Гайды",
     guidesTitle: "Популярные гайды о работе и клининге в Швеции",
     guidesText:
       "Узнайте, как найти работу в Швеции, как работают клининговые вакансии и как клиентам найти надежных уборщиков.",
     readGuide: "Читать гайд →",
+    chooseTitle: "Что вы хотите сделать?",
+    chooseText: "Выберите один вариант — мы покажем самый короткий путь.",
+    customerTitle: "Мне нужна уборка",
+    customerText: "Найдите клининговую компанию и посмотрите её услуги и контакты.",
+    customerCta: "Найти компанию",
+    workerTitle: "Я ищу работу по уборке",
+    workerText: "Просматривайте доступные заказы и находите работу в своём городе.",
+    workerCta: "Найти работу",
+    companyTitle: "Я управляю клининговой компанией",
+    companyText: "Найдите профиль своей компании, подтвердите его и управляйте им в Clean Jobs.",
+    companyCta: "Найти свою компанию",
   },
   en: {
     companiesBadge: "Companies",
     companiesTitle: "Cleaning Companies in Stockholm",
     companiesText:
-      "Browse trusted cleaning companies in Stockholm. Compare services, contact information and company profiles.",
+      "Browse cleaning companies in Stockholm. Compare services, contact information and company profiles.",
     viewAllCompanies: "View all companies →",
-    guidesBadge: "SEO guides",
+    guidesBadge: "Guides",
     guidesTitle: "Popular guides about jobs and cleaning work in Sweden",
     guidesText:
-      "Learn how to find work in Sweden, how cleaning jobs work, and how clients can hire trusted cleaners in Stockholm and across Sweden.",
+      "Learn how to find work in Sweden, how cleaning jobs work, and how clients can find cleaning companies.",
     readGuide: "Read guide →",
+    chooseTitle: "What do you want to do?",
+    chooseText: "Choose one option and we will take you to the simplest next step.",
+    customerTitle: "I need cleaning",
+    customerText: "Find a cleaning company and view its services and contact details.",
+    customerCta: "Find a company",
+    workerTitle: "I am looking for cleaning work",
+    workerText: "Browse available cleaning jobs and find work in your city.",
+    workerCta: "Find jobs",
+    companyTitle: "I run a cleaning company",
+    companyText: "Find your company profile, claim it and manage it on Clean Jobs.",
+    companyCta: "Find my company",
   },
   sv: {
     companiesBadge: "Företag",
@@ -80,11 +124,22 @@ const homeCopy: Record<
     companiesText:
       "Bläddra bland städföretag i Stockholm. Jämför tjänster, kontaktuppgifter och företagsprofiler.",
     viewAllCompanies: "Visa alla företag →",
-    guidesBadge: "SEO-guider",
+    guidesBadge: "Guider",
     guidesTitle: "Populära guider om jobb och städarbete i Sverige",
     guidesText:
-      "Lär dig hur du hittar arbete i Sverige, hur städjobb fungerar och hur kunder kan anlita pålitliga städare.",
+      "Lär dig hur du hittar arbete i Sverige, hur städjobb fungerar och hur kunder kan hitta städföretag.",
     readGuide: "Läs guide →",
+    chooseTitle: "Vad vill du göra?",
+    chooseText: "Välj ett alternativ så visar vi den enklaste vägen vidare.",
+    customerTitle: "Jag behöver städning",
+    customerText: "Hitta ett städföretag och se tjänster, kontaktuppgifter och företagsprofil.",
+    customerCta: "Hitta städföretag",
+    workerTitle: "Jag söker städjobb",
+    workerText: "Se lediga städjobb och hitta arbete i din stad.",
+    workerCta: "Hitta jobb",
+    companyTitle: "Jag driver städföretag",
+    companyText: "Hitta din företagsprofil, gör anspråk på den och hantera företaget på Clean Jobs.",
+    companyCta: "Hitta mitt företag",
   },
   pl: {
     companiesBadge: "Firmy",
@@ -92,11 +147,22 @@ const homeCopy: Record<
     companiesText:
       "Przeglądaj firmy sprzątające w Sztokholmie. Porównuj usługi, dane kontaktowe i profile firm.",
     viewAllCompanies: "Zobacz wszystkie firmy →",
-    guidesBadge: "Poradniki SEO",
+    guidesBadge: "Poradniki",
     guidesTitle: "Popularne poradniki o pracy i sprzątaniu w Szwecji",
     guidesText:
-      "Dowiedz się, jak znaleźć pracę w Szwecji, jak działają zlecenia sprzątania i jak klienci mogą znaleźć zaufanych wykonawców.",
+      "Dowiedz się, jak znaleźć pracę w Szwecji, jak działają zlecenia sprzątania i jak klienci mogą znaleźć firmy sprzątające.",
     readGuide: "Czytaj poradnik →",
+    chooseTitle: "Co chcesz zrobić?",
+    chooseText: "Wybierz jedną opcję, a pokażemy najprostszy następny krok.",
+    customerTitle: "Potrzebuję sprzątania",
+    customerText: "Znajdź firmę sprzątającą i sprawdź jej usługi oraz dane kontaktowe.",
+    customerCta: "Znajdź firmę",
+    workerTitle: "Szukam pracy przy sprzątaniu",
+    workerText: "Przeglądaj dostępne zlecenia i znajdź pracę w swoim mieście.",
+    workerCta: "Znajdź pracę",
+    companyTitle: "Prowadzę firmę sprzątającą",
+    companyText: "Znajdź profil swojej firmy, zgłoś do niego prawa i zarządzaj nim w Clean Jobs.",
+    companyCta: "Znajdź moją firmę",
   },
 }
 
@@ -535,6 +601,42 @@ const guides: Guide[] = [
   },
 ]
 
+function JourneyCard({
+  href,
+  icon,
+  title,
+  description,
+  cta,
+}: {
+  href: string
+  icon: string
+  title: string
+  description: string
+  cta: string
+}) {
+  return (
+    <Link
+      href={href}
+      prefetch={false}
+      className="group flex items-start gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-[0_2px_10px_rgba(15,23,42,0.04)] transition hover:border-rose-200 hover:bg-rose-50/40 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)] focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2"
+    >
+      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-xl">
+        {icon}
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <h2 className="text-base font-semibold tracking-tight text-slate-950">
+          {title}
+        </h2>
+        <p className="mt-1 text-sm leading-5 text-slate-600">{description}</p>
+        <div className="mt-2 text-sm font-semibold text-rose-700">
+          {cta} →
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 function FeatureCard({
   title,
   description,
@@ -645,22 +747,39 @@ export default async function HomePage() {
                 {landing.hero_description}
               </p>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/jobs"
-                  prefetch={false}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-800"
-                >
-                  {landing.find_jobs}
-                </Link>
+              <div className="mt-8">
+                <div className="mb-4">
+                  <div className="text-lg font-semibold tracking-tight text-slate-950">
+                    {home.chooseTitle}
+                  </div>
+                  <p className="mt-1 text-sm leading-6 text-slate-500">
+                    {home.chooseText}
+                  </p>
+                </div>
 
-                <Link
-                  href="/jobs/create"
-                  prefetch={false}
-                  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-6 py-3 text-sm font-medium text-slate-700 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.97] active:bg-rose-100"
-                >
-                  {landing.post_job}
-                </Link>
+                <div className="grid gap-3">
+                  <JourneyCard
+                    href="/companies"
+                    icon="🧹"
+                    title={home.customerTitle}
+                    description={home.customerText}
+                    cta={home.customerCta}
+                  />
+                  <JourneyCard
+                    href="/jobs"
+                    icon="💼"
+                    title={home.workerTitle}
+                    description={home.workerText}
+                    cta={home.workerCta}
+                  />
+                  <JourneyCard
+                    href="/companies"
+                    icon="🏢"
+                    title={home.companyTitle}
+                    description={home.companyText}
+                    cta={home.companyCta}
+                  />
+                </div>
               </div>
             </div>
 

@@ -6,8 +6,10 @@ import { useEffect, useRef, useState } from "react"
 
 type MobileHeaderMenuProps = {
   jobsLabel: string
+  companiesLabel: string
   dashboardLabel: string
-  createJobLabel: string
+  myBookingsLabel: string
+  companyDashboardLabel: string
   loginLabel: string
   signupLabel: string
   logoutLabel: string
@@ -21,20 +23,8 @@ type MobileHeaderMenuProps = {
   avatarUrl?: string | null
   companyLogoUrl?: string | null
   companyName?: string | null
-  servicesLabel: string
-  companiesLabel: string
-  myServicesLabel: string
-  companyLeadsLabel?: string
-  companyCustomersLabel?: string
-  companyClaimsLabel?: string
-  companyWebsitesLabel?: string
-  myBookingsLabel?: string
-  companyBookingsLabel?: string
-  companyDashboardLabel?: string
   showCompanyLeads?: boolean
-  companyLeadsCount?: number
-  companyClaimsCount?: number
-  companyBookingsCount?: number
+  companyAttentionCount?: number
 }
 
 function itemClass(primary = false) {
@@ -45,20 +35,26 @@ function itemClass(primary = false) {
   return "inline-flex min-h-11 items-center rounded-2xl px-4 py-3 text-sm font-medium text-slate-800 transition hover:bg-rose-50 focus:outline-none focus:ring-2 focus:ring-rose-600 focus:ring-offset-2 active:scale-[0.98] active:bg-rose-100"
 }
 
+function CountBadge({ value, tone = "rose" }: { value: number; tone?: "rose" | "amber" }) {
+  if (value <= 0) return null
+
+  const toneClass = tone === "amber" ? "bg-amber-500" : "bg-rose-600"
+
+  return (
+    <span
+      className={`inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold text-white ${toneClass}`}
+    >
+      {value > 99 ? "99+" : value}
+    </span>
+  )
+}
+
 export default function MobileHeaderMenu({
   jobsLabel,
-  servicesLabel,
   companiesLabel,
-  myServicesLabel,
-  companyLeadsLabel = "Company requests",
-  companyCustomersLabel = "Company customers",
-  companyClaimsLabel = "My company claims",
-  companyWebsitesLabel = "Company websites",
-  myBookingsLabel = "My bookings",
-  companyBookingsLabel = "Company bookings",
-  companyDashboardLabel = "Company dashboard",
   dashboardLabel,
-  createJobLabel,
+  myBookingsLabel,
+  companyDashboardLabel,
   loginLabel,
   signupLabel,
   logoutLabel,
@@ -73,9 +69,7 @@ export default function MobileHeaderMenu({
   companyLogoUrl,
   companyName,
   showCompanyLeads = false,
-  companyLeadsCount = 0,
-  companyClaimsCount = 0,
-  companyBookingsCount = 0,
+  companyAttentionCount = 0,
 }: MobileHeaderMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -154,15 +148,6 @@ export default function MobileHeaderMenu({
               </Link>
 
               <Link
-                href="/services"
-                onClick={closeMenu}
-                prefetch={false}
-                className={itemClass()}
-              >
-                {servicesLabel}
-              </Link>
-
-              <Link
                 href="/companies"
                 onClick={closeMenu}
                 prefetch={false}
@@ -172,139 +157,42 @@ export default function MobileHeaderMenu({
               </Link>
 
               {isAuthenticated ? (
-                <Link
-                  href="/dashboard"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={`${itemClass()} justify-between`}
-                >
-                  <span>{dashboardLabel}</span>
-                  {unreadCount > 0 ? (
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                      {unreadCount > 99 ? "99+" : unreadCount}
-                    </span>
-                  ) : null}
-                </Link>
-              ) : null}
-
-              {isAuthenticated ? (
-                <Link
-                  href="/dashboard/bookings"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={itemClass()}
-                >
-                  {myBookingsLabel}
-                </Link>
-              ) : null}
-
-              {isAuthenticated ? (
-                <Link
-                  href="/dashboard/company-claims"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={`${itemClass()} justify-between`}
-                >
-                  <span>{companyClaimsLabel}</span>
-                  {companyClaimsCount > 0 ? (
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                      {companyClaimsCount > 99 ? "99+" : companyClaimsCount}
-                    </span>
-                  ) : null}
-                </Link>
-              ) : null}
-
-              {isAuthenticated && showCompanyLeads ? (
-                <Link
-                  href="/dashboard/company"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={`${itemClass()} bg-slate-950 text-white hover:bg-slate-800 hover:text-white`}
-                >
-                  {companyDashboardLabel}
-                </Link>
-              ) : null}
-
-              {isAuthenticated && showCompanyLeads ? (
-                <Link
-                  href="/dashboard/company-leads"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={`${itemClass()} justify-between`}
-                >
-                  <span>{companyLeadsLabel}</span>
-                  {companyLeadsCount > 0 ? (
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-rose-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                      {companyLeadsCount > 99 ? "99+" : companyLeadsCount}
-                    </span>
-                  ) : null}
-                </Link>
-              ) : null}
-
-              {isAuthenticated && showCompanyLeads ? (
-                <Link
-                  href="/dashboard/company-customers"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={itemClass()}
-                >
-                  {companyCustomersLabel}
-                </Link>
-              ) : null}
-
-              {isAuthenticated && showCompanyLeads ? (
-                <Link
-                  href="/dashboard/websites"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={itemClass()}
-                >
-                  {companyWebsitesLabel}
-                </Link>
-              ) : null}
-
-              {isAuthenticated && showCompanyLeads ? (
-                <Link
-                  href="/dashboard/company-bookings"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={`${itemClass()} justify-between`}
-                >
-                  <span>{companyBookingsLabel}</span>
-                  {companyBookingsCount > 0 ? (
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-emerald-600 px-1.5 py-0.5 text-[10px] font-semibold text-white">
-                      {companyBookingsCount > 99 ? "99+" : companyBookingsCount}
-                    </span>
-                  ) : null}
-                </Link>
-              ) : null}
-
-              {isAuthenticated ? (
-                <Link
-                  href="/jobs/create"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={itemClass()}
-                >
-                  {createJobLabel}
-                </Link>
-              ) : null}
-
-              {isAuthenticated ? (
-                <Link
-                  href="/dashboard/services"
-                  onClick={closeMenu}
-                  prefetch={false}
-                  className={itemClass()}
-                >
-                  {myServicesLabel}
-                </Link>
-              ) : null}
-
-              <div className="my-1 h-px bg-slate-200" />
-
-              {isAuthenticated ? (
                 <>
+                  <div className="my-1 h-px bg-slate-200" />
+
+                  <Link
+                    href="/dashboard"
+                    onClick={closeMenu}
+                    prefetch={false}
+                    className={`${itemClass()} justify-between`}
+                  >
+                    <span>{dashboardLabel}</span>
+                    <CountBadge value={unreadCount} />
+                  </Link>
+
+                  <Link
+                    href="/dashboard/bookings"
+                    onClick={closeMenu}
+                    prefetch={false}
+                    className={itemClass()}
+                  >
+                    {myBookingsLabel}
+                  </Link>
+
+                  {showCompanyLeads ? (
+                    <Link
+                      href="/dashboard/company"
+                      onClick={closeMenu}
+                      prefetch={false}
+                      className={`${itemClass()} justify-between bg-slate-950 text-white hover:bg-slate-800 hover:text-white`}
+                    >
+                      <span>{companyDashboardLabel}</span>
+                      <CountBadge value={companyAttentionCount} tone="amber" />
+                    </Link>
+                  ) : null}
+
+                  <div className="my-1 h-px bg-slate-200" />
+
                   <Link
                     href="/profile"
                     onClick={closeMenu}
@@ -353,16 +241,14 @@ export default function MobileHeaderMenu({
                     </div>
                   </Link>
 
-                  <a
-                    href="/auth/signout"
-                    onClick={closeMenu}
-                    className={itemClass()}
-                  >
+                  <a href="/auth/signout" onClick={closeMenu} className={itemClass()}>
                     {logoutLabel}
                   </a>
                 </>
               ) : (
                 <>
+                  <div className="my-1 h-px bg-slate-200" />
+
                   <Link
                     href="/login"
                     onClick={closeMenu}

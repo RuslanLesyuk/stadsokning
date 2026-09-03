@@ -4,7 +4,11 @@ import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { OAuthSubmitButton } from "@/components/auth/oauth-submit-button"
-import { getAuthCallbackUrl, resolveTrustedAuthOrigin } from "@/lib/security/urls"
+import {
+  getAuthCallbackUrl,
+  resolveTrustedAuthOrigin,
+  sanitizeInternalRedirect,
+} from "@/lib/security/urls"
 
 type Copy = {
   title: string
@@ -130,10 +134,24 @@ const copy: Record<Locale, Copy> = {
   },
 }
 
-export default async function SignupPage() {
+type PageProps = {
+  searchParams?: Promise<{
+    next?: string | string[]
+  }>
+}
+
+function getNextParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value
+}
+
+export default async function SignupPage({ searchParams }: PageProps) {
   const cookieStore = await cookies()
   const locale = normalizeLocale(cookieStore.get("clean_jobs_locale")?.value) as Locale
   const t = copy[locale] || copy.en
+
+  const params = (await searchParams) ?? {}
+  const nextPath = sanitizeInternalRedirect(getNextParam(params.next))
+  const nextQuery = `?next=${encodeURIComponent(nextPath)}`
 
   const supabase = await createClient()
   const {
@@ -141,7 +159,7 @@ export default async function SignupPage() {
   } = await supabase.auth.getUser()
 
   if (user) {
-    redirect("/dashboard")
+    redirect(nextPath)
   }
 
   async function googleSignupAction() {
@@ -154,12 +172,12 @@ export default async function SignupPage() {
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: getAuthCallbackUrl({ origin, next: "/dashboard" }),
+        redirectTo: getAuthCallbackUrl({ origin, next: nextPath }),
       },
     })
 
     if (error || !data.url) {
-      redirect("/signup")
+      redirect(`/signup${nextQuery}`)
     }
 
     redirect(data.url)
@@ -174,7 +192,7 @@ export default async function SignupPage() {
     const password = String(formData.get("password") ?? "").trim()
 
     if (!email || !password) {
-      redirect("/signup")
+      redirect(`/signup${nextQuery}`)
     }
 
     const { error } = await supabase.auth.signUp({
@@ -183,10 +201,10 @@ export default async function SignupPage() {
     })
 
     if (error) {
-      redirect("/signup")
+      redirect(`/signup${nextQuery}`)
     }
 
-    redirect("/dashboard")
+    redirect(nextPath)
   }
 
   return (
@@ -253,7 +271,7 @@ export default async function SignupPage() {
 
             <p className="mt-6 text-center text-sm text-slate-600">
               {t.login_prompt}{" "}
-              <Link href="/login" className="font-medium text-slate-900 underline">
+              <Link href={`/login${nextQuery}`} className="font-medium text-slate-900 underline">
                 {t.login_link}
               </Link>
             </p>

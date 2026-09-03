@@ -33,9 +33,9 @@ type HeaderCopy = {
 
 const copy: Record<Locale, HeaderCopy> = {
   uk: {
-    jobs: "Роботи",
+    jobs: "Знайти роботу",
     services: "Послуги",
-    companies: "Компанії",
+    companies: "Знайти компанію",
     myServices: "Мої послуги",
     companyLeads: "Заявки компанії",
     companyCustomers: "Клієнти компанії",
@@ -43,8 +43,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Сайти компаній",
     myBookings: "Мої бронювання",
     companyBookings: "Бронювання компанії",
-    companyDashboard: "Кабінет компанії",
-    dashboard: "Кабінет",
+    companyDashboard: "Простір компанії",
+    dashboard: "Мої справи",
     createJob: "Створити роботу",
     login: "Увійти",
     signup: "Реєстрація",
@@ -56,9 +56,9 @@ const copy: Record<Locale, HeaderCopy> = {
     notifications: "Повідомлення",
   },
   ru: {
-    jobs: "Работы",
+    jobs: "Найти работу",
     services: "Услуги",
-    companies: "Компании",
+    companies: "Найти компанию",
     myServices: "Мои услуги",
     companyLeads: "Заявки компании",
     companyCustomers: "Клиенты компании",
@@ -66,8 +66,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Сайты компаний",
     myBookings: "Мои бронирования",
     companyBookings: "Бронирования компании",
-    companyDashboard: "Кабинет компании",
-    dashboard: "Кабинет",
+    companyDashboard: "Пространство компании",
+    dashboard: "Мои дела",
     createJob: "Создать работу",
     login: "Войти",
     signup: "Регистрация",
@@ -79,9 +79,9 @@ const copy: Record<Locale, HeaderCopy> = {
     notifications: "Уведомления",
   },
   en: {
-    jobs: "Jobs",
+    jobs: "Find jobs",
     services: "Services",
-    companies: "Companies",
+    companies: "Find a cleaning company",
     myServices: "My services",
     companyLeads: "Company requests",
     companyCustomers: "Company customers",
@@ -89,8 +89,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Company websites",
     myBookings: "My bookings",
     companyBookings: "Company bookings",
-    companyDashboard: "Company dashboard",
-    dashboard: "Dashboard",
+    companyDashboard: "Company workspace",
+    dashboard: "My activity",
     createJob: "Post job",
     login: "Login",
     signup: "Sign up",
@@ -102,9 +102,9 @@ const copy: Record<Locale, HeaderCopy> = {
     notifications: "Notifications",
   },
   sv: {
-    jobs: "Jobb",
+    jobs: "Hitta jobb",
     services: "Tjänster",
-    companies: "Företag",
+    companies: "Hitta städföretag",
     myServices: "Mina tjänster",
     companyLeads: "Offertförfrågningar",
     companyCustomers: "Företagskunder",
@@ -112,8 +112,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Företagswebbplatser",
     myBookings: "Mina bokningar",
     companyBookings: "Företagsbokningar",
-    companyDashboard: "Företagsdashboard",
-    dashboard: "Dashboard",
+    companyDashboard: "Företagsyta",
+    dashboard: "Mina ärenden",
     createJob: "Skapa jobb",
     login: "Logga in",
     signup: "Registrera dig",
@@ -125,9 +125,9 @@ const copy: Record<Locale, HeaderCopy> = {
     notifications: "Aviseringar",
   },
   pl: {
-    jobs: "Prace",
+    jobs: "Znajdź pracę",
     services: "Usługi",
-    companies: "Firmy",
+    companies: "Znajdź firmę sprzątającą",
     myServices: "Moje usługi",
     companyLeads: "Zapytania firmowe",
     companyCustomers: "Klienci firmy",
@@ -135,8 +135,8 @@ const copy: Record<Locale, HeaderCopy> = {
     companyWebsites: "Strony firm",
     myBookings: "Moje rezerwacje",
     companyBookings: "Rezerwacje firmy",
-    companyDashboard: "Panel firmy",
-    dashboard: "Panel",
+    companyDashboard: "Strefa firmy",
+    dashboard: "Moje sprawy",
     createJob: "Dodaj zlecenie",
     login: "Zaloguj się",
     signup: "Rejestracja",
@@ -323,10 +323,6 @@ export default async function SiteHeader() {
                 {t.jobs}
               </Link>
 
-              <Link href="/services" prefetch={false} className={navLinkClass()}>
-                {t.services}
-              </Link>
-
               <Link href="/companies" prefetch={false} className={navLinkClass()}>
                 {t.companies}
               </Link>
@@ -347,19 +343,9 @@ export default async function SiteHeader() {
                 </Link>
               ) : null}
 
-              {user ? (
-                <Link href="/jobs/create" prefetch={false} className={navLinkClass()}>
-                  {t.createJob}
-                </Link>
-              ) : null}
-
-              {user ? (
-                <Link
-                  href="/dashboard/services"
-                  prefetch={false}
-                  className={navLinkClass()}
-                >
-                  {t.myServices}
+              {user && showCompanyLeads ? (
+                <Link href="/dashboard/company" prefetch={false} className={navLinkClass()}>
+                  {t.companyDashboard}
                 </Link>
               ) : null}
             </nav>
@@ -431,18 +417,10 @@ export default async function SiteHeader() {
 
             <MobileHeaderMenu
               jobsLabel={t.jobs}
-              servicesLabel={t.services}
               companiesLabel={t.companies}
-              myServicesLabel={t.myServices}
-              companyLeadsLabel={t.companyLeads}
-              companyCustomersLabel={t.companyCustomers}
-              companyClaimsLabel={t.companyClaims}
-              companyWebsitesLabel={t.companyWebsites}
-              myBookingsLabel={t.myBookings}
-              companyBookingsLabel={t.companyBookings}
-              companyDashboardLabel={t.companyDashboard}
               dashboardLabel={t.dashboard}
-              createJobLabel={t.createJob}
+              myBookingsLabel={t.myBookings}
+              companyDashboardLabel={t.companyDashboard}
               loginLabel={t.login}
               signupLabel={t.signup}
               logoutLabel={t.logout}
@@ -457,9 +435,9 @@ export default async function SiteHeader() {
               companyLogoUrl={companyLogoUrl}
               companyName={companyName}
               showCompanyLeads={showCompanyLeads}
-              companyLeadsCount={companyLeadsCount}
-              companyClaimsCount={companyClaimsCount}
-              companyBookingsCount={companyBookingsCount}
+              companyAttentionCount={
+                companyLeadsCount + companyClaimsCount + companyBookingsCount
+              }
             />
           </div>
         </div>
