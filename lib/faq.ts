@@ -13,1662 +13,1028 @@ export type FaqCategory = {
 }
 
 export type FaqPageCopy = {
-  metadata: {
-    title: string
-    description: string
-  }
-
-  hero: {
-    eyebrow: string
-    title: string
-    description: string
-    postJob: string
-    browseJobs: string
-  }
-
+  metadata: { title: string; description: string }
+  hero: { eyebrow: string; title: string; description: string; postJob: string; browseJobs: string }
   audience: {
     eyebrow: string
     title: string
     description: string
-
-    client: {
-      title: string
-      description: string
-      steps: string[]
-      button: string
-    }
-
-    worker: {
-      title: string
-      description: string
-      steps: string[]
-      button: string
-    }
-
-    company: {
-      title: string
-      description: string
-      steps: string[]
-      button: string
-    }
+    client: { title: string; description: string; steps: string[]; button: string }
+    worker: { title: string; description: string; steps: string[]; button: string }
+    company: { title: string; description: string; steps: string[]; button: string }
   }
-
-  faq: {
-    eyebrow: string
-    title: string
-    description: string
-    categories: FaqCategory[]
-  }
-
-  safety: {
-    eyebrow: string
-    title: string
-    description: string
-    items: string[]
-  }
-
-  contact: {
-    eyebrow: string
-    title: string
-    description: string
-    emailLabel: string
-    button: string
-  }
+  faq: { eyebrow: string; title: string; description: string; categories: FaqCategory[] }
+  safety: { eyebrow: string; title: string; description: string; items: string[] }
+  contact: { eyebrow: string; title: string; description: string; emailLabel: string; button: string }
 }
 
 export const faqPageCopy: Record<Locale, FaqPageCopy> = {
-  sv: {
-    metadata: {
-      title: "Hjälp och vanliga frågor",
-      description:
-        "Lär dig hur Clean Jobs fungerar. Hitta svar om städjobb, ansökningar, chatt, recensioner, företagstjänster och säkerhet.",
+  "sv": {
+    "metadata": {
+      "title": "Hjälp och vanliga frågor",
+      "description": "Aktuell hjälp för Clean Jobs om städjobb, ansökningar, chatt, omdömen, företagsprofiler, leads, kunder och bokningar."
     },
-
-    hero: {
-      eyebrow: "Clean Jobs hjälpcenter",
-      title: "Hur kan vi hjälpa dig?",
-      description:
-        "Här hittar du instruktioner och svar om hur du publicerar ett jobb, söker städjobb, väljer en utförare och använder Clean Jobs.",
-      postJob: "Publicera ett jobb",
-      browseJobs: "Visa lediga jobb",
+    "hero": {
+      "eyebrow": "Clean Jobs hjälpcenter",
+      "title": "Vad vill du ha hjälp med?",
+      "description": "Välj den väg som passar dig. Innehållet nedan följer hur Clean Jobs fungerar i den aktuella versionen.",
+      "postJob": "Jag behöver städning",
+      "browseJobs": "Jag söker städjobb"
     },
-
-    audience: {
-      eyebrow: "Kom igång",
-      title: "Välj hur du vill använda Clean Jobs",
-      description:
-        "Clean Jobs är skapat för kunder, arbetssökande och städföretag i Sverige.",
-
-      client: {
-        title: "Jag söker en städare",
-        description:
-          "Publicera ett uppdrag, jämför ansökningar och välj den person som passar bäst.",
-        steps: [
+    "audience": {
+      "eyebrow": "Kom igång",
+      "title": "Tre sätt att använda Clean Jobs",
+      "description": "Börja med det mål som passar dig: hitta städhjälp, hitta städjobb eller hantera ett städföretag.",
+      "client": {
+        "title": "Jag behöver städning",
+        "description": "Skapa ett jobb, jämför ansökningar och välj den utförare du vill anlita.",
+        "steps": [
           "Skapa ett konto eller logga in.",
-          "Publicera ett städuppdrag med datum, plats och information.",
-          "Ta emot och jämför ansökningar från arbetare.",
-          "Godkänn en ansökan och använd den privata chatten.",
-          "Markera jobbet som klart och lämna en recension.",
+          "Skapa jobbet i den guidade fyrastegsprocessen.",
+          "Jämför ansökningar och välj utförare.",
+          "Använd chatten och följ jobbet tills det är klart."
         ],
-        button: "Publicera ett jobb",
+        "button": "Skapa städjobb"
       },
-
-      worker: {
-        title: "Jag söker städjobb",
-        description:
-          "Bläddra bland lediga jobb, skicka en ansökan och bygg upp ditt omdöme.",
-        steps: [
-          "Skapa ett konto och fyll i din profil.",
-          "Öppna listan över tillgängliga städjobb.",
-          "Skicka en ansökan med pris och ett kort meddelande.",
-          "Vänta tills kunden väljer en utförare.",
-          "Genomför jobbet och be om en recension.",
+      "worker": {
+        "title": "Jag söker städjobb",
+        "description": "Se lediga jobb, skicka en ansökan och hantera ett tilldelat jobb.",
+        "steps": [
+          "Öppna Lediga städjobb.",
+          "Ansök med fast pris eller timpris.",
+          "Vänta tills kunden väljer utförare.",
+          "Om du får jobbet: använd chatten, starta och avsluta jobbet."
         ],
-        button: "Hitta städjobb",
+        "button": "Visa lediga jobb"
       },
-
-      company: {
-        title: "Jag representerar ett företag",
-        description:
-          "Visa företagets tjänster, hitta nya kunder och publicera lediga jobb.",
-        steps: [
-          "Registrera ett konto för företagets representant.",
-          "Skapa eller gör anspråk på företagets profilsida.",
-          "Lägg till tjänster, arbetsområden och kontaktinformation.",
-          "Publicera uppdrag eller lediga jobb.",
-          "Samla recensioner och bygg förtroende.",
+      "company": {
+        "title": "Jag driver städföretag",
+        "description": "Hitta företagets profil och använd Företagsytan för det löpande arbetet.",
+        "steps": [
+          "Hitta företaget i katalogen.",
+          "Gör anspråk på profilen om den ännu saknar ägare.",
+          "Använd Översikt, Leads, Kunder och Bokningar.",
+          "Webbplats, Tjänster och Premium finns under Fler verktyg."
         ],
-        button: "Lägg till tjänster",
-      },
+        "button": "Hitta mitt företag"
+      }
     },
-
-    faq: {
-      eyebrow: "Vanliga frågor",
-      title: "Svar på de vanligaste frågorna",
-      description:
-        "Öppna en kategori och välj den fråga som bäst beskriver vad du behöver hjälp med.",
-
-      categories: [
+    "faq": {
+      "eyebrow": "Vanliga frågor",
+      "title": "Svar för den aktuella Clean Jobs-versionen",
+      "description": "Välj kategori. Instruktionerna är anpassade till de förenklade arbetsflödena.",
+      "categories": [
         {
-          id: "account",
-          title: "Konto och profil",
-          description:
-            "Registrering, inloggning, profiluppgifter och språk.",
-          items: [
+          "id": "account",
+          "title": "Konto och Mina ärenden",
+          "description": "Inloggning, profil och din personliga arbetsyta.",
+          "items": [
             {
-              question: "Hur skapar jag ett konto?",
-              answer:
-                "Öppna registreringssidan och ange din e-postadress och ditt lösenord. Du kan också använda Google-inloggning om det alternativet visas. Efter registreringen kan du fylla i ditt namn, telefonnummer, stad och profilinformation.",
+              "question": "Behöver jag ett konto för att använda Clean Jobs?",
+              "answer": "Du kan bläddra bland offentliga jobb, tjänster och företag utan konto. För att skapa jobb, skicka ansökningar, använda chatt och hantera personliga eller företagsrelaterade funktioner behöver du logga in."
             },
             {
-              question: "Kan jag använda Clean Jobs utan ett konto?",
-              answer:
-                "Du kan läsa offentliga sidor och se viss information utan att vara inloggad. För att publicera jobb, skicka ansökningar, chatta, lämna recensioner eller skapa företagstjänster behöver du ett konto.",
+              "question": "Kan jag logga in med Google?",
+              "answer": "Ja. Clean Jobs stödjer Google-inloggning samt vanlig inloggning med e-post och lösenord."
             },
             {
-              question: "Hur ändrar jag mina profiluppgifter?",
-              answer:
-                "Logga in och öppna din profil eller dashboard. Där kan du ändra namn, telefonnummer, stad, profilbild och annan tillgänglig information. Din inloggningsadress kan vara låst av säkerhetsskäl.",
+              "question": "Var ser jag vad jag behöver göra härnäst?",
+              "answer": "Öppna Mina ärenden. Där prioriteras nya ansökningar, olästa meddelanden och aktiva jobb så att du snabbt ser nästa viktiga steg."
             },
             {
-              question: "Hur ändrar jag språk?",
-              answer:
-                "Använd språkväljaren i sidhuvudet. Clean Jobs finns på svenska, engelska, ukrainska, ryska och polska. Ditt val sparas i webbläsaren.",
-            },
-          ],
+              "question": "Vilka språk finns på Clean Jobs?",
+              "answer": "Gränssnittet stödjer svenska, engelska, ukrainska, ryska och polska. Företagsuppgifter och användarskapade texter kan vara skrivna på det språk som användaren själv valt."
+            }
+          ]
         },
-
         {
-          id: "clients",
-          title: "För kunder",
-          description:
-            "Publicera uppdrag, ta emot ansökningar och välj utförare.",
-          items: [
+          "id": "customer",
+          "title": "Jag behöver städning",
+          "description": "Skapa jobb, välj utförare, chatta och avsluta jobbet.",
+          "items": [
             {
-              question: "Hur publicerar jag ett städuppdrag?",
-              answer:
-                "Logga in och välj alternativet för att publicera ett jobb. Fyll i rubrik, beskrivning, adress eller stad, datum, tid, budget och annan relevant information. Kontrollera uppgifterna innan du publicerar.",
+              "question": "Hur skapar jag ett städjobb?",
+              "answer": "Välj Jag behöver städning eller öppna Skapa jobb. Formuläret har fyra steg: jobbtyp och titel, plats och objekt, datum/tid och budget samt en egen beskrivning. Därefter publicerar du jobbet."
             },
             {
-              question: "Vad händer efter att jag publicerat ett jobb?",
-              answer:
-                "Jobbet visas för tillgängliga arbetare. Intresserade personer kan skicka en ansökan med sitt pris och ett meddelande. Du kan sedan jämföra profiler, recensioner och erbjudanden.",
+              "question": "Vad händer efter att jobbet publicerats?",
+              "answer": "Jobbet blir tillgängligt för arbetssökande. När ansökningar kommer in visas de på jobbet och Mina ärenden uppmärksammar dig på att kandidater väntar."
             },
             {
-              question: "Hur väljer jag en utförare?",
-              answer:
-                "Öppna ditt jobb och gå till listan över ansökningar. Granska varje kandidats pris, profil, meddelande och recensioner. När du har bestämt dig godkänner du den valda ansökan.",
+              "question": "Hur väljer jag en utförare?",
+              "answer": "Öppna jobbet och sektionen Välj utförare. Jämför ansökningarna och välj kandidaten du vill arbeta med genom Välj som utförare."
             },
             {
-              question: "Kan flera personer ansöka till samma jobb?",
-              answer:
-                "Ja. Flera arbetare kan skicka ansökningar så länge jobbet är öppet. Kunden väljer sedan en av kandidaterna.",
+              "question": "När kan jag använda chatten och lämna omdöme?",
+              "answer": "Chatten öppnas efter att en utförare har valts. När jobbet har markerats som klart kan deltagarna lämna omdöme. Efter avslutat eller avbrutet jobb är chatten inte avsedd för nya arbetsmeddelanden."
             },
             {
-              question: "Kan jag redigera eller ta bort ett jobb?",
-              answer:
-                "Jobbets ägare kan redigera eller ta bort jobbet när dessa alternativ är tillgängliga. Ett jobb som redan har en godkänd utförare eller pågående aktivitet kan omfattas av begränsningar.",
-            },
-          ],
+              "question": "Kan jag hitta ett städföretag i stället för att lägga upp ett jobb?",
+              "answer": "Ja. Företagskatalogen låter dig söka och jämföra publicerade städföretag. På företagets profil kan det finnas kontaktuppgifter, offertförfrågan eller onlinebokning beroende på vad företaget har aktiverat."
+            }
+          ]
         },
-
         {
-          id: "workers",
-          title: "För arbetare",
-          description:
-            "Hitta jobb, skicka ansökningar och hantera arbetets status.",
-          items: [
+          "id": "worker",
+          "title": "Jag söker städjobb",
+          "description": "Lediga jobb, ansökningar och arbetsstatus.",
+          "items": [
             {
-              question: "Hur hittar jag lediga städjobb?",
-              answer:
-                "Öppna sidan med jobb och använd tillgängliga filter för plats, typ av städning och andra kriterier. Öppna ett jobb för att läsa den fullständiga beskrivningen.",
+              "question": "Var hittar jag lediga städjobb?",
+              "answer": "Öppna Lediga städjobb. Huvudlistan visar aktiva jobb och du kan använda filtren för att begränsa resultaten."
             },
             {
-              question: "Hur skickar jag en ansökan?",
-              answer:
-                "Öppna ett tillgängligt jobb och välj alternativet för att ansöka. Ange ditt pris och skriv ett kort, tydligt meddelande om din erfarenhet och tillgänglighet.",
+              "question": "Hur ansöker jag till ett jobb?",
+              "answer": "Öppna jobbet och skicka en ansökan. Du väljer antingen Fast pris eller Timpris. Ytterligare detaljer och ett meddelande kan läggas till när det behövs."
             },
             {
-              question: "Kan jag ansöka flera gånger till samma jobb?",
-              answer:
-                "Nej. Normalt kan varje användare bara ha en aktiv ansökan per jobb. Det förhindrar dubbletter och gör ansökningslistan tydligare för kunden.",
+              "question": "Kan jag ange både fast pris och timpris i samma ansökan?",
+              "answer": "Nej. Det aktuella ansökningsflödet är gjort för en prismodell per ansökan: fast pris eller timpris."
             },
             {
-              question: "Hur vet jag om kunden har valt mig?",
-              answer:
-                "När kunden godkänner din ansökan ändras jobbets status och du får en avisering. Därefter blir den privata chatten tillgänglig för dig och kunden.",
-            },
-            {
-              question: "När ska jag markera att arbetet har börjat?",
-              answer:
-                "Markera arbetet som påbörjat när du faktiskt har börjat genomföra uppdraget. Använd inte denna status innan du och kunden har kommit överens om detaljerna.",
-            },
-          ],
+              "question": "Hur vet jag om jag har fått jobbet?",
+              "answer": "När kunden väljer dig visas Du har fått jobbet. Då kan du öppna chatten, starta jobbet när arbetet börjar och markera det som klart när allt är färdigt."
+            }
+          ]
         },
-
         {
-          id: "chat",
-          title: "Chatt och aviseringar",
-          description:
-            "Privata meddelanden, olästa meddelanden och systemaviseringar.",
-          items: [
+          "id": "company",
+          "title": "Städföretag",
+          "description": "Företagsprofil, anspråk, leads, kunder och bokningar.",
+          "items": [
             {
-              question: "När öppnas chatten?",
-              answer:
-                "Chatten öppnas när kunden har godkänt en ansökan. Innan en utförare har valts kan deltagarna normalt inte starta en privat jobbchatt.",
+              "question": "Mitt företag finns redan på Clean Jobs. Vad gör jag?",
+              "answer": "Öppna företagsprofilen i katalogen. Om profilen inte redan har en ägare kan du göra anspråk på företaget och skicka in informationen som behövs för granskning."
             },
             {
-              question: "Vem kan läsa meddelandena?",
-              answer:
-                "Jobbchatten är avsedd för kunden och den godkända utföraren. Andra sökande ska inte ha tillgång till den privata konversationen.",
+              "question": "Vad finns i Företagsytan?",
+              "answer": "Huvudmenyn består av Översikt, Leads, Kunder och Bokningar. Översikten visar Nästa steg och prioriterar bland annat nya leads, väntande bokningar och kunduppföljningar."
             },
             {
-              question: "Varför ser jag ett oläst meddelande?",
-              answer:
-                "Ett meddelande räknas som oläst tills du öppnar den aktuella chatten. Räknaren uppdateras när meddelandet markeras som läst.",
+              "question": "Var hittar jag företagets webbplats, tjänster och Premium?",
+              "answer": "De ligger under Fler verktyg i Företagsytan. De finns kvar men ligger utanför den primära dagliga navigeringen."
             },
             {
-              question: "Vilka aviseringar kan jag få?",
-              answer:
-                "Du kan få aviseringar om nya meddelanden, ansökningar, ändrad jobbstatus, godkända ansökningar och mottagna recensioner. Tillgängliga aviseringar kan förändras när plattformen utvecklas.",
+              "question": "Vad används Leads och Kunder till?",
+              "answer": "Leads är kundförfrågningar som företaget kan följa upp och ändra status på. Kunder fungerar som ett enkelt CRM med livscykelsteg, taggar och uppföljningar."
             },
-          ],
+            {
+              "question": "Hur fungerar bokningar och företagssida?",
+              "answer": "Företag kan använda bokningsinställningar och ta emot bokningsförfrågningar via Clean Jobs. Webbplatsverktyget kan också skapa och publicera en separat företagssida. Vissa webbplatsfunktioner kan vara kopplade till Premium."
+            }
+          ]
         },
-
         {
-          id: "completion",
-          title: "Slutfört arbete och recensioner",
-          description:
-            "Slutför jobbet och lämna omdömen efter samarbetet.",
-          items: [
+          "id": "trust",
+          "title": "Omdömen, priser och säkerhet",
+          "description": "Vad plattformen visar och vad du själv bör kontrollera.",
+          "items": [
             {
-              question: "Hur avslutas ett jobb?",
-              answer:
-                "När arbetet är klart använder den behöriga deltagaren knappen för att avsluta jobbet. Statusen uppdateras och jobbet flyttas till historiken när processen är färdig.",
+              "question": "Bestämmer Clean Jobs priset på ett jobb?",
+              "answer": "Nej. Jobbets budget och ansökningarnas prisförslag kommer från användarna. Företag kan dessutom visa egna prisuppgifter när de har lagt in dem."
             },
             {
-              question: "Vem kan lämna en recension?",
-              answer:
-                "De användare som deltog i det avslutade jobbet kan lämna en recension när recensionsfunktionen är tillgänglig för deras roll.",
+              "question": "Betyder Verifierat företag att Clean Jobs garanterar arbetet?",
+              "answer": "Nej. Markeringen visar en verifieringsstatus i Clean Jobs men ersätter inte din egen kontroll av omfattning, pris, villkor och andra praktiska detaljer."
             },
             {
-              question: "Kan jag ändra en recension?",
-              answer:
-                "Tillgängliga möjligheter beror på den aktuella versionen av recensionssystemet. Om redigering inte erbjuds kan du kontakta supporten vid ett tydligt fel eller missbruk.",
+              "question": "Vad bör jag kontrollera innan arbetet börjar?",
+              "answer": "Kontrollera vad som ska göras, datum, adress, pris eller prismodell och andra viktiga villkor. Använd gärna chatten efter att utföraren har valts så att båda parter har samma information."
             },
             {
-              question: "Varför är recensioner viktiga?",
-              answer:
-                "Recensioner hjälper kunder att välja pålitliga utförare och hjälper arbetare och företag att bygga ett starkt rykte på plattformen.",
-            },
-          ],
-        },
-
-        {
-          id: "companies",
-          title: "Företag och tjänster",
-          description:
-            "Företagsprofiler, tjänster, verifiering och synlighet.",
-          items: [
-            {
-              question: "Hur lägger jag till mitt städföretag?",
-              answer:
-                "Skapa ett konto och öppna sidan för att lägga till tjänster eller företag. Fyll i företagsnamn, stad, beskrivning, kontaktuppgifter, priser, tjänstetyper och arbetsområden.",
-            },
-            {
-              question: "Vad betyder verifierad?",
-              answer:
-                "En verifierad markering visar att Clean Jobs har genomfört en viss kontroll av profilen eller företaget. Markeringen är en förtroendesignal men ersätter inte användarens egen kontroll.",
-            },
-            {
-              question: "Hur gör jag anspråk på en befintlig företagssida?",
-              answer:
-                "Öppna företagssidan och använd alternativet för att göra anspråk på profilen. Du behöver vara inloggad och skicka en begäran som administratören kan granska.",
-            },
-            {
-              question: "Kan ett företag publicera jobb?",
-              answer:
-                "Ja. Företag kan använda plattformen för att hitta arbetare, publicera uppdrag och samtidigt visa sina tjänster för potentiella kunder.",
-            },
-            {
-              question: "Hur fungerar Premium?",
-              answer:
-                "Premium kan ge extra synlighet eller andra fördelar beroende på den aktuella planen. Exakta funktioner och priser visas på Premium-sidan innan betalning.",
-            },
-          ],
-        },
-
-        {
-          id: "security",
-          title: "Säkerhet och betalning",
-          description:
-            "Ansvar, betalningar, identitetskontroll och rapportering.",
-          items: [
-            {
-              question: "Hanterar Clean Jobs betalningen för städjobbet?",
-              answer:
-                "Om inget annat uttryckligen anges kommer kunden och utföraren själva överens om betalning och villkor. Clean Jobs ska inte betraktas som betalningsförmedlare för själva städarbetet.",
-            },
-            {
-              question: "Ska jag betala i förskott?",
-              answer:
-                "Var försiktig med förskottsbetalningar till personer du inte känner. Kom överens om pris, omfattning, betalningsmetod och tidpunkt innan arbetet börjar.",
-            },
-            {
-              question: "Vad ska jag göra vid misstänkt beteende?",
-              answer:
-                "Avsluta kommunikationen, spara relevant information och kontakta supporten. Dela inte lösenord, BankID-koder eller andra känsliga uppgifter med andra användare.",
-            },
-            {
-              question: "Kommer Clean Jobs att använda BankID?",
-              answer:
-                "BankID kan i framtiden användas för identitetsverifiering och ökat förtroende. Du ska aldrig lämna ut BankID-koder eller godkänna en begäran som du inte själv har startat.",
-            },
-          ],
-        },
-      ],
+              "question": "Hur rapporterar jag ett problem?",
+              "answer": "Använd rapportfunktionen där den finns eller kontakta Clean Jobs support via kontaktsidan. Vid akuta eller juridiska problem ska du kontakta rätt myndighet eller räddningstjänst."
+            }
+          ]
+        }
+      ]
     },
-
-    safety: {
-      eyebrow: "Säkerhet",
-      title: "Använd Clean Jobs på ett säkert sätt",
-      description:
-        "Kontrollera alltid uppgifter och kom överens om tydliga villkor innan ett arbete börjar.",
-      items: [
-        "Dela aldrig lösenord, BankID-koder eller känsliga personuppgifter.",
-        "Var försiktig med förskottsbetalningar till okända personer.",
-        "Använd jobbchatten för att hålla viktig kommunikation samlad.",
-        "Kontrollera profil, recensioner och kontaktuppgifter.",
-        "Kom överens om pris, omfattning och betalningsmetod i förväg.",
-        "Kontakta supporten om du upptäcker bedrägeri eller missbruk.",
-      ],
+    "safety": {
+      "eyebrow": "Bra att veta",
+      "title": "Håll arbetsflödet tydligt",
+      "description": "Clean Jobs hjälper parterna att hitta varandra och hålla ordning på processen. Kontrollera alltid de praktiska villkoren för det verkliga arbetet.",
+      "items": [
+        "Beskriv tydligt vad som ska städas och var jobbet ska utföras.",
+        "Bekräfta pris eller prismodell innan arbetet börjar.",
+        "Använd chatten efter att en utförare har valts för viktiga arbetsdetaljer.",
+        "Kontrollera företags- och kontaktuppgifter som är viktiga för ditt beslut.",
+        "Lämna omdöme först efter att jobbet faktiskt är avslutat."
+      ]
     },
-
-    contact: {
-      eyebrow: "Support",
-      title: "Behöver du fortfarande hjälp?",
-      description:
-        "Kontakta Clean Jobs support och beskriv problemet så tydligt som möjligt.",
-      emailLabel: "E-post till support",
-      button: "Kontakta supporten",
-    },
+    "contact": {
+      "eyebrow": "Behöver du mer hjälp?",
+      "title": "Kontakta Clean Jobs",
+      "description": "Om svaret inte finns här kan du kontakta support. Beskriv gärna vilken sida eller vilket jobb problemet gäller.",
+      "emailLabel": "E-post",
+      "button": "Öppna kontaktsidan"
+    }
   },
-
-  en: {
-    metadata: {
-      title: "Help and Frequently Asked Questions",
-      description:
-        "Learn how Clean Jobs works. Find answers about cleaning jobs, applications, chat, reviews, company services and safety.",
+  "en": {
+    "metadata": {
+      "title": "Help and frequently asked questions",
+      "description": "Current Clean Jobs help about cleaning jobs, applications, chat, reviews, company profiles, leads, customers and bookings."
     },
-
-    hero: {
-      eyebrow: "Clean Jobs Help Center",
-      title: "How can we help?",
-      description:
-        "Find clear instructions on publishing a job, applying for cleaning work, selecting a worker and using Clean Jobs.",
-      postJob: "Post a job",
-      browseJobs: "Browse jobs",
+    "hero": {
+      "eyebrow": "Clean Jobs help center",
+      "title": "What do you need help with?",
+      "description": "Choose the path that fits you. The guidance below reflects the current Clean Jobs workflows.",
+      "postJob": "I need cleaning",
+      "browseJobs": "I am looking for cleaning work"
     },
-
-    audience: {
-      eyebrow: "Getting started",
-      title: "Choose how you want to use Clean Jobs",
-      description:
-        "Clean Jobs is built for clients, workers and cleaning companies across Sweden.",
-
-      client: {
-        title: "I am looking for a cleaner",
-        description:
-          "Post a cleaning request, compare applications and select the most suitable worker.",
-        steps: [
-          "Create an account or sign in.",
-          "Post a cleaning job with its date, location and requirements.",
-          "Receive and compare worker applications.",
-          "Accept one application and use the private chat.",
-          "Complete the job and leave a review.",
+    "audience": {
+      "eyebrow": "Get started",
+      "title": "Three ways to use Clean Jobs",
+      "description": "Start with your goal: find cleaning help, find cleaning work, or manage a cleaning company.",
+      "client": {
+        "title": "I need cleaning",
+        "description": "Post a job, compare applications and choose the worker you want to hire.",
+        "steps": [
+          "Create an account or log in.",
+          "Create the job in the guided four-step flow.",
+          "Compare applications and choose a worker.",
+          "Use chat and follow the job until it is complete."
         ],
-        button: "Post a job",
+        "button": "Post a cleaning job"
       },
-
-      worker: {
-        title: "I am looking for cleaning work",
-        description:
-          "Browse available jobs, submit applications and build your reputation.",
-        steps: [
-          "Create an account and complete your profile.",
-          "Open the list of available cleaning jobs.",
-          "Submit an application with your price and message.",
-          "Wait for the client to select a worker.",
-          "Complete the work and receive a review.",
+      "worker": {
+        "title": "I am looking for cleaning work",
+        "description": "Browse open jobs, apply and manage an assigned job.",
+        "steps": [
+          "Open Cleaning jobs.",
+          "Apply with a fixed price or hourly rate.",
+          "Wait for the customer to choose a worker.",
+          "If selected, use chat, start the job and complete it."
         ],
-        button: "Find cleaning jobs",
+        "button": "Browse open jobs"
       },
-
-      company: {
-        title: "I represent a company",
-        description:
-          "Present your services, reach clients and publish job opportunities.",
-        steps: [
-          "Register an account for a company representative.",
-          "Create or claim the company profile.",
-          "Add services, service areas and contact details.",
-          "Publish cleaning requests or job opportunities.",
-          "Collect reviews and build trust.",
+      "company": {
+        "title": "I run a cleaning company",
+        "description": "Find your company profile and use the Company workspace for daily operations.",
+        "steps": [
+          "Find the company in the directory.",
+          "Claim the profile if it does not yet have an owner.",
+          "Use Overview, Leads, Customers and Bookings.",
+          "Website, Services and Premium are under More tools."
         ],
-        button: "Add company services",
-      },
+        "button": "Find my company"
+      }
     },
-
-    faq: {
-      eyebrow: "Frequently asked questions",
-      title: "Answers to common questions",
-      description:
-        "Open a category and select the question that best matches what you need help with.",
-
-      categories: [
+    "faq": {
+      "eyebrow": "Frequently asked questions",
+      "title": "Answers for the current Clean Jobs version",
+      "description": "Choose a category. The instructions match the simplified product workflows.",
+      "categories": [
         {
-          id: "account",
-          title: "Account and profile",
-          description:
-            "Registration, login, profile information and language.",
-          items: [
+          "id": "account",
+          "title": "Account and My activity",
+          "description": "Login, profile and your personal workspace.",
+          "items": [
             {
-              question: "How do I create an account?",
-              answer:
-                "Open the registration page and enter your email address and password. You may also use Google sign-in when available. After registration, complete your name, phone number, city and profile details.",
+              "question": "Do I need an account to use Clean Jobs?",
+              "answer": "You can browse public jobs, services and companies without an account. You need to log in to post jobs, apply, use chat, and access personal or company management features."
             },
             {
-              question: "Can I use Clean Jobs without an account?",
-              answer:
-                "You can browse public pages and view some information without signing in. An account is required to post jobs, apply, chat, leave reviews or add company services.",
+              "question": "Can I sign in with Google?",
+              "answer": "Yes. Clean Jobs supports Google sign-in as well as email and password."
             },
             {
-              question: "How do I change my profile details?",
-              answer:
-                "Sign in and open your profile or dashboard. You can update your name, phone number, city, profile image and other available information. Your login email may remain locked for security.",
+              "question": "Where do I see what I should do next?",
+              "answer": "Open My activity. It prioritizes new applications, unread messages and active jobs so the next important step is easy to see."
             },
             {
-              question: "How do I change the language?",
-              answer:
-                "Use the language selector in the site header. Clean Jobs supports Swedish, English, Ukrainian, Russian and Polish. Your selection is saved in your browser.",
-            },
-          ],
+              "question": "Which languages does Clean Jobs support?",
+              "answer": "The interface supports Swedish, English, Ukrainian, Russian and Polish. Company information and user-created text may still be written in the language chosen by the author."
+            }
+          ]
         },
-
         {
-          id: "clients",
-          title: "For clients",
-          description:
-            "Publish requests, receive applications and choose a worker.",
-          items: [
+          "id": "customer",
+          "title": "I need cleaning",
+          "description": "Post a job, choose a worker, chat and complete the job.",
+          "items": [
             {
-              question: "How do I post a cleaning job?",
-              answer:
-                "Sign in and select the option to post a job. Add the title, description, location, date, time, budget and relevant requirements. Review the details before publishing.",
+              "question": "How do I post a cleaning job?",
+              "answer": "Choose I need cleaning or open Post job. The form has four steps: job type and title, location and property, date/time and budget, and your own description. Then publish the job."
             },
             {
-              question: "What happens after I post a job?",
-              answer:
-                "The job becomes visible to available workers. Interested workers can submit an application with their price and message. You can then compare profiles, reviews and offers.",
+              "question": "What happens after I publish the job?",
+              "answer": "The job becomes available to people looking for work. Applications appear on the job, and My activity highlights that candidates are waiting."
             },
             {
-              question: "How do I choose a worker?",
-              answer:
-                "Open your job and review the applications. Compare each applicant's price, message, profile and reviews. Accept the application of the person you want to hire.",
+              "question": "How do I choose a worker?",
+              "answer": "Open the job and the Choose worker section. Compare applications and select the candidate you want to work with."
             },
             {
-              question: "Can several workers apply for the same job?",
-              answer:
-                "Yes. Multiple workers can apply while the job is open. The client then selects one applicant.",
+              "question": "When can I use chat and leave a review?",
+              "answer": "Chat opens after a worker has been selected. After the job is marked complete, participants can leave a review. Completed or cancelled jobs are not intended for new work messages."
             },
             {
-              question: "Can I edit or delete a job?",
-              answer:
-                "The job owner can edit or delete the job when those controls are available. Restrictions may apply after a worker has been accepted or work activity has started.",
-            },
-          ],
+              "question": "Can I find a cleaning company instead of posting a job?",
+              "answer": "Yes. The company directory lets you search and compare published cleaning companies. A company profile may offer contact details, quote requests or online booking depending on what the company has enabled."
+            }
+          ]
         },
-
         {
-          id: "workers",
-          title: "For workers",
-          description:
-            "Find jobs, send applications and manage the work status.",
-          items: [
+          "id": "worker",
+          "title": "I am looking for cleaning work",
+          "description": "Open jobs, applications and job status.",
+          "items": [
             {
-              question: "How do I find available cleaning jobs?",
-              answer:
-                "Open the jobs page and use available filters for location, cleaning type and other criteria. Open a job to read its complete description.",
+              "question": "Where do I find open cleaning jobs?",
+              "answer": "Open Cleaning jobs. The main list shows active jobs and filters can narrow the results."
             },
             {
-              question: "How do I submit an application?",
-              answer:
-                "Open an available job and choose the application option. Enter your proposed price and write a short, clear message about your experience and availability.",
+              "question": "How do I apply for a job?",
+              "answer": "Open the job and send an application. Choose either Fixed price or Hourly rate. Add extra details and a message when needed."
             },
             {
-              question: "Can I apply several times to the same job?",
-              answer:
-                "No. A user can normally have only one active application per job. This prevents duplicates and keeps the application list clear.",
+              "question": "Can I enter both a fixed price and an hourly rate in one application?",
+              "answer": "No. The current application flow uses one pricing model per application: fixed price or hourly rate."
             },
             {
-              question: "How do I know whether the client selected me?",
-              answer:
-                "When the client accepts your application, the job status changes and you receive a notification. The private chat then becomes available to you and the client.",
-            },
-            {
-              question: "When should I mark the work as started?",
-              answer:
-                "Mark the work as started when you have actually begun the assignment. Do not use this status before you and the client have agreed on the details.",
-            },
-          ],
+              "question": "How do I know if I got the job?",
+              "answer": "When the customer selects you, the view shows You got the job. You can then open chat, start the job when work begins and mark it complete when finished."
+            }
+          ]
         },
-
         {
-          id: "chat",
-          title: "Chat and notifications",
-          description:
-            "Private messages, unread messages and system notifications.",
-          items: [
+          "id": "company",
+          "title": "Cleaning companies",
+          "description": "Company profile, claims, leads, customers and bookings.",
+          "items": [
             {
-              question: "When does the chat become available?",
-              answer:
-                "The private chat becomes available after the client accepts an application. Before a worker is selected, applicants normally cannot open a private job chat.",
+              "question": "My company is already listed on Clean Jobs. What should I do?",
+              "answer": "Open the company profile in the directory. If the profile does not already have an owner, use the company claim flow and submit the information requested for review."
             },
             {
-              question: "Who can read the messages?",
-              answer:
-                "The job chat is intended for the client and the accepted worker. Other applicants should not have access to that private conversation.",
+              "question": "What is in the Company workspace?",
+              "answer": "The primary navigation is Overview, Leads, Customers and Bookings. Overview contains Next steps and prioritizes items such as new leads, pending bookings and customer follow-ups."
             },
             {
-              question: "Why do I see an unread message?",
-              answer:
-                "A message remains unread until you open the relevant chat. The unread counter updates when the message is marked as read.",
+              "question": "Where are Website, Services and Premium?",
+              "answer": "They are under More tools in the Company workspace. They remain available but are outside the primary day-to-day navigation."
             },
             {
-              question: "Which notifications can I receive?",
-              answer:
-                "Notifications may include new messages, applications, job status changes, accepted applications and received reviews. Available notification types may expand as the platform develops.",
+              "question": "What are Leads and Customers used for?",
+              "answer": "Leads are customer enquiries that the company can follow up and move through statuses. Customers works as a simple CRM with lifecycle stages, tags and follow-ups."
             },
-          ],
+            {
+              "question": "How do bookings and company websites work?",
+              "answer": "Companies can use booking settings and receive booking requests through Clean Jobs. The website tool can also create and publish a separate company page. Some website features may require Premium."
+            }
+          ]
         },
-
         {
-          id: "completion",
-          title: "Completed work and reviews",
-          description:
-            "Complete jobs and leave feedback after the collaboration.",
-          items: [
+          "id": "trust",
+          "title": "Reviews, pricing and safety",
+          "description": "What the platform shows and what you should verify yourself.",
+          "items": [
             {
-              question: "How is a job completed?",
-              answer:
-                "When the work is finished, the authorized participant uses the completion button. The status updates and the job moves to history when the process is complete.",
+              "question": "Does Clean Jobs set the price of a job?",
+              "answer": "No. Job budgets and application prices come from users. Companies may also show their own pricing when they have added it."
             },
             {
-              question: "Who can leave a review?",
-              answer:
-                "Users who participated in the completed job can leave a review when the review option is available for their role.",
+              "question": "Does a Verified company badge guarantee the work?",
+              "answer": "No. The badge represents a verification status inside Clean Jobs, but it does not replace your own checks of scope, price, terms and other practical details."
             },
             {
-              question: "Can I edit a review?",
-              answer:
-                "Available options depend on the current review system. When editing is unavailable, contact support if the review contains a clear error or violates the platform rules.",
+              "question": "What should I confirm before work starts?",
+              "answer": "Confirm the scope, date, address, price or pricing model and other important terms. Use chat after a worker is selected so both parties have the same information."
             },
             {
-              question: "Why are reviews important?",
-              answer:
-                "Reviews help clients select reliable workers and allow workers and companies to build a trusted reputation.",
-            },
-          ],
-        },
-
-        {
-          id: "companies",
-          title: "Companies and services",
-          description:
-            "Company profiles, services, verification and visibility.",
-          items: [
-            {
-              question: "How do I add my cleaning company?",
-              answer:
-                "Create an account and open the page for adding services or a company. Enter the company name, city, description, contact details, prices, service types and service areas.",
-            },
-            {
-              question: "What does verified mean?",
-              answer:
-                "A verified badge indicates that Clean Jobs has performed a level of profile or company review. It is a trust signal but does not replace the user's own checks.",
-            },
-            {
-              question: "How do I claim an existing company page?",
-              answer:
-                "Open the company page and use the claim option. You must be signed in and submit a request that an administrator can review.",
-            },
-            {
-              question: "Can a company publish jobs?",
-              answer:
-                "Yes. Companies can use the platform to find workers, publish assignments and present their services to potential clients.",
-            },
-            {
-              question: "How does Premium work?",
-              answer:
-                "Premium may provide additional visibility or other benefits depending on the current plan. Exact features and pricing are displayed on the Premium page before payment.",
-            },
-          ],
-        },
-
-        {
-          id: "security",
-          title: "Safety and payments",
-          description:
-            "Responsibility, payment arrangements, identity and reporting.",
-          items: [
-            {
-              question: "Does Clean Jobs process payment for cleaning work?",
-              answer:
-                "Unless explicitly stated otherwise, the client and worker agree directly on payment and working terms. Clean Jobs should not be treated as the payment processor for the cleaning assignment itself.",
-            },
-            {
-              question: "Should I pay in advance?",
-              answer:
-                "Be careful with advance payments to people you do not know. Agree on the price, scope, payment method and payment timing before work begins.",
-            },
-            {
-              question: "What should I do about suspicious behaviour?",
-              answer:
-                "Stop communicating, preserve relevant information and contact support. Never share passwords, BankID codes or other sensitive information with another user.",
-            },
-            {
-              question: "Will Clean Jobs use BankID?",
-              answer:
-                "BankID may be used for identity verification and additional trust in the future. Never share BankID codes or approve a request that you did not personally initiate.",
-            },
-          ],
-        },
-      ],
+              "question": "How do I report a problem?",
+              "answer": "Use the report option where available or contact Clean Jobs support through the contact page. For emergencies or legal matters, contact the appropriate authority or emergency service."
+            }
+          ]
+        }
+      ]
     },
-
-    safety: {
-      eyebrow: "Safety",
-      title: "Use Clean Jobs safely",
-      description:
-        "Always verify important information and agree on clear terms before work begins.",
-      items: [
-        "Never share passwords, BankID codes or sensitive personal information.",
-        "Be careful with advance payments to unknown people.",
-        "Use the job chat to keep important communication together.",
-        "Review profiles, ratings and contact information.",
-        "Agree on price, scope and payment method in advance.",
-        "Contact support if you notice fraud, abuse or suspicious behaviour.",
-      ],
+    "safety": {
+      "eyebrow": "Good to know",
+      "title": "Keep the workflow clear",
+      "description": "Clean Jobs helps parties find each other and organize the process. Always verify the practical terms of the real-world work.",
+      "items": [
+        "Describe clearly what needs cleaning and where the job takes place.",
+        "Confirm the price or pricing model before work starts.",
+        "Use chat after a worker is selected for important work details.",
+        "Check company and contact information that matters to your decision.",
+        "Leave a review only after the job is actually complete."
+      ]
     },
-
-    contact: {
-      eyebrow: "Support",
-      title: "Still need help?",
-      description:
-        "Contact Clean Jobs support and describe the problem as clearly as possible.",
-      emailLabel: "Email support",
-      button: "Contact support",
-    },
+    "contact": {
+      "eyebrow": "Need more help?",
+      "title": "Contact Clean Jobs",
+      "description": "If the answer is not here, contact support. Include the page or job involved when possible.",
+      "emailLabel": "Email",
+      "button": "Open contact page"
+    }
   },
-
-  uk: {
-    metadata: {
-      title: "Допомога та поширені запитання",
-      description:
-        "Дізнайтеся, як працює Clean Jobs. Відповіді про замовлення, заявки, чат, відгуки, компанії та безпеку.",
+  "uk": {
+    "metadata": {
+      "title": "Допомога та поширені запитання",
+      "description": "Актуальна допомога Clean Jobs щодо замовлень, заявок, чату, відгуків, профілів компаній, лідів, клієнтів і бронювань."
     },
-
-    hero: {
-      eyebrow: "Центр допомоги Clean Jobs",
-      title: "Як ми можемо допомогти?",
-      description:
-        "Тут ви знайдете інструкції щодо публікації замовлень, пошуку роботи, вибору виконавця та користування Clean Jobs.",
-      postJob: "Опублікувати замовлення",
-      browseJobs: "Переглянути роботи",
+    "hero": {
+      "eyebrow": "Центр допомоги Clean Jobs",
+      "title": "З чим вам допомогти?",
+      "description": "Оберіть свій сценарій. Інструкції нижче відповідають актуальним процесам Clean Jobs.",
+      "postJob": "Мені потрібне прибирання",
+      "browseJobs": "Я шукаю роботу"
     },
-
-    audience: {
-      eyebrow: "Початок роботи",
-      title: "Оберіть, як ви хочете використовувати Clean Jobs",
-      description:
-        "Clean Jobs створено для замовників, виконавців і клінінгових компаній у Швеції.",
-
-      client: {
-        title: "Я шукаю виконавця",
-        description:
-          "Опублікуйте замовлення, порівняйте заявки та оберіть відповідного виконавця.",
-        steps: [
+    "audience": {
+      "eyebrow": "Початок роботи",
+      "title": "Три способи користуватися Clean Jobs",
+      "description": "Оберіть свою мету: знайти прибирання, знайти роботу або керувати клінінговою компанією.",
+      "client": {
+        "title": "Мені потрібне прибирання",
+        "description": "Створіть замовлення, порівняйте заявки та оберіть виконавця.",
+        "steps": [
           "Створіть акаунт або увійдіть.",
-          "Опублікуйте замовлення із датою, місцем та описом.",
-          "Отримайте та порівняйте заявки виконавців.",
-          "Схваліть одну заявку та відкрийте приватний чат.",
-          "Завершіть роботу й залиште відгук.",
+          "Створіть замовлення у формі з чотирьох кроків.",
+          "Порівняйте заявки та оберіть виконавця.",
+          "Використовуйте чат і доведіть роботу до завершення."
         ],
-        button: "Опублікувати замовлення",
+        "button": "Створити замовлення"
       },
-
-      worker: {
-        title: "Я шукаю роботу",
-        description:
-          "Переглядайте доступні замовлення, подавайте заявки та формуйте свій рейтинг.",
-        steps: [
-          "Створіть акаунт і заповніть профіль.",
-          "Відкрийте список доступних замовлень.",
-          "Подайте заявку зі своєю ціною та повідомленням.",
+      "worker": {
+        "title": "Я шукаю роботу з прибирання",
+        "description": "Переглядайте доступні роботи, подавайте заявки та керуйте отриманою роботою.",
+        "steps": [
+          "Відкрийте Доступні роботи.",
+          "Подайте заявку з фіксованою або погодинною ціною.",
           "Дочекайтеся вибору замовника.",
-          "Виконайте роботу й отримайте відгук.",
+          "Якщо вас обрали, використовуйте чат, почніть і завершіть роботу."
         ],
-        button: "Знайти роботу",
+        "button": "Переглянути роботи"
       },
-
-      company: {
-        title: "Я представляю компанію",
-        description:
-          "Показуйте послуги компанії, знаходьте клієнтів і публікуйте вакансії.",
-        steps: [
-          "Зареєструйте акаунт представника компанії.",
-          "Створіть або підтвердьте сторінку компанії.",
-          "Додайте послуги, міста й контактну інформацію.",
-          "Публікуйте замовлення або вакансії.",
-          "Збирайте відгуки та підвищуйте довіру.",
+      "company": {
+        "title": "Я керую клінінговою компанією",
+        "description": "Знайдіть профіль компанії та використовуйте Простір компанії для щоденної роботи.",
+        "steps": [
+          "Знайдіть компанію в каталозі.",
+          "Подайте заявку на керування, якщо профіль ще не має власника.",
+          "Використовуйте Огляд, Ліди, Клієнти та Бронювання.",
+          "Сайт, Послуги та Premium знаходяться у Додаткових інструментах."
         ],
-        button: "Додати послуги",
-      },
+        "button": "Знайти мою компанію"
+      }
     },
-
-    faq: {
-      eyebrow: "Поширені запитання",
-      title: "Відповіді на основні запитання",
-      description:
-        "Відкрийте потрібну категорію та знайдіть відповідь на своє запитання.",
-
-      categories: [
+    "faq": {
+      "eyebrow": "Поширені запитання",
+      "title": "Відповіді для актуального Clean Jobs",
+      "description": "Оберіть категорію. Інструкції відповідають спрощеним робочим процесам.",
+      "categories": [
         {
-          id: "account",
-          title: "Акаунт і профіль",
-          description:
-            "Реєстрація, вхід, інформація профілю та мова.",
-          items: [
+          "id": "account",
+          "title": "Акаунт і Мої справи",
+          "description": "Вхід, профіль і персональний простір.",
+          "items": [
             {
-              question: "Як створити акаунт?",
-              answer:
-                "Відкрийте сторінку реєстрації та вкажіть електронну адресу й пароль. Також можна використати вхід через Google, якщо він доступний. Після реєстрації заповніть ім’я, номер телефону, місто та інформацію профілю.",
+              "question": "Чи потрібен акаунт для Clean Jobs?",
+              "answer": "Публічні роботи, послуги та компанії можна переглядати без акаунта. Для створення замовлень, подання заявок, чату та персональних або корпоративних функцій потрібно увійти."
             },
             {
-              question: "Чи можна користуватися Clean Jobs без акаунта?",
-              answer:
-                "Без входу можна переглядати публічні сторінки та частину інформації. Акаунт потрібен для публікації замовлень, подання заявок, чату, відгуків і додавання послуг компанії.",
+              "question": "Чи можна увійти через Google?",
+              "answer": "Так. Clean Jobs підтримує вхід через Google, а також через email і пароль."
             },
             {
-              question: "Як змінити дані профілю?",
-              answer:
-                "Увійдіть і відкрийте профіль або особистий кабінет. Там можна змінити ім’я, телефон, місто, фотографію та інші доступні дані. Електронна адреса для входу може бути заблокована для редагування.",
+              "question": "Де побачити, що мені потрібно зробити далі?",
+              "answer": "Відкрийте Мої справи. Там пріоритетно показуються нові заявки, непрочитані повідомлення та активні роботи."
             },
             {
-              question: "Як змінити мову?",
-              answer:
-                "Скористайтеся перемикачем мови у верхній частині сайту. Доступні шведська, англійська, українська, російська та польська мови. Вибір зберігається у браузері.",
-            },
-          ],
+              "question": "Які мови підтримує Clean Jobs?",
+              "answer": "Інтерфейс підтримує шведську, англійську, українську, російську та польську. Дані компаній і тексти користувачів можуть бути написані мовою автора."
+            }
+          ]
         },
-
         {
-          id: "clients",
-          title: "Для замовників",
-          description:
-            "Публікація замовлень, отримання заявок і вибір виконавця.",
-          items: [
+          "id": "customer",
+          "title": "Мені потрібне прибирання",
+          "description": "Створення замовлення, вибір виконавця, чат і завершення.",
+          "items": [
             {
-              question: "Як опублікувати замовлення?",
-              answer:
-                "Увійдіть і виберіть створення нового замовлення. Вкажіть назву, опис, місто або адресу, дату, час, бюджет та інші важливі умови. Перевірте інформацію перед публікацією.",
+              "question": "Як створити замовлення на прибирання?",
+              "answer": "Оберіть Мені потрібне прибирання або відкрийте Створити замовлення. Форма має чотири кроки: тип і назва, місце та об’єкт, дата/час і бюджет, а потім власний опис."
             },
             {
-              question: "Що відбувається після публікації?",
-              answer:
-                "Замовлення стає доступним виконавцям. Зацікавлені користувачі можуть надіслати заявку зі своєю ціною та повідомленням. Ви зможете порівняти профілі, відгуки та пропозиції.",
+              "question": "Що відбувається після публікації?",
+              "answer": "Замовлення стає доступним виконавцям. Заявки з’являються на сторінці замовлення, а Мої справи підказують, що є кандидати."
             },
             {
-              question: "Як обрати виконавця?",
-              answer:
-                "Відкрийте своє замовлення та перегляньте список заявок. Порівняйте ціну, повідомлення, профіль і відгуки кожного кандидата. Потім схваліть заявку обраного виконавця.",
+              "question": "Як обрати виконавця?",
+              "answer": "Відкрийте замовлення та розділ вибору виконавця. Порівняйте заявки й оберіть кандидата, з яким хочете працювати."
             },
             {
-              question: "Чи можуть кілька людей подати заявку?",
-              answer:
-                "Так. Поки замовлення відкрите, кілька виконавців можуть подати свої пропозиції. Замовник самостійно обирає одного кандидата.",
+              "question": "Коли доступний чат і відгук?",
+              "answer": "Чат відкривається після вибору виконавця. Після позначення роботи завершеною учасники можуть залишити відгук."
             },
             {
-              question: "Чи можна редагувати або видалити замовлення?",
-              answer:
-                "Власник замовлення може редагувати або видаляти його, коли відповідні кнопки доступні. Після вибору виконавця або початку роботи можуть діяти обмеження.",
-            },
-          ],
+              "question": "Чи можна знайти компанію замість створення замовлення?",
+              "answer": "Так. У каталозі можна шукати й порівнювати опубліковані клінінгові компанії. На профілі можуть бути контакти, запит ціни або онлайн-бронювання, якщо компанія це активувала."
+            }
+          ]
         },
-
         {
-          id: "workers",
-          title: "Для виконавців",
-          description:
-            "Пошук роботи, заявки та керування статусом роботи.",
-          items: [
+          "id": "worker",
+          "title": "Я шукаю роботу",
+          "description": "Доступні роботи, заявки та статус роботи.",
+          "items": [
             {
-              question: "Як знайти доступні замовлення?",
-              answer:
-                "Відкрийте сторінку з роботами та скористайтеся доступними фільтрами за містом, типом прибирання й іншими параметрами. Відкрийте замовлення, щоб прочитати повний опис.",
+              "question": "Де шукати доступні роботи?",
+              "answer": "Відкрийте Доступні роботи. Основний список показує активні замовлення, а фільтри допомагають звузити результати."
             },
             {
-              question: "Як подати заявку?",
-              answer:
-                "Відкрийте доступне замовлення та натисніть кнопку подання заявки. Вкажіть свою ціну й напишіть коротке повідомлення про досвід і доступність.",
+              "question": "Як подати заявку?",
+              "answer": "Відкрийте замовлення та надішліть заявку. Оберіть Фіксована ціна або Погодинна ставка. Додаткові деталі й повідомлення можна додати за потреби."
             },
             {
-              question: "Чи можна подати кілька заявок на одне замовлення?",
-              answer:
-                "Ні. Зазвичай один користувач може мати лише одну активну заявку на конкретне замовлення. Це запобігає дублюванню.",
+              "question": "Чи можна вказати одночасно фіксовану і погодинну ціну?",
+              "answer": "Ні. Поточний процес передбачає одну модель ціни на одну заявку: фіксовану або погодинну."
             },
             {
-              question: "Як дізнатися, що замовник обрав мене?",
-              answer:
-                "Після схвалення заявки зміниться статус замовлення, а ви отримаєте сповіщення. Після цього стане доступним приватний чат із замовником.",
-            },
-            {
-              question: "Коли потрібно натискати «Почати роботу»?",
-              answer:
-                "Позначайте роботу як розпочату тільки тоді, коли ви фактично почали виконання. Не змінюйте статус до узгодження всіх деталей із замовником.",
-            },
-          ],
+              "question": "Як зрозуміти, що я отримав роботу?",
+              "answer": "Коли замовник обере вас, з’явиться стан Ви отримали роботу. Після цього можна відкрити чат, почати роботу і позначити її завершеною після виконання."
+            }
+          ]
         },
-
         {
-          id: "chat",
-          title: "Чат і сповіщення",
-          description:
-            "Приватні повідомлення, непрочитані повідомлення та системні події.",
-          items: [
+          "id": "company",
+          "title": "Клінінгові компанії",
+          "description": "Профіль компанії, заявки на керування, ліди, клієнти та бронювання.",
+          "items": [
             {
-              question: "Коли відкривається чат?",
-              answer:
-                "Приватний чат відкривається після того, як замовник схвалить одну із заявок. До вибору виконавця кандидати зазвичай не мають доступу до чату замовлення.",
+              "question": "Моя компанія вже є на Clean Jobs. Що робити?",
+              "answer": "Відкрийте профіль компанії в каталозі. Якщо він ще не має власника, подайте заявку на керування і надайте інформацію, потрібну для перевірки."
             },
             {
-              question: "Хто може читати повідомлення?",
-              answer:
-                "Чат замовлення призначений для замовника та схваленого виконавця. Інші кандидати не повинні мати доступу до приватної розмови.",
+              "question": "Що є у Просторі компанії?",
+              "answer": "Основне меню: Огляд, Ліди, Клієнти та Бронювання. На Огляді є Наступні кроки, які пріоритезують нові ліди, очікуючі бронювання та клієнтські follow-up."
             },
             {
-              question: "Чому я бачу непрочитане повідомлення?",
-              answer:
-                "Повідомлення залишається непрочитаним, поки ви не відкриєте відповідний чат. Після прочитання лічильник оновлюється.",
+              "question": "Де сайт, послуги та Premium?",
+              "answer": "Вони знаходяться в розділі Додаткові інструменти. Функції залишилися доступними, але не займають місце в головній щоденній навігації."
             },
             {
-              question: "Які сповіщення надсилає сайт?",
-              answer:
-                "Ви можете отримувати сповіщення про нові повідомлення, заявки, зміну статусу, схвалення заявки та нові відгуки. Список сповіщень може розширюватися.",
+              "question": "Для чого Ліди та Клієнти?",
+              "answer": "Ліди — це звернення потенційних клієнтів, яким компанія може змінювати статус. Клієнти — простий CRM з етапами, тегами та follow-up."
             },
-          ],
+            {
+              "question": "Як працюють бронювання і сайт компанії?",
+              "answer": "Компанії можуть налаштовувати бронювання та отримувати запити через Clean Jobs. Інструмент сайту може створити й опублікувати окрему сторінку компанії. Частина можливостей може вимагати Premium."
+            }
+          ]
         },
-
         {
-          id: "completion",
-          title: "Завершення роботи та відгуки",
-          description:
-            "Завершення замовлення та оцінювання співпраці.",
-          items: [
+          "id": "trust",
+          "title": "Відгуки, ціни та безпека",
+          "description": "Що показує платформа і що варто перевіряти самостійно.",
+          "items": [
             {
-              question: "Як завершити замовлення?",
-              answer:
-                "Після завершення прибирання уповноважений учасник натискає кнопку завершення роботи. Статус оновлюється, а замовлення переходить до історії.",
+              "question": "Clean Jobs встановлює ціну роботи?",
+              "answer": "Ні. Бюджет замовлення та цінові пропозиції в заявках задають користувачі. Компанії також можуть показувати власні ціни, якщо вони їх додали."
             },
             {
-              question: "Хто може залишити відгук?",
-              answer:
-                "Відгук можуть залишити користувачі, які брали участь у завершеному замовленні, коли форма відгуку доступна для їхньої ролі.",
+              "question": "Позначка Перевірена компанія гарантує якість роботи?",
+              "answer": "Ні. Вона показує статус перевірки в Clean Jobs, але не замінює вашу власну перевірку умов, ціни, обсягу роботи та інших важливих деталей."
             },
             {
-              question: "Чи можна змінити відгук?",
-              answer:
-                "Можливості залежать від поточної версії системи відгуків. Якщо редагування недоступне, зверніться до підтримки у випадку очевидної помилки або порушення.",
+              "question": "Що узгодити перед початком роботи?",
+              "answer": "Узгодьте обсяг, дату, адресу, ціну або модель ціни та інші важливі умови. Після вибору виконавця використовуйте чат."
             },
             {
-              question: "Навіщо потрібні відгуки?",
-              answer:
-                "Відгуки допомагають замовникам обирати надійних виконавців, а працівникам і компаніям — формувати репутацію.",
-            },
-          ],
-        },
-
-        {
-          id: "companies",
-          title: "Компанії та послуги",
-          description:
-            "Профілі компаній, послуги, підтвердження та видимість.",
-          items: [
-            {
-              question: "Як додати клінінгову компанію?",
-              answer:
-                "Створіть акаунт і відкрийте сторінку додавання послуг або компанії. Вкажіть назву, місто, опис, контакти, ціни, типи послуг і територію роботи.",
-            },
-            {
-              question: "Що означає позначка підтвердження?",
-              answer:
-                "Позначка підтвердження означає, що Clean Jobs провів певну перевірку профілю або компанії. Це додатковий сигнал довіри, але він не замінює власну перевірку користувача.",
-            },
-            {
-              question: "Як підтвердити право на сторінку компанії?",
-              answer:
-                "Відкрийте сторінку компанії та скористайтеся функцією подання запиту на володіння. Потрібно увійти в акаунт і надіслати заявку адміністратору.",
-            },
-            {
-              question: "Чи може компанія публікувати вакансії?",
-              answer:
-                "Так. Компанія може використовувати платформу для пошуку працівників, публікації замовлень і реклами своїх послуг.",
-            },
-            {
-              question: "Як працює Premium?",
-              answer:
-                "Premium може надавати додаткову видимість або інші переваги відповідно до чинного тарифу. Точні функції та ціна показуються перед оплатою.",
-            },
-          ],
-        },
-
-        {
-          id: "security",
-          title: "Безпека та оплата",
-          description:
-            "Відповідальність, оплата, ідентифікація та скарги.",
-          items: [
-            {
-              question: "Чи проводить Clean Jobs оплату за прибирання?",
-              answer:
-                "Якщо окремо не зазначено інше, замовник і виконавець самостійно узгоджують оплату та умови роботи. Clean Jobs не потрібно сприймати як платіжного посередника за саме прибирання.",
-            },
-            {
-              question: "Чи варто платити наперед?",
-              answer:
-                "Обережно ставтеся до передоплати незнайомим людям. Заздалегідь узгодьте ціну, обсяг роботи, спосіб і момент оплати.",
-            },
-            {
-              question: "Що робити у випадку підозрілої поведінки?",
-              answer:
-                "Припиніть спілкування, збережіть важливу інформацію та зверніться до підтримки. Не передавайте паролі, коди BankID або інші конфіденційні дані.",
-            },
-            {
-              question: "Чи використовуватиме Clean Jobs BankID?",
-              answer:
-                "BankID у майбутньому може використовуватися для підтвердження особи та підвищення довіри. Нікому не повідомляйте коди BankID і не підтверджуйте запит, який ви самі не ініціювали.",
-            },
-          ],
-        },
-      ],
+              "question": "Як повідомити про проблему?",
+              "answer": "Скористайтеся функцією скарги там, де вона доступна, або зверніться до підтримки через сторінку контактів. Для екстрених чи юридичних питань звертайтеся до відповідних служб або органів."
+            }
+          ]
+        }
+      ]
     },
-
-    safety: {
-      eyebrow: "Безпека",
-      title: "Користуйтеся Clean Jobs безпечно",
-      description:
-        "Завжди перевіряйте важливу інформацію та узгоджуйте чіткі умови до початку роботи.",
-      items: [
-        "Нікому не передавайте паролі, коди BankID або конфіденційні дані.",
-        "Обережно ставтеся до передоплати незнайомим користувачам.",
-        "Використовуйте чат замовлення для важливого листування.",
-        "Перевіряйте профіль, рейтинг, відгуки та контакти.",
-        "Заздалегідь узгоджуйте ціну, обсяг роботи й спосіб оплати.",
-        "Звертайтеся до підтримки у випадку шахрайства або порушень.",
-      ],
+    "safety": {
+      "eyebrow": "Важливо знати",
+      "title": "Тримайте процес зрозумілим",
+      "description": "Clean Jobs допомагає сторонам знайти одна одну та організувати процес. Практичні умови реальної роботи завжди перевіряйте окремо.",
+      "items": [
+        "Чітко опишіть, що і де потрібно прибрати.",
+        "Узгодьте ціну або модель ціни до початку роботи.",
+        "Після вибору виконавця використовуйте чат для важливих деталей.",
+        "Перевіряйте важливі дані компанії та контакти.",
+        "Залишайте відгук лише після фактичного завершення роботи."
+      ]
     },
-
-    contact: {
-      eyebrow: "Підтримка",
-      title: "Все ще потрібна допомога?",
-      description:
-        "Зверніться до підтримки Clean Jobs і якомога точніше опишіть проблему.",
-      emailLabel: "Написати підтримці",
-      button: "Зв’язатися з підтримкою",
-    },
+    "contact": {
+      "eyebrow": "Потрібна додаткова допомога?",
+      "title": "Зв’язатися з Clean Jobs",
+      "description": "Якщо відповіді тут немає, напишіть у підтримку. За можливості вкажіть сторінку або замовлення, якого стосується питання.",
+      "emailLabel": "Email",
+      "button": "Відкрити контакти"
+    }
   },
-
-  ru: {
-    metadata: {
-      title: "Помощь и часто задаваемые вопросы",
-      description:
-        "Узнайте, как работает Clean Jobs. Ответы о заказах, заявках, чате, отзывах, компаниях и безопасности.",
+  "ru": {
+    "metadata": {
+      "title": "Помощь и частые вопросы",
+      "description": "Актуальная помощь Clean Jobs по заказам, заявкам, чату, отзывам, профилям компаний, лидам, клиентам и бронированиям."
     },
-
-    hero: {
-      eyebrow: "Центр помощи Clean Jobs",
-      title: "Как мы можем помочь?",
-      description:
-        "Здесь находятся инструкции по публикации заказов, поиску работы, выбору исполнителя и использованию Clean Jobs.",
-      postJob: "Опубликовать заказ",
-      browseJobs: "Посмотреть работы",
+    "hero": {
+      "eyebrow": "Центр помощи Clean Jobs",
+      "title": "С чем вам помочь?",
+      "description": "Выберите свой сценарий. Инструкции ниже соответствуют актуальным процессам Clean Jobs.",
+      "postJob": "Мне нужна уборка",
+      "browseJobs": "Я ищу работу"
     },
-
-    audience: {
-      eyebrow: "Начало работы",
-      title: "Выберите, как вы хотите использовать Clean Jobs",
-      description:
-        "Clean Jobs создан для заказчиков, исполнителей и клининговых компаний в Швеции.",
-
-      client: {
-        title: "Я ищу исполнителя",
-        description:
-          "Опубликуйте заказ, сравните заявки и выберите подходящего исполнителя.",
-        steps: [
+    "audience": {
+      "eyebrow": "Начало работы",
+      "title": "Три способа использовать Clean Jobs",
+      "description": "Выберите свою цель: найти уборку, найти работу или управлять клининговой компанией.",
+      "client": {
+        "title": "Мне нужна уборка",
+        "description": "Создайте заказ, сравните заявки и выберите исполнителя.",
+        "steps": [
           "Создайте аккаунт или войдите.",
-          "Опубликуйте заказ с датой, местом и описанием.",
-          "Получите и сравните заявки исполнителей.",
-          "Одобрите одну заявку и откройте приватный чат.",
-          "Завершите работу и оставьте отзыв.",
+          "Создайте заказ в форме из четырех шагов.",
+          "Сравните заявки и выберите исполнителя.",
+          "Используйте чат и доведите работу до завершения."
         ],
-        button: "Опубликовать заказ",
+        "button": "Создать заказ"
       },
-
-      worker: {
-        title: "Я ищу работу",
-        description:
-          "Просматривайте доступные заказы, подавайте заявки и формируйте рейтинг.",
-        steps: [
-          "Создайте аккаунт и заполните профиль.",
-          "Откройте список доступных заказов.",
-          "Подайте заявку со своей ценой и сообщением.",
+      "worker": {
+        "title": "Я ищу работу по уборке",
+        "description": "Просматривайте доступные работы, подавайте заявки и ведите полученную работу.",
+        "steps": [
+          "Откройте доступные работы.",
+          "Подайте заявку с фиксированной или почасовой ценой.",
           "Дождитесь выбора заказчика.",
-          "Выполните работу и получите отзыв.",
+          "Если вас выбрали, используйте чат, начните и завершите работу."
         ],
-        button: "Найти работу",
+        "button": "Посмотреть работы"
       },
-
-      company: {
-        title: "Я представляю компанию",
-        description:
-          "Показывайте услуги компании, находите клиентов и публикуйте вакансии.",
-        steps: [
-          "Зарегистрируйте аккаунт представителя компании.",
-          "Создайте или подтвердите страницу компании.",
-          "Добавьте услуги, города и контактные данные.",
-          "Публикуйте заказы или вакансии.",
-          "Собирайте отзывы и повышайте доверие.",
+      "company": {
+        "title": "Я управляю клининговой компанией",
+        "description": "Найдите профиль компании и используйте Пространство компании для ежедневной работы.",
+        "steps": [
+          "Найдите компанию в каталоге.",
+          "Подайте заявку на управление, если у профиля еще нет владельца.",
+          "Используйте Обзор, Лиды, Клиенты и Бронирования.",
+          "Сайт, Услуги и Premium находятся в Дополнительных инструментах."
         ],
-        button: "Добавить услуги",
-      },
+        "button": "Найти мою компанию"
+      }
     },
-
-    faq: {
-      eyebrow: "Часто задаваемые вопросы",
-      title: "Ответы на основные вопросы",
-      description:
-        "Откройте нужную категорию и найдите ответ на свой вопрос.",
-
-      categories: [
+    "faq": {
+      "eyebrow": "Частые вопросы",
+      "title": "Ответы для актуального Clean Jobs",
+      "description": "Выберите категорию. Инструкции соответствуют упрощенным рабочим процессам.",
+      "categories": [
         {
-          id: "account",
-          title: "Аккаунт и профиль",
-          description:
-            "Регистрация, вход, профиль и выбор языка.",
-          items: [
+          "id": "account",
+          "title": "Аккаунт и Мои дела",
+          "description": "Вход, профиль и личное пространство.",
+          "items": [
             {
-              question: "Как создать аккаунт?",
-              answer:
-                "Откройте страницу регистрации и укажите электронную почту и пароль. Также можно использовать вход через Google, если он доступен. После регистрации заполните имя, телефон, город и профиль.",
+              "question": "Нужен ли аккаунт для Clean Jobs?",
+              "answer": "Публичные работы, услуги и компании можно просматривать без аккаунта. Для создания заказов, подачи заявок, чата и личных или корпоративных функций нужно войти."
             },
             {
-              question: "Можно ли пользоваться Clean Jobs без аккаунта?",
-              answer:
-                "Без входа можно просматривать публичные страницы и часть информации. Аккаунт необходим для публикации заказов, подачи заявок, чата, отзывов и добавления услуг компании.",
+              "question": "Можно ли войти через Google?",
+              "answer": "Да. Clean Jobs поддерживает вход через Google, а также через email и пароль."
             },
             {
-              question: "Как изменить данные профиля?",
-              answer:
-                "Войдите и откройте профиль или личный кабинет. Там можно изменить имя, телефон, город, фотографию и другие доступные данные. Электронный адрес входа может быть заблокирован для редактирования.",
+              "question": "Где посмотреть, что мне нужно сделать дальше?",
+              "answer": "Откройте Мои дела. Там в приоритете показываются новые заявки, непрочитанные сообщения и активные работы."
             },
             {
-              question: "Как изменить язык?",
-              answer:
-                "Используйте переключатель языка в верхней части сайта. Доступны шведский, английский, украинский, русский и польский языки. Выбор сохраняется в браузере.",
-            },
-          ],
+              "question": "Какие языки поддерживает Clean Jobs?",
+              "answer": "Интерфейс поддерживает шведский, английский, украинский, русский и польский. Данные компаний и пользовательские тексты могут быть написаны на языке автора."
+            }
+          ]
         },
-
         {
-          id: "clients",
-          title: "Для заказчиков",
-          description:
-            "Публикация заказов, получение заявок и выбор исполнителя.",
-          items: [
+          "id": "customer",
+          "title": "Мне нужна уборка",
+          "description": "Создание заказа, выбор исполнителя, чат и завершение.",
+          "items": [
             {
-              question: "Как опубликовать заказ?",
-              answer:
-                "Войдите и выберите создание нового заказа. Укажите название, описание, город или адрес, дату, время, бюджет и другие важные условия. Проверьте информацию перед публикацией.",
+              "question": "Как создать заказ на уборку?",
+              "answer": "Выберите Мне нужна уборка или откройте Создать заказ. Форма состоит из четырех шагов: тип и название, место и объект, дата/время и бюджет, затем собственное описание."
             },
             {
-              question: "Что происходит после публикации?",
-              answer:
-                "Заказ становится доступен исполнителям. Заинтересованные пользователи могут отправить заявку со своей ценой и сообщением. Вы сможете сравнить профили, отзывы и предложения.",
+              "question": "Что происходит после публикации?",
+              "answer": "Заказ становится доступен исполнителям. Заявки появляются на странице заказа, а Мои дела подсказывают, что есть кандидаты."
             },
             {
-              question: "Как выбрать исполнителя?",
-              answer:
-                "Откройте свой заказ и просмотрите заявки. Сравните цену, сообщение, профиль и отзывы кандидатов. Затем одобрите заявку выбранного исполнителя.",
+              "question": "Как выбрать исполнителя?",
+              "answer": "Откройте заказ и раздел выбора исполнителя. Сравните заявки и выберите кандидата, с которым хотите работать."
             },
             {
-              question: "Могут ли несколько людей подать заявку?",
-              answer:
-                "Да. Пока заказ открыт, несколько исполнителей могут отправлять предложения. Заказчик самостоятельно выбирает одного кандидата.",
+              "question": "Когда доступен чат и отзыв?",
+              "answer": "Чат открывается после выбора исполнителя. После отметки работы завершенной участники могут оставить отзыв."
             },
             {
-              question: "Можно ли редактировать или удалить заказ?",
-              answer:
-                "Владелец заказа может редактировать или удалить его, когда соответствующие действия доступны. После выбора исполнителя или начала работы могут действовать ограничения.",
-            },
-          ],
+              "question": "Можно ли найти компанию вместо создания заказа?",
+              "answer": "Да. В каталоге можно искать и сравнивать опубликованные клининговые компании. На профиле могут быть контакты, запрос цены или онлайн-бронирование, если компания это активировала."
+            }
+          ]
         },
-
         {
-          id: "workers",
-          title: "Для исполнителей",
-          description:
-            "Поиск работы, заявки и управление статусом.",
-          items: [
+          "id": "worker",
+          "title": "Я ищу работу",
+          "description": "Доступные работы, заявки и статус работы.",
+          "items": [
             {
-              question: "Как найти доступные заказы?",
-              answer:
-                "Откройте страницу работ и используйте фильтры по городу, типу уборки и другим параметрам. Откройте заказ, чтобы прочитать полное описание.",
+              "question": "Где искать доступные работы?",
+              "answer": "Откройте Доступные работы. Основной список показывает активные заказы, а фильтры помогают сузить результаты."
             },
             {
-              question: "Как подать заявку?",
-              answer:
-                "Откройте доступный заказ и нажмите кнопку подачи заявки. Укажите свою цену и напишите короткое сообщение об опыте и доступности.",
+              "question": "Как подать заявку?",
+              "answer": "Откройте заказ и отправьте заявку. Выберите Фиксированная цена или Почасовая ставка. Дополнительные детали и сообщение можно добавить при необходимости."
             },
             {
-              question: "Можно ли подать несколько заявок на один заказ?",
-              answer:
-                "Нет. Обычно пользователь может иметь только одну активную заявку на конкретный заказ. Это предотвращает дублирование.",
+              "question": "Можно ли указать одновременно фиксированную и почасовую цену?",
+              "answer": "Нет. Текущий процесс предполагает одну модель цены на одну заявку: фиксированную или почасовую."
             },
             {
-              question: "Как узнать, что заказчик выбрал меня?",
-              answer:
-                "После одобрения заявки изменится статус заказа, и вы получите уведомление. После этого станет доступен приватный чат с заказчиком.",
-            },
-            {
-              question: "Когда нажимать «Начать работу»?",
-              answer:
-                "Отмечайте работу начатой только тогда, когда фактически приступили к выполнению. Не меняйте статус до согласования деталей с заказчиком.",
-            },
-          ],
+              "question": "Как понять, что я получил работу?",
+              "answer": "Когда заказчик выберет вас, появится состояние Вы получили работу. После этого можно открыть чат, начать работу и отметить ее завершенной после выполнения."
+            }
+          ]
         },
-
         {
-          id: "chat",
-          title: "Чат и уведомления",
-          description:
-            "Приватные сообщения, непрочитанные сообщения и события системы.",
-          items: [
+          "id": "company",
+          "title": "Клининговые компании",
+          "description": "Профиль компании, заявки на управление, лиды, клиенты и бронирования.",
+          "items": [
             {
-              question: "Когда открывается чат?",
-              answer:
-                "Приватный чат открывается после того, как заказчик одобрит одну заявку. До выбора исполнителя кандидаты обычно не имеют доступа к чату заказа.",
+              "question": "Моя компания уже есть на Clean Jobs. Что делать?",
+              "answer": "Откройте профиль компании в каталоге. Если у него еще нет владельца, подайте заявку на управление и предоставьте информацию, необходимую для проверки."
             },
             {
-              question: "Кто может читать сообщения?",
-              answer:
-                "Чат заказа предназначен для заказчика и одобренного исполнителя. Другие кандидаты не должны иметь доступа к приватному разговору.",
+              "question": "Что есть в Пространстве компании?",
+              "answer": "Основное меню: Обзор, Лиды, Клиенты и Бронирования. На Обзоре есть Следующие шаги, которые выделяют новые лиды, ожидающие бронирования и клиентские follow-up."
             },
             {
-              question: "Почему я вижу непрочитанное сообщение?",
-              answer:
-                "Сообщение остаётся непрочитанным, пока вы не откроете соответствующий чат. После прочтения счётчик обновляется.",
+              "question": "Где сайт, услуги и Premium?",
+              "answer": "Они находятся в разделе Дополнительные инструменты. Функции остаются доступными, но не занимают место в основной ежедневной навигации."
             },
             {
-              question: "Какие уведомления отправляет сайт?",
-              answer:
-                "Уведомления могут приходить о новых сообщениях, заявках, изменении статуса, одобрении заявки и новых отзывах. Список уведомлений может расширяться.",
+              "question": "Для чего Лиды и Клиенты?",
+              "answer": "Лиды — это обращения потенциальных клиентов, которым компания может менять статус. Клиенты — простой CRM с этапами, тегами и follow-up."
             },
-          ],
+            {
+              "question": "Как работают бронирования и сайт компании?",
+              "answer": "Компании могут настраивать бронирование и получать запросы через Clean Jobs. Инструмент сайта может создать и опубликовать отдельную страницу компании. Часть возможностей может требовать Premium."
+            }
+          ]
         },
-
         {
-          id: "completion",
-          title: "Завершение работы и отзывы",
-          description:
-            "Завершение заказа и оценка сотрудничества.",
-          items: [
+          "id": "trust",
+          "title": "Отзывы, цены и безопасность",
+          "description": "Что показывает платформа и что стоит проверять самостоятельно.",
+          "items": [
             {
-              question: "Как завершить заказ?",
-              answer:
-                "После окончания уборки уполномоченный участник нажимает кнопку завершения работы. Статус обновляется, а заказ переходит в историю.",
+              "question": "Clean Jobs устанавливает цену работы?",
+              "answer": "Нет. Бюджет заказа и цены в заявках задают пользователи. Компании также могут показывать собственные цены, если они их добавили."
             },
             {
-              question: "Кто может оставить отзыв?",
-              answer:
-                "Отзыв могут оставить пользователи, участвовавшие в завершённом заказе, когда форма отзыва доступна для их роли.",
+              "question": "Метка Проверенная компания гарантирует качество работы?",
+              "answer": "Нет. Она показывает статус проверки в Clean Jobs, но не заменяет вашу собственную проверку условий, цены, объема работы и других важных деталей."
             },
             {
-              question: "Можно ли изменить отзыв?",
-              answer:
-                "Возможности зависят от текущей версии системы отзывов. Если редактирование недоступно, обратитесь в поддержку при явной ошибке или нарушении.",
+              "question": "Что согласовать перед началом работы?",
+              "answer": "Согласуйте объем, дату, адрес, цену или модель цены и другие важные условия. После выбора исполнителя используйте чат."
             },
             {
-              question: "Почему отзывы важны?",
-              answer:
-                "Отзывы помогают заказчикам выбирать надёжных исполнителей, а работникам и компаниям — формировать репутацию.",
-            },
-          ],
-        },
-
-        {
-          id: "companies",
-          title: "Компании и услуги",
-          description:
-            "Профили компаний, услуги, подтверждение и видимость.",
-          items: [
-            {
-              question: "Как добавить клининговую компанию?",
-              answer:
-                "Создайте аккаунт и откройте страницу добавления услуг или компании. Укажите название, город, описание, контакты, цены, типы услуг и территорию работы.",
-            },
-            {
-              question: "Что означает отметка подтверждения?",
-              answer:
-                "Отметка подтверждения означает, что Clean Jobs провёл определённую проверку профиля или компании. Это дополнительный сигнал доверия, но не замена собственной проверки.",
-            },
-            {
-              question: "Как подтвердить право на страницу компании?",
-              answer:
-                "Откройте страницу компании и используйте функцию подачи запроса на владение. Необходимо войти в аккаунт и отправить запрос администратору.",
-            },
-            {
-              question: "Может ли компания публиковать вакансии?",
-              answer:
-                "Да. Компания может использовать платформу для поиска работников, публикации заказов и продвижения своих услуг.",
-            },
-            {
-              question: "Как работает Premium?",
-              answer:
-                "Premium может предоставлять дополнительную видимость или другие преимущества в соответствии с текущим тарифом. Точные функции и цена показываются перед оплатой.",
-            },
-          ],
-        },
-
-        {
-          id: "security",
-          title: "Безопасность и оплата",
-          description:
-            "Ответственность, платежи, идентификация и жалобы.",
-          items: [
-            {
-              question: "Проводит ли Clean Jobs оплату за уборку?",
-              answer:
-                "Если отдельно не указано другое, заказчик и исполнитель самостоятельно согласовывают оплату и условия работы. Clean Jobs не следует считать платёжным посредником за саму уборку.",
-            },
-            {
-              question: "Стоит ли платить заранее?",
-              answer:
-                "Осторожно относитесь к предоплате незнакомым людям. Заранее согласуйте цену, объём работы, способ и момент оплаты.",
-            },
-            {
-              question: "Что делать при подозрительном поведении?",
-              answer:
-                "Прекратите общение, сохраните важную информацию и обратитесь в поддержку. Не передавайте пароли, коды BankID или другие конфиденциальные данные.",
-            },
-            {
-              question: "Будет ли Clean Jobs использовать BankID?",
-              answer:
-                "BankID в будущем может использоваться для подтверждения личности и повышения доверия. Никому не сообщайте коды BankID и не подтверждайте запросы, которые вы не инициировали.",
-            },
-          ],
-        },
-      ],
+              "question": "Как сообщить о проблеме?",
+              "answer": "Используйте функцию жалобы там, где она доступна, или обратитесь в поддержку через страницу контактов. Для экстренных или юридических вопросов обращайтесь в соответствующие службы или органы."
+            }
+          ]
+        }
+      ]
     },
-
-    safety: {
-      eyebrow: "Безопасность",
-      title: "Используйте Clean Jobs безопасно",
-      description:
-        "Проверяйте важную информацию и согласовывайте условия до начала работы.",
-      items: [
-        "Никому не передавайте пароли, коды BankID и конфиденциальные данные.",
-        "Осторожно относитесь к предоплате незнакомым пользователям.",
-        "Используйте чат заказа для важной переписки.",
-        "Проверяйте профиль, рейтинг, отзывы и контакты.",
-        "Заранее согласуйте цену, объём работы и способ оплаты.",
-        "Обращайтесь в поддержку при мошенничестве или нарушениях.",
-      ],
+    "safety": {
+      "eyebrow": "Важно знать",
+      "title": "Держите процесс понятным",
+      "description": "Clean Jobs помогает сторонам найти друг друга и организовать процесс. Практические условия реальной работы всегда проверяйте отдельно.",
+      "items": [
+        "Четко опишите, что и где нужно убрать.",
+        "Согласуйте цену или модель цены до начала работы.",
+        "После выбора исполнителя используйте чат для важных деталей.",
+        "Проверяйте важные данные компании и контакты.",
+        "Оставляйте отзыв только после фактического завершения работы."
+      ]
     },
-
-    contact: {
-      eyebrow: "Поддержка",
-      title: "Всё ещё нужна помощь?",
-      description:
-        "Обратитесь в поддержку Clean Jobs и подробно опишите проблему.",
-      emailLabel: "Написать в поддержку",
-      button: "Связаться с поддержкой",
-    },
+    "contact": {
+      "eyebrow": "Нужна дополнительная помощь?",
+      "title": "Связаться с Clean Jobs",
+      "description": "Если ответа здесь нет, напишите в поддержку. По возможности укажите страницу или заказ, которого касается вопрос.",
+      "emailLabel": "Email",
+      "button": "Открыть контакты"
+    }
   },
-
-  pl: {
-    metadata: {
-      title: "Pomoc i często zadawane pytania",
-      description:
-        "Dowiedz się, jak działa Clean Jobs. Odpowiedzi dotyczące zleceń, zgłoszeń, czatu, opinii, firm i bezpieczeństwa.",
+  "pl": {
+    "metadata": {
+      "title": "Pomoc i najczęstsze pytania",
+      "description": "Aktualna pomoc Clean Jobs dotycząca zleceń, zgłoszeń, czatu, opinii, profili firm, leadów, klientów i rezerwacji."
     },
-
-    hero: {
-      eyebrow: "Centrum pomocy Clean Jobs",
-      title: "Jak możemy pomóc?",
-      description:
-        "Znajdziesz tutaj instrukcje dotyczące publikowania zleceń, szukania pracy, wyboru wykonawcy i korzystania z Clean Jobs.",
-      postJob: "Opublikuj zlecenie",
-      browseJobs: "Przeglądaj zlecenia",
+    "hero": {
+      "eyebrow": "Centrum pomocy Clean Jobs",
+      "title": "W czym możemy pomóc?",
+      "description": "Wybierz swój sposób korzystania z serwisu. Instrukcje poniżej odpowiadają aktualnym procesom Clean Jobs.",
+      "postJob": "Potrzebuję sprzątania",
+      "browseJobs": "Szukam pracy"
     },
-
-    audience: {
-      eyebrow: "Pierwsze kroki",
-      title: "Wybierz, jak chcesz korzystać z Clean Jobs",
-      description:
-        "Clean Jobs jest przeznaczony dla klientów, wykonawców i firm sprzątających w Szwecji.",
-
-      client: {
-        title: "Szukam wykonawcy",
-        description:
-          "Opublikuj zlecenie, porównaj zgłoszenia i wybierz odpowiedniego wykonawcę.",
-        steps: [
+    "audience": {
+      "eyebrow": "Zacznij tutaj",
+      "title": "Trzy sposoby korzystania z Clean Jobs",
+      "description": "Wybierz swój cel: znaleźć pomoc w sprzątaniu, znaleźć pracę albo zarządzać firmą sprzątającą.",
+      "client": {
+        "title": "Potrzebuję sprzątania",
+        "description": "Dodaj zlecenie, porównaj zgłoszenia i wybierz wykonawcę.",
+        "steps": [
           "Utwórz konto lub zaloguj się.",
-          "Opublikuj zlecenie z datą, miejscem i opisem.",
-          "Otrzymuj i porównuj zgłoszenia wykonawców.",
-          "Zaakceptuj jedno zgłoszenie i otwórz prywatny czat.",
-          "Zakończ pracę i dodaj opinię.",
+          "Dodaj zlecenie w czteroetapowym formularzu.",
+          "Porównaj zgłoszenia i wybierz wykonawcę.",
+          "Korzystaj z czatu i prowadź zlecenie do zakończenia."
         ],
-        button: "Opublikuj zlecenie",
+        "button": "Dodaj zlecenie"
       },
-
-      worker: {
-        title: "Szukam pracy",
-        description:
-          "Przeglądaj dostępne zlecenia, wysyłaj zgłoszenia i buduj reputację.",
-        steps: [
-          "Utwórz konto i uzupełnij profil.",
-          "Otwórz listę dostępnych zleceń.",
-          "Wyślij zgłoszenie z ceną i wiadomością.",
+      "worker": {
+        "title": "Szukam pracy przy sprzątaniu",
+        "description": "Przeglądaj dostępne prace, wysyłaj zgłoszenia i prowadź otrzymaną pracę.",
+        "steps": [
+          "Otwórz dostępne zlecenia.",
+          "Wyślij zgłoszenie z ceną stałą lub stawką godzinową.",
           "Poczekaj na wybór klienta.",
-          "Wykonaj pracę i otrzymaj opinię.",
+          "Po wyborze używaj czatu, rozpocznij i zakończ pracę."
         ],
-        button: "Znajdź pracę",
+        "button": "Pokaż zlecenia"
       },
-
-      company: {
-        title: "Reprezentuję firmę",
-        description:
-          "Prezentuj usługi firmy, zdobywaj klientów i publikuj oferty pracy.",
-        steps: [
-          "Zarejestruj konto przedstawiciela firmy.",
-          "Utwórz lub przejmij profil firmy.",
-          "Dodaj usługi, obszary działania i dane kontaktowe.",
-          "Publikuj zlecenia lub oferty pracy.",
-          "Zbieraj opinie i buduj zaufanie.",
+      "company": {
+        "title": "Prowadzę firmę sprzątającą",
+        "description": "Znajdź profil firmy i używaj Przestrzeni firmy do codziennej pracy.",
+        "steps": [
+          "Znajdź firmę w katalogu.",
+          "Zgłoś prawo do zarządzania, jeśli profil nie ma jeszcze właściciela.",
+          "Używaj Przeglądu, Leadów, Klientów i Rezerwacji.",
+          "Strona WWW, Usługi i Premium są w sekcji Więcej narzędzi."
         ],
-        button: "Dodaj usługi",
-      },
+        "button": "Znajdź moją firmę"
+      }
     },
-
-    faq: {
-      eyebrow: "Często zadawane pytania",
-      title: "Odpowiedzi na najczęstsze pytania",
-      description:
-        "Otwórz odpowiednią kategorię i wybierz pytanie odpowiadające Twojemu problemowi.",
-
-      categories: [
+    "faq": {
+      "eyebrow": "Najczęstsze pytania",
+      "title": "Odpowiedzi dla aktualnego Clean Jobs",
+      "description": "Wybierz kategorię. Instrukcje odpowiadają uproszczonym procesom.",
+      "categories": [
         {
-          id: "account",
-          title: "Konto i profil",
-          description:
-            "Rejestracja, logowanie, dane profilu i język.",
-          items: [
+          "id": "account",
+          "title": "Konto i Moje sprawy",
+          "description": "Logowanie, profil i osobista przestrzeń.",
+          "items": [
             {
-              question: "Jak utworzyć konto?",
-              answer:
-                "Otwórz stronę rejestracji i podaj adres e-mail oraz hasło. Możesz również użyć logowania Google, jeśli ta opcja jest dostępna. Następnie uzupełnij imię, telefon, miasto i profil.",
+              "question": "Czy potrzebuję konta, aby korzystać z Clean Jobs?",
+              "answer": "Publiczne zlecenia, usługi i firmy można przeglądać bez konta. Logowanie jest potrzebne do dodawania zleceń, wysyłania zgłoszeń, czatu oraz funkcji osobistych i firmowych."
             },
             {
-              question: "Czy można korzystać z Clean Jobs bez konta?",
-              answer:
-                "Bez logowania można przeglądać publiczne strony i część informacji. Konto jest wymagane do publikowania zleceń, wysyłania zgłoszeń, czatu, opinii i dodawania usług firmy.",
+              "question": "Czy mogę logować się przez Google?",
+              "answer": "Tak. Clean Jobs obsługuje logowanie przez Google oraz przez e-mail i hasło."
             },
             {
-              question: "Jak zmienić dane profilu?",
-              answer:
-                "Zaloguj się i otwórz profil lub panel użytkownika. Możesz tam zmienić imię, telefon, miasto, zdjęcie i inne dostępne dane. Adres logowania może pozostać zablokowany.",
+              "question": "Gdzie zobaczę, co mam zrobić dalej?",
+              "answer": "Otwórz Moje sprawy. W pierwszej kolejności zobaczysz nowe zgłoszenia, nieprzeczytane wiadomości i aktywne prace."
             },
             {
-              question: "Jak zmienić język?",
-              answer:
-                "Użyj przełącznika języka w nagłówku strony. Dostępne są języki szwedzki, angielski, ukraiński, rosyjski i polski. Wybór jest zapisywany w przeglądarce.",
-            },
-          ],
+              "question": "Jakie języki obsługuje Clean Jobs?",
+              "answer": "Interfejs obsługuje szwedzki, angielski, ukraiński, rosyjski i polski. Dane firm i treści użytkowników mogą być napisane w języku autora."
+            }
+          ]
         },
-
         {
-          id: "clients",
-          title: "Dla klientów",
-          description:
-            "Publikowanie zleceń, otrzymywanie zgłoszeń i wybór wykonawcy.",
-          items: [
+          "id": "customer",
+          "title": "Potrzebuję sprzątania",
+          "description": "Dodawanie zlecenia, wybór wykonawcy, czat i zakończenie.",
+          "items": [
             {
-              question: "Jak opublikować zlecenie?",
-              answer:
-                "Zaloguj się i wybierz opcję utworzenia zlecenia. Podaj tytuł, opis, miasto lub adres, datę, godzinę, budżet i ważne wymagania. Sprawdź dane przed publikacją.",
+              "question": "Jak dodać zlecenie sprzątania?",
+              "answer": "Wybierz Potrzebuję sprzątania lub otwórz Dodaj zlecenie. Formularz ma cztery kroki: rodzaj i tytuł, lokalizacja i obiekt, data/czas i budżet oraz własny opis."
             },
             {
-              question: "Co dzieje się po opublikowaniu zlecenia?",
-              answer:
-                "Zlecenie jest widoczne dla wykonawców. Zainteresowane osoby mogą wysłać zgłoszenie z ceną i wiadomością. Następnie możesz porównać profile, opinie i oferty.",
+              "question": "Co dzieje się po publikacji?",
+              "answer": "Zlecenie staje się dostępne dla wykonawców. Zgłoszenia pojawiają się na stronie zlecenia, a Moje sprawy pokazują, że czekają kandydaci."
             },
             {
-              question: "Jak wybrać wykonawcę?",
-              answer:
-                "Otwórz własne zlecenie i przejrzyj zgłoszenia. Porównaj cenę, wiadomość, profil i opinie każdego kandydata. Następnie zaakceptuj wybrane zgłoszenie.",
+              "question": "Jak wybrać wykonawcę?",
+              "answer": "Otwórz zlecenie i sekcję wyboru wykonawcy. Porównaj zgłoszenia i wybierz osobę, z którą chcesz pracować."
             },
             {
-              question: "Czy kilka osób może zgłosić się do jednego zlecenia?",
-              answer:
-                "Tak. Dopóki zlecenie jest otwarte, wielu wykonawców może przesłać swoje oferty. Klient wybiera jednego kandydata.",
+              "question": "Kiedy dostępny jest czat i opinia?",
+              "answer": "Czat otwiera się po wybraniu wykonawcy. Po oznaczeniu zlecenia jako zakończonego uczestnicy mogą dodać opinię."
             },
             {
-              question: "Czy można edytować lub usunąć zlecenie?",
-              answer:
-                "Właściciel zlecenia może je edytować lub usunąć, kiedy odpowiednie działania są dostępne. Po wyborze wykonawcy lub rozpoczęciu pracy mogą obowiązywać ograniczenia.",
-            },
-          ],
+              "question": "Czy mogę znaleźć firmę zamiast dodawać zlecenie?",
+              "answer": "Tak. Katalog firm pozwala wyszukiwać i porównywać opublikowane firmy sprzątające. Profil firmy może zawierać kontakt, prośbę o wycenę lub rezerwację online, jeśli firma je włączyła."
+            }
+          ]
         },
-
         {
-          id: "workers",
-          title: "Dla wykonawców",
-          description:
-            "Szukanie pracy, wysyłanie zgłoszeń i zarządzanie statusem.",
-          items: [
+          "id": "worker",
+          "title": "Szukam pracy",
+          "description": "Dostępne zlecenia, zgłoszenia i status pracy.",
+          "items": [
             {
-              question: "Jak znaleźć dostępne zlecenia?",
-              answer:
-                "Otwórz stronę zleceń i użyj filtrów dotyczących miasta, rodzaju sprzątania i innych kryteriów. Otwórz zlecenie, aby przeczytać pełny opis.",
+              "question": "Gdzie znajdę dostępne zlecenia?",
+              "answer": "Otwórz Dostępne zlecenia. Główna lista pokazuje aktywne prace, a filtry pozwalają zawęzić wyniki."
             },
             {
-              question: "Jak wysłać zgłoszenie?",
-              answer:
-                "Otwórz dostępne zlecenie i wybierz opcję zgłoszenia. Podaj proponowaną cenę i napisz krótką wiadomość o doświadczeniu oraz dostępności.",
+              "question": "Jak wysłać zgłoszenie?",
+              "answer": "Otwórz zlecenie i wyślij zgłoszenie. Wybierz Cena stała albo Stawka godzinowa. Dodatkowe informacje i wiadomość możesz dodać w razie potrzeby."
             },
             {
-              question: "Czy można wysłać kilka zgłoszeń do tego samego zlecenia?",
-              answer:
-                "Nie. Użytkownik może zazwyczaj posiadać tylko jedno aktywne zgłoszenie do konkretnego zlecenia. Zapobiega to duplikatom.",
+              "question": "Czy mogę podać jednocześnie cenę stałą i godzinową?",
+              "answer": "Nie. Obecny formularz pozwala wybrać jeden model ceny na jedno zgłoszenie: stały albo godzinowy."
             },
             {
-              question: "Skąd wiem, że klient mnie wybrał?",
-              answer:
-                "Po zaakceptowaniu zgłoszenia zmieni się status zlecenia i otrzymasz powiadomienie. Wtedy zostanie udostępniony prywatny czat.",
-            },
-            {
-              question: "Kiedy należy oznaczyć rozpoczęcie pracy?",
-              answer:
-                "Oznacz rozpoczęcie dopiero wtedy, gdy faktycznie zaczynasz wykonywać zlecenie. Najpierw uzgodnij wszystkie szczegóły z klientem.",
-            },
-          ],
+              "question": "Skąd wiem, że dostałem pracę?",
+              "answer": "Gdy klient Cię wybierze, pojawi się stan Otrzymałeś pracę. Wtedy możesz otworzyć czat, rozpocząć pracę i oznaczyć ją jako zakończoną po wykonaniu."
+            }
+          ]
         },
-
         {
-          id: "chat",
-          title: "Czat i powiadomienia",
-          description:
-            "Prywatne wiadomości, nieprzeczytane wiadomości i zdarzenia systemowe.",
-          items: [
+          "id": "company",
+          "title": "Firmy sprzątające",
+          "description": "Profil firmy, zgłoszenie własności, leady, klienci i rezerwacje.",
+          "items": [
             {
-              question: "Kiedy otwiera się czat?",
-              answer:
-                "Prywatny czat jest dostępny po zaakceptowaniu jednego zgłoszenia przez klienta. Przed wyborem wykonawcy pozostali kandydaci zwykle nie mają dostępu do czatu.",
+              "question": "Moja firma jest już w Clean Jobs. Co zrobić?",
+              "answer": "Otwórz profil firmy w katalogu. Jeśli profil nie ma jeszcze właściciela, zgłoś prawo do zarządzania i prześlij informacje potrzebne do weryfikacji."
             },
             {
-              question: "Kto może czytać wiadomości?",
-              answer:
-                "Czat zlecenia jest przeznaczony dla klienta i zaakceptowanego wykonawcy. Inni kandydaci nie powinni mieć dostępu do prywatnej rozmowy.",
+              "question": "Co znajduje się w Przestrzeni firmy?",
+              "answer": "Główna nawigacja to Przegląd, Leady, Klienci i Rezerwacje. Przegląd pokazuje Następne kroki z nowymi leadami, oczekującymi rezerwacjami i follow-up klientów."
             },
             {
-              question: "Dlaczego widzę nieprzeczytaną wiadomość?",
-              answer:
-                "Wiadomość pozostaje nieprzeczytana do momentu otwarcia odpowiedniego czatu. Po przeczytaniu licznik jest aktualizowany.",
+              "question": "Gdzie są Strona WWW, Usługi i Premium?",
+              "answer": "Są pod Więcej narzędzi w Przestrzeni firmy. Nadal są dostępne, ale nie zajmują miejsca w głównej codziennej nawigacji."
             },
             {
-              question: "Jakie powiadomienia mogę otrzymywać?",
-              answer:
-                "Powiadomienia mogą dotyczyć nowych wiadomości, zgłoszeń, zmian statusu, zaakceptowanych zgłoszeń i nowych opinii. Lista może być rozwijana.",
+              "question": "Do czego służą Leady i Klienci?",
+              "answer": "Leady to zapytania potencjalnych klientów, którym firma może zmieniać status. Klienci to prosty CRM z etapami, tagami i follow-up."
             },
-          ],
+            {
+              "question": "Jak działają rezerwacje i strona firmy?",
+              "answer": "Firmy mogą konfigurować rezerwacje i przyjmować prośby przez Clean Jobs. Narzędzie strony może utworzyć i opublikować osobną stronę firmy. Niektóre funkcje mogą wymagać Premium."
+            }
+          ]
         },
-
         {
-          id: "completion",
-          title: "Zakończenie pracy i opinie",
-          description:
-            "Zamykanie zleceń i ocenianie współpracy.",
-          items: [
+          "id": "trust",
+          "title": "Opinie, ceny i bezpieczeństwo",
+          "description": "Co pokazuje platforma i co warto sprawdzić samodzielnie.",
+          "items": [
             {
-              question: "Jak zakończyć zlecenie?",
-              answer:
-                "Po ukończeniu sprzątania uprawniony uczestnik używa przycisku zakończenia pracy. Status jest aktualizowany, a zlecenie przechodzi do historii.",
+              "question": "Czy Clean Jobs ustala cenę zlecenia?",
+              "answer": "Nie. Budżet zlecenia i ceny w zgłoszeniach ustalają użytkownicy. Firmy mogą też pokazywać własne ceny, jeśli je dodały."
             },
             {
-              question: "Kto może dodać opinię?",
-              answer:
-                "Opinię mogą pozostawić użytkownicy, którzy uczestniczyli w zakończonym zleceniu, gdy formularz opinii jest dostępny dla ich roli.",
+              "question": "Czy oznaczenie Zweryfikowana firma gwarantuje jakość pracy?",
+              "answer": "Nie. Oznaczenie pokazuje status weryfikacji w Clean Jobs, ale nie zastępuje własnego sprawdzenia zakresu, ceny, warunków i innych ważnych szczegółów."
             },
             {
-              question: "Czy można zmienić opinię?",
-              answer:
-                "Dostępne opcje zależą od aktualnego systemu opinii. Gdy edycja nie jest dostępna, skontaktuj się z pomocą w przypadku oczywistego błędu lub naruszenia.",
+              "question": "Co ustalić przed rozpoczęciem pracy?",
+              "answer": "Ustal zakres, datę, adres, cenę lub model ceny i inne ważne warunki. Po wyborze wykonawcy używaj czatu."
             },
             {
-              question: "Dlaczego opinie są ważne?",
-              answer:
-                "Opinie pomagają klientom wybierać wiarygodnych wykonawców, a pracownikom i firmom budować reputację.",
-            },
-          ],
-        },
-
-        {
-          id: "companies",
-          title: "Firmy i usługi",
-          description:
-            "Profile firm, usługi, weryfikacja i widoczność.",
-          items: [
-            {
-              question: "Jak dodać firmę sprzątającą?",
-              answer:
-                "Utwórz konto i otwórz stronę dodawania usług lub firmy. Podaj nazwę, miasto, opis, dane kontaktowe, ceny, typy usług i obszary działania.",
-            },
-            {
-              question: "Co oznacza status zweryfikowany?",
-              answer:
-                "Oznaczenie weryfikacji informuje, że Clean Jobs przeprowadził określone sprawdzenie profilu lub firmy. Jest to sygnał zaufania, ale nie zastępuje własnej weryfikacji.",
-            },
-            {
-              question: "Jak przejąć istniejący profil firmy?",
-              answer:
-                "Otwórz stronę firmy i użyj opcji zgłoszenia prawa do profilu. Musisz być zalogowany i wysłać wniosek do sprawdzenia przez administratora.",
-            },
-            {
-              question: "Czy firma może publikować oferty pracy?",
-              answer:
-                "Tak. Firma może używać platformy do szukania pracowników, publikowania zleceń i promowania swoich usług.",
-            },
-            {
-              question: "Jak działa Premium?",
-              answer:
-                "Premium może zapewniać dodatkową widoczność lub inne korzyści zależnie od aktualnego planu. Dokładne funkcje i cena są wyświetlane przed płatnością.",
-            },
-          ],
-        },
-
-        {
-          id: "security",
-          title: "Bezpieczeństwo i płatności",
-          description:
-            "Odpowiedzialność, płatności, tożsamość i zgłoszenia.",
-          items: [
-            {
-              question: "Czy Clean Jobs obsługuje płatność za sprzątanie?",
-              answer:
-                "O ile nie wskazano inaczej, klient i wykonawca samodzielnie uzgadniają płatność i warunki. Clean Jobs nie należy traktować jako pośrednika płatności za samo zlecenie.",
-            },
-            {
-              question: "Czy należy płacić z góry?",
-              answer:
-                "Zachowaj ostrożność przy płatnościach z góry dla nieznanych osób. Przed rozpoczęciem uzgodnij cenę, zakres, sposób i termin płatności.",
-            },
-            {
-              question: "Co zrobić w przypadku podejrzanego zachowania?",
-              answer:
-                "Przerwij komunikację, zachowaj ważne informacje i skontaktuj się z pomocą. Nie udostępniaj haseł, kodów BankID ani innych poufnych danych.",
-            },
-            {
-              question: "Czy Clean Jobs będzie używać BankID?",
-              answer:
-                "BankID może w przyszłości służyć do weryfikacji tożsamości i zwiększenia zaufania. Nie udostępniaj kodów BankID i nie zatwierdzaj żądań, których sam nie rozpocząłeś.",
-            },
-          ],
-        },
-      ],
+              "question": "Jak zgłosić problem?",
+              "answer": "Użyj funkcji zgłoszenia tam, gdzie jest dostępna, lub skontaktuj się z pomocą Clean Jobs przez stronę kontaktową. W sytuacjach nagłych lub prawnych skontaktuj się z odpowiednią służbą lub urzędem."
+            }
+          ]
+        }
+      ]
     },
-
-    safety: {
-      eyebrow: "Bezpieczeństwo",
-      title: "Korzystaj z Clean Jobs bezpiecznie",
-      description:
-        "Sprawdzaj ważne informacje i ustalaj jasne warunki przed rozpoczęciem pracy.",
-      items: [
-        "Nie udostępniaj haseł, kodów BankID ani poufnych danych.",
-        "Zachowaj ostrożność przy płatnościach z góry.",
-        "Używaj czatu zlecenia do ważnej komunikacji.",
-        "Sprawdzaj profil, oceny, opinie i dane kontaktowe.",
-        "Ustal wcześniej cenę, zakres i sposób płatności.",
-        "Skontaktuj się z pomocą w przypadku oszustwa lub naruszenia.",
-      ],
+    "safety": {
+      "eyebrow": "Warto wiedzieć",
+      "title": "Utrzymuj jasny przebieg pracy",
+      "description": "Clean Jobs pomaga stronom znaleźć się i uporządkować proces. Praktyczne warunki rzeczywistej pracy zawsze sprawdzaj osobno.",
+      "items": [
+        "Jasno opisz, co i gdzie ma zostać posprzątane.",
+        "Ustal cenę lub model ceny przed rozpoczęciem pracy.",
+        "Po wyborze wykonawcy używaj czatu do ważnych szczegółów.",
+        "Sprawdź ważne dane firmy i kontakt.",
+        "Dodawaj opinię dopiero po faktycznym zakończeniu pracy."
+      ]
     },
-
-    contact: {
-      eyebrow: "Pomoc",
-      title: "Nadal potrzebujesz pomocy?",
-      description:
-        "Skontaktuj się z pomocą Clean Jobs i dokładnie opisz problem.",
-      emailLabel: "Napisz do pomocy",
-      button: "Skontaktuj się z pomocą",
-    },
-  },
+    "contact": {
+      "eyebrow": "Potrzebujesz więcej pomocy?",
+      "title": "Skontaktuj się z Clean Jobs",
+      "description": "Jeśli nie ma tu odpowiedzi, napisz do pomocy. Jeśli to możliwe, podaj stronę lub zlecenie, którego dotyczy problem.",
+      "emailLabel": "E-mail",
+      "button": "Otwórz stronę kontaktową"
+    }
+  }
 }
 
-export function getFaqCopy(locale: Locale): FaqPageCopy {
-  return faqPageCopy[locale] ?? faqPageCopy.en
+export function getFaqCopy(locale: Locale) {
+  return faqPageCopy[locale] || faqPageCopy.sv
 }
 
-export function getAllFaqItems(locale: Locale): FaqItem[] {
-  return getFaqCopy(locale).faq.categories.flatMap(
-    (category) => category.items,
-  )
+export function getAllFaqItems(locale: Locale) {
+  return getFaqCopy(locale).faq.categories.flatMap((category) => category.items)
 }
