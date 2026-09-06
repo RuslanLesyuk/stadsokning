@@ -1,9 +1,10 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useFormStatus } from "react-dom"
 
 import type { Locale } from "@/lib/i18n"
+import { sendAnalyticsEvent } from "@/lib/analytics/acquisition-client"
 
 const CITY_OPTIONS = [
   "Stockholm",
@@ -356,13 +357,22 @@ const copy: Record<Locale, Copy> = {
   },
 }
 
-function PublishButton({ idle, pending }: { idle: string; pending: string }) {
+function PublishButton({
+  idle,
+  pending,
+  onPublish,
+}: {
+  idle: string
+  pending: string
+  onPublish: () => void
+}) {
   const { pending: isPending } = useFormStatus()
 
   return (
     <button
       type="submit"
       disabled={isPending}
+      onClick={onPublish}
       className="inline-flex min-h-12 w-full items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
     >
       {isPending ? pending : idle}
@@ -393,7 +403,16 @@ export default function CreateJobWizard({ locale, today, action }: Props) {
     ? `${scheduledDate}${scheduledTime ? ` • ${scheduledTime}` : ""}`
     : t.noDate
 
-  const progress = useMemo(() => `${(step / 4) * 100}%`, [step])
+  const progress = useMemo(
+    () => `${(step / 4) * 100}%`,
+    [step],
+  )
+
+  useEffect(() => {
+    sendAnalyticsEvent(
+      "create_job_start",
+    )
+  }, [])
 
   function goNext() {
     setError("")
@@ -408,7 +427,41 @@ export default function CreateJobWizard({ locale, today, action }: Props) {
       return
     }
 
-    setStep((current) => Math.min(4, current + 1))
+    const nextStep =
+      Math.min(4, step + 1)
+
+    if (nextStep === 2) {
+      sendAnalyticsEvent(
+        "create_job_step_2",
+        {
+          job_type: jobType,
+        },
+      )
+    }
+
+    if (nextStep === 3) {
+      sendAnalyticsEvent(
+        "create_job_step_3",
+        {
+          has_property_type:
+            Boolean(propertyType),
+        },
+      )
+    }
+
+    if (nextStep === 4) {
+      sendAnalyticsEvent(
+        "create_job_step_4",
+        {
+          has_date:
+            Boolean(scheduledDate),
+          has_budget:
+            Boolean(budget),
+        },
+      )
+    }
+
+    setStep(nextStep)
     window.scrollTo({ top: 0, behavior: "smooth" })
   }
 
@@ -646,7 +699,28 @@ export default function CreateJobWizard({ locale, today, action }: Props) {
                 {t.next}
               </button>
             ) : (
-              <PublishButton idle={t.publish} pending={t.publishing} />
+              <PublishButton
+                idle={t.publish}
+                pending={t.publishing}
+                onPublish={() => {
+                  sendAnalyticsEvent(
+                    "job_publish_click",
+                    {
+                      job_type: jobType,
+                      has_budget:
+                        Boolean(budget),
+                      has_date:
+                        Boolean(
+                          scheduledDate,
+                        ),
+                      has_description:
+                        Boolean(
+                          description.trim(),
+                        ),
+                    },
+                  )
+                }}
+              />
             )}
           </div>
         </form>

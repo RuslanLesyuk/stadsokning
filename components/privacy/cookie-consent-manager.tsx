@@ -4,6 +4,7 @@ import Script from "next/script"
 import { useEffect, useState } from "react"
 
 import type { Locale } from "@/lib/i18n"
+import { ACQUISITION_COOKIE_NAME } from "@/lib/analytics/acquisition-shared"
 import {
   ANALYTICS_CONSENT_COOKIE,
   ANALYTICS_CONSENT_MAX_AGE,
@@ -135,7 +136,22 @@ export default function CookieConsentManager({
     const mustReload = consent === "granted" && next === "denied"
 
     writeConsentCookie(next)
-    if (next === "denied") clearKnownAnalyticsCookies()
+
+    if (next === "denied") {
+      clearKnownAnalyticsCookies()
+      clearCookie(ACQUISITION_COOKIE_NAME)
+    }
+
+    window.dispatchEvent(
+      new CustomEvent(
+        "clean-jobs:analytics-consent",
+        {
+          detail: {
+            consent: next,
+          },
+        },
+      ),
+    )
 
     setConsent(next)
     setSettingsOpen(false)

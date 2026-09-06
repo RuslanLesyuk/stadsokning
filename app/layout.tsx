@@ -7,6 +7,7 @@ import { Analytics } from "@vercel/analytics/next"
 import "./globals.css"
 import SiteHeader from "@/components/site-header"
 import NavigationLoading from "@/components/navigation-loading"
+import AcquisitionTracker from "@/components/analytics/acquisition-tracker"
 import LanguageWelcomeModal from "@/components/language-welcome-modal"
 import CookieConsentManager from "@/components/privacy/cookie-consent-manager"
 import {
@@ -288,6 +289,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-screen bg-[#fafafa] text-slate-900">
         <Suspense fallback={null}>
           <NavigationLoading locale={locale} />
+          <AcquisitionTracker
+            initialConsent={analyticsConsent}
+          />
         </Suspense>
         {!standalone ? (
           <script

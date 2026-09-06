@@ -8,6 +8,10 @@ import {
   normalizeLocale,
 } from "@/lib/i18n"
 import { sendEmail } from "@/lib/resend"
+import {
+  ACQUISITION_COOKIE_NAME,
+  parseAcquisitionCookie,
+} from "@/lib/analytics/acquisition-shared"
 import { createClient } from "@/lib/supabase-server"
 
 export const dynamic = "force-dynamic"
@@ -284,6 +288,16 @@ export default async function CreateJobPage() {
       redirect("/jobs/create")
     }
 
+    const actionCookieStore =
+      await cookies()
+
+    const acquisition =
+      parseAcquisitionCookie(
+        actionCookieStore.get(
+          ACQUISITION_COOKIE_NAME,
+        )?.value,
+      )
+
     const payload = {
   title,
   description:
@@ -311,6 +325,20 @@ export default async function CreateJobPage() {
   scheduled_date: scheduledDate,
   scheduled_time: scheduledTime,
   created_by: user.id,
+  acquisition_source:
+    acquisition?.source || null,
+  acquisition_medium:
+    acquisition?.medium || null,
+  acquisition_campaign:
+    acquisition?.campaign || null,
+  acquisition_content:
+    acquisition?.content || null,
+  acquisition_term:
+    acquisition?.term || null,
+  acquisition_referrer:
+    acquisition?.referrer || null,
+  acquisition_landing_page:
+    acquisition?.landingPage || null,
 }
 
     const { data, error } = await supabase
@@ -352,7 +380,7 @@ export default async function CreateJobPage() {
       }
     }
 
-    redirect(`/jobs/${data.id}`)
+    redirect(`/jobs/${data.id}?job_created=1`)
   }
 
   return (
