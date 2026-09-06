@@ -12,6 +12,8 @@ import {
 } from "@/lib/i18n"
 import { updateSession } from "@/lib/supabase-proxy"
 
+const LANGUAGE_SELECTED_COOKIE = "clean_jobs_language_selected"
+
 const SWEDISH_GUIDE_PATHS = new Set([
   "/jobb-i-sverige",
   "/jobb-utan-svenska",
@@ -79,6 +81,15 @@ function getForcedSeoLocale(pathname: string): Locale | null {
   return null
 }
 
+function isLocaleEncodedSeoPath(pathname: string) {
+  const cleanPath = cleanPathname(pathname)
+
+  return (
+    /^\/seo\/[^/]+\/[^/]+$/.test(cleanPath) ||
+    /^\/(en|uk|ru|pl)\/seo\/[^/]+\/[^/]+$/.test(cleanPath)
+  )
+}
+
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
@@ -105,19 +116,33 @@ export async function proxy(request: NextRequest) {
   }
 
   /*
-   * Canonical SEO URLs must have a stable document language.
+   * URL-localized SEO routes keep a stable document language:
+   *   /seo/...          -> sv
+   *   /en/seo/...       -> en
+   *   /uk/seo/...       -> uk
+   *   /ru/seo/...       -> ru
+   *   /pl/seo/...       -> pl
    *
-   * Override the locale only on the incoming request. We intentionally
-   * do not persist this as a response cookie, so the visitor's normal
-   * language preference remains unchanged after leaving the SEO page.
+   * Clean Swedish landing pages and static guide URLs still get their
+   * canonical default language for visitors/crawlers that have not made
+   * an explicit language choice.
    *
-   * RootLayout, SiteHeader and SEO pages all read clean_jobs_locale,
-   * therefore this single request-scoped override keeps <html lang>,
-   * header, footer and page copy aligned with the canonical URL.
+   * Once a real user explicitly chooses a language, however, we respect
+   * clean_jobs_locale on those non-prefixed pages. This lets the global
+   * language switcher translate the page instead of immediately forcing
+   * it back to Swedish/English.
    */
   const forcedLocale = getForcedSeoLocale(pathname)
+  const explicitLanguageSelected =
+    request.cookies.get(LANGUAGE_SELECTED_COOKIE)?.value === "true"
 
-  if (forcedLocale) {
+  if (
+    forcedLocale &&
+    (
+      isLocaleEncodedSeoPath(pathname) ||
+      !explicitLanguageSelected
+    )
+  ) {
     request.cookies.set(LOCALE_COOKIE_NAME, forcedLocale)
   }
 
