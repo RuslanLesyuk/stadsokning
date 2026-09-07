@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next"
 
+import { createAdminClient } from "@/lib/supabase-admin"
 import { createClient } from "@/lib/supabase-server"
 
 import { seoLandingPages } from "@/lib/seo-landing-pages"
@@ -215,12 +216,49 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       })
       .limit(PUBLIC_JOB_SITEMAP_LIMIT)
 
+  const publicJobIds =
+    (publicJobs ?? []).map(
+      (job) => job.id,
+    )
+
+  const openReportCountByJobId =
+    new Map<string, number>()
+
+  if (publicJobIds.length > 0) {
+    const admin = createAdminClient()
+
+    const { data: openReports } =
+      await admin
+        .from("job_reports")
+        .select("job_id")
+        .eq("status", "open")
+        .in("job_id", publicJobIds)
+
+    for (const report of openReports ?? []) {
+      openReportCountByJobId.set(
+        report.job_id,
+        (openReportCountByJobId.get(
+          report.job_id,
+        ) || 0) + 1,
+      )
+    }
+  }
+
   const now = new Date()
 
   const jobPages: MetadataRoute.Sitemap =
     (publicJobs ?? [])
       .filter((job) =>
-        isPublicJobIndexable(job, now),
+        isPublicJobIndexable(
+          {
+            ...job,
+            open_report_count:
+              openReportCountByJobId.get(
+                job.id,
+              ) || 0,
+          },
+          now,
+        ),
       )
       .map((job) => ({
         url: `${SEO_SITE_URL}/jobs/${job.id}`,

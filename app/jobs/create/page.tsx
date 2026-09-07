@@ -12,6 +12,16 @@ import {
   ACQUISITION_COOKIE_NAME,
   parseAcquisitionCookie,
 } from "@/lib/analytics/acquisition-shared"
+import {
+  JOB_ADDRESS_MAX_LENGTH,
+  JOB_BUDGET_MAX,
+  JOB_CITY_MAX_LENGTH,
+  JOB_DESCRIPTION_MAX_LENGTH,
+  JOB_TITLE_MAX_LENGTH,
+  SUPPORTED_JOB_TYPES,
+  SUPPORTED_PROPERTY_TYPES,
+  analyzeJobContentForSubmission,
+} from "@/lib/jobs/content-policy"
 import { createClient } from "@/lib/supabase-server"
 
 export const dynamic = "force-dynamic"
@@ -37,14 +47,29 @@ function normalizeText(
 
 function parseBudget(value: string) {
   if (!value) {
-    return null
+    return {
+      valid: true,
+      value: null as number | null,
+    }
   }
 
   const number = Number(value)
 
-  return Number.isFinite(number) && number >= 0
-    ? number
-    : null
+  if (
+    !Number.isFinite(number) ||
+    number < 0 ||
+    number > JOB_BUDGET_MAX
+  ) {
+    return {
+      valid: false,
+      value: null as number | null,
+    }
+  }
+
+  return {
+    valid: true,
+    value: number,
+  }
 }
 
 function resolveCity(formData: FormData) {
@@ -288,6 +313,102 @@ export default async function CreateJobPage() {
       redirect("/jobs/create")
     }
 
+    const description =
+      normalizeText(
+        formData.get("description"),
+      )
+
+    const city = resolveCity(formData)
+
+    const address =
+      normalizeText(
+        formData.get("address"),
+      )
+
+    const budgetResult =
+      parseBudget(
+        normalizeText(
+          formData.get("budget"),
+        ),
+      )
+
+    const jobType =
+      normalizeText(
+        formData.get("job_type"),
+      )
+
+    const propertyType =
+      normalizeText(
+        formData.get("property_type"),
+      )
+
+    if (
+      title.length >
+      JOB_TITLE_MAX_LENGTH
+    ) {
+      redirect("/jobs/create")
+    }
+
+    if (
+      description.length >
+      JOB_DESCRIPTION_MAX_LENGTH
+    ) {
+      redirect("/jobs/create")
+    }
+
+    if (
+      !city ||
+      city.length >
+        JOB_CITY_MAX_LENGTH
+    ) {
+      redirect("/jobs/create")
+    }
+
+    if (
+      address.length >
+      JOB_ADDRESS_MAX_LENGTH
+    ) {
+      redirect("/jobs/create")
+    }
+
+    if (!budgetResult.valid) {
+      redirect("/jobs/create")
+    }
+
+    if (
+      !SUPPORTED_JOB_TYPES.has(
+        jobType,
+      )
+    ) {
+      redirect("/jobs/create")
+    }
+
+    if (
+      !SUPPORTED_PROPERTY_TYPES.has(
+        propertyType,
+      )
+    ) {
+      redirect("/jobs/create")
+    }
+
+    const contentAnalysis =
+      analyzeJobContentForSubmission({
+        title,
+        description,
+        address,
+        budget:
+          budgetResult.value,
+      })
+
+    if (contentAnalysis.blocked) {
+      console.warn(
+        "Blocked suspicious job submission:",
+        contentAnalysis.reasons,
+      )
+
+      redirect("/jobs/create")
+    }
+
     const actionCookieStore =
       await cookies()
 
@@ -301,27 +422,15 @@ export default async function CreateJobPage() {
     const payload = {
   title,
   description:
-    normalizeText(
-      formData.get("description"),
-    ) || null,
-  city: resolveCity(formData),
+    description || null,
+  city,
   address:
-    normalizeText(
-      formData.get("address"),
-    ) || null,
-  budget: parseBudget(
-    normalizeText(
-      formData.get("budget"),
-    ),
-  ),
-  job_type:
-    normalizeText(
-      formData.get("job_type"),
-    ) || null,
+    address || null,
+  budget:
+    budgetResult.value,
+  job_type: jobType,
   property_type:
-    normalizeText(
-      formData.get("property_type"),
-    ) || null,
+    propertyType || null,
   scheduled_date: scheduledDate,
   scheduled_time: scheduledTime,
   created_by: user.id,

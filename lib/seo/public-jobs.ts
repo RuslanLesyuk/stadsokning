@@ -1,3 +1,19 @@
+import {
+  JOB_CITY_MAX_LENGTH,
+  JOB_DESCRIPTION_MAX_LENGTH,
+  JOB_TITLE_MAX_LENGTH,
+  SUPPORTED_JOB_TYPES,
+  containsPublicContactDetails,
+  containsPublicSpamSignals,
+  redactPublicJobText,
+} from "@/lib/jobs/content-policy"
+
+export {
+  containsPublicContactDetails,
+  containsPublicSpamSignals,
+  redactPublicJobText,
+} from "@/lib/jobs/content-policy"
+
 export const PUBLIC_JOB_MIN_TITLE_LENGTH = 10
 export const PUBLIC_JOB_MIN_DESCRIPTION_LENGTH = 80
 export const PUBLIC_JOB_MAX_AGE_DAYS = 120
@@ -12,6 +28,7 @@ export type PublicJobSeoInput = {
   assigned_to: string | null
   created_at: string | null
   scheduled_date?: string | null
+  open_report_count?: number | null
 }
 
 export type PublicJobSeoEvaluation = {
@@ -19,77 +36,10 @@ export type PublicJobSeoEvaluation = {
   reasons: string[]
 }
 
-const supportedJobTypes = new Set([
-  "home_cleaning",
-  "office_cleaning",
-])
-
-const contactPatterns: RegExp[] = [
-  /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/i,
-  /\bhttps?:\/\/\S+/i,
-  /\bwww\.\S+/i,
-  /(?:\+?\d[\s().-]*){8,}/,
-]
-
-const spamPatterns: RegExp[] = [
-  /(.)\1{7,}/,
-  /\b(?:crypto|bitcoin|btc|usdt|wallet|binance)\b/i,
-  /\b(?:whatsapp|telegram|signal)\b/i,
-  /\b(?:bankid|passport|personnummer)\b/i,
-]
-
-function clean(value: string | null | undefined) {
+function clean(
+  value: string | null | undefined,
+) {
   return String(value || "").trim()
-}
-
-export function containsPublicContactDetails(
-  value: string | null | undefined,
-) {
-  const text = clean(value)
-
-  return contactPatterns.some((pattern) =>
-    pattern.test(text),
-  )
-}
-
-export function containsPublicSpamSignals(
-  value: string | null | undefined,
-) {
-  const text = clean(value)
-
-  return spamPatterns.some((pattern) =>
-    pattern.test(text),
-  )
-}
-
-export function redactPublicJobText(
-  value: string | null | undefined,
-) {
-  let text = clean(value)
-
-  if (!text) {
-    return ""
-  }
-
-  text = text
-    .replace(
-      /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi,
-      "[contact hidden]",
-    )
-    .replace(
-      /\bhttps?:\/\/\S+/gi,
-      "[link hidden]",
-    )
-    .replace(
-      /\bwww\.\S+/gi,
-      "[link hidden]",
-    )
-    .replace(
-      /(?:\+?\d[\s().-]*){8,}/g,
-      "[contact hidden]",
-    )
-
-  return text.replace(/\s{2,}/g, " ").trim()
 }
 
 function isStale(
@@ -113,12 +63,17 @@ function isStale(
     60 *
     1000
 
-  return now.getTime() - created.getTime() >
+  return (
+    now.getTime() - created.getTime() >
     maxAgeMs
+  )
 }
 
 function isPastScheduledDate(
-  scheduledDate: string | null | undefined,
+  scheduledDate:
+    | string
+    | null
+    | undefined,
   now: Date,
 ) {
   if (!scheduledDate) {
@@ -133,15 +88,13 @@ function isPastScheduledDate(
     return true
   }
 
-  const today = new Intl.DateTimeFormat(
-    "sv-SE",
-    {
+  const today =
+    new Intl.DateTimeFormat("sv-SE", {
       timeZone: "Europe/Stockholm",
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
-    },
-  ).format(now)
+    }).format(now)
 
   return scheduledDate < today
 }
@@ -153,7 +106,8 @@ export function evaluatePublicJobSeo(
   const reasons: string[] = []
 
   const title = clean(job.title)
-  const description = clean(job.description)
+  const description =
+    clean(job.description)
   const city = clean(job.city)
 
   if (job.status !== "new") {
@@ -161,7 +115,9 @@ export function evaluatePublicJobSeo(
   }
 
   if (job.assigned_to) {
-    reasons.push("worker_already_assigned")
+    reasons.push(
+      "worker_already_assigned",
+    )
   }
 
   if (
@@ -172,10 +128,28 @@ export function evaluatePublicJobSeo(
   }
 
   if (
+    title.length >
+    JOB_TITLE_MAX_LENGTH
+  ) {
+    reasons.push("title_too_long")
+  }
+
+  if (
     description.length <
     PUBLIC_JOB_MIN_DESCRIPTION_LENGTH
   ) {
-    reasons.push("description_too_short")
+    reasons.push(
+      "description_too_short",
+    )
+  }
+
+  if (
+    description.length >
+    JOB_DESCRIPTION_MAX_LENGTH
+  ) {
+    reasons.push(
+      "description_too_long",
+    )
   }
 
   if (city.length < 2) {
@@ -183,27 +157,51 @@ export function evaluatePublicJobSeo(
   }
 
   if (
-    !supportedJobTypes.has(
-      clean(job.job_type),
-    )
+    city.length >
+    JOB_CITY_MAX_LENGTH
   ) {
-    reasons.push("unsupported_job_type")
+    reasons.push("city_too_long")
   }
 
   if (
-    containsPublicContactDetails(title) ||
+    !SUPPORTED_JOB_TYPES.has(
+      clean(job.job_type),
+    )
+  ) {
+    reasons.push(
+      "unsupported_job_type",
+    )
+  }
+
+  if (
+    containsPublicContactDetails(
+      title,
+    ) ||
     containsPublicContactDetails(
       description,
     )
   ) {
-    reasons.push("contains_contact_details")
+    reasons.push(
+      "contains_contact_details",
+    )
   }
 
   if (
     containsPublicSpamSignals(title) ||
-    containsPublicSpamSignals(description)
+    containsPublicSpamSignals(
+      description,
+    )
   ) {
     reasons.push("spam_signal")
+  }
+
+  if (
+    Number(job.open_report_count || 0) >
+    0
+  ) {
+    reasons.push(
+      "open_moderation_report",
+    )
   }
 
   if (isStale(job.created_at, now)) {
@@ -216,7 +214,9 @@ export function evaluatePublicJobSeo(
       now,
     )
   ) {
-    reasons.push("scheduled_date_in_past")
+    reasons.push(
+      "scheduled_date_in_past",
+    )
   }
 
   return {

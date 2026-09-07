@@ -493,7 +493,22 @@ export async function generateMetadata({
     }
   }
 
-  const seo = evaluatePublicJobSeo(job)
+  const {
+    count: openReportCount,
+  } = await admin
+    .from("job_reports")
+    .select("id", {
+      count: "exact",
+      head: true,
+    })
+    .eq("job_id", id)
+    .eq("status", "open")
+
+  const seo = evaluatePublicJobSeo({
+    ...job,
+    open_report_count:
+      openReportCount || 0,
+  })
 
   const city =
     typeof job.city === "string" && job.city.trim()
