@@ -21,6 +21,8 @@ import {
   isPublicJobIndexable,
 } from "@/lib/seo/public-jobs"
 
+export const dynamic = "force-dynamic"
+
 const citySlugs = [
   "stockholm",
   "sollentuna",

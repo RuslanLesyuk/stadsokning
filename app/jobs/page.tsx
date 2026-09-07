@@ -703,15 +703,28 @@ export async function generateMetadata({
   const params =
     (await searchParams) ?? {}
 
-  const hasFacets = Object.values(
-    params,
-  ).some((value) => {
-    if (Array.isArray(value)) {
-      return value.some(Boolean)
-    }
+  const facetKeys = [
+    "view",
+    "q",
+    "city",
+    "status",
+    "jobType",
+    "propertyType",
+    "sort",
+    "bankidOnly",
+  ] as const
 
-    return Boolean(value)
-  })
+  const hasFacets = facetKeys.some(
+    (key) => {
+      const value = params[key]
+
+      if (Array.isArray(value)) {
+        return value.some(Boolean)
+      }
+
+      return Boolean(value)
+    },
+  )
 
   return {
     title: t.title,

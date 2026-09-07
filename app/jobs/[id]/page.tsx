@@ -20,6 +20,7 @@ import {
   getPublicJobsHubPath,
   redactPublicJobText,
 } from "@/lib/seo/public-jobs"
+import { createAdminClient } from "@/lib/supabase-admin"
 import { createClient } from "@/lib/supabase-server"
 
 export const dynamic = "force-dynamic"
@@ -467,9 +468,9 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { id } = await params
 
-  const supabase = await createClient()
+  const admin = createAdminClient()
 
-  const { data: job } = await supabase
+  const { data: job } = await admin
     .from("jobs")
     .select(
       "title, city, budget, description, job_type, status, assigned_to, created_at, scheduled_date",
