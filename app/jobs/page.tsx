@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { hasStripePremiumEntitlement, isBillingDateInFuture } from "@/lib/billing/types"
@@ -678,6 +679,51 @@ function isEffectivePremiumProfile(profile: Profile | null | undefined) {
     return !profile.subscription_ends_at || isBillingDateInFuture(profile.subscription_ends_at)
   }
   return Boolean(profile.is_premium)
+}
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams?: Promise<
+    Record<
+      string,
+      string | string[] | undefined
+    >
+  >
+}): Promise<Metadata> {
+  const cookieStore = await cookies()
+
+  const locale = normalizeLocale(
+    cookieStore.get(
+      "clean_jobs_locale",
+    )?.value,
+  ) as Locale
+
+  const t = copy[locale] || copy.sv
+  const params =
+    (await searchParams) ?? {}
+
+  const hasFacets = Object.values(
+    params,
+  ).some((value) => {
+    if (Array.isArray(value)) {
+      return value.some(Boolean)
+    }
+
+    return Boolean(value)
+  })
+
+  return {
+    title: t.title,
+    description: t.subtitle,
+    alternates: {
+      canonical: "/jobs",
+    },
+    robots: {
+      index: !hasFacets,
+      follow: true,
+    },
+  }
 }
 
 export default async function JobsPage({

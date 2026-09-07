@@ -16,6 +16,10 @@ import {
   getPreferredSeoPath,
   shouldIndexPreferredSeoPage,
 } from "@/lib/seo/indexing"
+import {
+  PUBLIC_JOB_SITEMAP_LIMIT,
+  isPublicJobIndexable,
+} from "@/lib/seo/public-jobs"
 
 const citySlugs = [
   "stockholm",
@@ -196,6 +200,36 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.75,
     })) ?? []
 
+  const { data: publicJobs } =
+    await supabase
+      .from("jobs")
+      .select(
+        "id, title, description, city, job_type, status, assigned_to, created_at, scheduled_date",
+      )
+      .eq("status", "new")
+      .is("assigned_to", null)
+      .order("created_at", {
+        ascending: false,
+      })
+      .limit(PUBLIC_JOB_SITEMAP_LIMIT)
+
+  const now = new Date()
+
+  const jobPages: MetadataRoute.Sitemap =
+    (publicJobs ?? [])
+      .filter((job) =>
+        isPublicJobIndexable(job, now),
+      )
+      .map((job) => ({
+        url: `${SEO_SITE_URL}/jobs/${job.id}`,
+        lastModified: job.created_at
+          ? new Date(job.created_at)
+          : undefined,
+        changeFrequency:
+          "daily" as const,
+        priority: 0.72,
+      }))
+
   const seen = new Set<string>()
 
   return [
@@ -205,6 +239,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...seoEnginePages,
     ...companyPages,
     ...servicePages,
+    ...jobPages,
   ].filter((item) => {
     if (seen.has(item.url)) {
       return false

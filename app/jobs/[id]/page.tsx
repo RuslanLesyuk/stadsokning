@@ -15,6 +15,11 @@ import TakeJobForm, {
   type CurrentJobApplication,
 } from "@/components/take-job-form"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
+import {
+  evaluatePublicJobSeo,
+  getPublicJobsHubPath,
+  redactPublicJobText,
+} from "@/lib/seo/public-jobs"
 import { createClient } from "@/lib/supabase-server"
 
 export const dynamic = "force-dynamic"
@@ -48,6 +53,20 @@ type Job = {
   created_at: string
   created_by: string
   assigned_to: string | null
+}
+
+type PublicJob = {
+  id: string
+  title: string
+  description: string | null
+  city: string | null
+  budget: number | null
+  job_type: string | null
+  property_type: string | null
+  scheduled_date: string | null
+  scheduled_time: string | null
+  status: JobStatus
+  created_at: string
 }
 
 type Profile = {
@@ -452,7 +471,9 @@ export async function generateMetadata({
 
   const { data: job } = await supabase
     .from("jobs")
-    .select("title, city, budget, description")
+    .select(
+      "title, city, budget, description, job_type, status, assigned_to, created_at, scheduled_date",
+    )
     .eq("id", id)
     .maybeSingle()
 
@@ -460,12 +481,18 @@ export async function generateMetadata({
     return {
       title: "Cleaning Job | Clean Jobs",
       description:
-        "Browse cleaning jobs across Sweden. Find house cleaning, office cleaning and apartment cleaning work near you.",
+        "Browse cleaning jobs across Sweden on Clean Jobs.",
       alternates: {
         canonical: `/jobs/${id}`,
       },
+      robots: {
+        index: false,
+        follow: true,
+      },
     }
   }
+
+  const seo = evaluatePublicJobSeo(job)
 
   const city =
     typeof job.city === "string" && job.city.trim()
@@ -473,9 +500,8 @@ export async function generateMetadata({
       : "Sweden"
 
   const cleanTitle =
-    typeof job.title === "string" && job.title.trim()
-      ? job.title.trim()
-      : "Cleaning Job"
+    redactPublicJobText(job.title) ||
+    "Cleaning Job"
 
   const budgetLabel =
     typeof job.budget === "number" &&
@@ -487,10 +513,12 @@ export async function generateMetadata({
 
   const fallbackDescription = `Find cleaning jobs in ${city}. Browse house cleaning, office cleaning and apartment cleaning work on Clean Jobs.`
 
+  const publicDescription =
+    redactPublicJobText(job.description)
+
   const description =
-    typeof job.description === "string" &&
-    job.description.trim()
-      ? job.description.trim().slice(0, 155)
+    publicDescription
+      ? publicDescription.slice(0, 155)
       : fallbackDescription
 
   return {
@@ -498,6 +526,10 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical: `/jobs/${id}`,
+    },
+    robots: {
+      index: seo.indexable,
+      follow: true,
     },
     openGraph: {
       title,
@@ -784,6 +816,327 @@ function InfoCard({
   )
 }
 
+
+type PublicJobCopy = {
+  eyebrow: string
+  openLabel: string
+  closedLabel: string
+  privacyNote: string
+  addressPrivate: string
+  loginToApply: string
+  createAccount: string
+  browseJobs: string
+  browseCity: string
+  publicDescription: string
+  unavailableText: string
+}
+
+const publicJobCopy: Record<
+  Locale,
+  PublicJobCopy
+> = {
+  sv: {
+    eyebrow: "Offentligt städjobb",
+    openLabel: "Tar emot ansökningar",
+    closedLabel: "Inte längre öppet",
+    privacyNote:
+      "Exakt adress, kontaktuppgifter, ansökningar och privata arbetsdetaljer visas inte offentligt.",
+    addressPrivate:
+      "Visas först för vald utförare",
+    loginToApply: "Logga in för att ansöka",
+    createAccount: "Skapa konto",
+    browseJobs: "Se fler städjobb",
+    browseCity: "Städjobb i området",
+    publicDescription: "Om jobbet",
+    unavailableText:
+      "Det här jobbet är inte längre öppet för nya ansökningar.",
+  },
+  en: {
+    eyebrow: "Public cleaning job",
+    openLabel: "Accepting applications",
+    closedLabel: "No longer open",
+    privacyNote:
+      "The exact address, contact details, applications and private work details are not shown publicly.",
+    addressPrivate:
+      "Shown only to the selected worker",
+    loginToApply: "Log in to apply",
+    createAccount: "Create account",
+    browseJobs: "Browse more cleaning jobs",
+    browseCity: "Cleaning jobs in this area",
+    publicDescription: "About the job",
+    unavailableText:
+      "This job is no longer open for new applications.",
+  },
+  uk: {
+    eyebrow: "Публічне замовлення",
+    openLabel: "Приймає заявки",
+    closedLabel: "Більше неактивне",
+    privacyNote:
+      "Точна адреса, контакти, заявки та приватні деталі роботи публічно не показуються.",
+    addressPrivate:
+      "Буде показано лише обраному виконавцю",
+    loginToApply: "Увійти, щоб подати заявку",
+    createAccount: "Створити акаунт",
+    browseJobs: "Інші замовлення",
+    browseCity: "Замовлення в цьому районі",
+    publicDescription: "Про роботу",
+    unavailableText:
+      "Це замовлення більше не приймає нові заявки.",
+  },
+  ru: {
+    eyebrow: "Публичный заказ",
+    openLabel: "Принимает заявки",
+    closedLabel: "Больше не открыт",
+    privacyNote:
+      "Точный адрес, контакты, заявки и приватные детали работы публично не показываются.",
+    addressPrivate:
+      "Будет показан только выбранному исполнителю",
+    loginToApply: "Войти, чтобы подать заявку",
+    createAccount: "Создать аккаунт",
+    browseJobs: "Другие заказы",
+    browseCity: "Заказы в этом районе",
+    publicDescription: "О работе",
+    unavailableText:
+      "Этот заказ больше не принимает новые заявки.",
+  },
+  pl: {
+    eyebrow: "Publiczne zlecenie",
+    openLabel: "Przyjmuje oferty",
+    closedLabel: "Nie jest już otwarte",
+    privacyNote:
+      "Dokładny adres, dane kontaktowe, oferty i prywatne szczegóły nie są publicznie widoczne.",
+    addressPrivate:
+      "Widoczny tylko dla wybranego wykonawcy",
+    loginToApply: "Zaloguj się, aby złożyć ofertę",
+    createAccount: "Utwórz konto",
+    browseJobs: "Zobacz więcej zleceń",
+    browseCity: "Zlecenia w tej okolicy",
+    publicDescription: "O zleceniu",
+    unavailableText:
+      "To zlecenie nie przyjmuje już nowych ofert.",
+  },
+}
+
+function PublicJobView({
+  job,
+  locale,
+}: {
+  job: PublicJob
+  locale: Locale
+}) {
+  const t = copy[locale] || copy.sv
+  const wf =
+    workflowCopy[locale] ||
+    workflowCopy.sv
+  const pub =
+    publicJobCopy[locale] ||
+    publicJobCopy.sv
+
+  const isOpen =
+    job.status === "new"
+
+  const publicTitle =
+    redactPublicJobText(job.title) ||
+    "Cleaning job"
+
+  const publicDescription =
+    redactPublicJobText(job.description)
+
+  const cityHub =
+    getPublicJobsHubPath(job.city)
+
+  return (
+    <div className="min-h-screen bg-[#fafafa]">
+      <div className="mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-10">
+        <div className="mb-5">
+          <Link
+            href="/jobs"
+            prefetch={false}
+            className="inline-flex min-h-11 items-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            ← {pub.browseJobs}
+          </Link>
+        </div>
+
+        <article>
+          <section className="rounded-[32px] border border-slate-200 bg-gradient-to-b from-white to-rose-50/40 p-5 shadow-sm md:p-8">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+                {pub.eyebrow}
+              </span>
+
+              <span
+                className={
+                  isOpen
+                    ? "inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700"
+                    : "inline-flex rounded-full border border-slate-200 bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600"
+                }
+              >
+                {isOpen
+                  ? pub.openLabel
+                  : pub.closedLabel}
+              </span>
+            </div>
+
+            <h1 className="mt-4 break-words text-3xl font-semibold tracking-tight text-slate-950 md:text-5xl">
+              {publicTitle}
+            </h1>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <span className="rounded-full bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm">
+                {t.city}:{" "}
+                {job.city || t.cityMissing}
+              </span>
+
+              <span className="rounded-full bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm">
+                {t.budget}:{" "}
+                {formatBudget(job.budget, t)}
+              </span>
+
+              <span className="rounded-full bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm">
+                {t.created}:{" "}
+                {formatDate(
+                  job.created_at,
+                  locale,
+                )}
+              </span>
+            </div>
+
+            <p className="mt-5 max-w-3xl rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 text-sm leading-6 text-slate-600">
+              {pub.privacyNote}
+            </p>
+          </section>
+
+          <section className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <InfoCard
+              label={t.city}
+              value={
+                job.city ||
+                t.cityMissing
+              }
+            />
+
+            <InfoCard
+              label={t.address}
+              value={pub.addressPrivate}
+            />
+
+            <InfoCard
+              label={t.budget}
+              value={formatBudget(
+                job.budget,
+                t,
+              )}
+            />
+
+            <InfoCard
+              label={t.jobType}
+              value={getJobTypeDisplay(
+                job.job_type,
+                wf,
+                t.typeMissing,
+              )}
+            />
+
+            <InfoCard
+              label={t.propertyType}
+              value={getPropertyTypeDisplay(
+                job.property_type,
+                wf,
+                t.propertyMissing,
+              )}
+            />
+
+            <InfoCard
+              label={t.schedule}
+              value={formatSchedule(
+                job.scheduled_date,
+                job.scheduled_time,
+                t,
+              )}
+            />
+          </section>
+
+          <section className="mt-6 rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm md:p-7">
+            <h2 className="text-2xl font-semibold tracking-tight text-slate-950">
+              {pub.publicDescription}
+            </h2>
+
+            <div className="mt-4 whitespace-pre-wrap break-words text-sm leading-7 text-slate-700 md:text-base">
+              {publicDescription ||
+                t.noDescription}
+            </div>
+          </section>
+
+          <section className="mt-6 rounded-[30px] border border-rose-200 bg-gradient-to-br from-white to-rose-50 p-5 shadow-sm md:p-7">
+            {isOpen ? (
+              <>
+                <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+                  {wf.workerApplyTitle}
+                </h2>
+
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                  {wf.workerApplyText}
+                </p>
+
+                <div className="mt-5 flex flex-col gap-3 sm:flex-row">
+                  <Link
+                    href={`/login?next=/jobs/${job.id}`}
+                    prefetch={false}
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-rose-700"
+                  >
+                    {pub.loginToApply}
+                  </Link>
+
+                  <Link
+                    href="/signup"
+                    prefetch={false}
+                    className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    {pub.createAccount}
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="text-xl font-semibold tracking-tight text-slate-950 md:text-2xl">
+                  {pub.closedLabel}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  {pub.unavailableText}
+                </p>
+              </>
+            )}
+          </section>
+
+          <nav
+            aria-label="Related cleaning jobs"
+            className="mt-6 flex flex-wrap gap-3"
+          >
+            {cityHub ? (
+              <Link
+                href={cityHub}
+                prefetch={false}
+                className="inline-flex min-h-11 items-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+              >
+                {pub.browseCity}
+              </Link>
+            ) : null}
+
+            <Link
+              href="/jobs"
+              prefetch={false}
+              className="inline-flex min-h-11 items-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              {pub.browseJobs}
+            </Link>
+          </nav>
+        </article>
+      </div>
+    </div>
+  )
+}
+
 function EmptyPanel({ text }: { text: string }) {
   return (
     <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-sm text-slate-500 md:p-8">
@@ -860,31 +1213,67 @@ export default async function JobDetailsPage({
   } = await supabase.auth.getUser()
 
   if (!user) {
-    redirect(`/login?next=/jobs/${id}`)
+    const {
+      data: publicJobRaw,
+      error: publicJobError,
+    } = await supabase
+      .from("jobs")
+      .select(
+        `
+          id,
+          title,
+          description,
+          city,
+          budget,
+          job_type,
+          property_type,
+          scheduled_date,
+          scheduled_time,
+          status,
+          created_at
+        `,
+      )
+      .eq("id", id)
+      .maybeSingle()
+
+    if (
+      publicJobError ||
+      !publicJobRaw
+    ) {
+      notFound()
+    }
+
+    return (
+      <PublicJobView
+        job={publicJobRaw as PublicJob}
+        locale={locale}
+      />
+    )
   }
 
-  const { data: jobRaw, error: jobError } = await supabase
-    .from("jobs")
-    .select(
-      `
-        id,
-        title,
-        description,
-        city,
-        address,
-        budget,
-        job_type,
-        property_type,
-        scheduled_date,
-        scheduled_time,
-        status,
-        created_at,
-        created_by,
-        assigned_to
-      `,
-    )
-    .eq("id", id)
-    .maybeSingle()
+  const { data: jobRaw, error: jobError } =
+    await supabase
+      .from("jobs")
+      .select(
+        `
+          id,
+          title,
+          description,
+          city,
+          address,
+          budget,
+          job_type,
+          property_type,
+          scheduled_date,
+          scheduled_time,
+          status,
+          created_at,
+          created_by,
+          assigned_to
+        `,
+      )
+      .eq("id", id)
+      .maybeSingle()
 
   if (jobError || !jobRaw) {
     notFound()
@@ -1575,7 +1964,15 @@ export default async function JobDetailsPage({
 
           <InfoCard
             label={t.address}
-            value={job.address || t.addressMissing}
+            value={
+              isParticipant
+                ? job.address ||
+                  t.addressMissing
+                : (
+                    publicJobCopy[locale] ||
+                    publicJobCopy.sv
+                  ).addressPrivate
+            }
             subdued={isHistory}
           />
 
