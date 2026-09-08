@@ -3,6 +3,7 @@ import type { ReactNode } from "react"
 import { cookies } from "next/headers"
 import Link from "next/link"
 import RelatedGuides from "@/components/related-guides"
+import LiveCityJobs from "@/components/live-city-jobs"
 
 const siteUrl = "https://cleansjob.com"
 const LOCALE_COOKIE_NAME = "clean_jobs_locale"
@@ -559,6 +560,8 @@ export default async function StadjobbGoteborgPage() {
             </Link>
           </div>
         </section>
+
+        <LiveCityJobs city="Göteborg" locale={locale} />
 
         <div className="mt-8 grid gap-6">
           <Section eyebrow={t.guideEyebrow} title={t.guideTitle}>
