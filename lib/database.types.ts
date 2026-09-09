@@ -1596,6 +1596,80 @@ export type Database = {
           },
         ]
       }
+      job_match_deliveries: {
+        Row: {
+          channel: string
+          created_at: string
+          delivered_at: string | null
+          error: string | null
+          id: string
+          job_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          delivered_at?: string | null
+          error?: string | null
+          id?: string
+          job_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          delivered_at?: string | null
+          error?: string | null
+          id?: string
+          job_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "job_match_deliveries_job_id_fkey"
+            columns: ["job_id"]
+            isOneToOne: false
+            referencedRelation: "jobs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      job_match_preferences: {
+        Row: {
+          cities: string[]
+          created_at: string
+          email_enabled: boolean
+          enabled: boolean
+          in_app_enabled: boolean
+          job_types: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cities?: string[]
+          created_at?: string
+          email_enabled?: boolean
+          enabled?: boolean
+          in_app_enabled?: boolean
+          job_types?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cities?: string[]
+          created_at?: string
+          email_enabled?: boolean
+          enabled?: boolean
+          in_app_enabled?: boolean
+          job_types?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       job_reports: {
         Row: {
           created_at: string

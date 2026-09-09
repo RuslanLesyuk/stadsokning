@@ -8,6 +8,7 @@ import {
   normalizeLocale,
 } from "@/lib/i18n"
 import { sendEmail } from "@/lib/resend"
+import { notifyMatchedUsersForJob } from "@/lib/job-matching"
 import {
   ACQUISITION_COOKIE_NAME,
   parseAcquisitionCookie,
@@ -453,7 +454,9 @@ export default async function CreateJobPage() {
     const { data, error } = await supabase
       .from("jobs")
       .insert(payload)
-      .select("id")
+      .select(
+        "id,title,description,city,budget,job_type,status,assigned_to,created_at,scheduled_date,created_by",
+      )
       .single()
 
     if (error || !data) {
@@ -463,6 +466,32 @@ export default async function CreateJobPage() {
       )
 
       redirect("/jobs/create")
+    }
+
+
+    try {
+      await notifyMatchedUsersForJob({
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        city: data.city,
+        budget: data.budget,
+        job_type: data.job_type,
+        status: data.status,
+        assigned_to: data.assigned_to,
+        created_at: data.created_at,
+        scheduled_date: data.scheduled_date,
+        created_by: data.created_by,
+      })
+    } catch (matchingError) {
+      /*
+       * Job creation must never fail because a downstream notification
+       * provider or matching query failed.
+       */
+      console.error(
+        "Failed to notify matched users:",
+        matchingError,
+      )
     }
 
     if (user.email) {

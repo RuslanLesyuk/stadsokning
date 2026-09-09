@@ -198,6 +198,15 @@ function getNotificationIcon(type: string) {
         </svg>
       )
 
+
+    case "job_match":
+      return (
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">
+          <circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" strokeWidth="1.8" />
+          <path d="m15.5 15.5 4 4M8 10.5l1.7 1.7L13.5 8.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+
     default:
       return (
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" className="h-5 w-5">

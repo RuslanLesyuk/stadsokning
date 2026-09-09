@@ -7,6 +7,8 @@ import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { updateProfile } from "@/app/profile/actions"
 import BankIdVerifyButton from "@/components/bankid-verify-button"
+import JobMatchPreferencesForm from "@/components/job-match-preferences-form"
+import { getEffectiveJobMatchSettingsForUser } from "@/lib/job-matching"
 
 export const dynamic = "force-dynamic"
 
@@ -198,6 +200,8 @@ export default async function ProfilePage({
   searchParams: Promise<{
     bankid_verified?: string
     bankid_error?: string
+    matching_saved?: string
+    matching_error?: string
   }>
 }) {
   
@@ -225,7 +229,13 @@ const bankidError = params.bankid_error
     .eq("id", user.id)
     .single()
 
-  const billing = await getBillingAccessForUser(user.id)
+  const [billing, matchingSettings] =
+    await Promise.all([
+      getBillingAccessForUser(user.id),
+      getEffectiveJobMatchSettingsForUser(
+        user.id,
+      ),
+    ])
 
   return (
     <div className="min-h-screen bg-[#fafafa]">
@@ -451,6 +461,13 @@ const bankidError = params.bankid_error
 </section>
           </div>
         </div>
+
+        <JobMatchPreferencesForm
+          locale={locale}
+          settings={matchingSettings}
+          saved={params.matching_saved === "1"}
+          error={params.matching_error}
+        />
       </div>
     </div>
   )

@@ -13,6 +13,7 @@ import {
   analyzeJobContentForSubmission,
 } from "@/lib/jobs/content-policy"
 import { createClient } from "@/lib/supabase-server"
+import { notifyMatchedUsersForJob } from "@/lib/job-matching"
 
 export type JobsActionState = {
   success: boolean
@@ -126,7 +127,9 @@ export async function createJobAction(
       scheduled_time: scheduledTime || null,
       created_by: user.id,
     })
-    .select("id")
+    .select(
+      "id,title,description,city,budget,job_type,status,assigned_to,created_at,scheduled_date,created_by",
+    )
     .single()
 
   if (error || !data) {
@@ -134,6 +137,27 @@ export async function createJobAction(
       success: false,
       message: error?.message || "Failed to create job.",
     }
+  }
+
+  try {
+    await notifyMatchedUsersForJob({
+      id: data.id,
+      title: data.title,
+      description: data.description,
+      city: data.city,
+      budget: data.budget,
+      job_type: data.job_type,
+      status: data.status,
+      assigned_to: data.assigned_to,
+      created_at: data.created_at,
+      scheduled_date: data.scheduled_date,
+      created_by: data.created_by,
+    })
+  } catch (matchingError) {
+    console.error(
+      "Failed to notify matched users:",
+      matchingError,
+    )
   }
 
   revalidatePath("/")
