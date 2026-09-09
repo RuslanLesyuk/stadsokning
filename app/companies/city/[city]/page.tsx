@@ -4,6 +4,7 @@ import { cookies } from "next/headers"
 import { notFound, redirect } from "next/navigation"
 
 import type { CompanyDirectoryItem } from "@/components/companies/companies-directory"
+import MarketplaceInternalLinks from "@/components/seo/marketplace-internal-links"
 import { createClient } from "@/lib/supabase-server"
 import {
   DEFAULT_LOCALE,
@@ -112,6 +113,12 @@ export default async function CompaniesCityPage({ params, searchParams }: Props)
           </h1>
           <p className="mt-5 max-w-3xl text-lg leading-8 text-slate-600">{t.pageSubtitle}</p>
         </section>
+
+        <MarketplaceInternalLinks
+          city={cityName}
+          locale={locale}
+          currentPath={`/companies/city/${city}`}
+        />
 
         <section className="mt-10">
           <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">

@@ -11,13 +11,13 @@ import JobApplicationsSection, {
 import JobReviewsSection from "@/components/reviews/job-reviews-section"
 import ReportJobForm from "@/components/report-job-form"
 import SaveJobButton from "@/components/save-job-button"
+import MarketplaceInternalLinks from "@/components/seo/marketplace-internal-links"
 import TakeJobForm, {
   type CurrentJobApplication,
 } from "@/components/take-job-form"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import {
   evaluatePublicJobSeo,
-  getPublicJobsHubPath,
   redactPublicJobText,
 } from "@/lib/seo/public-jobs"
 import { createAdminClient } from "@/lib/supabase-admin"
@@ -958,9 +958,6 @@ function PublicJobView({
   const publicDescription =
     redactPublicJobText(job.description)
 
-  const cityHub =
-    getPublicJobsHubPath(job.city)
-
   return (
     <div className="min-h-screen bg-[#fafafa]">
       <div className="mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-10">
@@ -1125,28 +1122,13 @@ function PublicJobView({
             )}
           </section>
 
-          <nav
-            aria-label="Related cleaning jobs"
-            className="mt-6 flex flex-wrap gap-3"
-          >
-            {cityHub ? (
-              <Link
-                href={cityHub}
-                prefetch={false}
-                className="inline-flex min-h-11 items-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-              >
-                {pub.browseCity}
-              </Link>
-            ) : null}
-
-            <Link
-              href="/jobs"
-              prefetch={false}
-              className="inline-flex min-h-11 items-center rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              {pub.browseJobs}
-            </Link>
-          </nav>
+          <MarketplaceInternalLinks
+            city={job.city}
+            locale={locale}
+            jobType={job.job_type}
+            currentPath={`/jobs/${job.id}`}
+            compact
+          />
         </article>
       </div>
     </div>

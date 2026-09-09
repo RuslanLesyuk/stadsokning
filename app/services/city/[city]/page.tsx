@@ -2,6 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { cookies } from "next/headers"
 import { notFound } from "next/navigation"
+import MarketplaceInternalLinks from "@/components/seo/marketplace-internal-links"
 import { createClient } from "@/lib/supabase-server"
 import {
   DEFAULT_LOCALE,
@@ -92,6 +93,12 @@ export default async function CityServicesPage({ params }: Props) {
             {t.pageSubtitle}
           </p>
         </section>
+
+        <MarketplaceInternalLinks
+          city={cityName}
+          locale={locale}
+          currentPath={`/services/city/${city}`}
+        />
 
         <section className="mt-10">
           <div className="mb-5">
