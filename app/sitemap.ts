@@ -132,11 +132,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   )
 
   /**
-   * Recovery sitemap:
+   * Full SEO sitemap:
    *
-   * Do not submit the full 290 x 20 x 5 matrix.
-   * Only canonical priority combinations belong in the sitemap.
-   * Other valid routes remain available but carry noindex metadata.
+   * Submit the complete canonical 290 x 20 x 5 matrix.
+   * Swedish combinations with a cleaner landing URL use that preferred URL;
+   * the duplicate /seo/... path is not submitted.
    */
   const seoEnginePages: MetadataRoute.Sitemap = seoCities.flatMap((city) =>
     seoServices.flatMap((service) =>

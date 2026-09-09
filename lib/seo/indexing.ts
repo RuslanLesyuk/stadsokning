@@ -136,40 +136,18 @@ export function getPreferredSeoPath({
 /**
  * Canonical index policy.
  *
- * Recovery strategy:
- * - Swedish: keep the strongest 28 cities x 8 commercial services.
- * - EN/UK/RU/PL: keep 11 priority cities x the 5 strongest services.
- * - Cleaner Swedish landing URLs remain indexable and replace the
- *   corresponding /seo/... URL.
+ * Full SEO matrix is indexable again:
+ * 290 municipalities x 20 services x 5 locales = 29,000 preferred URLs.
  *
- * All other valid combinations remain routable but are noindex.
- * This lets us preserve the engine without asking Google to evaluate
- * ~29k near-template pages at the same time.
+ * Swedish combinations that have a cleaner landing URL keep that URL as
+ * the preferred canonical. The matching /seo/... route still redirects.
  */
-export function shouldIndexPreferredSeoPage({
-  locale,
-  citySlug,
-  serviceSlug,
-}: {
+export function shouldIndexPreferredSeoPage(_params: {
   locale: SeoLocale
   citySlug: string
   serviceSlug: string
 }) {
-  if (locale === "sv") {
-    if (getSwedishSeoLandingPath(citySlug, serviceSlug)) {
-      return true
-    }
-
-    return (
-      priorityCities.has(citySlug) &&
-      priorityServices.has(serviceSlug)
-    )
-  }
-
-  return (
-    landingCities.has(citySlug) &&
-    localizedPriorityServices.has(serviceSlug)
-  )
+  return true
 }
 
 /**
@@ -208,6 +186,11 @@ export function shouldIncludeSwedishSeoEnginePage(
   return !getSwedishSeoLandingPath(citySlug, serviceSlug)
 }
 
+/**
+ * Keep build-time pre-generation focused on priority Swedish pages.
+ * All other valid combinations remain available through dynamic routing,
+ * are indexable, and are included in the sitemap.
+ */
 export function getSwedishSeoStaticParams(
   cities: SeoCity[],
   services: SeoService[],
@@ -230,6 +213,10 @@ export function getSwedishSeoStaticParams(
   })
 }
 
+/**
+ * Keep build-time pre-generation focused on priority localized pages.
+ * The rest of the 29k matrix is rendered on demand and remains indexable.
+ */
 export function getLocalizedSeoStaticParams({
   locales,
   cities,
