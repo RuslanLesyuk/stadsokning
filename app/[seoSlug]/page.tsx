@@ -15,6 +15,7 @@ import {
   type SeoMarketplaceSnapshot,
 } from "@/lib/seo/marketplace"
 import { createMarketplaceItemListSchema } from "@/lib/seo/marketplace-schema"
+import { seoCities } from "@/lib/seo/cities"
 import { seoServices } from "@/lib/seo/services"
 
 export const revalidate = 86400
@@ -31,6 +32,27 @@ function getLandingService(page: SeoLandingPage) {
   }
 
   return seoServices.find((item) => item.slug === page.serviceType) ?? null
+}
+
+function getLandingLanguageAlternates(page: SeoLandingPage) {
+  const city = seoCities.find((item) => item.name === page.city)
+  const service = seoServices.find((item) => item.slug === page.serviceType)
+
+  if (!city || !service) {
+    return undefined
+  }
+
+  const swedishUrl = `${SEO_SITE_URL}/${page.slug}`
+  const localizedBase = `${SEO_SITE_URL}/`
+
+  return {
+    sv: swedishUrl,
+    en: `${localizedBase}en/seo/${city.slug}/${service.slug}`,
+    uk: `${localizedBase}uk/seo/${city.slug}/${service.slug}`,
+    ru: `${localizedBase}ru/seo/${city.slug}/${service.slug}`,
+    pl: `${localizedBase}pl/seo/${city.slug}/${service.slug}`,
+    "x-default": swedishUrl,
+  }
 }
 
 function buildLandingMetaDescription({
@@ -90,6 +112,7 @@ export async function generateMetadata({
     description,
     alternates: {
       canonical: `${SEO_SITE_URL}/${page.slug}`,
+      languages: getLandingLanguageAlternates(page),
     },
     openGraph: {
       title: copy.title,
