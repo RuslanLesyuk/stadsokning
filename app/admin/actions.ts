@@ -3,7 +3,10 @@
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 
-import { hasStripePremiumEntitlement, isBillingDateInFuture } from "@/lib/billing/types"
+import {
+  hasStripePremiumEntitlement,
+  isBillingDateInFuture,
+} from "@/lib/billing/types"
 import { createAdminClient } from "@/lib/supabase-admin"
 import { createClient } from "@/lib/supabase-server"
 
@@ -46,6 +49,106 @@ function refreshAdminPaths() {
   revalidatePath("/jobs")
   revalidatePath("/dashboard")
   revalidatePath("/services")
+}
+
+function getSiteUrl() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || "https://cleansjob.com").replace(
+    /\/$/,
+    "",
+  )
+}
+
+function formatSwedishDate(value: Date) {
+  return new Intl.DateTimeFormat("sv-SE", {
+    dateStyle: "long",
+  }).format(value)
+}
+
+function buildPremiumGrantedEmail({
+  premiumUntil,
+}: {
+  premiumUntil: Date
+}) {
+  const siteUrl = getSiteUrl()
+  const dashboardUrl = `${siteUrl}/dashboard`
+  const billingUrl = `${siteUrl}/billing`
+  const untilText = formatSwedishDate(premiumUntil)
+
+  return {
+    subject: "Du har fått Clean Jobs Premium gratis",
+    html: `
+      <div style="font-family:Arial,sans-serif;line-height:1.6;color:#0f172a;max-width:640px;margin:0 auto;padding:32px 20px">
+        <p style="margin:0 0 12px;color:#e11d48;font-weight:700">Clean Jobs</p>
+        <h1 style="margin:0 0 18px;font-size:28px;line-height:1.2">Premium är nu aktiverat på ditt konto</h1>
+        <p style="margin:0 0 16px">
+          Vi har gett dig kostnadsfri tillgång till <strong>Clean Jobs Premium</strong>
+          till och med <strong>${untilText}</strong>.
+        </p>
+        <p style="margin:0 0 22px">
+          Logga in och använd Premium-funktionerna. Premium ger bland annat bättre
+          synlighet och tillgång till avancerade företagsfunktioner där de är tillgängliga.
+        </p>
+        <a href="${dashboardUrl}" style="display:inline-block;padding:13px 20px;border-radius:12px;background:#e11d48;color:#ffffff;text-decoration:none;font-weight:700">
+          Öppna Clean Jobs
+        </a>
+        <p style="margin:24px 0 0;font-size:13px;color:#64748b">
+          Du kan se din Premium-status på
+          <a href="${billingUrl}" style="color:#e11d48">Clean Jobs Premium & fakturering</a>.
+        </p>
+      </div>
+    `,
+  }
+}
+
+async function sendPremiumGrantedEmail({
+  admin,
+  userId,
+  premiumUntil,
+}: {
+  admin: ReturnType<typeof createAdminClient>
+  userId: string
+  premiumUntil: Date
+}) {
+  if (!process.env.RESEND_API_KEY) {
+    console.warn(
+      "Premium granted email skipped: RESEND_API_KEY is not configured.",
+    )
+    return
+  }
+
+  try {
+    const { data, error } = await admin.auth.admin.getUserById(userId)
+
+    if (error) {
+      console.error("Load Premium recipient email error:", error.message)
+      return
+    }
+
+    const recipient = data.user?.email?.trim()
+
+    if (!recipient) {
+      console.warn("Premium granted email skipped: user has no email.", userId)
+      return
+    }
+
+    const { sendEmail } = await import("@/lib/resend")
+    const email = buildPremiumGrantedEmail({ premiumUntil })
+
+    const result = await sendEmail({
+      to: recipient,
+      subject: email.subject,
+      html: email.html,
+    })
+
+    if (result.error) {
+      console.error(
+        "Premium granted email error:",
+        result.error.message || result.error,
+      )
+    }
+  } catch (error) {
+    console.error("Premium granted email unexpected error:", error)
+  }
 }
 
 export async function verifyUserAction(formData: FormData) {
@@ -107,6 +210,12 @@ export async function setPremiumUserAction(formData: FormData) {
 
   if (error) {
     console.error("setPremiumUserAction error:", error.message)
+  } else {
+    await sendPremiumGrantedEmail({
+      admin: supabase,
+      userId,
+      premiumUntil: premiumOverrideUntil,
+    })
   }
 
   refreshAdminPaths()
@@ -132,10 +241,15 @@ export async function removePremiumUserAction(formData: FormData) {
   )
   const legacyEntitled =
     billing?.status === "legacy" &&
-    (!billing.current_period_end || isBillingDateInFuture(billing.current_period_end))
+    (!billing.current_period_end ||
+      isBillingDateInFuture(billing.current_period_end))
 
   const nextPremium = stripeEntitled || legacyEntitled
-  const nextSource = stripeEntitled ? "stripe" : legacyEntitled ? "legacy" : "none"
+  const nextSource = stripeEntitled
+    ? "stripe"
+    : legacyEntitled
+      ? "legacy"
+      : "none"
 
   const { error } = await supabase
     .from("profiles")
