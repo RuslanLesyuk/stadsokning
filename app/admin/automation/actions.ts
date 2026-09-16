@@ -48,20 +48,37 @@ export async function reconcileExpiredPremiumOverridesAction() {
   const admin = await requireAdmin()
   const now = new Date().toISOString()
 
-  const { data: profiles, error: profileError } = await admin
-    .from("profiles")
-    .select("id")
-    .eq("premium_source", "admin")
-    .not("premium_override_until", "is", null)
-    .lt("premium_override_until", now)
-    .limit(500)
+  const [expiredAdminResult, expiredLegacyResult] = await Promise.all([
+    admin
+      .from("profiles")
+      .select("id")
+      .eq("premium_source", "admin")
+      .not("premium_override_until", "is", null)
+      .lt("premium_override_until", now)
+      .limit(500),
+    admin
+      .from("profiles")
+      .select("id")
+      .eq("premium_source", "legacy")
+      .not("subscription_ends_at", "is", null)
+      .lt("subscription_ends_at", now)
+      .limit(500),
+  ])
 
-  if (profileError) {
-    console.error("Load expired premium overrides error:", profileError)
+  if (expiredAdminResult.error || expiredLegacyResult.error) {
+    console.error(
+      "Load expired Premium records error:",
+      expiredAdminResult.error || expiredLegacyResult.error,
+    )
     redirect("/admin/automation?maintenance=error")
   }
 
-  const userIds = (profiles ?? []).map((profile: { id: string }) => profile.id)
+  const userIds = Array.from(
+    new Set([
+      ...(expiredAdminResult.data ?? []).map((profile: { id: string }) => profile.id),
+      ...(expiredLegacyResult.data ?? []).map((profile: { id: string }) => profile.id),
+    ]),
+  )
 
   if (userIds.length === 0) {
     redirect("/admin/automation?maintenance=none")

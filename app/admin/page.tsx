@@ -3,6 +3,10 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase-server"
 import {
+  hasStripePremiumEntitlement,
+  isBillingDateInFuture,
+} from "@/lib/billing/types"
+import {
   cancelJobAction,
   dismissReportAction,
   removePremiumUserAction,
@@ -34,6 +38,11 @@ type ProfileRow = {
   city: string | null
   company_name: string | null
   is_premium: boolean | null
+  premium_source: string | null
+  premium_override_until: string | null
+  stripe_subscription_status: string | null
+  billing_grace_until: string | null
+  subscription_ends_at: string | null
   verified: boolean | null
   created_at: string | null
 }
@@ -67,6 +76,30 @@ function formatDate(value: string | null) {
   } catch {
     return value
   }
+}
+
+function isEffectivePremiumProfile(profile: ProfileRow) {
+  if (!profile.is_premium) return false
+
+  if (profile.premium_source === "admin") {
+    return isBillingDateInFuture(profile.premium_override_until)
+  }
+
+  if (profile.premium_source === "stripe") {
+    return hasStripePremiumEntitlement(
+      profile.stripe_subscription_status,
+      profile.billing_grace_until,
+    )
+  }
+
+  if (profile.premium_source === "legacy") {
+    return (
+      !profile.subscription_ends_at ||
+      isBillingDateInFuture(profile.subscription_ends_at)
+    )
+  }
+
+  return Boolean(profile.is_premium)
 }
 
 function getReasonLabel(reason: string) {
@@ -134,7 +167,7 @@ export default async function AdminPage({
 
       supabase
         .from("profiles")
-        .select("id, full_name, city, company_name, is_premium, verified, created_at")
+        .select("id, full_name, city, company_name, is_premium, premium_source, premium_override_until, stripe_subscription_status, billing_grace_until, subscription_ends_at, verified, created_at")
         .order("created_at", { ascending: false })
         .limit(20),
 
@@ -167,7 +200,7 @@ export default async function AdminPage({
   if (reporterIds.length > 0) {
     const { data } = await supabase
       .from("profiles")
-      .select("id, full_name, city, company_name, is_premium, verified, created_at")
+      .select("id, full_name, city, company_name, is_premium, premium_source, premium_override_until, stripe_subscription_status, billing_grace_until, subscription_ends_at, verified, created_at")
       .in("id", reporterIds)
 
     reporters = (data ?? []) as ProfileRow[]
@@ -455,7 +488,11 @@ export default async function AdminPage({
                   No users found.
                 </div>
               ) : (
-                profiles.map((profile) => (
+                profiles.map((profile) => {
+                  const effectivePremium = isEffectivePremiumProfile(profile)
+                  const premiumSource = profile.premium_source || "none"
+
+                  return (
                   <div
                     key={profile.id}
                     className="rounded-2xl border border-slate-200 bg-white p-4"
@@ -477,9 +514,9 @@ export default async function AdminPage({
                       </div>
 
                       <div className="flex shrink-0 flex-col items-end gap-1">
-                        {profile.is_premium ? (
+                        {effectivePremium ? (
                           <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">
-                            Premium
+                            Premium · {premiumSource === "stripe" ? "Stripe" : premiumSource === "admin" ? "Admin" : "Legacy"}
                           </span>
                         ) : null}
 
@@ -514,7 +551,7 @@ export default async function AdminPage({
                         </form>
                       )}
 
-                      {profile.is_premium ? (
+                      {effectivePremium && premiumSource === "admin" ? (
                         <form action={removePremiumUserAction}>
                           <input type="hidden" name="userId" value={profile.id} />
                           <button
@@ -524,6 +561,14 @@ export default async function AdminPage({
                             Remove premium
                           </button>
                         </form>
+                      ) : effectivePremium && premiumSource === "stripe" ? (
+                        <span className="inline-flex min-h-10 items-center justify-center rounded-xl border border-violet-200 bg-violet-50 px-4 py-2 text-sm font-medium text-violet-700">
+                          Managed by Stripe{profile.stripe_subscription_status ? ` · ${profile.stripe_subscription_status}` : ""}
+                        </span>
+                      ) : effectivePremium && premiumSource === "legacy" ? (
+                        <span className="inline-flex min-h-10 items-center justify-center rounded-xl border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-600">
+                          Legacy Premium{profile.subscription_ends_at ? ` · until ${formatDate(profile.subscription_ends_at)}` : ""}
+                        </span>
                       ) : (
                         <form action={setPremiumUserAction}>
                           <input type="hidden" name="userId" value={profile.id} />
@@ -537,7 +582,8 @@ export default async function AdminPage({
                       )}
                     </div>
                   </div>
-                ))
+                  )
+                })
               )}
             </div>
           </div>
