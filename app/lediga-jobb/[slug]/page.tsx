@@ -7,6 +7,7 @@ import VacancyApplicationForm from "@/components/vacancies/vacancy-application-f
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { getVacancyDictionary } from "@/lib/vacancies/i18n"
+import { formatVacancyCreatedAt } from "@/lib/vacancies/date"
 import { formatVacancySalary } from "@/lib/vacancies/salary"
 
 type Props = { params: Promise<{ slug: string }> }
@@ -85,6 +86,7 @@ export default async function VacancyDetailPage({ params }: Props) {
             {identity ? <p className="mt-3 text-sm font-bold text-rose-700">{identity}</p> : null}
             <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-950 md:text-5xl">{vacancy.title}</h1>
             <p className="mt-4 text-base text-slate-600">📍 {vacancy.city}{vacancy.schedule ? ` · ${vacancy.schedule}` : ""}</p>
+            <p className="mt-2 text-sm font-medium text-slate-500">🕒 {t.published}: {formatVacancyCreatedAt(vacancy.created_at, locale)}</p>
           </div>
           {vacancy.salary ? <div className="rounded-2xl bg-emerald-50 px-4 py-3 font-bold text-emerald-900">{formatVacancySalary(vacancy.salary, locale)}</div> : null}
         </div>

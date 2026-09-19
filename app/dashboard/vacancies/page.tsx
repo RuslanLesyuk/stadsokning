@@ -8,6 +8,7 @@ import { VacancyDeleteButton } from "@/components/vacancies/vacancy-delete-butto
 import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { getVacancyDictionary } from "@/lib/vacancies/i18n"
+import { formatVacancyCreatedAt } from "@/lib/vacancies/date"
 
 export const dynamic = "force-dynamic"
 export const metadata: Metadata = { title: "Mina jobbannonser", robots: { index: false, follow: true } }
@@ -68,6 +69,7 @@ export default async function MyVacanciesPage() {
                   </div>
                   <h2 className="mt-3 text-xl font-black text-slate-950">{vacancy.title}</h2>
                   <p className="mt-1 text-sm text-slate-600">{identity ? `${identity} · ` : ""}{vacancy.city}</p>
+                  <p className="mt-2 text-xs font-medium text-slate-500">🕒 {t.published}: {formatVacancyCreatedAt(vacancy.created_at, locale)}</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {vacancy.status === "active" ? <Link href={`/lediga-jobb/${vacancy.slug}`} className="inline-flex min-h-10 items-center rounded-xl border border-slate-300 px-4 text-sm font-semibold">{t.view}</Link> : null}

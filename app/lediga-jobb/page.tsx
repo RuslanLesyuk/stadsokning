@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { mergeVacancyCities, vacancyPopularCities } from "@/lib/vacancies/cities"
 import { getVacancyDictionary } from "@/lib/vacancies/i18n"
+import { formatVacancyCreatedAt } from "@/lib/vacancies/date"
 import { formatVacancySalary } from "@/lib/vacancies/salary"
 import { listingTypeFromQuery } from "@/lib/vacancies/types"
 
@@ -157,6 +158,7 @@ export default async function VacanciesPage({ searchParams }: Props) {
                   {identity ? <p className="mt-3 text-sm font-bold text-rose-700">{identity}</p> : null}
                   <h2 className="mt-1 text-xl font-black text-slate-950 md:text-2xl">{vacancy.title}</h2>
                   <p className="mt-2 text-sm text-slate-600">📍 {vacancy.city}{vacancy.schedule ? ` · ${vacancy.schedule}` : ""}</p>
+                  <p className="mt-2 text-xs font-medium text-slate-500">🕒 {t.published}: {formatVacancyCreatedAt(vacancy.created_at, locale)}</p>
                 </div>
                 {vacancy.salary ? <span className="w-fit rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800">{formatVacancySalary(vacancy.salary, locale)}</span> : null}
               </div>
