@@ -172,6 +172,33 @@ export async function closeVacancyAction(formData: FormData) {
   redirect("/dashboard/vacancies")
 }
 
+export async function deleteVacancyAction(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/login?next=/dashboard/vacancies")
+
+  const vacancyId = text(formData, "vacancy_id")
+  const slug = text(formData, "slug")
+  if (!vacancyId) redirect("/dashboard/vacancies")
+
+  const { data: deletedVacancy, error } = await supabase
+    .from("vacancies")
+    .delete()
+    .eq("id", vacancyId)
+    .eq("created_by", user.id)
+    .select("id")
+    .maybeSingle()
+
+  if (error || !deletedVacancy) {
+    throw new Error(error?.message || "Vacancy could not be deleted")
+  }
+
+  revalidatePath("/lediga-jobb")
+  revalidatePath("/dashboard/vacancies")
+  if (slug) revalidatePath(`/lediga-jobb/${slug}`)
+  redirect("/dashboard/vacancies")
+}
+
 export async function applyToVacancyAction(
   _prevState: VacancyActionState,
   formData: FormData,
