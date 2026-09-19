@@ -9,6 +9,7 @@ import { createClient } from "@/lib/supabase-server"
 import { normalizeLocale, type Locale } from "@/lib/i18n"
 import { getVacancyDictionary } from "@/lib/vacancies/i18n"
 import { canPublishVacancy, VACANCY_POSTING_REQUIRES_PREMIUM } from "@/lib/vacancies/config"
+import { isVacancyListingType, type VacancyListingType } from "@/lib/vacancies/types"
 import {
   VACANCY_LIMITS,
   buildVacancySlug,
@@ -19,6 +20,24 @@ export type VacancyActionState = {
   success: boolean
   message: string
 }
+
+type ValidatedVacancyData = {
+  listing_type: VacancyListingType
+  title: string
+  company_name: string | null
+  person_name: string | null
+  city: string
+  description: string
+  schedule: string | null
+  salary: string | null
+  requirements: string | null
+  contact_email: string | null
+  contact_phone: string | null
+}
+
+type VacancyValidationResult =
+  | { error: string }
+  | { data: ValidatedVacancyData }
 
 const initialFailure = (message: string): VacancyActionState => ({ success: false, message })
 
@@ -32,9 +51,16 @@ async function getMessages() {
   return getVacancyDictionary(locale).errors
 }
 
-function validateVacancy(formData: FormData, e: ReturnType<typeof getVacancyDictionary>["errors"]) {
+function validateVacancy(
+  formData: FormData,
+  e: ReturnType<typeof getVacancyDictionary>["errors"],
+  forcedListingType?: VacancyListingType,
+): VacancyValidationResult {
+  const rawListingType = text(formData, "listing_type")
+  const listingType = forcedListingType ?? (isVacancyListingType(rawListingType) ? rawListingType : null)
   const title = text(formData, "title")
   const companyName = text(formData, "company_name")
+  const personName = text(formData, "person_name")
   const city = text(formData, "city")
   const description = text(formData, "description")
   const schedule = text(formData, "schedule")
@@ -43,8 +69,10 @@ function validateVacancy(formData: FormData, e: ReturnType<typeof getVacancyDict
   const contactEmail = text(formData, "contact_email")
   const contactPhone = text(formData, "contact_phone")
 
+  if (!listingType) return { error: e.listingType }
   if (title.length < 2 || title.length > VACANCY_LIMITS.title) return { error: e.title }
-  if (companyName.length < 2 || companyName.length > VACANCY_LIMITS.companyName) return { error: e.company }
+  if (listingType === "job_offer" && (companyName.length < 2 || companyName.length > VACANCY_LIMITS.companyName)) return { error: e.company }
+  if (listingType === "job_seeker" && (personName.length < 2 || personName.length > VACANCY_LIMITS.personName)) return { error: e.person }
   if (city.length < 2 || city.length > VACANCY_LIMITS.city) return { error: e.city }
   if (description.length < 20 || description.length > VACANCY_LIMITS.description) return { error: e.description }
   if (schedule.length > VACANCY_LIMITS.schedule) return { error: e.schedule }
@@ -57,8 +85,10 @@ function validateVacancy(formData: FormData, e: ReturnType<typeof getVacancyDict
 
   return {
     data: {
+      listing_type: listingType,
       title,
-      company_name: companyName,
+      company_name: listingType === "job_offer" ? companyName : null,
+      person_name: listingType === "job_seeker" ? personName : null,
       city,
       description,
       schedule: schedule || null,
@@ -93,9 +123,12 @@ export async function createVacancyAction(
   if ("error" in validated) return initialFailure(validated.error)
 
   const id = randomUUID()
+  const identityName = validated.data.listing_type === "job_offer"
+    ? validated.data.company_name || "company"
+    : validated.data.person_name || "job-seeker"
   const slug = buildVacancySlug({
     title: validated.data.title,
-    companyName: validated.data.company_name,
+    identityName,
     city: validated.data.city,
     id,
   })
@@ -128,16 +161,17 @@ export async function updateVacancyAction(
   const slug = text(formData, "slug")
   if (!vacancyId || !slug) return initialFailure(e.identify)
 
-  const validated = validateVacancy(formData, e)
-  if ("error" in validated) return initialFailure(validated.error)
-
   const { data: vacancy } = await supabase
     .from("vacancies")
-    .select("id, created_by")
+    .select("id, created_by, listing_type")
     .eq("id", vacancyId)
     .maybeSingle()
 
   if (!vacancy || vacancy.created_by !== user.id) return initialFailure(e.ownOnly)
+  if (!isVacancyListingType(vacancy.listing_type)) return initialFailure(e.listingType)
+
+  const validated = validateVacancy(formData, e, vacancy.listing_type)
+  if ("error" in validated) return initialFailure(validated.error)
 
   const { error } = await supabase
     .from("vacancies")
@@ -224,11 +258,12 @@ export async function applyToVacancyAction(
 
   const { data: vacancy } = await supabase
     .from("vacancies")
-    .select("id, status, created_by")
+    .select("id, status, created_by, listing_type")
     .eq("id", vacancyId)
     .maybeSingle()
 
   if (!vacancy || vacancy.status !== "active") return initialFailure(e.noLongerOpen)
+  if (vacancy.listing_type !== "job_offer") return initialFailure(e.applicationsOfferOnly)
   if (vacancy.created_by === user.id) return initialFailure(e.ownApplication)
 
   const { error } = await supabase.from("vacancy_applications").insert({

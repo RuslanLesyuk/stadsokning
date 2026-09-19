@@ -1,6 +1,7 @@
 export const VACANCY_LIMITS = {
   title: 140,
   companyName: 160,
+  personName: 160,
   city: 120,
   description: 10_000,
   schedule: 160,
@@ -27,11 +28,11 @@ export function vacancySlugPart(value: string) {
 
 export function buildVacancySlug(input: {
   title: string
-  companyName: string
+  identityName: string
   city: string
   id: string
 }) {
-  const base = [input.title, input.companyName, input.city]
+  const base = [input.title, input.identityName, input.city]
     .map(vacancySlugPart)
     .filter(Boolean)
     .join("-")

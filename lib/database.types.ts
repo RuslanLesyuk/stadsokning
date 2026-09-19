@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -1713,6 +1713,13 @@ export type Database = {
       }
       jobs: {
         Row: {
+          acquisition_campaign: string | null
+          acquisition_content: string | null
+          acquisition_landing_page: string | null
+          acquisition_medium: string | null
+          acquisition_referrer: string | null
+          acquisition_source: string | null
+          acquisition_term: string | null
           address: string | null
           assigned_to: string | null
           budget: number | null
@@ -1731,6 +1738,13 @@ export type Database = {
           title: string
         }
         Insert: {
+          acquisition_campaign?: string | null
+          acquisition_content?: string | null
+          acquisition_landing_page?: string | null
+          acquisition_medium?: string | null
+          acquisition_referrer?: string | null
+          acquisition_source?: string | null
+          acquisition_term?: string | null
           address?: string | null
           assigned_to?: string | null
           budget?: number | null
@@ -1749,6 +1763,13 @@ export type Database = {
           title: string
         }
         Update: {
+          acquisition_campaign?: string | null
+          acquisition_content?: string | null
+          acquisition_landing_page?: string | null
+          acquisition_medium?: string | null
+          acquisition_referrer?: string | null
+          acquisition_source?: string | null
+          acquisition_term?: string | null
           address?: string | null
           assigned_to?: string | null
           budget?: number | null
@@ -2161,6 +2182,110 @@ export type Database = {
         }
         Relationships: []
       }
+      vacancies: {
+        Row: {
+          city: string
+          closed_at: string | null
+          company_name: string | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          created_by: string
+          description: string
+          id: string
+          listing_type: string
+          person_name: string | null
+          requirements: string | null
+          salary: string | null
+          schedule: string | null
+          slug: string
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          closed_at?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by: string
+          description: string
+          id?: string
+          listing_type?: string
+          person_name?: string | null
+          requirements?: string | null
+          salary?: string | null
+          schedule?: string | null
+          slug: string
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          closed_at?: string | null
+          company_name?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string
+          id?: string
+          listing_type?: string
+          person_name?: string | null
+          requirements?: string | null
+          salary?: string | null
+          schedule?: string | null
+          slug?: string
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      vacancy_applications: {
+        Row: {
+          applicant_id: string
+          applicant_name: string
+          created_at: string
+          email: string
+          id: string
+          message: string
+          phone: string | null
+          vacancy_id: string
+        }
+        Insert: {
+          applicant_id: string
+          applicant_name: string
+          created_at?: string
+          email: string
+          id?: string
+          message: string
+          phone?: string | null
+          vacancy_id: string
+        }
+        Update: {
+          applicant_id?: string
+          applicant_name?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string
+          phone?: string | null
+          vacancy_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vacancy_applications_vacancy_id_fkey"
+            columns: ["vacancy_id"]
+            isOneToOne: false
+            referencedRelation: "vacancies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -2367,12 +2492,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2396,11 +2521,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2421,11 +2546,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2446,11 +2571,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -2463,11 +2588,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
