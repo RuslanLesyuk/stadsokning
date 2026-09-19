@@ -6,6 +6,8 @@ import { useEffect, useRef, useState } from "react"
 
 type MobileHeaderMenuProps = {
   jobsLabel: string
+  vacanciesLabel: string
+  myVacanciesLabel: string
   companiesLabel: string
   dashboardLabel: string
   myBookingsLabel: string
@@ -51,6 +53,8 @@ function CountBadge({ value, tone = "rose" }: { value: number; tone?: "rose" | "
 
 export default function MobileHeaderMenu({
   jobsLabel,
+  vacanciesLabel,
+  myVacanciesLabel,
   companiesLabel,
   dashboardLabel,
   myBookingsLabel,
@@ -148,6 +152,15 @@ export default function MobileHeaderMenu({
               </Link>
 
               <Link
+                href="/lediga-jobb"
+                onClick={closeMenu}
+                prefetch={false}
+                className={itemClass()}
+              >
+                {vacanciesLabel}
+              </Link>
+
+              <Link
                 href="/companies"
                 onClick={closeMenu}
                 prefetch={false}
@@ -168,6 +181,15 @@ export default function MobileHeaderMenu({
                   >
                     <span>{dashboardLabel}</span>
                     <CountBadge value={unreadCount} />
+                  </Link>
+
+                  <Link
+                    href="/dashboard/vacancies"
+                    onClick={closeMenu}
+                    prefetch={false}
+                    className={itemClass()}
+                  >
+                    {myVacanciesLabel}
                   </Link>
 
                   <Link

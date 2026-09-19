@@ -49,6 +49,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.95,
     },
     {
+      url: `${SEO_SITE_URL}/lediga-jobb`,
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
+    {
       url: `${SEO_SITE_URL}/companies`,
       changeFrequency: "weekly",
       priority: 0.95,
@@ -270,6 +275,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.72,
       }))
 
+  const { data: vacancies } = await supabase
+    .from("vacancies")
+    .select("slug, created_at, updated_at")
+    .eq("status", "active")
+    .order("created_at", { ascending: false })
+    .limit(5000)
+
+  const vacancyPages: MetadataRoute.Sitemap =
+    (vacancies ?? []).map((vacancy) => ({
+      url: `${SEO_SITE_URL}/lediga-jobb/${vacancy.slug}`,
+      lastModified: vacancy.updated_at
+        ? new Date(vacancy.updated_at)
+        : vacancy.created_at
+          ? new Date(vacancy.created_at)
+          : undefined,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    }))
+
   const seen = new Set<string>()
 
   return [
@@ -280,6 +304,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...companyPages,
     ...servicePages,
     ...jobPages,
+    ...vacancyPages,
   ].filter((item) => {
     if (seen.has(item.url)) {
       return false

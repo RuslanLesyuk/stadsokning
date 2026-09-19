@@ -6,6 +6,7 @@ import Link from "next/link"
 type Props = {
   profileLabel: string
   dashboardLabel: string
+  myVacanciesLabel?: string
   myServicesLabel: string
   companyLeadsLabel?: string
   companyCustomersLabel?: string
@@ -29,6 +30,7 @@ type Props = {
 export default function ProfileDropdown({
   profileLabel,
   dashboardLabel,
+  myVacanciesLabel = "My vacancies",
   myServicesLabel,
   companyLeadsLabel = "Company requests",
   companyCustomersLabel = "Company customers",
@@ -106,6 +108,10 @@ export default function ProfileDropdown({
 
           <Link href="/dashboard" className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50">
             {dashboardLabel}
+          </Link>
+
+          <Link href="/dashboard/vacancies" className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50">
+            {myVacanciesLabel}
           </Link>
 
           <Link href="/dashboard/bookings" className="block rounded-2xl px-4 py-3 text-sm hover:bg-rose-50">

@@ -9,6 +9,8 @@ import { createClient } from "@/lib/supabase-server"
 
 type HeaderCopy = {
   jobs: string
+  vacancies: string
+  myVacancies: string
   services: string
   companies: string
   myServices: string
@@ -34,6 +36,8 @@ type HeaderCopy = {
 const copy: Record<Locale, HeaderCopy> = {
   uk: {
     jobs: "Знайти роботу",
+    vacancies: "Вакансії",
+    myVacancies: "Мої вакансії",
     services: "Послуги",
     companies: "Знайти компанію",
     myServices: "Мої послуги",
@@ -57,6 +61,8 @@ const copy: Record<Locale, HeaderCopy> = {
   },
   ru: {
     jobs: "Найти работу",
+    vacancies: "Вакансии",
+    myVacancies: "Мои вакансии",
     services: "Услуги",
     companies: "Найти компанию",
     myServices: "Мои услуги",
@@ -80,6 +86,8 @@ const copy: Record<Locale, HeaderCopy> = {
   },
   en: {
     jobs: "Find jobs",
+    vacancies: "Vacancies",
+    myVacancies: "My vacancies",
     services: "Services",
     companies: "Find a cleaning company",
     myServices: "My services",
@@ -103,6 +111,8 @@ const copy: Record<Locale, HeaderCopy> = {
   },
   sv: {
     jobs: "Hitta jobb",
+    vacancies: "Lediga jobb",
+    myVacancies: "Mina lediga jobb",
     services: "Tjänster",
     companies: "Hitta städföretag",
     myServices: "Mina tjänster",
@@ -126,6 +136,8 @@ const copy: Record<Locale, HeaderCopy> = {
   },
   pl: {
     jobs: "Znajdź pracę",
+    vacancies: "Oferty pracy",
+    myVacancies: "Moje oferty pracy",
     services: "Usługi",
     companies: "Znajdź firmę sprzątającą",
     myServices: "Moje usługi",
@@ -323,6 +335,10 @@ export default async function SiteHeader() {
                 {t.jobs}
               </Link>
 
+              <Link href="/lediga-jobb" prefetch={false} className={navLinkClass()}>
+                {t.vacancies}
+              </Link>
+
               <Link href="/companies" prefetch={false} className={navLinkClass()}>
                 {t.companies}
               </Link>
@@ -364,6 +380,7 @@ export default async function SiteHeader() {
                 <ProfileDropdown
                   profileLabel={t.profile}
                   dashboardLabel={t.dashboard}
+                  myVacanciesLabel={t.myVacancies}
                   myServicesLabel={t.myServices}
                   companyLeadsLabel={t.companyLeads}
                   companyCustomersLabel={t.companyCustomers}
@@ -417,6 +434,8 @@ export default async function SiteHeader() {
 
             <MobileHeaderMenu
               jobsLabel={t.jobs}
+              vacanciesLabel={t.vacancies}
+              myVacanciesLabel={t.myVacancies}
               companiesLabel={t.companies}
               dashboardLabel={t.dashboard}
               myBookingsLabel={t.myBookings}
