@@ -187,35 +187,31 @@ export function shouldIncludeSwedishSeoEnginePage(
 }
 
 /**
- * Keep build-time pre-generation focused on priority Swedish pages.
- * All other valid combinations remain available through dynamic routing,
- * are indexable, and are included in the sitemap.
+ * Pre-generate the complete Swedish city x service matrix at build time.
+ *
+ * This restores the original large static build without changing the current
+ * canonical/indexing policy. Swedish combinations that have a cleaner landing
+ * URL are still handled by the route-level permanent redirect and are not
+ * submitted as duplicate /seo/... URLs in the sitemap.
  */
 export function getSwedishSeoStaticParams(
   cities: SeoCity[],
   services: SeoService[],
 ) {
-  return cities.flatMap((city) => {
-    if (!priorityCities.has(city.slug)) {
-      return []
-    }
-
-    return services
-      .filter(
-        (service) =>
-          priorityServices.has(service.slug) &&
-          shouldIncludeSwedishSeoEnginePage(city.slug, service.slug),
-      )
-      .map((service) => ({
-        city: city.slug,
-        service: service.slug,
-      }))
-  })
+  return cities.flatMap((city) =>
+    services.map((service) => ({
+      city: city.slug,
+      service: service.slug,
+    })),
+  )
 }
 
 /**
- * Keep build-time pre-generation focused on priority localized pages.
- * The rest of the 29k matrix is rendered on demand and remains indexable.
+ * Pre-generate the complete localized matrix at build time.
+ *
+ * 4 localized routes + the Swedish route above = the full 5-language
+ * 290 municipalities x 20 services matrix (29,000 route params).
+ * Metadata, canonical URLs, hreflang and sitemap behavior stay unchanged.
  */
 export function getLocalizedSeoStaticParams({
   locales,
@@ -227,20 +223,12 @@ export function getLocalizedSeoStaticParams({
   services: SeoService[]
 }) {
   return locales.flatMap((seoSlug) =>
-    cities.flatMap((city) => {
-      if (!landingCities.has(city.slug)) {
-        return []
-      }
-
-      return services
-        .filter((service) =>
-          localizedPriorityServices.has(service.slug),
-        )
-        .map((service) => ({
-          seoSlug,
-          city: city.slug,
-          service: service.slug,
-        }))
-    }),
+    cities.flatMap((city) =>
+      services.map((service) => ({
+        seoSlug,
+        city: city.slug,
+        service: service.slug,
+      })),
+    ),
   )
 }
