@@ -7,17 +7,26 @@ import {
   type ManualOutreachState,
 } from "@/app/admin/email/actions"
 
-const DEFAULT_SUBJECT = "Få fler städuppdrag med Clean Jobs"
+const DEFAULT_SUBJECT = "Få fler kunder och hitta personal med Clean Jobs"
 
 const DEFAULT_MESSAGE = `Hej!
 
-Jag såg er annons om städning och vill därför tipsa om Clean Jobs.
+Jag såg er annons inom städning och vill därför tipsa om Clean Jobs – en svensk plattform för städbranschen.
 
-Clean Jobs är en svensk plattform där privatpersoner och företag kan publicera städuppdrag och hitta städföretag i hela Sverige.
+På Clean Jobs kan ni:
 
-Ni kan registrera ert företag kostnadsfritt och synas för kunder som aktivt söker städtjänster.
+• registrera ert städföretag och bli synliga för kunder i hela Sverige
+• hitta nya städuppdrag från privatpersoner och företag
+• publicera lediga jobb när ni söker personal
+• hitta personer som aktivt söker arbete inom städning
 
-Läs mer på https://cleansjob.com
+Det är kostnadsfritt att komma igång.
+
+Besök Clean Jobs:
+https://cleansjob.com
+
+Lediga jobb och jobbsökande:
+https://cleansjob.com/lediga-jobb
 
 Vänliga hälsningar,
 Clean Jobs`
@@ -83,7 +92,9 @@ export default function OutreachEmailForm() {
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-800">Subject *</span>
+            <span className="text-sm font-semibold text-slate-800">
+              Subject *
+            </span>
             <input
               type="text"
               name="subject"
@@ -96,13 +107,15 @@ export default function OutreachEmailForm() {
           </label>
 
           <label className="block">
-            <span className="text-sm font-semibold text-slate-800">Message *</span>
+            <span className="text-sm font-semibold text-slate-800">
+              Message *
+            </span>
             <textarea
               name="message"
               required
               minLength={20}
               maxLength={8000}
-              rows={15}
+              rows={17}
               value={message}
               onChange={(event) => setMessage(event.target.value)}
               className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-950 outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
@@ -134,11 +147,14 @@ export default function OutreachEmailForm() {
             <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
               <div className="font-bold">⚠️ Already contacted</div>
               <p className="mt-1">{state.message}</p>
+
               <div className="mt-3 text-xs leading-5 text-amber-800">
                 Last send: {formatDate(state.previousSentAt)}
                 <br />
                 {state.previousSubject || "Previous Clean Jobs email"}
-                {state.previousSource === "company_invite" ? " · company invite" : ""}
+                {state.previousSource === "company_invite"
+                  ? " · company invite"
+                  : ""}
               </div>
 
               <button
@@ -177,6 +193,7 @@ export default function OutreachEmailForm() {
             <div className="text-xs font-bold uppercase tracking-[0.14em] text-rose-700">
               Clean Jobs
             </div>
+
             <div className="mt-1 text-xs text-slate-500">
               Sveriges marknadsplats för städtjänster
             </div>
@@ -184,7 +201,10 @@ export default function OutreachEmailForm() {
 
           <div className="px-6 py-6">
             <div className="mb-5 border-b border-slate-100 pb-4">
-              <div className="text-xs font-semibold uppercase text-slate-400">Subject</div>
+              <div className="text-xs font-semibold uppercase text-slate-400">
+                Subject
+              </div>
+
               <div className="mt-1 text-sm font-bold text-slate-900">
                 {subject || "—"}
               </div>
@@ -193,17 +213,23 @@ export default function OutreachEmailForm() {
             <div className="space-y-4 text-sm leading-6 text-slate-700">
               {previewParagraphs.length > 0 ? (
                 previewParagraphs.map((paragraph, index) => (
-                  <p key={`${paragraph.slice(0, 20)}-${index}`} className="whitespace-pre-line">
+                  <p
+                    key={`${paragraph.slice(0, 20)}-${index}`}
+                    className="whitespace-pre-line"
+                  >
                     {paragraph}
                   </p>
                 ))
               ) : (
-                <p className="text-slate-400">Your message preview will appear here.</p>
+                <p className="text-slate-400">
+                  Your message preview will appear here.
+                </p>
               )}
             </div>
 
             <div className="mt-7 border-t border-slate-100 pt-4 text-xs leading-5 text-slate-400">
-              The real email automatically includes the Clean Jobs unsubscribe link and support contact.
+              The real email automatically includes the Clean Jobs unsubscribe
+              link and support contact.
             </div>
           </div>
         </div>
