@@ -14,7 +14,8 @@ export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Jobbmarknad för städning i Sverige",
-  description: "Hitta lediga städjobb eller personer som söker arbete inom städning och lokalvård i Sverige på Clean Jobs.",
+  description:
+    "Hitta lediga städjobb eller personer som söker arbete inom städning och lokalvård i Sverige på Clean Jobs.",
   alternates: { canonical: "/lediga-jobb" },
 }
 
@@ -29,7 +30,9 @@ function cityHref(type: string, city?: string) {
 export default async function VacanciesPage({ searchParams }: Props) {
   const store = await cookies()
   const locale = normalizeLocale(store.get("clean_jobs_locale")?.value) as Locale
-  const t = getVacancyDictionary(locale).list
+  const dictionary = getVacancyDictionary(locale)
+  const t = dictionary.list
+  const detailT = dictionary.detail
   const { city = "", type } = await searchParams
   const selectedCity = city.trim()
   const listingType = listingTypeFromQuery(type)
@@ -37,11 +40,15 @@ export default async function VacanciesPage({ searchParams }: Props) {
   const queryType = isOffer ? "offering" : "seeking"
 
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   let query = supabase
     .from("vacancies")
-    .select("id,slug,listing_type,title,company_name,person_name,city,schedule,salary,created_at")
+    .select(
+      "id,slug,listing_type,title,company_name,person_name,city,description,schedule,salary,requirements,created_at",
+    )
     .eq("status", "active")
     .eq("listing_type", listingType)
     .order("created_at", { ascending: false })
@@ -71,26 +78,53 @@ export default async function VacanciesPage({ searchParams }: Props) {
   return (
     <main className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
       <section className="rounded-[32px] bg-slate-950 p-7 text-white md:p-10">
-        <p className="text-sm font-bold uppercase tracking-[0.18em] text-rose-300">{t.eyebrow}</p>
+        <p className="text-sm font-bold uppercase tracking-[0.18em] text-rose-300">
+          {t.eyebrow}
+        </p>
         <div className="mt-3 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
-            <h1 className="text-3xl font-black tracking-tight md:text-5xl">{t.title}</h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">{t.subtitle}</p>
+            <h1 className="text-3xl font-black tracking-tight md:text-5xl">
+              {t.title}
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
+              {t.subtitle}
+            </p>
           </div>
-          <Link href={`/lediga-jobb/create?type=${queryType}`} className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-500">
+          <Link
+            href={`/lediga-jobb/create?type=${queryType}`}
+            className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-500"
+          >
             {isOffer ? t.addOffer : t.addSeeker}
           </Link>
         </div>
       </section>
 
       <section className="mt-6 grid gap-3 md:grid-cols-2">
-        <Link href={offeringHref} className={`rounded-[24px] border p-5 transition ${isOffer ? "border-rose-300 bg-rose-50 shadow-sm" : "border-slate-200 bg-white hover:border-rose-200"}`}>
+        <Link
+          href={offeringHref}
+          className={`rounded-[24px] border p-5 transition ${
+            isOffer
+              ? "border-rose-300 bg-rose-50 shadow-sm"
+              : "border-slate-200 bg-white hover:border-rose-200"
+          }`}
+        >
           <div className="font-black text-slate-950">{t.offerTab}</div>
-          <p className="mt-1 text-sm leading-6 text-slate-600">{t.offerTabDescription}</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            {t.offerTabDescription}
+          </p>
         </Link>
-        <Link href={seekingHref} className={`rounded-[24px] border p-5 transition ${!isOffer ? "border-rose-300 bg-rose-50 shadow-sm" : "border-slate-200 bg-white hover:border-rose-200"}`}>
+        <Link
+          href={seekingHref}
+          className={`rounded-[24px] border p-5 transition ${
+            !isOffer
+              ? "border-rose-300 bg-rose-50 shadow-sm"
+              : "border-slate-200 bg-white hover:border-rose-200"
+          }`}
+        >
           <div className="font-black text-slate-950">{t.seekerTab}</div>
-          <p className="mt-1 text-sm leading-6 text-slate-600">{t.seekerTabDescription}</p>
+          <p className="mt-1 text-sm leading-6 text-slate-600">
+            {t.seekerTabDescription}
+          </p>
         </Link>
       </section>
 
@@ -109,62 +143,162 @@ export default async function VacanciesPage({ searchParams }: Props) {
               className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm text-slate-950 outline-none transition focus:border-rose-400 focus:ring-4 focus:ring-rose-100"
             />
             <datalist id="vacancy-city-filter-options">
-              {cities.map((item) => <option key={item} value={item} />)}
+              {cities.map((item) => (
+                <option key={item} value={item} />
+              ))}
             </datalist>
           </label>
-          <button className="min-h-12 rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800">{t.show}</button>
+          <button className="min-h-12 rounded-2xl bg-slate-950 px-5 text-sm font-semibold text-white transition hover:bg-slate-800">
+            {t.show}
+          </button>
           {selectedCity ? (
-            <Link href={cityHref(queryType)} className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50">{t.clear}</Link>
+            <Link
+              href={cityHref(queryType)}
+              className="inline-flex min-h-12 items-center justify-center rounded-2xl border border-slate-300 px-5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+            >
+              {t.clear}
+            </Link>
           ) : null}
         </form>
 
         <div className="mt-5 border-t border-slate-100 pt-4">
-          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">{t.popularCities}</p>
+          <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-500">
+            {t.popularCities}
+          </p>
           <div className="mt-3 flex flex-wrap gap-2">
             <Link
               href={cityHref(queryType)}
-              className={`rounded-full border px-3.5 py-2 text-sm font-semibold transition ${!selectedCity ? "border-slate-950 bg-slate-950 text-white" : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"}`}
+              className={`rounded-full border px-3.5 py-2 text-sm font-semibold transition ${
+                !selectedCity
+                  ? "border-slate-950 bg-slate-950 text-white"
+                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
+              }`}
             >
               {t.allCities}
             </Link>
             {vacancyPopularCities.map((item) => {
-              const selected = selectedCity.toLocaleLowerCase("sv-SE") === item.toLocaleLowerCase("sv-SE")
+              const selected =
+                selectedCity.toLocaleLowerCase("sv-SE") ===
+                item.toLocaleLowerCase("sv-SE")
               const hasListings = activeCities.has(item.toLocaleLowerCase("sv-SE"))
+
               return (
                 <Link
                   key={item}
                   href={cityHref(queryType, item)}
-                  className={`rounded-full border px-3.5 py-2 text-sm font-semibold transition ${selected ? "border-rose-600 bg-rose-600 text-white" : hasListings ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-300" : "border-slate-200 bg-white text-slate-700 hover:border-rose-200"}`}
+                  className={`rounded-full border px-3.5 py-2 text-sm font-semibold transition ${
+                    selected
+                      ? "border-rose-600 bg-rose-600 text-white"
+                      : hasListings
+                        ? "border-emerald-200 bg-emerald-50 text-emerald-800 hover:border-emerald-300"
+                        : "border-slate-200 bg-white text-slate-700 hover:border-rose-200"
+                  }`}
                 >
                   {item}
                 </Link>
               )
             })}
           </div>
-          <p className="mt-3 text-xs leading-5 text-slate-500">{t.cityFilterHint}</p>
+          <p className="mt-3 text-xs leading-5 text-slate-500">
+            {t.cityFilterHint}
+          </p>
         </div>
       </section>
 
-      <section className="mt-7 space-y-4">
+      <section className="mt-7 space-y-5">
         {(vacancies || []).length === 0 ? (
-          <div className="rounded-[28px] border border-slate-200 bg-white p-8 text-center text-slate-600">{isOffer ? t.emptyOffer : t.emptySeeker}</div>
-        ) : (vacancies || []).map((vacancy) => {
-          const identity = vacancy.listing_type === "job_seeker" ? vacancy.person_name : vacancy.company_name
-          return (
-            <Link key={vacancy.id} href={user ? `/lediga-jobb/${vacancy.slug}` : `/login?next=${encodeURIComponent(`/lediga-jobb/${vacancy.slug}`)}`} className="block rounded-[28px] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-rose-200 hover:shadow-md">
-              <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                <div>
-                  <span className="inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-700">{vacancy.listing_type === "job_seeker" ? t.seekerBadge : t.offerBadge}</span>
-                  {identity ? <p className="mt-3 text-sm font-bold text-rose-700">{identity}</p> : null}
-                  <h2 className="mt-1 text-xl font-black text-slate-950 md:text-2xl">{vacancy.title}</h2>
-                  <p className="mt-2 text-sm text-slate-600">📍 {vacancy.city}{vacancy.schedule ? ` · ${vacancy.schedule}` : ""}</p>
-                  <p className="mt-2 text-xs font-medium text-slate-500">🕒 {t.published}: {formatVacancyCreatedAt(vacancy.created_at, locale)}</p>
-                </div>
-                {vacancy.salary ? <span className="w-fit rounded-full bg-emerald-50 px-3 py-1.5 text-sm font-semibold text-emerald-800">{formatVacancySalary(vacancy.salary, locale)}</span> : null}
-              </div>
-            </Link>
-          )
-        })}
+          <div className="rounded-[28px] border border-slate-200 bg-white p-8 text-center text-slate-600">
+            {isOffer ? t.emptyOffer : t.emptySeeker}
+          </div>
+        ) : (
+          (vacancies || []).map((vacancy) => {
+            const isSeeker = vacancy.listing_type === "job_seeker"
+            const identity = isSeeker
+              ? vacancy.person_name
+              : vacancy.company_name
+            const href = user
+              ? `/lediga-jobb/${vacancy.slug}`
+              : `/login?next=${encodeURIComponent(`/lediga-jobb/${vacancy.slug}`)}`
+
+            return (
+              <article
+                key={vacancy.id}
+                className="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition hover:border-rose-200 hover:shadow-md"
+              >
+                <Link href={href} className="block p-5 md:p-7">
+                  <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 sm:flex-row sm:items-start sm:justify-between">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`inline-flex rounded-full px-3 py-1 text-xs font-bold ${
+                            isSeeker
+                              ? "bg-sky-50 text-sky-800"
+                              : "bg-rose-50 text-rose-800"
+                          }`}
+                        >
+                          {isSeeker ? t.seekerBadge : t.offerBadge}
+                        </span>
+                        <span className="text-xs font-medium text-slate-500">
+                          🕒 {t.published}: {formatVacancyCreatedAt(vacancy.created_at, locale)}
+                        </span>
+                      </div>
+
+                      <h2 className="mt-4 text-2xl font-black leading-tight text-slate-950 md:text-3xl">
+                        {vacancy.title}
+                      </h2>
+
+                      {identity ? (
+                        <p className="mt-2 text-sm font-bold text-rose-700">
+                          {identity}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    {vacancy.salary ? (
+                      <span className="w-fit shrink-0 rounded-full bg-emerald-50 px-3.5 py-2 text-sm font-bold text-emerald-800">
+                        {formatVacancySalary(vacancy.salary, locale)}
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-slate-600">
+                    <span>📍 {vacancy.city}</span>
+                    {vacancy.schedule ? <span>🗓️ {vacancy.schedule}</span> : null}
+                  </div>
+
+                  <div className="mt-6">
+                    <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                      {isSeeker ? detailT.aboutSeeker : detailT.aboutOffer}
+                    </p>
+                    <p className="mt-3 whitespace-pre-wrap text-[15px] leading-7 text-slate-700 md:text-base md:leading-8">
+                      {vacancy.description}
+                    </p>
+                  </div>
+
+                  {vacancy.requirements ? (
+                    <div className="mt-6 border-t border-slate-100 pt-5">
+                      <p className="text-xs font-bold uppercase tracking-[0.12em] text-slate-400">
+                        {isSeeker
+                          ? detailT.requirementsSeeker
+                          : detailT.requirementsOffer}
+                      </p>
+                      <p className="mt-3 whitespace-pre-wrap text-sm leading-7 text-slate-600 md:text-[15px]">
+                        {vacancy.requirements}
+                      </p>
+                    </div>
+                  ) : null}
+
+                  <div className="mt-6 flex items-center justify-between gap-4 border-t border-slate-100 pt-4">
+                    <p className="text-xs text-slate-500">
+                      {identity ? `${identity} · ` : ""}{vacancy.city}
+                    </p>
+                    <span className="text-sm font-bold text-rose-700">→</span>
+                  </div>
+                </Link>
+              </article>
+            )
+          })
+        )}
       </section>
     </main>
   )
