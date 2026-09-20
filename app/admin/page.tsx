@@ -235,6 +235,13 @@ export default async function AdminPage({
   Company leads
 </Link>
 <Link
+  href="/admin/email"
+  prefetch={false}
+  className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-emerald-300 bg-emerald-50 px-5 py-3 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 active:scale-[0.97]"
+>
+  Email sender
+</Link>
+<Link
   href="/admin/customer-leads"
   prefetch={false}
   className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-rose-300 bg-rose-50 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 active:scale-[0.97]"
