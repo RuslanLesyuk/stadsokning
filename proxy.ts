@@ -51,6 +51,68 @@ function cleanPathname(pathname: string) {
   return pathname.replace(/\/+$/, "") || "/"
 }
 
+/*
+ * Old versions of Clean Jobs exposed some normal pages with a locale prefix:
+ *
+ * /ru/companies/company-slug
+ * /uk/companies/company-slug
+ * /pl/services/city/botkyrka
+ * /pl/flyttstadning-goteborg
+ *
+ * Those routes no longer exist. Google can still have them in its index,
+ * so permanently redirect them to the current canonical URL.
+ *
+ * IMPORTANT:
+ * /en/seo/...
+ * /uk/seo/...
+ * /ru/seo/...
+ * /pl/seo/...
+ *
+ * are current valid SEO routes and MUST NOT be redirected.
+ */
+function getLegacyLocaleRedirectPath(pathname: string) {
+  const cleanPath = cleanPathname(pathname)
+
+  const match = cleanPath.match(
+    /^\/(en|uk|ru|pl)(\/.*)$/,
+  )
+
+  if (!match) {
+    return null
+  }
+
+  const unprefixedPath = match[2]
+
+  // Current localized SEO URLs are valid.
+  if (/^\/seo\/[^/]+\/[^/]+$/.test(unprefixedPath)) {
+    return null
+  }
+
+  // Old localized company URLs.
+  if (
+    unprefixedPath === "/companies" ||
+    unprefixedPath.startsWith("/companies/")
+  ) {
+    return unprefixedPath
+  }
+
+  // Old localized service/profile/city URLs.
+  if (
+    unprefixedPath === "/services" ||
+    unprefixedPath.startsWith("/services/")
+  ) {
+    return unprefixedPath
+  }
+
+  // Old localized clean Swedish landing URL:
+  // /pl/flyttstadning-goteborg -> /flyttstadning-goteborg
+  if (SWEDISH_LANDING_PATHS.has(unprefixedPath)) {
+    return unprefixedPath
+  }
+
+  return null
+}
+
 function getForcedSeoLocale(pathname: string): Locale | null {
   const cleanPath = cleanPathname(pathname)
 
@@ -93,6 +155,26 @@ function isLocaleEncodedSeoPath(pathname: string) {
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
+  /*
+   * Recover legacy localized URLs that Google may still crawl.
+   */
+  const legacyRedirectPath =
+    getLegacyLocaleRedirectPath(pathname)
+
+  if (legacyRedirectPath) {
+    const redirectUrl = request.nextUrl.clone()
+
+    redirectUrl.pathname = legacyRedirectPath
+
+    return NextResponse.redirect(redirectUrl, 308)
+  }
+
+  /*
+   * Swedish SEO engine URLs that have a preferred clean landing page:
+   *
+   * /seo/stockholm/hemstadning
+   * -> /hemstadning-stockholm
+   */
   const seoMatch = pathname.match(
     /^\/seo\/([^/]+)\/([^/]+)\/?$/,
   )
@@ -128,9 +210,7 @@ export async function proxy(request: NextRequest) {
    * an explicit language choice.
    *
    * Once a real user explicitly chooses a language, however, we respect
-   * clean_jobs_locale on those non-prefixed pages. This lets the global
-   * language switcher translate the page instead of immediately forcing
-   * it back to Swedish/English.
+   * clean_jobs_locale on those non-prefixed pages.
    */
   const forcedLocale = getForcedSeoLocale(pathname)
   const explicitLanguageSelected =
