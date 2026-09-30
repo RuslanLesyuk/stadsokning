@@ -8,7 +8,9 @@ import { seoCities } from "@/lib/seo/cities"
 import { seoServices } from "@/lib/seo/services"
 import type { SeoLocale } from "@/lib/seo/types"
 
-export const revalidate = 86400
+export const dynamic = "force-static"
+export const dynamicParams = false
+export const revalidate = false
 
 type PageProps = {
   params: Promise<{
