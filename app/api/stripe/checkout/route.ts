@@ -29,6 +29,12 @@ export async function POST(request: Request) {
       return NextResponse.redirect(new URL("/login?next=/billing", siteUrl), 303)
     }
 
+    const access = await getBillingAccessForUser(user.id)
+
+    if (access.isPremiumFreeForAll) {
+      return NextResponse.redirect(new URL("/billing", siteUrl), 303)
+    }
+
     const formData = await request.formData()
     const checkoutType = String(formData.get("type") || "")
     const interval = String(formData.get("interval") || "")
@@ -56,7 +62,6 @@ export async function POST(request: Request) {
       )
     }
 
-    const access = await getBillingAccessForUser(user.id)
     const blockingStatuses = new Set([
       "active",
       "trialing",

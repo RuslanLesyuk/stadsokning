@@ -41,6 +41,7 @@ export type BillingSubscriptionRow = {
 export type BillingAccess = {
   userId: string
   isPremium: boolean
+  isPremiumFreeForAll: boolean
   source: PremiumSource
   status: BillingSubscriptionStatus | null
   interval: BillingInterval

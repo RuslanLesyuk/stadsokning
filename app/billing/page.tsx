@@ -21,6 +21,14 @@ type PageProps = {
   searchParams: Promise<{ error?: string }>
 }
 
+const launchFreeCopy: Record<Locale, string> = {
+  sv: "Alla Premium-funktioner är gratis under lanseringsperioden.",
+  en: "All Premium features are free during the launch period.",
+  uk: "Усі Premium-функції безкоштовні на період запуску.",
+  ru: "Все Premium-функции бесплатны на период запуска.",
+  pl: "Wszystkie funkcje Premium są bezpłatne w okresie startowym.",
+}
+
 function formatMoney(amount: number | null, currency: string, locale: Locale) {
   if (amount === null) return null
   const locales: Record<Locale, string> = {
@@ -67,20 +75,25 @@ export default async function BillingPage({ searchParams }: PageProps) {
 
   if (!user) redirect("/login?next=/billing")
 
-  const [access, monthlyResult, yearlyResult] = await Promise.all([
-    getBillingAccessForUser(user.id),
-    getPremiumPricePresentation("monthly").catch((error) => {
-      console.error("Load monthly Premium price error:", error)
-      return null
-    }),
-    getPremiumPricePresentation("yearly").catch((error) => {
-      console.error("Load yearly Premium price error:", error)
-      return null
-    }),
-  ])
+  const access = await getBillingAccessForUser(user.id)
 
-  const statusText = access.isInGracePeriod
-    ? t.grace
+  const [monthlyResult, yearlyResult] = access.isPremiumFreeForAll
+    ? [null, null]
+    : await Promise.all([
+        getPremiumPricePresentation("monthly").catch((error) => {
+          console.error("Load monthly Premium price error:", error)
+          return null
+        }),
+        getPremiumPricePresentation("yearly").catch((error) => {
+          console.error("Load yearly Premium price error:", error)
+          return null
+        }),
+      ])
+
+  const statusText = access.isPremiumFreeForAll
+    ? launchFreeCopy[locale]
+    : access.isInGracePeriod
+      ? t.grace
     : access.source === "admin"
       ? t.managedByAdmin
       : access.source === "legacy"
@@ -92,11 +105,14 @@ export default async function BillingPage({ searchParams }: PageProps) {
   const canOpenPortal = Boolean(access.customerId)
   const hasStripeSubscription = Boolean(access.subscriptionId)
   const canStartSubscription =
-    !hasStripeSubscription ||
-    access.status === "canceled" ||
-    access.status === "incomplete_expired" ||
-    access.status === "inactive" ||
-    (access.status === "legacy" && !access.isPremium)
+    !access.isPremiumFreeForAll &&
+    (
+      !hasStripeSubscription ||
+      access.status === "canceled" ||
+      access.status === "incomplete_expired" ||
+      access.status === "inactive" ||
+      (access.status === "legacy" && !access.isPremium)
+    )
 
   return (
     <main className="min-h-screen bg-slate-50">

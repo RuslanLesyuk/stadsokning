@@ -11,6 +11,10 @@ import {
   type PremiumSource,
 } from "./types"
 
+type PlatformSettingRow = {
+  boolean_value: boolean | null
+}
+
 type ProfileBillingRow = {
   is_premium: boolean | null
   premium_source: PremiumSource | null
@@ -47,27 +51,39 @@ function status(value: string | null | undefined): BillingSubscriptionStatus | n
 export async function getBillingAccessForUser(userId: string): Promise<BillingAccess> {
   const admin = createAdminClient()
 
-  const [{ data: profileData, error: profileError }, { data: subscriptionData, error: subscriptionError }] =
-    await Promise.all([
-      admin
-        .from("profiles")
-        .select(
-          "is_premium, premium_source, premium_override_until, stripe_customer_id, stripe_subscription_id, stripe_subscription_status, stripe_price_id, stripe_billing_interval, subscription_ends_at, billing_grace_until",
-        )
-        .eq("id", userId)
-        .maybeSingle(),
-      admin
-        .from("billing_subscriptions")
-        .select("*")
-        .eq("user_id", userId)
-        .maybeSingle(),
-    ])
+  const [
+    { data: profileData, error: profileError },
+    { data: subscriptionData, error: subscriptionError },
+    { data: launchSettingData, error: launchSettingError },
+  ] = await Promise.all([
+    admin
+      .from("profiles")
+      .select(
+        "is_premium, premium_source, premium_override_until, stripe_customer_id, stripe_subscription_id, stripe_subscription_status, stripe_price_id, stripe_billing_interval, subscription_ends_at, billing_grace_until",
+      )
+      .eq("id", userId)
+      .maybeSingle(),
+    admin
+      .from("billing_subscriptions")
+      .select("*")
+      .eq("user_id", userId)
+      .maybeSingle(),
+    admin
+      .from("platform_settings")
+      .select("boolean_value")
+      .eq("key", "premium_free_for_all")
+      .maybeSingle(),
+  ])
 
   if (profileError) throw profileError
   if (subscriptionError) throw subscriptionError
+  if (launchSettingError) throw launchSettingError
 
   const profile = (profileData || null) as ProfileBillingRow | null
   const subscription = (subscriptionData || null) as BillingSubscriptionRow | null
+  const launchSetting =
+    (launchSettingData || null) as PlatformSettingRow | null
+  const premiumFreeForAll = Boolean(launchSetting?.boolean_value)
   const now = new Date()
 
   const overrideUntil = profile?.premium_override_until || null
@@ -94,7 +110,12 @@ export async function getBillingAccessForUser(userId: string): Promise<BillingAc
 
   return {
     userId,
-    isPremium: adminOverride || stripeEntitled || legacyEntitled,
+    isPremium:
+      premiumFreeForAll ||
+      adminOverride ||
+      stripeEntitled ||
+      legacyEntitled,
+    isPremiumFreeForAll: premiumFreeForAll,
     source,
     status: stripeStatus,
     interval: interval(subscription?.billing_interval || profile?.stripe_billing_interval),
