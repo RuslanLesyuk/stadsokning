@@ -29,6 +29,14 @@ type PageProps = {
   searchParams: Promise<{ company?: string }>
 }
 
+const createCompanyLabel: Record<Locale, string> = {
+  sv: "Skapa företag",
+  en: "Create company",
+  uk: "Створити компанію",
+  ru: "Создать компанию",
+  pl: "Utwórz firmę",
+}
+
 type OwnedCompany = {
   id: string
   name: string
@@ -563,13 +571,24 @@ export default async function CompanyDashboardPage({ searchParams }: PageProps) 
             </p>
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
-                href="/companies"
+                href="/companies/create"
+                prefetch={false}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl bg-rose-600 px-5 text-sm font-black text-white hover:bg-rose-700"
+              >
+                {createCompanyLabel[locale]}
+              </Link>
+
+              <Link
+                href="/companies"
+                prefetch={false}
+                className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50"
               >
                 {t.browseCompanies}
               </Link>
+
               <Link
                 href="/dashboard/company-claims"
+                prefetch={false}
                 className="inline-flex min-h-11 items-center justify-center rounded-xl border border-slate-300 bg-white px-5 text-sm font-black text-slate-700 hover:bg-slate-50"
               >
                 {t.claims}

@@ -90,6 +90,8 @@ type DashboardCopy = {
   company_workspace_description: string
   open_company_dashboard: string
   managed_companies: string
+  create_company: string
+  create_company_description: string
   posted_jobs: string
   taken_jobs: string
   history: string
@@ -160,6 +162,8 @@ const copy: Record<Locale, DashboardCopy> = {
     company_workspace_description: "Керуйте лідами, бронюваннями, сайтом і бізнес-показниками в одному місці.",
     open_company_dashboard: "Відкрити кабінет компанії",
     managed_companies: "Компаній під керуванням",
+    create_company: "Створити компанію",
+    create_company_description: "Додайте свою клінінгову компанію та отримайте простір для лідів, бронювань, клієнтів і сайту.",
     posted_jobs: "Мої активні оголошення",
     taken_jobs: "Роботи, які я виконую",
     history: "Історія",
@@ -228,6 +232,8 @@ const copy: Record<Locale, DashboardCopy> = {
     company_workspace_description: "Управляйте лидами, бронированиями, сайтом и бизнес-показателями в одном месте.",
     open_company_dashboard: "Открыть кабинет компании",
     managed_companies: "Компаний под управлением",
+    create_company: "Создать компанию",
+    create_company_description: "Добавьте свою клининговую компанию и получите пространство для лидов, бронирований, клиентов и сайта.",
     posted_jobs: "Мои активные объявления",
     taken_jobs: "Работы, которые я выполняю",
     history: "История",
@@ -296,6 +302,8 @@ const copy: Record<Locale, DashboardCopy> = {
     company_workspace_description: "Manage leads, bookings, website and business metrics from one place.",
     open_company_dashboard: "Open company dashboard",
     managed_companies: "Managed companies",
+    create_company: "Create company",
+    create_company_description: "Add your cleaning company and get a workspace for leads, bookings, customers and your website.",
     posted_jobs: "My active listings",
     taken_jobs: "Jobs I am working on",
     history: "History",
@@ -364,6 +372,8 @@ const copy: Record<Locale, DashboardCopy> = {
     company_workspace_description: "Hantera leads, bokningar, webbplats och affärsdata från en samlad arbetsyta.",
     open_company_dashboard: "Öppna företagsdashboard",
     managed_companies: "Företag du hanterar",
+    create_company: "Skapa företag",
+    create_company_description: "Lägg till ditt städföretag och få en arbetsyta för leads, bokningar, kunder och webbplats.",
     posted_jobs: "Mina aktiva annonser",
     taken_jobs: "Jobb jag arbetar med",
     history: "Historik",
@@ -432,6 +442,8 @@ const copy: Record<Locale, DashboardCopy> = {
     company_workspace_description: "Zarządzaj leadami, rezerwacjami, stroną i wynikami biznesu w jednym miejscu.",
     open_company_dashboard: "Otwórz panel firmy",
     managed_companies: "Zarządzane firmy",
+    create_company: "Utwórz firmę",
+    create_company_description: "Dodaj swoją firmę sprzątającą i uzyskaj przestrzeń do leadów, rezerwacji, klientów i strony internetowej.",
     posted_jobs: "Moje aktywne ogłoszenia",
     taken_jobs: "Prace, które wykonuję",
     history: "Historia",
@@ -1135,7 +1147,33 @@ export default async function DashboardPage() {
               </Link>
             </div>
           </section>
-        ) : null}
+        ) : (
+          <section className="mt-6 rounded-[32px] border border-rose-200 bg-gradient-to-br from-white via-white to-rose-50 p-5 shadow-[0_2px_12px_rgba(15,23,42,0.04)] md:p-6">
+            <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div className="inline-flex rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">
+                  🏢 {t.company_workspace}
+                </div>
+
+                <h2 className="mt-4 text-2xl font-semibold tracking-tight text-slate-950 md:text-3xl">
+                  {t.create_company}
+                </h2>
+
+                <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600">
+                  {t.create_company_description}
+                </p>
+              </div>
+
+              <Link
+                href="/companies/create"
+                prefetch={false}
+                className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-2xl bg-rose-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-rose-700 active:scale-[0.97]"
+              >
+                {t.create_company}
+              </Link>
+            </div>
+          </section>
+        )}
 
         <div className="mt-8 space-y-6">
           <JobsSection

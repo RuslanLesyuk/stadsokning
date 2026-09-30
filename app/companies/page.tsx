@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import Link from "next/link"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
@@ -28,6 +29,8 @@ type PageDictionary = {
   eyebrow: string
   title: string
   description: string
+  createCompany: string
+  createCompanyText: string
   companiesLabel: string
   verifiedLabel: string
   citiesLabel: string
@@ -61,6 +64,8 @@ const dictionaries: Record<Locale, PageDictionary> = {
     title: "Hitta städföretag i Sverige",
     description:
       "Sök bland städföretag, jämför företagsinformation och hitta en passande leverantör av städtjänster.",
+    createCompany: "Lägg till ditt företag",
+    createCompanyText: "Finns ditt städföretag inte i katalogen ännu? Skapa företagsprofilen kostnadsfritt.",
     companiesLabel: "Företag",
     verifiedLabel: "Verifierade",
     citiesLabel: "Städer",
@@ -77,6 +82,8 @@ const dictionaries: Record<Locale, PageDictionary> = {
     title: "Find cleaning companies in Sweden",
     description:
       "Search cleaning companies, compare business information and find a suitable cleaning service provider.",
+    createCompany: "Add your company",
+    createCompanyText: "Is your cleaning company not listed yet? Create the company profile for free.",
     companiesLabel: "Companies",
     verifiedLabel: "Verified",
     citiesLabel: "Cities",
@@ -93,6 +100,8 @@ const dictionaries: Record<Locale, PageDictionary> = {
     title: "Знайдіть клінінгову компанію у Швеції",
     description:
       "Шукайте клінінгові компанії, порівнюйте інформацію та знаходьте відповідного постачальника послуг прибирання.",
+    createCompany: "Додати свою компанію",
+    createCompanyText: "Вашої клінінгової компанії ще немає в каталозі? Створіть профіль компанії безкоштовно.",
     companiesLabel: "Компанії",
     verifiedLabel: "Перевірені",
     citiesLabel: "Міста",
@@ -109,6 +118,8 @@ const dictionaries: Record<Locale, PageDictionary> = {
     title: "Найдите клининговую компанию в Швеции",
     description:
       "Ищите клининговые компании, сравнивайте информацию и находите подходящего поставщика услуг уборки.",
+    createCompany: "Добавить свою компанию",
+    createCompanyText: "Вашей клининговой компании ещё нет в каталоге? Создайте профиль компании бесплатно.",
     companiesLabel: "Компании",
     verifiedLabel: "Проверенные",
     citiesLabel: "Города",
@@ -124,6 +135,8 @@ const dictionaries: Record<Locale, PageDictionary> = {
     eyebrow: "Katalog firm",
     title: "Znajdź firmę sprzątającą w Szwecji",
     description: "Wyszukuj firmy sprzątające, porównuj informacje i znajdź odpowiedniego usługodawcę.",
+    createCompany: "Dodaj swoją firmę",
+    createCompanyText: "Twojej firmy sprzątającej nie ma jeszcze w katalogu? Utwórz profil firmy bezpłatnie.",
     companiesLabel: "Firmy",
     verifiedLabel: "Zweryfikowane",
     citiesLabel: "Miasta",
@@ -297,6 +310,20 @@ export default async function CompaniesPage({ searchParams }: PageProps) {
             <p className="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-bold text-emerald-800">{dictionary.eyebrow}</p>
             <h1 className="mt-6 text-4xl font-black tracking-tight text-slate-950 sm:text-5xl lg:text-6xl">{dictionary.title}</h1>
             <p className="mt-6 max-w-2xl text-base leading-8 text-slate-600 sm:text-lg">{dictionary.description}</p>
+
+            <div className="mt-8 flex max-w-2xl flex-col gap-3 sm:flex-row sm:items-center">
+              <Link
+                href="/companies/create"
+                prefetch={false}
+                className="inline-flex min-h-12 shrink-0 items-center justify-center rounded-2xl bg-rose-600 px-6 text-sm font-black text-white shadow-sm transition hover:bg-rose-700 active:scale-[0.98]"
+              >
+                {dictionary.createCompany}
+              </Link>
+
+              <p className="text-sm leading-6 text-slate-500">
+                {dictionary.createCompanyText}
+              </p>
+            </div>
           </div>
 
           <div className="mt-10 grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-3">
