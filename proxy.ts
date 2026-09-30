@@ -12,7 +12,10 @@ import {
   LOCALE_COOKIE_NAME,
   type Locale,
 } from "@/lib/i18n"
-import { updateSession } from "@/lib/supabase-proxy"
+import {
+  updatePublicRequest,
+  updateSession,
+} from "@/lib/supabase-proxy"
 
 const LANGUAGE_SELECTED_COOKIE = "clean_jobs_language_selected"
 
@@ -316,6 +319,16 @@ export async function proxy(request: NextRequest) {
       LOCALE_COOKIE_NAME,
       forcedLocale,
     )
+  }
+
+  /*
+   * Mass SEO pages are public.
+   *
+   * Keep locale propagation and security headers, but never spend a
+   * Supabase Auth request on crawlers or anonymous SEO traffic.
+   */
+  if (isLocaleEncodedSeoPath(pathname)) {
+    return updatePublicRequest(request)
   }
 
   return updateSession(request)

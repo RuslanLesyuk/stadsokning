@@ -82,6 +82,40 @@ function applySecurityHeaders(response: NextResponse, request: NextRequest) {
   return response
 }
 
+export function updatePublicRequest(request: NextRequest) {
+  const currentPath = `${request.nextUrl.pathname}${request.nextUrl.search}`
+  const requestHeaders = new Headers(request.headers)
+  requestHeaders.set("x-current-path", currentPath)
+
+  const resolvedLocale = resolveRequestLocale(request)
+  const existingLocale = request.cookies.get(LOCALE_COOKIE_NAME)?.value
+  const localeChanged = existingLocale !== resolvedLocale
+
+  /*
+   * Public SEO requests still need the correct request-scoped locale so
+   * RootLayout, SiteHeader and the document language remain aligned with
+   * the canonical URL.
+   *
+   * Unlike updateSession(), this path performs no Supabase Auth request.
+   */
+  if (localeChanged) {
+    request.cookies.set(LOCALE_COOKIE_NAME, resolvedLocale)
+  }
+
+  const response = createBaseResponse(request, requestHeaders)
+
+  if (localeChanged) {
+    response.cookies.set(LOCALE_COOKIE_NAME, resolvedLocale, {
+      path: "/",
+      maxAge: LOCALE_COOKIE_MAX_AGE,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+    })
+  }
+
+  return applySecurityHeaders(response, request)
+}
+
 export async function updateSession(request: NextRequest) {
   const currentPath = `${request.nextUrl.pathname}${request.nextUrl.search}`
   const requestHeaders = new Headers(request.headers)
