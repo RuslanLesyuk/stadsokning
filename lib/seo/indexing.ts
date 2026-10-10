@@ -2,6 +2,13 @@ import { buildLocalizedSeoPath } from "./urls"
 
 import type { SeoCity, SeoLocale, SeoService } from "./types"
 
+/*
+ * Compatibility constants retained for newer parts of Clean Jobs.
+ *
+ * The SEO Engine itself now follows the original full-matrix model:
+ * every valid municipality x service x locale combination is indexable.
+ */
+
 export const SWEDISH_PRIORITY_CITY_SLUGS = [
   "stockholm",
   "goteborg",
@@ -76,8 +83,6 @@ export const LOCALIZED_PRIORITY_SERVICE_SLUGS = [
 
 const priorityCities = new Set<string>(SWEDISH_PRIORITY_CITY_SLUGS)
 const priorityServices = new Set<string>(SWEDISH_PRIORITY_SERVICE_SLUGS)
-const landingCities = new Set<string>(SWEDISH_LANDING_CITY_SLUGS)
-const landingServices = new Set<string>(SWEDISH_LANDING_SERVICE_SLUGS)
 const localizedPriorityServices = new Set<string>(
   LOCALIZED_PRIORITY_SERVICE_SLUGS,
 )
@@ -91,22 +96,27 @@ export function isSwedishPriorityService(serviceSlug: string) {
 }
 
 export function isLocalizedPriorityCity(citySlug: string) {
-  return landingCities.has(citySlug)
+  return SWEDISH_LANDING_CITY_SLUGS.includes(
+    citySlug as (typeof SWEDISH_LANDING_CITY_SLUGS)[number],
+  )
 }
 
 export function isLocalizedPriorityService(serviceSlug: string) {
   return localizedPriorityServices.has(serviceSlug)
 }
 
+/*
+ * Original SEO Engine behaviour.
+ *
+ * Swedish /seo/... URLs are real SEO pages again.
+ * Clean landing pages may continue to exist separately, but they no longer
+ * replace or redirect the original SEO Engine URLs.
+ */
 export function getSwedishSeoLandingPath(
-  citySlug: string,
-  serviceSlug: string,
+  _citySlug: string,
+  _serviceSlug: string,
 ) {
-  if (!landingCities.has(citySlug) || !landingServices.has(serviceSlug)) {
-    return null
-  }
-
-  return `/${serviceSlug}-${citySlug}`
+  return null
 }
 
 export function getPreferredSeoPath({
@@ -118,14 +128,6 @@ export function getPreferredSeoPath({
   city: string
   service: string
 }) {
-  if (locale === "sv") {
-    const landingPath = getSwedishSeoLandingPath(city, service)
-
-    if (landingPath) {
-      return landingPath
-    }
-  }
-
   return buildLocalizedSeoPath({
     locale,
     city,
@@ -133,14 +135,9 @@ export function getPreferredSeoPath({
   })
 }
 
-/**
- * Canonical index policy.
- *
- * Full SEO matrix is indexable again:
- * 290 municipalities x 20 services x 5 locales = 29,000 preferred URLs.
- *
- * Swedish combinations that have a cleaner landing URL keep that URL as
- * the preferred canonical. The matching /seo/... route still redirects.
+/*
+ * Full matrix:
+ * 290 municipalities x 20 services x 5 locales.
  */
 export function shouldIndexPreferredSeoPage(_params: {
   locale: SeoLocale
@@ -150,50 +147,21 @@ export function shouldIndexPreferredSeoPage(_params: {
   return true
 }
 
-/**
- * Controls the actual /seo route.
- *
- * A Swedish combination with a cleaner landing path is not indexable
- * at /seo/... because that route permanently redirects to the clean URL.
- */
-export function shouldIndexSeoEnginePage({
-  locale,
-  citySlug,
-  serviceSlug,
-}: {
+export function shouldIndexSeoEnginePage(_params: {
   locale: SeoLocale
   citySlug: string
   serviceSlug: string
 }) {
-  if (
-    locale === "sv" &&
-    getSwedishSeoLandingPath(citySlug, serviceSlug)
-  ) {
-    return false
-  }
-
-  return shouldIndexPreferredSeoPage({
-    locale,
-    citySlug,
-    serviceSlug,
-  })
+  return true
 }
 
 export function shouldIncludeSwedishSeoEnginePage(
-  citySlug: string,
-  serviceSlug: string,
+  _citySlug: string,
+  _serviceSlug: string,
 ) {
-  return !getSwedishSeoLandingPath(citySlug, serviceSlug)
+  return true
 }
 
-/**
- * Pre-generate the complete Swedish city x service matrix at build time.
- *
- * This restores the original large static build without changing the current
- * canonical/indexing policy. Swedish combinations that have a cleaner landing
- * URL are still handled by the route-level permanent redirect and are not
- * submitted as duplicate /seo/... URLs in the sitemap.
- */
 export function getSwedishSeoStaticParams(
   cities: SeoCity[],
   services: SeoService[],
@@ -206,13 +174,6 @@ export function getSwedishSeoStaticParams(
   )
 }
 
-/**
- * Pre-generate the complete localized matrix at build time.
- *
- * 4 localized routes + the Swedish route above = the full 5-language
- * 290 municipalities x 20 services matrix (29,000 route params).
- * Metadata, canonical URLs, hreflang and sitemap behavior stay unchanged.
- */
 export function getLocalizedSeoStaticParams({
   locales,
   cities,

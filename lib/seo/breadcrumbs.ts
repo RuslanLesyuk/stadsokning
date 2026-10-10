@@ -1,4 +1,3 @@
-
 import type { SeoCity, SeoLocale, SeoService } from "./types"
 
 import {
@@ -7,7 +6,7 @@ import {
   SEO_ORGANIZATION_NAME,
 } from "./constants"
 
-import { getPreferredSeoPath } from "./indexing"
+import { buildLocalizedSeoPath } from "./urls"
 
 type CreateSeoBreadcrumbsParams = {
   locale: SeoLocale
@@ -21,12 +20,12 @@ function getSeoName(item: SeoCity | SeoService, locale: SeoLocale) {
   }
 
   if (
-    "name" in item &&
-    item.name &&
-    typeof item.name === "object" &&
-    locale in item.name
+    "names" in item &&
+    item.names &&
+    typeof item.names === "object" &&
+    locale in item.names
   ) {
-    return item.name[locale as keyof typeof item.name] as string
+    return item.names[locale as keyof typeof item.names] as string
   }
 
   return item.slug
@@ -50,11 +49,15 @@ export function createSeoBreadcrumbs({
     },
     {
       name: cityName,
-      href: `/companies?city=${encodeURIComponent(city.name)}`,
+      href: buildLocalizedSeoPath({
+        locale,
+        city: city.slug,
+        service: service.slug,
+      }),
     },
     {
       name: serviceName,
-      href: getPreferredSeoPath({
+      href: buildLocalizedSeoPath({
         locale,
         city: city.slug,
         service: service.slug,

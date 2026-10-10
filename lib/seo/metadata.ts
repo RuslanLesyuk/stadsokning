@@ -3,19 +3,19 @@ import type { Metadata } from "next"
 import {
   SEO_DEFAULT_OG_IMAGE,
   SEO_DEFAULT_TWITTER_IMAGE,
+  SEO_ORGANIZATION_NAME,
+  SEO_ROBOTS_INDEX,
   SEO_SITE_NAME,
   SEO_SITE_URL,
-  SEO_SUPPORTED_LOCALES,
   SEO_TWITTER_CARD,
 } from "./constants"
 
 import {
-  getPreferredSeoPath,
-  shouldIndexPreferredSeoPage,
-  shouldIndexSeoEnginePage,
-} from "./indexing"
-
-import { buildAbsoluteUrl } from "./urls"
+  buildAbsoluteSeoUrl,
+  buildAbsoluteUrl,
+  buildSeoLanguageAlternates,
+  buildSeoXDefaultUrl,
+} from "./urls"
 
 import type { SeoCity, SeoLocale, SeoService } from "./types"
 
@@ -33,12 +33,12 @@ function getSeoName(item: SeoCity | SeoService, locale: SeoLocale) {
   }
 
   if (
-    "name" in item &&
-    item.name &&
-    typeof item.name === "object" &&
-    locale in item.name
+    "names" in item &&
+    item.names &&
+    typeof item.names === "object" &&
+    locale in item.names
   ) {
-    return item.name[locale as keyof typeof item.name] as string
+    return item.names[locale as keyof typeof item.names] as string
   }
 
   return item.slug
@@ -51,88 +51,48 @@ export function createSeoMetadata({
   title,
   description,
 }: CreateSeoMetadataInput): Metadata {
-  const canonical = buildAbsoluteUrl(
-    getPreferredSeoPath({
-      locale,
-      city: city.slug,
-      service: service.slug,
-    }),
-  )
-
-  const indexable = shouldIndexSeoEnginePage({
+  const canonical = buildAbsoluteSeoUrl({
     locale,
-    citySlug: city.slug,
-    serviceSlug: service.slug,
-  })
-
-  const languages = SEO_SUPPORTED_LOCALES.reduce(
-    (acc, alternateLocale) => {
-      if (
-        shouldIndexPreferredSeoPage({
-          locale: alternateLocale,
-          citySlug: city.slug,
-          serviceSlug: service.slug,
-        })
-      ) {
-        acc[alternateLocale] = buildAbsoluteUrl(
-          getPreferredSeoPath({
-            locale: alternateLocale,
-            city: city.slug,
-            service: service.slug,
-          }),
-        )
-      }
-
-      return acc
-    },
-    {} as Record<string, string>,
-  )
-
-  const swedishPreferredPath = getPreferredSeoPath({
-    locale: "sv",
     city: city.slug,
     service: service.slug,
   })
 
-  const xDefault = buildAbsoluteUrl(swedishPreferredPath)
+  const languageAlternates = buildSeoLanguageAlternates({
+    city: city.slug,
+    service: service.slug,
+  })
+
+  const xDefault = buildSeoXDefaultUrl({
+    city: city.slug,
+    service: service.slug,
+  })
 
   const cityName = getSeoName(city, locale)
   const serviceName = getSeoName(service, locale)
 
-  const absoluteTitle = `${title} | ${SEO_SITE_NAME}`
-
   const ogImageUrl = buildAbsoluteUrl(SEO_DEFAULT_OG_IMAGE)
   const twitterImageUrl = buildAbsoluteUrl(SEO_DEFAULT_TWITTER_IMAGE)
-
-  const alternates = indexable
-    ? {
-        canonical,
-        languages: {
-          ...languages,
-          "x-default": xDefault,
-        },
-      }
-    : {
-        canonical,
-      }
 
   return {
     metadataBase: new URL(SEO_SITE_URL),
 
-    title: {
-      absolute: absoluteTitle,
-    },
-
+    title,
     description,
 
     applicationName: SEO_SITE_NAME,
 
-    alternates,
+    alternates: {
+      canonical,
+      languages: {
+        ...languageAlternates,
+        "x-default": xDefault,
+      },
+    },
 
     openGraph: {
       type: "website",
       siteName: SEO_SITE_NAME,
-      title: absoluteTitle,
+      title,
       description,
       url: canonical,
       locale,
@@ -141,42 +101,27 @@ export function createSeoMetadata({
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: `${serviceName} – ${cityName}`,
+          alt: `${serviceName} in ${cityName} | ${SEO_SITE_NAME}`,
         },
       ],
     },
 
     twitter: {
       card: SEO_TWITTER_CARD,
-      title: absoluteTitle,
+      title,
       description,
       images: [twitterImageUrl],
     },
 
-    robots: indexable
-      ? {
-          index: true,
-          follow: true,
-          googleBot: {
-            index: true,
-            follow: true,
-            "max-snippet": -1,
-            "max-image-preview": "large",
-            "max-video-preview": -1,
-          },
-        }
-      : {
-          index: false,
-          follow: true,
-          googleBot: {
-            index: false,
-            follow: true,
-          },
-        },
+    robots: SEO_ROBOTS_INDEX,
 
-    category:
-      locale === "sv"
-        ? "Städtjänster"
-        : "Cleaning services",
+    category: "Cleaning services",
+
+    other: {
+      "og:site_name": SEO_SITE_NAME,
+      "og:locale": locale,
+      "business:contact_data:country_name": "Sweden",
+      "article:publisher": SEO_ORGANIZATION_NAME,
+    },
   }
 }
