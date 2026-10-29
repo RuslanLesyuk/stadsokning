@@ -1,0 +1,25 @@
+group,pair_id,url,city_slug,service_slug,impressions_before_2026-07-28_2026-08-17,impressions_after_2026-10-06_2026-10-26,avg_position_before,avg_position_after,note
+pilot,1,https://cleansjob.com/seo/stockholm/hotellstadning,stockholm,hotellstadning,114,15,16.15,68.93,Whitelisted pilot page
+control,1,https://cleansjob.com/seo/goteborg/hotellstadning,goteborg,hotellstadning,10,7,11.6,58.43,"Control baseline may differ; exploratory, not causal proof"
+pilot,2,https://cleansjob.com/seo/stockholm/industristadning,stockholm,industristadning,92,2,24.47,56.5,Whitelisted pilot page
+control,2,https://cleansjob.com/seo/karlstad/industristadning,karlstad,industristadning,98,0,42.59,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,3,https://cleansjob.com/seo/goteborg/garage-stadning,goteborg,garage-stadning,49,0,10.04,0,Whitelisted pilot page
+control,3,https://cleansjob.com/seo/ekero/garage-stadning,ekero,garage-stadning,30,0,13,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,4,https://cleansjob.com/seo/goteborg/restaurangstadning,goteborg,restaurangstadning,39,0,12.33,0,Whitelisted pilot page
+control,4,https://cleansjob.com/seo/stockholm/restaurangstadning,stockholm,restaurangstadning,3,0,12.67,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,5,https://cleansjob.com/seo/goteborg/skolstadning,goteborg,skolstadning,24,0,12.96,0,Whitelisted pilot page
+control,5,https://cleansjob.com/seo/uppsala/skolstadning,uppsala,skolstadning,16,0,12.56,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,6,https://cleansjob.com/seo/malmo/garage-stadning,malmo,garage-stadning,61,2,8.13,60.5,Whitelisted pilot page
+control,6,https://cleansjob.com/seo/solna/garage-stadning,solna,garage-stadning,19,0,8.58,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,7,https://cleansjob.com/seo/malmo/butiksstadning,malmo,butiksstadning,64,0,29.66,0,Whitelisted pilot page
+control,7,https://cleansjob.com/seo/eksjo/butiksstadning,eksjo,butiksstadning,5,0,28.6,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,8,https://cleansjob.com/seo/lund/garage-stadning,lund,garage-stadning,111,4,6.72,58.25,Whitelisted pilot page
+control,8,https://cleansjob.com/seo/huddinge/garage-stadning,huddinge,garage-stadning,18,0,9.22,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,9,https://cleansjob.com/seo/uppsala/garage-stadning,uppsala,garage-stadning,20,0,5.9,0,Whitelisted pilot page
+control,9,https://cleansjob.com/seo/sandviken/garage-stadning,sandviken,garage-stadning,18,0,3.11,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,10,https://cleansjob.com/seo/sodertalje/garage-stadning,sodertalje,garage-stadning,36,0,6.89,0,Whitelisted pilot page
+control,10,https://cleansjob.com/seo/kungsbacka/garage-stadning,kungsbacka,garage-stadning,13,0,6.31,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,11,https://cleansjob.com/seo/vasteras/garage-stadning,vasteras,garage-stadning,45,0,7.29,0,Whitelisted pilot page
+control,11,https://cleansjob.com/seo/dals-ed/garage-stadning,dals-ed,garage-stadning,17,0,10.71,0,"Control baseline may differ; exploratory, not causal proof"
+pilot,12,https://cleansjob.com/seo/goteborg/butiksstadning,goteborg,butiksstadning,50,0,17.44,0,Whitelisted pilot page
+control,12,https://cleansjob.com/seo/uppsala/butiksstadning,uppsala,butiksstadning,16,0,19.06,0,"Control baseline may differ; exploratory, not causal proof"

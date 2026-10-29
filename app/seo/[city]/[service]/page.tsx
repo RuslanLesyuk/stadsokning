@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation"
 
+import { SeoRecoveryPilot } from "@/components/seo-recovery-pilot"
 import { createSeoEngine } from "@/lib/seo/index"
+import { isSeoRecoveryPilotPage } from "@/lib/seo/recovery-pilot"
 import { SeoPage } from "@/lib/seo/page"
 import { seoCities } from "@/lib/seo/cities"
 import { seoServices } from "@/lib/seo/services"
@@ -55,5 +57,12 @@ export default async function SeoDynamicPage({ params }: PageProps) {
     notFound()
   }
 
-  return <SeoPage seo={seo} />
+  return (
+    <>
+      <SeoPage seo={seo} />
+      {isSeoRecoveryPilotPage(city, service) ? (
+        <SeoRecoveryPilot city={seo.city} service={seo.service} />
+      ) : null}
+    </>
+  )
 }
